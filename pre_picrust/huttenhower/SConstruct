@@ -1,0 +1,76 @@
+import imp
+import os
+import sys
+
+utils = imp.load_module("utils", *imp.find_module("utils", ["./src"]))
+
+c_strDirInput				= "input"
+c_strDirOutput				= "output"
+c_strURLTree				= "http://morgannprice.org/16S/403K/"
+c_strURLTaxa				= "http://greengenes.lbl.gov/Download/Taxonomic_Outlines/"
+
+c_strSuffixNWK				= ".nwk"
+c_strInputTaxdumpTXT		= utils.d( c_strDirInput, "taxdump.txt" )
+c_strInputGenomesPCL		= utils.d( c_strDirInput, "genomes_02-zro-flt.txt" )
+c_strFilePhyloIDsTXT		= utils.d( utils.c_strDirData, "ncbi_SeqDescByOTU_tax_outline.txt" )
+c_strFilePhyloNWK			= utils.d( utils.c_strDirData, "sel03n.masked.ft.rooted" )
+c_strFilePhyloFIR			= utils.d( c_strDirOutput, "phylo.fir" )
+c_strFilePhyloPreFIR		= utils.d( c_strDirOutput, "phylo_pre.fir" )
+c_strFilePhyloNCBIFIR		= utils.d( c_strDirOutput, "phylo_ncbi.fir" )
+c_strFileNCBIFIR			= utils.d( c_strDirOutput, "ncbi.fir" )
+c_strFilePhyloMapTXT		= utils.d( c_strDirOutput, "map_phylo_names.txt" )
+c_strFileGenomesTSV			= utils.d( c_strDirOutput, "genomes.tsv" )
+c_strFileGenomesPCL			= utils.d( c_strDirOutput, "genomes.pcl" )
+
+c_strProgNCBI2FIR			= utils.d( utils.c_strDirSrc, "ncbi2fir.py" )
+c_strProgNWK2FIR			= utils.d( utils.c_strDirSrc, "nwk2fir.py" )
+c_strProgNameFIR			= utils.d( utils.c_strDirSrc, "name_fir.py" )
+c_strProgOutline2Map		= utils.d( utils.c_strDirSrc, "outline2map.py" )
+c_strProgFIR2Genomes		= utils.d( utils.c_strDirSrc, "fir2genomes.py" )
+c_strProgTranspose			= utils.d( utils.c_strDirSrc, "transpose.py" )
+c_strProgMergeTrees			= utils.d( utils.c_strDirSrc, "merge_trees.py" )
+c_strProgTaxa2FIR			= utils.d( utils.c_strDirSrc, "taxa2fir.py" )
+
+c_strFIR					= "_fir"
+c_strKOs					= "_kos"
+c_strSuffixPCL				= ".pcl"
+
+pE = Environment( )
+pE.Decider( "MD5-timestamp" )
+
+#===============================================================================
+# Create NCBI-labeled phylogeny from GG
+#===============================================================================
+
+utils.download( pE, c_strURLTree + os.path.basename( c_strFilePhyloNWK ), c_strFilePhyloNWK )
+utils.download( pE, c_strURLTaxa + os.path.basename( c_strFilePhyloIDsTXT ), c_strFilePhyloIDsTXT )
+
+utils.cmd( pE, c_strProgNWK2FIR, c_strFilePhyloPreFIR, [[True, c_strFilePhyloNWK]] )
+utils.pipe( pE, c_strInputTaxdumpTXT, c_strProgNCBI2FIR, c_strFileNCBIFIR )
+
+utils.pipe( pE, c_strFilePhyloIDsTXT, c_strProgOutline2Map, c_strFilePhyloMapTXT )
+utils.pipe( pE, c_strFilePhyloMapTXT, c_strProgNameFIR, c_strFilePhyloFIR,
+	[[True, c_strFilePhyloPreFIR]] )
+
+utils.pipe( pE, c_strFilePhyloFIR, c_strProgMergeTrees, c_strFilePhyloNCBIFIR,
+	[[True, c_strFileNCBIFIR]] )
+
+#===============================================================================
+# Create KO table from phylogeny
+#===============================================================================
+
+utils.pipe( pE, c_strInputGenomesPCL, c_strProgTranspose, c_strFileGenomesTSV )
+utils.pipe( pE, c_strFileGenomesTSV, c_strProgFIR2Genomes, c_strFileGenomesPCL,
+	[[True, c_strFilePhyloNCBIFIR]] )
+
+#===============================================================================
+# Process input files
+#===============================================================================
+
+for strInputPCL in Glob( utils.d( c_strDirInput, "*" + c_strSuffixPCL ) ):
+	strFIRPCL = utils.d( c_strDirOutput, os.path.basename( str(strInputPCL) ) ).replace(
+		c_strSuffixPCL, c_strFIR + c_strSuffixPCL )
+	utils.pipe( pE, strInputPCL, c_strProgTaxa2FIR, strFIRPCL, [[True, c_strFilePhyloNCBIFIR]] )
+	strKOsPCL = strFIRPCL.replace( c_strFIR, c_strKOs )
+	utils.scmd( pE, "ANFunc", strKOsPCL, [[False, "-i"], [True, strInputPCL],
+		[False, "-I"], [True, c_strFileGenomesPCL], [False, "-f"], [True, strFIRPCL]] )
