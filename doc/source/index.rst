@@ -12,6 +12,8 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
+   
+   ./prepicrust/index
 
 Indices and tables
 ==================
