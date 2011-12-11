@@ -1,16 +1,22 @@
 #!/usr/bin/env perl
+#perldoc build_ref_16s.pl
 
 use warnings;
 use strict;
 use File::Basename;
 use Log::Log4perl;
 use Getopt::Long;
+use Pod::Usage;
 use Cwd 'abs_path';
 
-my $force;
-GetOptions("force"=>\$force);
+#Set up options
+my %opt=();
+GetOptions (\%opt,'Force','help') or pod2usage(2);
+pod2usage(-verbose=>2) if exists $opt{'help'};
 
 my $fasta_file =$ARGV[0];
+
+pod2usage($0.': You must provide a fasta file as input') if !defined($fasta_file)|| ! -e $fasta_file;
 
 my $abs_dir=dirname(abs_path($0)).'/';
 
@@ -73,7 +79,7 @@ if ($? != 0) {
 my $raxml_output_name="16s";
 my $raxml_tree_file = $tmp_dir .'RAxML_result.'.$raxml_output_name;
 my $raxml_stats_file = $tmp_dir.'RAxML_info.'.$raxml_output_name;
-if(-e $raxml_tree_file && ! $force){
+if(-e $raxml_tree_file && ! $opt{'Force'}){
     $logger->info("Skipping creation of RAxML tree since tree file already exists");
 }else{
     my $raxml_cmd="raxmlHPC -T 2 -m GTRGAMMA -w $tmp_dir -n $raxml_output_name -s $pynast_trimmed_alignment_phylip";
@@ -85,3 +91,46 @@ if(-e $raxml_tree_file && ! $force){
 	exit;
     }
 }
+
+__END__
+
+=head1 Name
+
+build_ref_16s.pl - Creates a reference 16S phylogenetic tree from a set of 16S sequences 
+
+=head1 USAGE
+
+build_ref_16s.pl [OPTIONS] <16S_FASTA_FILE>
+
+E.g.:
+
+build_ref_16s.pl 16s_seqs_in_seed.fa
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-F, --Force>
+
+Forces all steps of tree constuction even if output files already exist. 
+
+=item B<-h, --help>
+
+Displays the entire help documentation.
+
+=back
+
+=head1 DESCRIPTION
+
+B<build_ref_16S.pl> starts by aligning the 16S sequences to the green genes reference alignment using pynast. Then the lane mask is applied to the alignment to remove "bad" columns. The alignment is then converted from FASTA format to phylip format so that it can be used as input for RAxML tree construction.
+
+=head1 AUTHOR
+
+Morgan Langille, E<lt>morgan.g.i.langille@gmail.comE<gt>
+
+=head1 DATE
+
+08-Dec-2011
+
+=cut
+

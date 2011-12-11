@@ -29,7 +29,6 @@ my @read_ids=<$READS>;
 chomp(@read_ids);
 
 
-
 #Get a list of all PFAM ids
 my %pfam_id_uniq;
 foreach my $gp_id(keys %{$genome_counts}){

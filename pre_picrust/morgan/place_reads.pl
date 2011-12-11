@@ -1,16 +1,22 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+#perldoc place_reads.pl
 
 use warnings;
 use strict;
 use File::Basename;
 use Getopt::Long;
 use Log::Log4perl;
+use Pod::Usage;
 use Cwd 'abs_path';
 
-my($ref_tree,$help);
-GetOptions ("ref_tree=s" => \$ref_tree,"help"=>\$help);
+#Set up options
+my %opt=();
+GetOptions (\%opt,'ref_tree=s','Force','help') or pod2usage(2);
+pod2usage(-verbose=>2) if exists $opt{'help'};
 
 my $fasta_file =$ARGV[0];
+
+pod2usage($0.': You must provide a fasta file as input') if !defined($fasta_file)|| -e $fasta_file;
 
 my $abs_dir=dirname(abs_path($0)).'/';
 
@@ -22,7 +28,7 @@ Log::Log4perl::init($logger_cfg);
 my $logger = Log::Log4perl->get_logger;
 
 
-my $ref_dir=$abs_dir."ref_trees/".$ref_tree.'/';
+my $ref_dir=$abs_dir."ref_trees/".$opt{'ref_tree'}.'/';
 my $raxml_tree_file = $ref_dir.'RAxML_result.16s_with_node_labels';
 my $raxml_stats_file= $ref_dir.'RAxML_info.16s';
 my $ref_alignment_file = $ref_dir.'pynast_trimmed_alignment.fa';
@@ -106,3 +112,50 @@ if ($? != 0) {
 	$logger->fatal("failed to execute: $!");
 	die;
 }
+
+__END__
+
+=head1 Name
+
+place_reads_.pl - Places a set of 16S metagenomic reads onto a reference tree
+
+=head1 USAGE
+
+place_reads.pl [OPTIONS] -r <reference_tree> <16S_FASTA_FILE>
+
+E.g.:
+
+place_reads.pl -r 16s_seqs_in_seed.fa meta_reads.fa
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-r, --ref_tree (REQUIRED)>
+
+Specify reference tree to place the reads onto. Note this is just the directory name within (ref_trees).
+
+=item B<-F, --Force>
+
+Forces all steps even if output files already exist (off by default) 
+
+=item B<-h, --help>
+
+Displays the entire help documentation.
+
+=back
+
+=head1 DESCRIPTION
+
+B<place_reads.pl> starts by aligning the 16S sequences to the green genes reference alignment using pynast. Then the lane mask is applied to the alignment to remove "bad" columns. The reads are then placed onto the reference tree using pplacer with the read alignment, reference alignment, and reference tree as input.
+
+=head1 AUTHOR
+
+Morgan Langille, E<lt>morgan.g.i.langille@gmail.comE<gt>
+
+=head1 DATE
+
+08-Dec-2011
+
+=cut
+
