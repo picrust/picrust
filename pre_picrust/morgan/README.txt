@@ -1,8 +1,8 @@
 .. _morgan:
 
-======================================
+===================================
 PI-CRUST ala Morgan written in Perl
-======================================
+===================================
 
 This document covers the code in the ``pre_picrust/morgan/`` directory. Questions on usage should be directed to Morgan Langille (morgan.g.i.langille@gmail.com)
 
@@ -30,9 +30,11 @@ Software Requirements
 
 Installation
 ============
- * Data resource files are not included with the code, but need to be copied from the shared Dropbox folder. 
-"cp genome_test_cases/seed_EC_and_pfam pre_picrust/morgan/data"
- * That's it! You are ready to run PI-CRUST.
+ Data resource files are not included with the code, but need to be copied from the shared Dropbox folder::
+ 
+    cp genome_test_cases/seed_EC_and_pfam pre_picrust/morgan/data
+ 
+ That's it! You are ready to run PI-CRUST.
 
 Overview
 ========
@@ -52,7 +54,7 @@ Step 1: Create "offline" files for completed genomes
 ----------------------------------------------------
 
 Step 1a: Create a reference 16S tree for completed genomes
----------------------------------------------------------
+----------------------------------------------------------
 
 Here's how to create a reference tree from your genome 16S sequences::
 
@@ -64,7 +66,7 @@ Various ``pynast_*`` and ``RAxML_*`` files are created.
 
 
 Step 1b: Create ancestral state reconstructions (ASRs) for internal nodes of reference tree
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 You'll next need to run ``build_asr.pl`` on the ``your_genomes_16S.fa`` from step 1::
 
