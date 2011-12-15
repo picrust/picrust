@@ -4,7 +4,7 @@
 use warnings;
 use strict;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use Bio::TreeIO;
 use JSON;
 use Log::Log4perl;
@@ -243,8 +243,12 @@ sub make_ace_predictions{
 	    }
 	    my $weighted_count;
 	    if ($nearest_node[$branch_label]{'good_branch'}==2) {
-		my $ancestor_count= $ace_counts->{$nearest_node[$branch_label]{'ancestor'}}{$pfam_id};
-		$weighted_count=($ancestor_weight*$ancestor_count) + ($descendant_weight*$descendant_count);
+		#my $ancestor_count= $ace_counts->{$nearest_node[$branch_label]{'ancestor'}}{$pfam_id};
+		#$weighted_count=($ancestor_weight*$ancestor_count) + ($descendant_weight*$descendant_count);
+		
+		#try something simpler here
+		$weighted_count=$descendant_count;
+		
 	    } else {
 		$weighted_count=$descendant_count;
 	    }

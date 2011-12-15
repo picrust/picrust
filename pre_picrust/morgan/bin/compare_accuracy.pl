@@ -2,10 +2,20 @@
 
 use warnings;
 use strict;
-use autodie;
+#use autodie;
 use List::Util qw(sum);
 use Getopt::Long;
 use File::Basename;
+
+
+my $nn_file='nn.txt';
+open(my $NN, '<', $nn_file);
+my %nn_lookup;
+while(<$NN>){
+    chomp;
+    my ($id,$blah,$dist)=split;
+    $nn_lookup{$id}=$dist;
+}
 
 my $first_file= $ARGV[0];
 my $second_file=$ARGV[1];
@@ -52,14 +62,18 @@ foreach my $id(keys %one){
 	$same++;
     }
     
-    print $id,"\t",$diff_value,"\n";
+   # print $id,"\t",$diff_value,"\t",$nn_lookup{$id},"\n";
+    print $one{$id},"\t",$two{$id},"\n";
 
 }
 
 my $better_one_avg = $better_one_sum/$better_one;
 my $better_two_avg = $better_two_sum/$better_two;
 
+my $total_avg = ($better_one_sum+$better_two_sum)/($better_one+$better_two);
+
 print STDERR "----SUMMARY----\n";
+print STDERR "Total average difference: $total_avg\n";
 print STDERR "Same count: $same\n";
 print STDERR "Better in $one_name count: $better_one\n";
 print STDERR "Better in $one_name average: $better_one_avg\n";

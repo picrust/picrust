@@ -5,7 +5,7 @@ use strict;
 use autodie;
 use Parallel::ForkManager;
 use Log::Log4perl;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use Pod::Usage;
 use File::Basename;
 use Cwd 'abs_path';
@@ -149,10 +149,13 @@ if(!exists $opt{'figures'} || $opt{'figures'}==1){
     my $figures_dir=$abs_dir.'figures';
     system("mkdir -p $figures_dir");
 
-#get accuracy for each genome (files stored in "/results")
-#this calls "bin/violin_plots2.R after concatenating files (results stored in "figures")
-    my $create_plot_cmd=$abs_dir."bin/create_accuracy_plots.pl";
+    #get accuracy for each genome (files stored in "/results")
+    my $create_plot_cmd=$abs_dir."bin/summarize_accuracy_values.pl";
     system($create_plot_cmd);
+
+    #create violin plots
+    my $violin_plot_cmd = $abs_dir."bin/violin_plots2.R";
+    system($violin_plot_cmd);
 
 
 #get accuracy for each pfam (files stored in "/results")

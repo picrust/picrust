@@ -4,7 +4,7 @@
 use warnings;
 use strict;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use Log::Log4perl;
 use Pod::Usage;
 use Cwd 'abs_path';
@@ -27,10 +27,9 @@ foreach my $option ('ref_tree','method','func'){
 }
 
 my $data_file=$abs_dir."data/".$opt{'func'}."_vs_gp_id.txt";
-unless(-e $data_file){
-    $logger->fatal("File $data_file does not exist. Did you specify wrong --func ?");
-    exit(1);
-}
+
+$logger->logdie("File $data_file does not exist. Did you specify wrong --func ?") unless -e $data_file;
+
 
 my $ref_name=$opt{'ref_tree'};
 my $ref_dir=$abs_dir.'ref_trees/'.$ref_name;
@@ -54,7 +53,7 @@ build_asr.pl - Runs user's choice of ancestral state reconstruction method on a 
 
 =head1 USAGE
 
-build_asr.pl [OPTIONS] -f=[pfam|EC|subsystem|role] -m=[pic|ml|reml] -r=<reference_tree_name>
+build_asr.pl [OPTIONS] -f=[pfam|EC|subsystem|role] -m=[pic|ML|REML] -r=<reference_tree_name>
 
 E.g.:
 

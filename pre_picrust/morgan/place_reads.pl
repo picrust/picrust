@@ -4,7 +4,7 @@
 use warnings;
 use strict;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use Log::Log4perl;
 use Pod::Usage;
 use Cwd 'abs_path';
