@@ -43,8 +43,30 @@ my $orig_ref_align=$orig_ref_dir.'/pynast_trimmed_alignment.fa';
 my $build_ref_cmd=$abs_dir."build_ref_16s.pl $ref";
 system($build_ref_cmd) unless -e $orig_ref_tree;
 
-###!!!create leave one out trees (run commands in "create_leave_one_trees" dir)
-#This creates leave one out trees on moa cluster, then copies them into proper ref_trees directories
+#Build leave one out trees
+#Do this seperately in case we need to run on moa (compute cluster)
+if(0){
+    #Build leave one out alignments
+    my $leave_out_aligns_cmd= $abs_dir.'bin/create_alignments.pl -i '.$ref_name;
+    system($leave_out_aligns_cmd);
+
+    #Build trees (using a single node with 8 processors)
+    my $leave_out_trees_cmd=$abs_dir.'bin/run_raxml.pl -p 8 -i '.$abs_dir.'alignments/ -o '.$abs_dir.'trees/';
+    system($leave_out_trees_cmd);
+
+    ##OR
+
+    ##Build trees on sge cluster
+    my $leave_out_trees_sge_cmd=$abs_dir.'bin/moa_raxml.pl -i '.$abs_dir.'alignments/ -o '.$abs_dir.'trees/';
+    #system($leave_out_trees_sge_cmd);
+    
+    #count the tree files to make sure they are all there
+    #ls -1 trees/RAxML_bestTree.16s_seqs.fa_minus_* | wc -l
+
+    #Move the computed trees to their proper location in "ref_trees" directory
+    my $leave_out_move_trees_cmd=$abs_dir.'bin/move_trees.pl -i '.$ref_name;
+    system($leave_out_move_trees_cmd);
+}
 
 #get ids from seq file
 my $grep_cmd='grep ">" '.$ref.' | cut -c 2-';
@@ -55,7 +77,8 @@ chomp(@ids);
 my $query_dir = $abs_dir."queries/";
 system ("mkdir -p $query_dir");
 
-my @func_types=("subsystem","EC","role","pfam");
+#my @func_types=("subsystem","EC","role","pfam");
+my @func_types=("pfam10");
 
 #do entire pipeline unless --figures flag is set
 if(!exists $opt{'figures'} ||$opt{'figures'}==0){
