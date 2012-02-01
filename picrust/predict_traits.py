@@ -17,20 +17,6 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from numpy.ma import masked_object, array
 from numpy import where, logical_not
 
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = ""
-script_info['script_usage'] = [("","","")]
-script_info['output_description']= ""
-script_info['required_options'] = [\
- # Example required option
- #make_option('-i','--input_dir',type="existing_filepath",help='the input directory'),\
-]
-script_info['optional_options'] = [\
- # Example optional option
- #make_option('-o','--output_dir',type="new_dirpath",help='the output directory [default: %default]'),\
-]
-script_info['version'] = __version__
 
 def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     """Assign a dict of traits to a PyCogent tree
@@ -301,13 +287,3 @@ def get_most_recent_reconstructed_ancestor(node,trait_label):
     return None
 
 
-    
-
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(**script_info)
-
-
-if __name__ == "__main__":
-    main()
