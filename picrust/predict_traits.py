@@ -27,11 +27,10 @@ def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     traits will be recorded.  For example, if this is set to 'Reconstruction',
     the trait will be attached to node.Reconstruction
     """
-    
     for node in tree.preorder():
-        value_to_assign = traits.get(node.Name,None)
-        #print "Assigning %s to node: %s" %(value_to_assign, node.Name)
+        value_to_assign = traits.get(node.Name.strip(),None)
         setattr(node,trait_label,value_to_assign)
+    
     return tree
 
 
@@ -40,10 +39,12 @@ def linear_weight(d,max_d=1.0):
 
 def make_neg_exponential_weight_fn(exp_base = 2.0):
     """Return function that exponentially weights exp_base by -d"""
+    
     def neg_exponential_weight(d):
         return exp_base**(-1*d)
     
     return neg_exponential_weight
+
 
 def equal_weight(d,constant_weight=1.0):
     return weight
@@ -72,20 +73,32 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     """
     
     node = tree.getNodeMatchingName(node_to_predict) 
-    #print dir(node)
     parent_node =  node.Parent
     sibling_nodes = node.siblings()
-    
+    #print "Node:",node
+    #print "Trait label:", trait_label 
     most_rec_recon_anc =\
       get_most_recent_reconstructed_ancestor(node,trait_label)
     
+    #Preparation
+    # To handle empty (None) values, we fill unknown values
+    # in the ancestor with values in the tips, and vice versa
+    # This is OK, since 
+
 
     #STEP 1:  Infer traits, weight for most recently 
     #reconstructed ancestral node
     
-    anc_traits = getattr(most_rec_recon_anc,trait_label,None)
-    ancestor_distance =  parent_node.distance(most_rec_recon_anc)
-    ancestor_weight = weight_fn(ancestor_distance)
+    if most_rec_recon_anc is not None: 
+        anc_traits = getattr(most_rec_recon_anc,trait_label,None)
+        ancestor_distance =  parent_node.distance(most_rec_recon_anc)
+        ancestor_weight = weight_fn(ancestor_distance)
+    else:
+        anc_traits = ancestor_distance = ancestor_weight = None
+    
+    #print "Ancestor name:",most_rec_recon_anc 
+    #print "Ancestor distance:",ancestor_distance 
+    #print "Ancestor traits:",anc_traits
 
     #STEP 2:  Infer Parent node traits
     if anc_traits is not None:
@@ -115,9 +128,10 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
 
         prediction += array(child_traits)*weight
         total_weights += weight
-
-    prediction = prediction/total_weights
-    
+    if prediction is not None:
+        prediction = prediction/total_weights
+    else:
+        return None
     # STEP 3: Predict target node given parent
 
     #NOTES: without probabilites, we're left just predicting
@@ -208,8 +222,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         prediction =\
           weighted_average_tip_prediction(tree,node_to_predict.Name,\
           weight_fn = weight_fn)
-        
-        prediction = fill_unknown_traits(traits, ancestral_states)
+         
+        #prediction = fill_unknown_traits(traits, ancestral_states)
         #print "Prediction:", prediction
         #
         results[node_label] = prediction
