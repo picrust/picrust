@@ -16,6 +16,84 @@ from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 
+
+
+def reformat_tree_and_trait_table(tree,trait_table_lines,\
+    input_trait_table_delimiter="\t", output_trait_table_delimiter="\t",\
+    filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
+    filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
+    add_branch_length_to_root=False, name_unnamed_nodes=True,min_branch_length=0.0001):
+    """Return a full reformatted tree,pruned reformatted tree  and set of trait table lines 
+
+    tree - a PyCogent PhyloNode tree object
+    trait_table_lines -- the lines of a trait table, where 
+      the rows are organisms and the columns are traits (e.g. gene counts).
+
+    This function combines the various reformatting functions in the 
+    library into a catch-all reformatter.  
+    """
+    
+    
+
+    input_tree = tree
+    #Name unnamed nodes
+    if name_unnamed_nodes:
+        input_tree.nameUnnamedNodes()
+    
+    
+    #map trait table ids to tree ids
+    
+
+    #Then filter to include only
+    if filter_table_by_tree_tips:
+        trait_table_lines = filter_table_by_presence_in_tree(input_tree,\
+          trait_table_lines,delimiter=input_trait_table_delimiter)
+
+    #Convert floating point values to ints
+    if convert_trait_floats_to_ints:
+        trait_table_lines = convert_trait_values(\
+          trait_table_lines,conversion_fn = int,delimiter=input_trait_table_delimiter)
+   
+    #Write out results
+    #output_trait_table_file.writelines(trait_table_lines)
+    #trait_table.close()
+    #output_trait_table_file.close()
+   
+    # Use the reformatted trait table to filter tree
+    #trait_table = open(output_table_fp,"U")
+    #trait_table_lines = trait_table.readlines()
+
+    if filter_tree_by_table_entries:
+        input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
+          trait_table_lines,delimiter=input_trait_table_delimiter)
+
+    # Tree reformatting
+
+    if convert_to_bifurcating:
+        input_tree = input_tree.bifurcating() # Required by most ancSR programs
+
+
+    if convert_to_bifurcating:
+        input_tree = ensure_root_is_bifurcating(input_tree)
+        # The below nutty-looking re-filtering step is necessary
+        # When ensuring the root is bifurcating, internal nodes can get moved to the tips
+        # So without additional filtering we get unannotated tip nodes
+        if filter_tree_by_table_entries:
+            input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
+              trait_table_lines,delimiter=input_trait_table_delimiter)
+
+    if min_branch_length:
+        input_tree = set_min_branch_length(input_tree,min_length = min_branch_length)
+
+    if add_branch_length_to_root:
+        input_tree = add_branch_length_to_root(input_tree,root_name=input_tree.Name,\
+          root_length=min_branch_length)
+
+    input_tree.prune()
+
+    return input_tree, trait_table_lines
+
+
 def nexus_lines_from_tree(tree):
     """Return NEXUS formatted lines from a PyCogent PhyloNode tree"""
     lines = ["#NEXUS"]
@@ -47,6 +125,12 @@ def set_min_branch_length(tree,min_length= 0.0001):
 
 
 def make_nexus_trees_block(tree):
+    """Generate a NEXUS format 'trees' block for a given tree
+    
+    WARNING:  Removes names from internal nodes, as these cause problems
+    downstream
+    """
+
     # First generate the mappings for the NEXUS translate command
     trees_block_template =\
       ["begin trees;",\
@@ -191,7 +275,7 @@ def print_node_summary_table(input_tree):
             parent_name = node.Parent.Name
         else:
             parent_name = None
-        print "\t".join(map(str,[node.Name,len(node.Children),node.Length,parent_name]))
+        yield "\t".join(map(str,[node.Name,len(node.Children),node.Length,parent_name]))
  
 
 def add_to_filename(filename,new_suffix,delimiter="_"):
@@ -199,4 +283,41 @@ def add_to_filename(filename,new_suffix,delimiter="_"):
     filename, ext = splitext(filename)
     new_filename = delimiter.join([filename,new_suffix])
     return "".join([new_filename,ext])
-  
+ 
+
+def make_id_mapping_dicts(tree_to_trait_mappings):
+    """Generates trait_to_tree, tree_to_trait mapping dictionaries from a list of mapping tuples
+
+    mappings -- in the format tree_id, trait_id
+    
+    """
+    trait_to_tree_mapping_dict = {}
+    tree_to_trait_mapping_dict = {}
+    
+    for tree_id,trait_id in tree_to_trait_mappings:
+        trait_to_tree_mapping_dict[trait_id] = tree_id
+        tree_to_trait_mapping_dict[tree_id] = trait_id
+
+    return trait_to_tree_mapping_dict, tree_to_trait_mapping_dict
+
+
+def remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping_dict,\
+  default_entry="not_mapped",input_delimiter="\t",output_delimiter="\t"):
+    """Yield trait table lines with organism ids substituted using the mapping dict
+    
+    trait_table_lines -- tab-delimited lines of organism\tcounts (each count gets
+      a column).   
+
+    default_entry -- the value that trait table ids should be set to when they can't
+    be mapped to ids
+    """
+ 
+    #TODO: should just pass list of fields to avoid this nonsense
+    
+    for line in trait_table_lines:
+        if line.startwith("#"):
+            continue
+        fields = line.strip().split(input_delimiter)
+
+        fields[0] = trait_to_tree_mapping_dict.get(fields[0],default_entry) 
+        yield output_delimiter.join(fields)+"\n" 
