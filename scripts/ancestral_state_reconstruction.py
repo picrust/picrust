@@ -14,6 +14,7 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from picrust.count import wagner_for_picrust
+from picrust.ace import ace_for_picrust
 
 script_info = {}
 script_info['brief_description'] = "Runs ancestral state reconstruction given a tree and trait table"
@@ -50,9 +51,9 @@ def main():
     elif(opts.asr_method == 'bayestraits'):
         pass
     elif(opts.asr_method == 'ace_ml'):
-        pass
+        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ml')
     elif(opts.asr_method == 'ace_pic'):
-        pass
+        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
    
     if opts.output_fp:
         asr_table.writeToFile(opts.output_fp,sep='\t')
