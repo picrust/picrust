@@ -1,30 +1,50 @@
-from unittest import main, TestCase 
+#from unittest import main, TestCase 
+from cogent.util.unit_test import main, TestCase
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
-from picrust.format_tree_and_trait_table import nexus_lines_from_tree,\
-  add_branch_length_to_root,set_min_branch_length,make_nexus_trees_block,\
+from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
+  nexus_lines_from_tree,add_branch_length_to_root,\
+  set_min_branch_length,make_nexus_trees_block,\
   filter_table_by_presence_in_tree,convert_trait_values,\
   yield_trait_table_fields,ensure_root_is_bifurcating,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
-  add_to_filename
+  add_to_filename,make_id_mapping_dicts
+
 """
 Tests for format_tree_and_trait_tables.py
 """
 
 class TestFormat(TestCase):
-    """Tests of format.py"""
+    """Tests of format_tree_and_trait_table.py"""
 
     def setUp(self):
         self.SimpleTree = \
           DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
     
         self.SimplePolytomyTree = \
-                DndParser("((A:0.02,B:0.01,B_prime:0.03)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
+          DndParser("((A:0.02,B:0.01,B_prime:0.03)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
         
+        self.SimpleUnlabelledTree = \
+          DndParser("((A:0.02,B:0.01):0.05,(C:0.01,D:0.01):0.05)root;")
+        
+        #First number is GG id, the second is IMG
+        self.GreengenesToIMG = \
+          [('469810','645058788'),\
+          ('457471','645058789'),\
+          ('266998','641736109')]
+
+    def reformat_tree_and_trait_table(self):
+        """Test the main function under various conditions"""
+        pass
+    
     def test_nexus_lines_from_tree(self):
         """Nexus lines from tree should return NEXUS formatted lines..."""
-        pass
-
+        obs =  nexus_lines_from_tree(self.SimpleTree)
+        exp = ['#NEXUS', 'begin trees;', '\ttranslate', '\t\t0 A,', '\t\t1 B,',\
+                '\t\t2 C,', '\t\t3 D;',\
+                '\t\ttree PyCogent_tree = ((0:0.02,1:0.01):0.05,(2:0.01,3:0.01):0.05)root;', 'end;']
+        self.assertEqual(obs,exp)
+        
     def test_add_branch_length_to_root(self):
         """Add branch length to root should add epsilon branch lengths"""
         pass
@@ -110,7 +130,77 @@ class TestFormat(TestCase):
         
         self.assertEqual(obs,exp)
 
+    def test_make_id_mapping_dict(self):
+        """Make id mapping dict should generate two mapping dicts"""
 
+        mappings = self.GreengenesToIMG
+        trait_to_tree_mappings, tree_to_trait_mappings =\
+        make_id_mapping_dicts(mappings)
+        
+        obs = trait_to_tree_mappings
+        exp  = {
+          '645058788':'469810',\
+          '645058789':'457471',\
+          '641736109':'266998'}
+        self.assertEqualItems(obs,exp)
+        
+        obs = tree_to_trait_mappings
+        exp = {
+          '469810':'645058788',\
+          '457471':'645058789',\
+          '266998':'641736109'}
+
+        self.assertEqualItems(obs,exp)
+
+    def remap_trait_table_organims(self):
+        """Remap trait table organisms should remap ids"""
+     
+        trait_to_tree_mappings = {
+          '645058788':'469810',\
+          '645058789':'457471',\
+          '641736109':'266998'}
+         
+        img_lines = [\
+         "645058788\t0\t0\t0\n",\
+         "645058789\t0\t0\t0\n",\
+         "641736109\t3\t1\t1\n"]
+
+        exp_remapped_lines = [ 
+         "469810\t0\t0\t0\n",\
+         "457471\t0\t0\t0\n",\
+         "266998\t3\t1\t1\n"]
+
+        obs_remapped_lines = \
+          remap_trait_table_organisms(\
+          trait_table_lines = img_lines,\
+          trait_table_to_tree_mapping_dict = trait_to_tree_mappings,\
+          input_delimiter = "\t", output_delimiter = "\t")
+
+        self.assertEqual(exp_remapped_lines, obs_remapped_lines)
+        
+        # Now test data with non-mapping entries, and
+        # specifying space-delimited output
+
+        img_lines = [\
+         "645058788\t0\t0\t0\n",\
+         "645058789\t0\t0\t0\n",\
+         "armadillo\t0\t0\t0\n",\
+         "641736109\t3\t1\t1\n"]
+
+        exp_remapped_lines = [ 
+         "469810 0 0 0\n",\
+         "457471 0 0 0\n",\
+         "None 0 0 0\n",\
+         "266998 3 1 1\n"]
+
+        obs_remapped_lines = \
+          remap_trait_table_organisms(\
+          trait_table_lines = img_lines,\
+          trait_table_to_tree_mapping_dict = trait_to_tree_mappings,\
+          input_delimiter = "\t", output_delimiter = " ",\
+          default_entry="None")
+
+        self.assertEqual(exp_remapped_lines, obs_remapped_lines)
 
 
 if __name__ == "__main__":
