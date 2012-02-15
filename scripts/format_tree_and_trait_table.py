@@ -43,8 +43,9 @@ script_info['required_options'] = [\
 
 delimiter_choices = ['tab','space','comma']
 script_info['optional_options'] = [\
+          make_option('-m','--tree_to_trait_mapping',default=None,type="existing_filepath",help='a two-column, tab-delimited text file mapping identifiers in the tree(column 1) to identifiers in the trait table (column 2). If supplied, the identifiers in the trait table will be converted to match the identifiers in the tree. (This mapping does not need to be supplied if the tree and trait table already use a common set of identifiers.) [default: %default]'),\
           make_option('--output_tree',default=None,type="new_filepath",help='the output tree file [default: input tree file with "_formatted" added before the extension]'),\
-          make_option('--output_table',default=None,type="new_filepath",help='the output table file [default: input tree file with "_formatted" added before the extension]'),\
+          make_option('--output_table_fp',default=None,type="new_filepath",help='the output tree file [default: input table filepath with "_formatted" added before the extension]'),\
           make_option('--input_table_delimiter',default='tab',type="choice",choices=delimiter_choices,\
             help='The character delimiting fields in the input trait table. Valid choices are:'+','.join(delimiter_choices)+' [default: %default]'),\
           make_option('--output_table_delimiter',default='tab',type="choice",choices=delimiter_choices,\
@@ -52,12 +53,11 @@ script_info['optional_options'] = [\
           make_option('--suppress_bifurcating',default=False,action="store_true",help="If set, don't ensure that tree is fully bifurcating. [default: %default]"),\
           make_option('-n','--convert_to_nexus',default=False,action="store_true",help='Convert tree to NEXUS format, including a translate block mapping tip names to numbers. [default: %default]'),\
           make_option('-c','--convert_values_to_ints',default=False,action="store_true",help='Convert the values for each character state to integers. [default: %default]'),\
-          make_option('-m','--no_minimum_branch_length',default=False,action="store_true",help="If set, don't ensure all branches have at least a small but non-zero branchlength. [default: %default]"),\
+          make_option('--no_minimum_branch_length',default=False,action="store_true",help="If set, don't ensure all branches have at least a small but non-zero branchlength. [default: %default]"),\
           make_option('--supress_tree_filter',default=False,action="store_true",help="If set, don't filter out tree tips that aren't listed in the trait table [default: %default]"),\
           make_option('--supress_table_filter',default=False,action="store_true",help="If set, don't filter out trait table entries that aren't listed in the tree [default: %default]"),\
           make_option('-r','--add_branch_length_to_root',default=False,action="store_true",\
-            help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]')\
-                  ]
+            help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]')]
 script_info['version'] = __version__
 
 def main():
@@ -71,8 +71,8 @@ def main():
     verbose = opts.verbose 
     
     #Handle parameters with more complex defaults
-    if opts.output_table:
-        output_table_fp = opts.output_table  
+    if opts.output_table_fp:
+        output_table_fp = opts.output_table_fp  
     else:
         output_table_fp = add_to_filename(trait_table_fp,"reformatted")
     
@@ -104,9 +104,10 @@ def main():
     
     
     delimiter = " "
-    min_branch_length = 0.0001
-    root_name = "root"
     
+    root_name = "root"
+    format_for_bayestraits = True 
+    #TODO: this will become a new function in the bayestraits app controller
     if format_for_bayestraits:
         convert_to_nexus = True
         convert_to_bifurcating = True
@@ -114,19 +115,55 @@ def main():
         filter_tree_by_table_entries = True
         enforce_min_branch_length = True
         convert_trait_floats_to_ints = True
-
+    
+    
+    if enforce_min_branch_length:
+        min_branch_length = 0.0001
+    else:
+        min_branch_length = None
+    
+    
     #Load inputs
     input_tree = LoadTree(tree_file)
     
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
-    
-    #if opts.verbose:
-        #print "Tree prior to reformatting:"
-        #print input_tree.getNewick(with_distances=True)
-        #print "Tree nodes prior to reformatting:"
-        #print_node_summary_table(input_tree)
-    
+   
+
+    # Call reformatting function using specified parameters
+    new_tree, new_trait_table_lines = reformat_tree_and_trait_table(tree=input_tree,\
+       trait_table_lines = trait_table_lines,\
+       input_trait_table_delimiter=" ", output_trait_table_delimiter="\t",\
+       filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
+       filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
+       add_branch_length_to_root=False, name_unnamed_nodes=True,min_branch_length=min_branch_length) 
+
+
+    #Write results to files
+
+    #Output trait table file
+    output_trait_table_file.writelines(trait_table_lines)
+    trait_table.close()
+    output_trait_table_file.close()
+
+    #Output tree file
+
+    if convert_to_nexus is True:
+        lines = nexus_lines_from_tree(input_tree)
+        output_tree_file.write("\n".join(map(str,lines)))
+    else:
+        output_tree_file.write(input_tree.getNewick(with_distances=True))
+
+    output_tree_file.close() 
+
+
+
+def reformat_lines_from_main_backup():
+    """Just saving these lines here in case something goes horribly wrong with the standalone version in 
+    the library script during implementation"""
+
+
+    #TODO:  All of this hardcoded jazz really needs to be its own function in the library
     # Remove taxa missing in tree tips
     if filter_table_by_tree_tips: 
         trait_table_lines = filter_table_by_presence_in_tree(input_tree,trait_table_lines,delimiter=delimiter)
@@ -176,6 +213,8 @@ def main():
     #    print "Tree nodes after reformatting:"
     #    print_node_summary_table(input_tree)
     #    print "Convert to nexus is True?",convert_to_nexus is True
+
+    #TODO:  This will stay outside the reformat block
     if convert_to_nexus is True:
         lines = nexus_lines_from_tree(input_tree)
         output_tree_file.write("\n".join(map(str,lines)))
