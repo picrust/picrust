@@ -13,7 +13,7 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from picrust.count import infer_wagner_parsimony_from_paths
+from picrust.count import wagner_for_picrust
 
 script_info = {}
 script_info['brief_description'] = "Runs ancestral state reconstruction given a tree and trait table"
@@ -46,7 +46,7 @@ def main():
 
     #call the apporpriate ASR app controller 
     if(opts.asr_method == 'wagner'):
-        asr_table = infer_wagner_parsimony_from_paths(opts.input_tree_fp,opts.input_trait_table_fp)
+        asr_table = wagner_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp)
     elif(opts.asr_method == 'bayestraits'):
         pass
     elif(opts.asr_method == 'ace_ml'):
