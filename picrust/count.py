@@ -30,6 +30,7 @@ __status__ = "Development"
 
 class Count(CommandLineApplication):
     """ Application controller for Count an ASR tool."""
+     
     count_fp = environ['COUNT_JAR']
     _command = 'java -Xmx1024M -cp ' + count_fp + ' ca.umontreal.iro.evolution.genecontent.AsymmetricWagner'
     _parameters = {\
@@ -43,7 +44,7 @@ class Count(CommandLineApplication):
     def _error_on_missing_application(self,params):
         pass
 
-def infer_wagner_parsimony_from_paths(tree_path,trait_table_path,gain=None,max_paralogs=None,HALT_EXEC=False):
+def wagner_for_picrust(tree_path,trait_table_path,gain=None,max_paralogs=None,HALT_EXEC=False):
     '''Runs count application controller given path of tree and trait table and returns a Table'''
     #initialize Count app controller
     count=Count(HALT_EXEC=HALT_EXEC)
