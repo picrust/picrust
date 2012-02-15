@@ -14,7 +14,7 @@ Contents:
    :maxdepth: 2
    
    ./prepicrust/index
-
+   ./scripts/index
 Indices and tables
 ==================
 
