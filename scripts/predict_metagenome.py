@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Greg Caporaso"
-__copyright__ = "Copyright 2011, The QIIME project"
+__copyright__ = "Copyright 2011, The PICRUST project"
 __credits__ = ["Greg Caporaso"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
@@ -21,8 +21,7 @@ script_info['script_description'] = ""
 script_info['script_usage'] = [("","","")]
 script_info['output_description']= ""
 script_info['required_options'] = [\
- # Example required option
- #make_option('-i','--input_dir',type="existing_filepath",help='the input directory'),\
+ make_option('-i','--input_otu_table',type="existing_filepath",help='the input filepath in biom format'),\
 ]
 script_info['optional_options'] = [\
  # Example optional option
