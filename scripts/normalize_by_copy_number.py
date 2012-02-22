@@ -20,7 +20,7 @@ from picrust.parse import parse_marker_gene_copy_numbers
 script_info = {}
 script_info['brief_description'] = ""
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","","")]
+script_info['script_usage'] = [("","Normalize the counts in raw_otu_table.biom by dividing by marker gene copy numbers provided in copy_numbers.txt. Write the resulting table to normalized_otu_table.biom.","%prog -i raw_otu_table.biom -c copy_numbers.txt -o normalized_otu_table.biom")]
 script_info['output_description']= ""
 script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
@@ -43,7 +43,8 @@ def main():
                                                   metadata_identifier=opts.metadata_identifer)
     table.addObservationMetadata(copy_numbers)
     normalized_table = table.normObservationByMetadata(opts.metadata_identifer)
-    open(opts.output_otu_fp,'w').write(normalized_table.getBiomFormatJsonString('PICRUST``'))
+    open(opts.output_otu_fp,'w').write(\
+     normalized_table.getBiomFormatJsonString('PICRUST'))
 
 
 if __name__ == "__main__":
