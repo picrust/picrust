@@ -13,7 +13,7 @@ __status__ = "Development"
  
 
 
-from qiime.util import parse_command_line_parameters, make_option
+from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes
 
