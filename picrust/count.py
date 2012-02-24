@@ -75,7 +75,7 @@ def wagner_for_picrust(tree_path,trait_table_path,gain=None,max_paralogs=None,HA
     asr_table= parse_wagner_parsimony_output(result["StdOut"].readlines(),remove_num_tips=num_of_tips)
 
     #transpose the table
-    asr_table = asr_table.transposed(new_column_name=asr_table.Header[0])
+    asr_table = asr_table.transposed(new_column_name='nodes')
 
     return asr_table
 

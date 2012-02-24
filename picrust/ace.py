@@ -51,10 +51,10 @@ def ace_for_picrust(tree_path,trait_table_path,method='wagner',HALT_EXEC=False):
 
     #Load the output into Table objects
     asr_table=LoadTable(filename=tmp_output_count_path,header=True,sep='\t')
-    asr_prob_table=LoadTable(filename=tmp_output_prob_path,header=True,sep='\t')
+    #asr_prob_table=LoadTable(filename=tmp_output_prob_path,header=True,sep='\t')
 
     #Remove tmp files
     remove(tmp_output_count_path)
-    remove(tmp_output_prob_path)
+    #remove(tmp_output_prob_path)
 
     return asr_table
