@@ -29,7 +29,7 @@ script_info['required_options'] = [\
 make_option('-t','--input_tree_fp',type="existing_filepath",help='the tree to use for ASR'),\
 make_option('-i','--input_trait_table_fp',type="existing_filepath",help='the trait table to use for ASR'),\
 ]
-asr_method_choices=['bayestraits','ace_ml','ace_pic','wagner']
+asr_method_choices=['bayestraits','ace_ml','ace_reml','ace_pic','wagner']
 script_info['optional_options'] = [\
 make_option('-m','--asr_method',type='choice',
                 help='Method for ancestral state reconstruction. Valid choices are: '+\
@@ -51,10 +51,12 @@ def main():
     elif(opts.asr_method == 'bayestraits'):
         pass
     elif(opts.asr_method == 'ace_ml'):
-        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ml')
+        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
     elif(opts.asr_method == 'ace_pic'):
         asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
-   
+    elif(opts.asr_method == 'ace_reml'):
+        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
+    
     if opts.output_fp:
         asr_table.writeToFile(opts.output_fp,sep='\t')
     else:
