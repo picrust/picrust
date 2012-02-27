@@ -60,6 +60,8 @@ script_info['optional_options'] = [\
             help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]')]
 script_info['version'] = __version__
 
+
+
 def main():
 
     # Parse input to get parameters 
@@ -79,49 +81,48 @@ def main():
     if opts.output_tree:
         output_tree_fp = opts.output_tree  
     else:
-        output_tree_fp = add_to_filename(trait_table_fp,"reformatted")
+        output_tree_fp = add_to_filename(opts.input_tree,"reformatted")
 
-     
+    output_reference_tree_fp = add_to_filename(output_tree_fp,"reference")
+    
+    delimiter_map = {"space":" ","tab":"\t","comma":","}
+    input_delimiter = delimiter_map[opts.input_table_delimiter]
+    output_delimiter = delimiter_map[opts.output_table_delimiter] 
 
     if verbose:
         print "Running with options:"
-        print "%s:%s" %("Tree file",tree_file)
-        print "%s:%s" %("Trait table",trait_table_fp)
-        print "%s:%s" %("Output tree",output_tree_fp)
-        print "%s:%s" %("Output trait table",output_table_fp)
-        print "%s:%s" %("Add branch length to root",opts.add_branch_length_to_root)
-        print "%s:%s" %("Convert to NEXUS?",opts.convert_to_nexus)
+        print "\t%s:%s" %("Tree file",tree_file)
+        print "\t%s:%s" %("Trait table",trait_table_fp)
+        print "\t%s:%s" %("Output tree",output_tree_fp)
+        print "\t%s:%s" %("Output reference tree",output_reference_tree_fp)
+        print "\t%s:%s" %("Output trait table",output_table_fp)
+        print "\t%s:%s" %("Add branch length to root",opts.add_branch_length_to_root)
+        print "\t%s:%s" %("Convert to NEXUS?",opts.convert_to_nexus)
+        print "\t%s:%s" %("Input trait table delimiter",opts.input_table_delimiter)
+        print "\t%s:%s" %("Output trait table delimiter",opts.output_table_delimiter)
          
-    # Open output files
-    output_trait_table_file = open(output_table_fp,"w+")
-    output_tree_file  = open(output_tree_fp,"w+")
     
 
     # Begin reformatting
     
-    # TODO: convert parameter candidates to params
-    #delimiter = "\t"
     
-    
-    delimiter = " "
     
     root_name = "root"
-    format_for_bayestraits = True 
+    #format_for_bayestraits = True 
     #TODO: this will become a new function in the bayestraits app controller
-    if format_for_bayestraits:
-        convert_to_nexus = True
-        convert_to_bifurcating = True
-        filter_table_by_tree_tips = True
-        filter_tree_by_table_entries = True
-        enforce_min_branch_length = True
-        convert_trait_floats_to_ints = True
+    #if format_for_bayestraits:
+    #    convert_to_nexus = True
+    #    convert_to_bifurcating = True
+    #    filter_table_by_tree_tips = True
+    #    filter_tree_by_table_entries = True
+    #    enforce_min_branch_length = True
+    #    convert_trait_floats_to_ints = True
     
-    
-    if enforce_min_branch_length:
-        min_branch_length = 0.0001
-    else:
+     
+    if opts.no_minimum_branch_length:
         min_branch_length = None
-    
+    else:
+        min_branch_length = 0.0001
     
     #Load inputs
     input_tree = LoadTree(tree_file)
@@ -129,33 +130,83 @@ def main():
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
    
+    #Get id mappings from mapping file
+    if opts.tree_to_trait_mapping:
+        mapping_file = open(opts.tree_to_trait_mapping,"U")
+        
+        trait_to_tree_mapping =\
+          make_id_mapping_dict(parse_id_mapping_file(mapping_file))
+
+    else:
+        trait_to_tree_mapping = None
+
+    #Make a clean copy of the reference tree before modifying it based on trait table
+    reference_tree = input_tree.deepcopy()
 
     # Call reformatting function using specified parameters
-    new_tree, new_trait_table_lines = reformat_tree_and_trait_table(tree=input_tree,\
+    new_tree, new_trait_table_lines = \
+       reformat_tree_and_trait_table(tree=input_tree,\
        trait_table_lines = trait_table_lines,\
-       input_trait_table_delimiter=" ", output_trait_table_delimiter="\t",\
-       filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
-       filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
-       add_branch_length_to_root=False, name_unnamed_nodes=True,min_branch_length=min_branch_length) 
+       trait_to_tree_mapping = trait_to_tree_mapping,\
+       input_trait_table_delimiter= input_delimiter,\
+       output_trait_table_delimiter=output_delimiter,\
+       filter_table_by_tree_tips=True,\
+       convert_trait_floats_to_ints=False,\
+       filter_tree_by_table_entries=True,\
+       convert_to_bifurcating=True,\
+       add_branch_length_to_root=False,\
+       name_unnamed_nodes=True,\
+       min_branch_length=min_branch_length,\
+       verbose=opts.verbose) 
+
+    # Call reformatting function using specified parameters 
+    # to get reference tree
+    
+    new_reference_tree, not_useful_trait_table_lines =\
+      reformat_tree_and_trait_table(\
+      tree=reference_tree,\
+      trait_table_lines = [],\
+      trait_to_tree_mapping = None,\
+      input_trait_table_delimiter= None,\
+      output_trait_table_delimiter= None,\
+      filter_table_by_tree_tips=False,\
+      convert_trait_floats_to_ints=False,\
+      filter_tree_by_table_entries=False,\
+      convert_to_bifurcating=False,\
+      add_branch_length_to_root=False,\
+      name_unnamed_nodes=True,\
+      min_branch_length=min_branch_length,\
+      verbose=opts.verbose) 
+
 
 
     #Write results to files
 
+    # Open output files
+    output_trait_table_file = open(output_table_fp,"w+")
+    output_tree_file  = open(output_tree_fp,"w+")
+    output_reference_tree_file  = open(output_reference_tree_fp,"w+")
+    
     #Output trait table file
-    output_trait_table_file.writelines(trait_table_lines)
+    output_trait_table_file.writelines(new_trait_table_lines)
     trait_table.close()
     output_trait_table_file.close()
 
     #Output tree file
 
-    if convert_to_nexus is True:
-        lines = nexus_lines_from_tree(input_tree)
+    if opts.convert_to_nexus is True:
+        lines = nexus_lines_from_tree(new_tree)
         output_tree_file.write("\n".join(map(str,lines)))
     else:
-        output_tree_file.write(input_tree.getNewick(with_distances=True))
+        output_tree_file.write(new_tree.getNewick(with_distances=True))
 
     output_tree_file.close() 
 
+
+    #Output reference tree file
+    output_reference_tree_file.write(new_reference_tree.getNewick(with_distances=True))
+    output_reference_tree_file.close() 
+    
 
 
 def reformat_lines_from_main_backup():
@@ -199,13 +250,15 @@ def reformat_lines_from_main_backup():
         # When ensuring the root is bifurcating, internal nodes can get moved to the tips
         # So without additional filtering we get unannotated tip nodes
         if filter_tree_by_table_entries:
-            input_tree = filter_tree_tips_by_presence_in_table(input_tree,trait_table_lines,delimiter=delimiter) 
+            input_tree = filter_tree_tips_by_presence_in_table(input_tree,trait_table_lines,\
+              delimiter=delimiter) 
     
     if enforce_min_branch_length:
         input_tree = set_min_branch_length(input_tree,min_length = min_branch_length)
     
     if opts.add_branch_length_to_root:
-        input_tree = add_branch_length_to_root(input_tree,root_name=input_tree.Name,root_length=min_branch_length)
+        input_tree = add_branch_length_to_root(input_tree,root_name=input_tree.Name,\
+          root_length=min_branch_length)
     
     input_tree.prune() 
     
@@ -215,11 +268,11 @@ def reformat_lines_from_main_backup():
     #    print "Convert to nexus is True?",convert_to_nexus is True
 
     #TODO:  This will stay outside the reformat block
-    if convert_to_nexus is True:
+    if opts.convert_to_nexus is True:
         lines = nexus_lines_from_tree(input_tree)
         output_tree_file.write("\n".join(map(str,lines)))
     else:
-        output_tree_file.write(input_tree.getNewick(with_distances=True))
+        output_tree_file.write(reference_tree.getNewick(with_distances=True))
     
     output_tree_file.close()
 
