@@ -17,6 +17,8 @@ from cogent.app.util import CommandLineApplication, ResultPath, get_tmp_filename
 from cogent.app.parameters import ValuedParameter, FilePath
 from cogent import LoadTree
 from cogent import LoadTable
+from picrust.util import get_picrust_project_dir
+from os.path import join
 
 __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2012, The PICRUST Project"
@@ -31,7 +33,8 @@ __status__ = "Development"
 class Count(CommandLineApplication):
     """ Application controller for Count an ASR tool."""
      
-    count_fp = environ['COUNT_JAR']
+    #count_fp = environ['COUNT_JAR']
+    count_fp = join(get_picrust_project_dir(),'picrust','support_files','jar','Count.jar')
     _command = 'java -Xmx1024M -cp ' + count_fp + ' ca.umontreal.iro.evolution.genecontent.AsymmetricWagner'
     _parameters = {\
      '-gain':ValuedParameter(Prefix='-',Name='gain',Delimiter=' '),\

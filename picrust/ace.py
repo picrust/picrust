@@ -17,6 +17,8 @@ from cogent.app.util import CommandLineApplication, ResultPath, get_tmp_filename
 from cogent.app.parameters import ValuedParameter, FilePath
 from cogent import LoadTree
 from cogent import LoadTable
+from picrust.util import get_picrust_project_dir
+from os.path import join
 
 __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2012, The PICRUST Project"
@@ -30,8 +32,9 @@ __status__ = "Development"
 
 class Ace(CommandLineApplication):
     """ Application controller for 'ace' fucntion within the 'ape' R package."""
-     
-    _command = 'ace.R'
+
+    ace_script_fp = join(get_picrust_project_dir(),'picrust','support_files','R','ace.R')
+    _command = ace_script_fp
     _input_handler = '_input_as_string'
     _suppress_stdout = False
     _suppress_stderr = False
