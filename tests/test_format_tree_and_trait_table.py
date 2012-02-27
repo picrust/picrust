@@ -8,7 +8,7 @@ from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
   filter_table_by_presence_in_tree,convert_trait_values,\
   yield_trait_table_fields,ensure_root_is_bifurcating,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
-  add_to_filename,make_id_mapping_dicts
+  add_to_filename,make_id_mapping_dict
 
 """
 Tests for format_tree_and_trait_tables.py
@@ -51,7 +51,11 @@ class TestFormat(TestCase):
 
     def test_set_min_branch_length(self):
         """set_min_branch_length should set a minimum branch length"""
-        pass
+        tree = self.SimpleTree
+        obs = set_min_branch_length(tree,min_length = 0.04)
+        print obs.getNewick(with_distances=True)
+        exp = "((A:0.04,B:0.04)E:0.05,(C:0.04,D:0.04)F:0.05)root;"
+        self.assertEqual(obs.getNewick(with_distances=True),exp)
 
     def test_make_nexus_trees_block(self):
         """make_nexus_trees_block should output a trees block in NEXUS format"""
@@ -134,8 +138,8 @@ class TestFormat(TestCase):
         """Make id mapping dict should generate two mapping dicts"""
 
         mappings = self.GreengenesToIMG
-        trait_to_tree_mappings, tree_to_trait_mappings =\
-        make_id_mapping_dicts(mappings)
+        trait_to_tree_mappings =\
+        make_id_mapping_dict(mappings)
         
         obs = trait_to_tree_mappings
         exp  = {
@@ -144,13 +148,13 @@ class TestFormat(TestCase):
           '641736109':'266998'}
         self.assertEqualItems(obs,exp)
         
-        obs = tree_to_trait_mappings
-        exp = {
-          '469810':'645058788',\
-          '457471':'645058789',\
-          '266998':'641736109'}
-
-        self.assertEqualItems(obs,exp)
+        #obs = tree_to_trait_mappings
+        #exp = {
+        ##  '469810':'645058788',\
+        #  '457471':'645058789',\
+        #  '266998':'641736109'}
+        #
+        #self.assertEqualItems(obs,exp)
 
     def remap_trait_table_organims(self):
         """Remap trait table organisms should remap ids"""
