@@ -203,7 +203,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
             if traits and len(traits) != n_traits:
                 raise ValueError(\
-                  "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(node_to_predict,len(traits),n_traits))
+                  "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(\
+                   node_to_predict,len(traits),n_traits))
         
                 
         if not use_self_in_prediction:
