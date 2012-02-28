@@ -44,7 +44,14 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
 
     input_tree = tree
-     
+    
+    #Avoid problems with generators when retreiving specific lines
+    if trait_table_lines:
+        trait_table_lines = [t.strip() for t in trait_table_lines]
+        header_line = trait_table_lines[0]
+    else:
+        trait_table_lines = []
+        header_line = ''
     #Name unnamed nodes
     if name_unnamed_nodes:
         if verbose:
@@ -78,11 +85,11 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         trait_table_lines = filter_table_by_presence_in_tree(input_tree,\
           trait_table_lines,delimiter=input_trait_table_delimiter)
         
-        if verbose:
-            print "Verifying that new trait table ids match tree:"
-            print "Len(trait_table_lines: %i" %len(trait_table_lines)
-            all_tip_ids = [tip.Name for tip in input_tree.iterTips()]
-            print "example tree tip ids:",all_tip_ids[0:10]
+        #if verbose:
+        #    print "Verifying that new trait table ids match tree:"
+        #    print "# of trait_table_lines: %i" %len(trait_table_lines)
+        #    all_tip_ids = [tip.Name for tip in input_tree.iterTips()]
+        #    print "example tree tip ids:",all_tip_ids[0:10]
                 
     
     #Optionally convert floating point values in the trait table to ints
@@ -142,9 +149,18 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         print "Performing a final round of tree pruning to remove internal nodes with only one child...."
     
     input_tree.prune()
+    
+    result_trait_table_lines = [header_line]
+    result_trait_table_lines.extend(trait_table_lines)
     if verbose:
-        print "Done reformatting tree."
-    return input_tree, trait_table_lines
+        print "Final reprocessing of lines..."
+    result_trait_table_lines =\
+      [line.strip() for line in result_trait_table_lines if line.strip()]
+    if verbose:
+        print "Done reformatting tree and trait table"
+    
+    
+    return input_tree, result_trait_table_lines
 
 
 def nexus_lines_from_tree(tree):
@@ -270,7 +286,7 @@ def convert_trait_values(trait_table_lines,name_field_index=0,delimiter="\t",con
                 new_fields.append(str(conversion_fn(float(field))))
             else:
                 new_fields.append(field)
-        yield delimiter.join(new_fields)+"\n"
+        yield delimiter.join(new_fields).strip()+"\n"
 
 
 
@@ -415,7 +431,6 @@ def remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping_dict,\
 
     """
  
-    #TODO: should just pass list of fields to avoid this nonsense
     remapped_lines = []
     bad_ids = []
     default_total = 0
@@ -427,8 +442,7 @@ def remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping_dict,\
         #    print i,line
 
         if line.startswith("#") or line.startswith("GenomeID"):
-            continue
-            
+            continue 
         fields = line.strip().split(input_delimiter)
         #if verbose:
         #    print fields
