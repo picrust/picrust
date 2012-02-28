@@ -158,7 +158,7 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
 
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
-    weight_fn=linear_weight):
+    weight_fn=linear_weight, verbose = False):
     """Predict node traits given labelled ancestral states
     
     tree -- a PyCogent phylonode object, with each node decorated with the 
@@ -178,13 +178,15 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     predictions, which can be useful for validation (otherwise a tree 
     would need to be generated in which known nodes have their data removed)
 
-    
+    verbose -- output verbose debugging info 
 
     """
     #result_tree = tree.deepcopy()
     results = {}
     n_traits = None    
     for node_label in nodes_to_predict:
+        if verbose:
+            print "Predicting traits for node:",node_label
         node_to_predict = tree.getNodeMatchingName(node_label)
         
         traits = getattr(node_to_predict,trait_label)
@@ -228,7 +230,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         #print "Prediction:", prediction
         #
         results[node_label] = prediction
-        
+        if verbose:
+            print "First 80:",list(prediction[:min(len(prediction),80)])
         #NOTE:  We may want to add a 'limit of accuracy' param:
         # tip nodes within 'limit of accuracy' are grouped together
         # for purposes of reconstruction
