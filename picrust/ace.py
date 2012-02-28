@@ -40,7 +40,7 @@ class Ace(CommandLineApplication):
     _suppress_stderr = False
 
 
-def ace_for_picrust(tree_path,trait_table_path,method='wagner',HALT_EXEC=False):
+def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     '''Runs the Ace application controller given path of tree and trait table and returns a Table'''
     #initialize Ace app controller
     ace=Ace(HALT_EXEC=HALT_EXEC)
