@@ -188,7 +188,7 @@ def main():
     output_reference_tree_file  = open(output_reference_tree_fp,"w+")
     
     #Output trait table file
-    output_trait_table_file.writelines(new_trait_table_lines)
+    output_trait_table_file.write("\n".join(new_trait_table_lines))
     trait_table.close()
     output_trait_table_file.close()
 
@@ -207,74 +207,6 @@ def main():
     output_reference_tree_file.write(new_reference_tree.getNewick(with_distances=True))
     output_reference_tree_file.close() 
     
-
-
-def reformat_lines_from_main_backup():
-    """Just saving these lines here in case something goes horribly wrong with the standalone version in 
-    the library script during implementation"""
-
-
-    #TODO:  All of this hardcoded jazz really needs to be its own function in the library
-    # Remove taxa missing in tree tips
-    if filter_table_by_tree_tips: 
-        trait_table_lines = filter_table_by_presence_in_tree(input_tree,trait_table_lines,delimiter=delimiter)
-    
-    #Convert floating point values to ints
-    if convert_trait_floats_to_ints:
-        trait_table_lines = convert_trait_values(\
-            trait_table_lines,conversion_fn = int,delimiter=delimiter)
-   
-    #Write out results
-    output_trait_table_file.writelines(trait_table_lines)
-    trait_table.close()
-    output_trait_table_file.close()
-   
-    # Use the reformatted trait table to filter tree
-    trait_table = open(output_table_fp,"U")
-    trait_table_lines = trait_table.readlines()
-    
-
-    if filter_tree_by_table_entries:
-        input_tree = filter_tree_tips_by_presence_in_table(input_tree,trait_table_lines,delimiter=delimiter) 
-    
-    # Tree reformatting
-    
-    
-    if convert_to_bifurcating:
-        input_tree = input_tree.bifurcating() # Required by most ancSR programs
-    
-   
-    if convert_to_bifurcating:
-        input_tree = ensure_root_is_bifurcating(input_tree)
-        # The below nutty-looking re-filtering step is necessary
-        # When ensuring the root is bifurcating, internal nodes can get moved to the tips
-        # So without additional filtering we get unannotated tip nodes
-        if filter_tree_by_table_entries:
-            input_tree = filter_tree_tips_by_presence_in_table(input_tree,trait_table_lines,\
-              delimiter=delimiter) 
-    
-    if enforce_min_branch_length:
-        input_tree = set_min_branch_length(input_tree,min_length = min_branch_length)
-    
-    if opts.add_branch_length_to_root:
-        input_tree = add_branch_length_to_root(input_tree,root_name=input_tree.Name,\
-          root_length=min_branch_length)
-    
-    input_tree.prune() 
-    
-    #if opts.verbose:
-    #    print "Tree nodes after reformatting:"
-    #    print_node_summary_table(input_tree)
-    #    print "Convert to nexus is True?",convert_to_nexus is True
-
-    #TODO:  This will stay outside the reformat block
-    if opts.convert_to_nexus is True:
-        lines = nexus_lines_from_tree(input_tree)
-        output_tree_file.write("\n".join(map(str,lines)))
-    else:
-        output_tree_file.write(reference_tree.getNewick(with_distances=True))
-    
-    output_tree_file.close()
 
 if __name__ == "__main__":
     main()
