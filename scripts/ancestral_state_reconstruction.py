@@ -35,7 +35,7 @@ make_option('-m','--asr_method',type='choice',
                 help='Method for ancestral state reconstruction. Valid choices are: '+\
                 ', '.join(asr_method_choices) + ' [default: %default]',\
                 choices=asr_method_choices,default='wagner'),\
-make_option('-o','--output_fp',type="new_filepath",help='the output trait table'),\
+make_option('-o','--output_fp',type="new_filepath",help='the output trait table [default:%default]',default='asr_predictions.txt'),\
 make_option('-p','--output_prob_fp',type="new_filepath",help='the probablities for each ASR [default:%default]',default='output_file_prob'),\
 ]
 
@@ -56,12 +56,10 @@ def main():
         asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
     elif(opts.asr_method == 'ace_reml'):
         asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
-    
-    if opts.output_fp:
-        asr_table.writeToFile(opts.output_fp,sep='\t')
-    else:
-        print asr_table.tostring(sep='\t')
 
+    #output the table to file
+    asr_table.writeToFile(opts.output_fp,sep='\t')
+   
 
 if __name__ == "__main__":
     main()
