@@ -57,7 +57,9 @@ script_info['optional_options'] = [\
           make_option('--supress_tree_filter',default=False,action="store_true",help="If set, don't filter out tree tips that aren't listed in the trait table [default: %default]"),\
           make_option('--supress_table_filter',default=False,action="store_true",help="If set, don't filter out trait table entries that aren't listed in the tree [default: %default]"),\
           make_option('-r','--add_branch_length_to_root',default=False,action="store_true",\
-            help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]')]
+                      help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]'),\
+          make_option('-l','--limit_tree_to_otus_fp',type="existing_filepath",help='Will prune the reference tree to contain only those tips that are within the given OTU table')\
+           ]
 script_info['version'] = __version__
 
 
@@ -179,6 +181,16 @@ def main():
       verbose=opts.verbose) 
 
 
+    #Remove tips except those in trait table or in OTU table
+    if opts.limit_tree_to_otus_fp:
+        otu_table = open(opts.limit_tree_to_otus_fp,"U")
+        otu_table_lines = otu_table.readlines()
+        tips_to_keep = otu_table_lines + trait_table_lines
+        tips_to_keep_in_tree = filter_table_by_presence_in_tree(new_reference_tree,tips_to_keep)
+        new_reference_tree = filter_tree_tips_by_presence_in_table(new_reference_tree,\
+          tips_to_keep_in_tree,verbose=opts.verbose)
+
+        
 
     #Write results to files
 
