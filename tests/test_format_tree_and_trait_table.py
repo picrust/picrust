@@ -5,10 +5,11 @@ from cogent.parse.tree import DndParser
 from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
   nexus_lines_from_tree,add_branch_length_to_root,\
   set_min_branch_length,make_nexus_trees_block,\
-  filter_table_by_presence_in_tree,convert_trait_values,\
+  filter_table_by_presence_in_tree,convert_trait_table_entries,\
   yield_trait_table_fields,ensure_root_is_bifurcating,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
-  add_to_filename,make_id_mapping_dict
+  add_to_filename,make_id_mapping_dict,make_translate_conversion_fn,\
+  remove_spaces
 
 """
 Tests for format_tree_and_trait_tables.py
@@ -52,8 +53,8 @@ class TestFormat(TestCase):
     def test_set_min_branch_length(self):
         """set_min_branch_length should set a minimum branch length"""
         tree = self.SimpleTree
+        
         obs = set_min_branch_length(tree,min_length = 0.04)
-        print obs.getNewick(with_distances=True)
         exp = "((A:0.04,B:0.04)E:0.05,(C:0.04,D:0.04)F:0.05)root;"
         self.assertEqual(obs.getNewick(with_distances=True),exp)
 
@@ -65,10 +66,48 @@ class TestFormat(TestCase):
         """filter_trait_table_by_presence_in_tree should filter trait table"""
         pass
 
-    def test_convert_trait_values(self):
-        """convert_trait_values should convert floats to ints in trait table"""
-        pass
+    def test_convert_trait_table_entries(self):
+        """convert_trait_entries should convert labels,values using conversion fns"""
+        lines =[\
+          ['organism 1','0','0.3','15','1','6'],\
+          ['organism 2','1','1','13','1','4'],\
+          ['organism 3','2','0','12','0.9','5']]
 
+        obs = [l for l in convert_trait_table_entries(lines)]
+        exp =[\
+          ['organism 1','0','0','15','1','6'],\
+          ['organism 2','1','1','13','1','4'],\
+          ['organism 3','2','0','12','0','5']]
+
+        self.assertEqual(obs,exp)
+
+    def test_make_translate_conversion_fn(self):
+        """make_translate_conversion_fn should make a conversion_fn given dicts """
+        
+        translation_dict =\
+          {'-1':0,-1:0,'Unknown':0,'?':0}
+
+        conversion_fn =\
+          make_translate_conversion_fn(translation_dict)
+        
+        values = [0,-1,15,'10','-1','Unknown','?']
+        exp = [0,0,15,'10',0,0,0]
+        obs = map(conversion_fn,values)
+        self.assertEqual(obs,exp)
+
+    def test_remove_spaces(self):
+        """spaces_to_underscores should replaces whitespace with underscores"""
+
+        text = "E.\tcoli"
+        obs = remove_spaces(text)
+        exp = "E._coli"
+        self.assertEqual(obs,exp)
+
+        text = "\t\nE.\tcoli\n\t\t"
+        obs = remove_spaces(text)
+        exp = "E._coli"
+        self.assertEqual(obs,exp)
+    
     def test_yield_trait_table_fields(self):
         """yield_trait_table_fields should successively yield trait table fields"""
         pass
