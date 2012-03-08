@@ -14,13 +14,17 @@ __status__ = "Development"
 def parse_marker_gene_copy_numbers(counts_f,
                                    metadata_identifier):
     result = {}
+    #skip header line
+    next(counts_f)
     for line in counts_f:
         fields = line.strip().split('\t')
         try:
-            copy_number = int(fields[1])
+            #data can be floats so round them and make them integers
+            copy_number = int(round(float(fields[1])))
+            
         except ValueError:
             raise ValueError,\
-             "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (fields[0])
+                "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (fields[0])
         if copy_number < 1:
             raise ValueError, "Copy numbers must be greater than or equal to 1."
         result[fields[0]] = {metadata_identifier:copy_number}
