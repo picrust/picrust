@@ -41,7 +41,17 @@ def main():
     table = parse_biom_table(open(opts.input_otu_fp,'U'))
     copy_numbers = parse_marker_gene_copy_numbers(open(opts.input_count_fp),
                                                   metadata_identifier=opts.metadata_identifer)
-    table.addObservationMetadata(copy_numbers)
+    #Need to only keep data relevant to our otu list
+    ids=[]
+    for x in table.iterObservations():
+        ids.append(str(x[1]))
+
+    copy_numbers_filtered={}
+    for x in ids:
+        copy_numbers_filtered[x]=copy_numbers[x]
+
+    table.addObservationMetadata(copy_numbers_filtered)
+
     normalized_table = table.normObservationByMetadata(opts.metadata_identifer)
     open(opts.output_otu_fp,'w').write(\
      normalized_table.getBiomFormatJsonString('PICRUST'))

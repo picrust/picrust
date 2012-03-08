@@ -185,7 +185,7 @@ def main():
     if opts.limit_tree_to_otus_fp:
         otu_table = open(opts.limit_tree_to_otus_fp,"U")
         otu_table_lines = otu_table.readlines()
-        tips_to_keep = otu_table_lines + trait_table_lines
+        tips_to_keep = otu_table_lines + new_trait_table_lines
         tips_to_keep_in_tree = filter_table_by_presence_in_tree(new_reference_tree,tips_to_keep)
         new_reference_tree = filter_tree_tips_by_presence_in_table(new_reference_tree,\
           tips_to_keep_in_tree,verbose=opts.verbose)
