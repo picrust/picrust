@@ -15,15 +15,16 @@ from os.path import splitext
 from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
+from picrust.parse import parse_trait_table,yield_trait_table_fields
 
 from sys import getrecursionlimit,setrecursionlimit
-
 
 def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     input_trait_table_delimiter="\t", output_trait_table_delimiter="\t",\
     filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
     filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
-    add_branch_length_to_root=False, name_unnamed_nodes=True,min_branch_length=0.0001,\
+    add_branch_length_to_root=False, name_unnamed_nodes=True,\
+    min_branch_length=0.0001,\
     verbose=True):
     """Return a full reformatted tree,pruned reformatted tree  and set of trait table lines 
 
@@ -45,12 +46,12 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
 
     input_tree = tree
     
-    #Avoid problems with generators when retreiving specific lines
+    #Parse lines to fields once
     if trait_table_lines:
-        trait_table_lines = [t.strip() for t in trait_table_lines]
-        header_line = trait_table_lines[0]
+        header_line,trait_table_fields =\
+          parse_trait_table(trait_table_lines,delimiter = input_trait_table_delimiter)
     else:
-        trait_table_lines = []
+        trait_table_fields = []
         header_line = ''
 
     #replace any spaces in internal node labels with underscores
@@ -80,16 +81,16 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
         if verbose:
             print "Remapping trait table ids to match tree ids...."
-        trait_table_lines =\
-          remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping,\
+        trait_table_fields =\
+          remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping,\
           input_delimiter="\t",output_delimiter="\t",\
           verbose = verbose)
     #Then filter the trait table to include only tree tips
     if filter_table_by_tree_tips:
         if verbose:
             print "Filtering trait table ids to include only those that match tree ids...."
-        trait_table_lines = filter_table_by_presence_in_tree(input_tree,\
-          trait_table_lines,delimiter=input_trait_table_delimiter)
+        trait_table_fields = filter_table_by_presence_in_tree(input_tree,\
+          trait_table_fields,delimiter=input_trait_table_delimiter)
         
         #if verbose:
         #    print "Verifying that new trait table ids match tree:"
@@ -102,23 +103,14 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     if convert_trait_floats_to_ints:
         if verbose:
             print "Converting floating point trait table values to integers...."
-        trait_table_lines = convert_trait_values(\
-          trait_table_lines,conversion_fn = int,delimiter=input_trait_table_delimiter)
+        trait_table_fields = convert_trait_table_entries(\
+          trait_table_fields,conversion_fn = int,delimiter=input_trait_table_delimiter)
    
-    #Write out results
-    #output_trait_table_file.writelines(trait_table_lines)
-    #trait_table.close()
-    #output_trait_table_file.close()
-   
-    # Use the reformatted trait table to filter tree
-    #trait_table = open(output_table_fp,"U")
-    #trait_table_lines = trait_table.readlines()
-
     if filter_tree_by_table_entries:
         if verbose:
             print "filtering tree tips to match entries in trait table...."
         input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
-          trait_table_lines,delimiter=input_trait_table_delimiter,\
+          trait_table_fields,delimiter=input_trait_table_delimiter,\
           verbose=verbose)
 
     # Tree reformatting
@@ -137,7 +129,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         
         if filter_tree_by_table_entries:
             input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
-              trait_table_lines,delimiter=input_trait_table_delimiter)
+              trait_table_fields,delimiter=input_trait_table_delimiter)
 
     if min_branch_length:
         if verbose:
@@ -167,6 +159,9 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     
     return input_tree, result_trait_table_lines
+
+
+
 
 
 def nexus_lines_from_tree(tree):
@@ -264,58 +259,87 @@ def validate_trait_table_to_tree_mappings(tree,trait_table_ids,verbose=True):
         print "Example node ids",nodes[0:min(len(nodes),10)]
     return good,bad
 
-def filter_table_by_presence_in_tree(tree,trait_table_lines,name_field_index = 0,delimiter="\t"):
+def filter_table_by_presence_in_tree(tree,trait_table_fields,name_field_index = 0,delimiter="\t"):
     """yield lines of a trait table lacking organisms missing from the tree"""
-    #tree_tips = [str(node.Name.strip()) for node in tree.preorder()]
+    tree_tips = [str(node.Name.strip()) for node in tree.preorder()]
     #print tree_tips
-    result_lines = [] 
-    for fields in yield_trait_table_fields(trait_table_lines,delimiter):
+    result_fields = [] 
+    for fields in trait_table_fields:
         curr_name = fields[name_field_index].strip()
-        #if curr_name not in tree_tips:
-        #    #print curr_name,"could not be found in tree nodes"
-        #    print curr_name in tree_tips
-        #    try:
-        #        print int(curr_name) in tree_tips
-        #    except:
-        #        pass
-        #    print curr_name.strip() in tree_tips
-        #    continue
-        result_lines.append(delimiter.join(fields)+"\n")
-    return result_lines
+        if curr_name not in tree_tips:
+            #print curr_name,"could not be found in tree nodes"
+            #print curr_name in tree_tips
+            #try:
+            #    print int(curr_name) in tree_tips
+            #except:
+            #    pass
+            #print curr_name.strip() in tree_tips
+            continue
+        result_fields.append(fields)
+    return result_fields
 
-def convert_trait_values(trait_table_lines,name_field_index=0,delimiter="\t",conversion_fn = int):
-    """Convert trait values by running conversion_fn on each"""
-    for fields in yield_trait_table_fields(trait_table_lines,delimiter): 
+def convert_trait_table_entries(trait_table_fields,\
+        label_conversion_fns=[str,remove_spaces],value_conversion_fns = [lambda x:int(float(x))]):
+    """Convert trait values by running conversion_fns on labels and values
+    
+    trait_table_fields -- list of strings (from a trait table line)
+      the first field is assumed to be an organism name, and so isn't
+      formatted.
+
+    label_conversion_fns -- a list of functions to be run on each
+    organism name label (in the order they should be run).  Each 
+    function should need only a single entry as input, and output 
+    the resulting label
+
+    value_conversion_fns -- another list of functions, but for
+    trait values.  Again these will be run in order on each table
+    value.
+    
+    
+    """
+    name_field_index = 0
+
+    for fields in trait_table_fields: 
         new_fields = []
         for i,field in enumerate(fields):
             if i != name_field_index:
-                new_fields.append(str(conversion_fn(float(field))))
+                #Run organism label converters on this field
+                new_val = field
+                for curr_conv_fn in value_conversion_fns:
+                    new_val = str(curr_conv_fn(new_val))
+                    new_fields.append(new_val)
             else:
-                new_fields.append(field)
-        yield delimiter.join(new_fields).strip()+"\n"
+                #Run trait value converters on this field
+                new_val = field
+                for curr_conv_fn in label_conversion_fns:
+                    new_val = str(curr_conv_fn(new_val))
+                new_fields.append(new_val)
+                
+        yield new_fields
 
+def make_translate_conversion_fn(translation_dict):
+    """Return a new function that replaces values in input values with output_value
+    translation_dict -- a dict that maps inputs that should be translated to 
+    their appropriate output
+    """
 
-
-
-
-def yield_trait_table_fields(trait_table_lines,delimiter="\t",skip_comment_lines=True,max_field_len=100):
-    """Yield fields from trait table lines"""
-    for line in trait_table_lines:
-        #print "Parsing line:\n",line[0:min(100,len(line))],"..."
-        if line.startswith("#") and skip_comment_lines:
-            continue
+    def translate_conversion_fn(trait_value_field):
+        # Return translation, or the original value if no translation
+        # is available
+        return translation_dict.get(trait_value_field,trait_value_field)
         
-        if delimiter not in line:
-            delimiters_to_check = {"tab":"\t","space":"","comma":","}
-            possible_delimiters = []
-            for delim in delimiters_to_check.keys():
-                if delimiters_to_check[delim] in line:
-                    possible_delimiters.append(delim)
-            error_line = "Delimiter '%s' not in line.  The following delimiters were found:  %s.  Is the correct delimiter one of these?"
-            raise RuntimeError(error_line % (delimiter,",".join(possible_delimiters)))
-                     
-        fields = line.split(delimiter)
-        yield fields
+    return translate_conversion_fn
+
+def remove_spaces(trait_label_field):
+    """A conversion function that replaces spaces with underscores in a label
+    """
+
+    label = str(trait_label_field)
+    fields = trait_label_field.lstrip().strip().split()
+    return "_".join(fields)
+
+
+
 
 
 
@@ -331,13 +355,19 @@ def ensure_root_is_bifurcating(tree,root_name='root',verbose=False):
 
     return tree
 
-def filter_tree_tips_by_presence_in_table(tree,trait_table_lines,name_field_index = 0,\
+def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_index = 0,\
       delimiter="\t",verbose=True):
-    """yield a tree lacking organisms missing from the trait table"""
+    """yield a tree lacking organisms missing from the trait table
+    
+    trait_table_fields -- a list of lists, containing the results of parsing the data
+    lines of the trait table.  Each set of fields in the list should contain the organism name
+    at index 0, and data values for the various traits at other positions
+    
+    """
     org_ids_in_trait_table = []
     new_tree = tree.deepcopy()
     
-    for fields in yield_trait_table_fields(trait_table_lines, delimiter):
+    for fields in trait_table_fields:
         curr_org = fields[name_field_index].strip()
         org_ids_in_trait_table.append(curr_org)
     
@@ -360,24 +390,11 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_lines,name_field_inde
         raise RuntimeError(\
           "filter_tree_tips_by_presence_in_table:  operation would remove all tips.  Is this due to a formatting error in inputs?")
     if verbose: 
-        print "%i of %i tips will be pruned (leaving %i)" %(len(tips_to_prune),\
+        print "%i of %i tips will be removed (leaving %i)" %(len(tips_to_prune),\
           n_tips_not_to_prune + len(tips_to_prune), n_tips_not_to_prune)
-        print "Example tips that will be pruned (first 10):\n\n%s" % \
+        print "Example tips that will be removed (first 10):\n\n%s" % \
           tips_to_prune[0:min(len(tips_to_prune),10)]
-    #TODO: This step seems to be super slow
-    #for i,tip_name in enumerate(tips_to_prune):
-    #    
-    #    tip = new_tree.getNodeMatchingName(tip_name)
-    #    if tip.Parent is not None:
-    #        if verbose:
-    #            print 'removing tip  %i/%i' %(i,len(tips_to_prune))
-    #        removal_ok = tip.Parent.remove(tip)
-    #    else:
-    #        removal_ok = False
-    #if verbose:
-    #    print 'pruning....' 
-    #new_tree.prune()
-    try: 
+    try:
         new_tree = new_tree.getSubTree(tips_not_to_prune)
     except RuntimeError:
         #NOTE:  getSubTree will hit 
@@ -428,30 +445,23 @@ def parse_id_mapping_file(file_lines,delimiter="\t"):
         yield line.strip().split(delimiter)
 
 
-def remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping_dict,\
+def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,\
   input_delimiter="\t",output_delimiter="\t",verbose=False):
-    """Yield trait table lines with organism ids substituted using the mapping dict
+    """Yield trait table fields with organism ids substituted using the mapping dict
     
-    trait_table_lines -- tab-delimited lines of organism\tcounts (each count gets
-      a column).   
+    An iterator containing lists for each trait.  The first field in each list
+    should be the organism id, and the rest should be trait values.
+
 
     """
  
-    remapped_lines = []
+    remapped_fields = []
     bad_ids = []
     default_total = 0
     #if verbose:
     #    print trait_to_tree_mapping_dict
     #    print sorted(list(set(trait_to_tree_mapping_dict.keys())))
-    for i,line in enumerate(trait_table_lines):
-        #if verbose:
-        #    print i,line
-
-        if line.startswith("#") or line.startswith("GenomeID"):
-            continue 
-        fields = line.strip().split(input_delimiter)
-        #if verbose:
-        #    print fields
+    for fields in trait_table_fields:
             
         if verbose:
             old_id = fields[0]
@@ -460,12 +470,11 @@ def remap_trait_table_organisms(trait_table_lines,trait_to_tree_mapping_dict,\
         except KeyError:
             bad_ids.append(fields[0])
             continue
-        #fields[0] = trait_to_tree_mapping_dict[fields[0]]
-        result =  output_delimiter.join(fields)+"\n" 
         
-        remapped_lines.append(result)
+        remapped_fields.append(fields)
 
     if verbose and bad_ids:
-        print "%i of %i trait table ids could not be mapped to tree" %(len(bad_ids),len(remapped_lines))
+        print "%i of %i trait table ids could not be mapped to tree" %(len(bad_ids),len(remapped_fields))
         print "Example trait table ids that could not be mapped to tree:" %(bad_ids[:min(len(bad_ids),10)])
-    return remapped_lines
+    
+    return remapped_fields
