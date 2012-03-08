@@ -52,6 +52,12 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     else:
         trait_table_lines = []
         header_line = ''
+
+    #replace any spaces in internal node labels with underscores
+    for n in input_tree.iterNontips():
+        if n.Name:
+            n.Name.replace(" ", "_")
+        
     #Name unnamed nodes
     if name_unnamed_nodes:
         if verbose:
