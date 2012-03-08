@@ -91,7 +91,7 @@ def parse_wagner_parsimony_output(raw_output_with_comments,remove_num_tips=0):
 
     #keep only lines with actual ASR count information
     #throw away first 2 columns and last 4 columns (these are extra stuff from Count)
-    filtered_output=[x.split("\t")[2:-4] for x in raw_output_with_comments if x[0:8] == '# FAMILY']
+    filtered_output=[x.split('\t')[1:-4] for x in raw_output_with_comments if x[0:8] == '# FAMILY']
 
     if(remove_num_tips):
         #remove columns that contain trait data for tips (not internal node data) 
