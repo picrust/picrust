@@ -278,8 +278,37 @@ def filter_table_by_presence_in_tree(tree,trait_table_fields,name_field_index = 
         result_fields.append(fields)
     return result_fields
 
+
+
+def make_translate_conversion_fn(translation_dict):
+    """Return a new function that replaces values in input values with output_value
+    translation_dict -- a dict that maps inputs that should be translated to 
+    their appropriate output
+    """
+
+    def translate_conversion_fn(trait_value_field):
+        # Return translation, or the original value if no translation
+        # is available
+        return translation_dict.get(trait_value_field,trait_value_field)
+        
+    return translate_conversion_fn
+
+def remove_spaces(trait_label_field):
+    """A conversion function that replaces spaces with underscores in a label
+    """
+
+    label = str(trait_label_field)
+    fields = trait_label_field.lstrip().strip().split()
+    return "_".join(fields)
+
+
+
+
+
+
+
 def convert_trait_table_entries(trait_table_fields,\
-        label_conversion_fns=[str,remove_spaces],value_conversion_fns = [lambda x:int(float(x))]):
+        label_conversion_fns=[str],value_conversion_fns = [lambda x:int(float(x))]):
     """Convert trait values by running conversion_fns on labels and values
     
     trait_table_fields -- list of strings (from a trait table line)
@@ -316,30 +345,6 @@ def convert_trait_table_entries(trait_table_fields,\
                 new_fields.append(new_val)
                 
         yield new_fields
-
-def make_translate_conversion_fn(translation_dict):
-    """Return a new function that replaces values in input values with output_value
-    translation_dict -- a dict that maps inputs that should be translated to 
-    their appropriate output
-    """
-
-    def translate_conversion_fn(trait_value_field):
-        # Return translation, or the original value if no translation
-        # is available
-        return translation_dict.get(trait_value_field,trait_value_field)
-        
-    return translate_conversion_fn
-
-def remove_spaces(trait_label_field):
-    """A conversion function that replaces spaces with underscores in a label
-    """
-
-    label = str(trait_label_field)
-    fields = trait_label_field.lstrip().strip().split()
-    return "_".join(fields)
-
-
-
 
 
 
