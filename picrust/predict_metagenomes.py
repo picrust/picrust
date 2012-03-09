@@ -19,7 +19,7 @@ def predict_metagenomes(otu_table,genome_table):
     """
     # identify the overlapping otus that can be used to predict metagenomes 
     overlapping_otus = list(set(otu_table.ObservationIds) & 
-                            set(genome_table.SampleIds))
+                            set(genome_table.ObservationIds))
     
     if len(overlapping_otus) < 1:
         raise ValueError,\
@@ -34,7 +34,7 @@ def predict_metagenomes(otu_table,genome_table):
     # build lists of filtered data
     for obs_id in overlapping_otus:
         otu_data.append(otu_table.observationData(obs_id))
-        genome_data.append(genome_table.sampleData(obs_id))
+        genome_data.append(genome_table.observationData(obs_id))
     
     # matrix multiplication to get the predicted metagenomes
     new_data = dot(array(otu_data).T,array(genome_data)).T
@@ -42,4 +42,4 @@ def predict_metagenomes(otu_table,genome_table):
     # return the result as a sparse biom table - the sample ids are now the 
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
-    return table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+    return table_factory(new_data,otu_table.SampleIds,genome_table.SampleIds)
