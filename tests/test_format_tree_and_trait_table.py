@@ -9,7 +9,7 @@ from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
   yield_trait_table_fields,ensure_root_is_bifurcating,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
   add_to_filename,make_id_mapping_dict,make_translate_conversion_fn,\
-  remove_spaces
+  remove_spaces, format_tree_node_names
 
 """
 Tests for format_tree_and_trait_tables.py
@@ -22,6 +22,9 @@ class TestFormat(TestCase):
         self.SimpleTree = \
           DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
     
+        self.SimpleTreeWithSpaces = \
+          DndParser("((E coli:0.02,S typhimurium :0.01)Gamma proteobacteria:0.05,(C\t:0.01,D:0.01)F:0.05)root;")
+        
         self.SimplePolytomyTree = \
           DndParser("((A:0.02,B:0.01,B_prime:0.03)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
         
@@ -37,7 +40,21 @@ class TestFormat(TestCase):
     def reformat_tree_and_trait_table(self):
         """Test the main function under various conditions"""
         pass
-    
+   
+
+    def test_reformat_tree_node_names(self):
+        """Reformat_tree_node_names reformats tree nodes using supplied fns"""
+        
+        tree = self.SimpleTreeWithSpaces
+        
+        obs_tree = format_tree_node_names(tree,[remove_spaces])
+        obs = obs_tree.getNewick(with_distances=True)
+
+        exp =\
+          "((E_coli:0.02,S_typhimurium :0.01)Gamma_proteobacteria:0.05,(C:0.01,D:0.01)F:0.05)root;"
+
+
+
     def test_nexus_lines_from_tree(self):
         """Nexus lines from tree should return NEXUS formatted lines..."""
         obs =  nexus_lines_from_tree(self.SimpleTree)
@@ -72,12 +89,15 @@ class TestFormat(TestCase):
           ['organism 1','0','0.3','15','1','6'],\
           ['organism 2','1','1','13','1','4'],\
           ['organism 3','2','0','12','0.9','5']]
-
-        obs = [l for l in convert_trait_table_entries(lines)]
+        val_conv_fns = [lambda x: str(int(float(x)))]
+        label_conv_fns = [remove_spaces]
+        obs = [l for l in convert_trait_table_entries(lines,\
+                value_conversion_fns = val_conv_fns,\
+                label_conversion_fns=label_conv_fns)]
         exp =[\
-          ['organism 1','0','0','15','1','6'],\
-          ['organism 2','1','1','13','1','4'],\
-          ['organism 3','2','0','12','0','5']]
+          ['organism_1','0','0','15','1','6'],\
+          ['organism_2','1','1','13','1','4'],\
+          ['organism_3','2','0','12','0','5']]
 
         self.assertEqual(obs,exp)
 
