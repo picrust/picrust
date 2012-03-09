@@ -24,7 +24,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
     filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
     add_branch_length_to_root=False, name_unnamed_nodes=True,\
-    remove_whitespace_from_labels = True,\
+    remove_whitespace_from_labels = True,replace_ambiguous_states=True,\
     min_branch_length=0.0001,\
     verbose=True):
     """Return a full reformatted tree,pruned reformatted tree  and set of trait table lines 
@@ -41,6 +41,12 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     This function combines the various reformatting functions in the 
     library into a catch-all reformatter.  
+    
+    TODO: This function is monolithic, so despite the individual
+    parts being tested seperately, it probably needs to be broken
+    down into several modular parts.  This would need to be done
+    with care however, as the order of steps matters quite a bit.
+    
     """
     
     
@@ -48,10 +54,16 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     input_tree = tree
     
     #Parse lines to fields once
+    
+    
     if trait_table_lines:
+        if verbose:
+            print "Parsing trait table...."
         header_line,trait_table_fields =\
           parse_trait_table(trait_table_lines,delimiter = input_trait_table_delimiter)
     else:
+        if verbose:
+            print "Found no trait table lines. Setting data and header to empty"
         trait_table_fields = []
         header_line = ''
 
@@ -78,9 +90,9 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
         if verbose:
             print "Remapping trait table ids to match tree ids...."
+        
         trait_table_fields =\
           remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping,\
-          input_delimiter="\t",output_delimiter="\t",\
           verbose = verbose)
     
           
@@ -102,48 +114,8 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
           trait_table_fields,delimiter=input_trait_table_delimiter,\
           verbose=verbose)
-             
-    #Set the functions that will be applied to trait table values 
-    value_conversion_fns = []
-
-    if convert_trait_floats_to_ints:
-        value_conversion_fns.append(lambda x: str(int(float(x))))
-    
-        if verbose:
-            print "Converting floating point trait table values to integers...."
-    
-
-    #Set the functions that will be applied to trait table labels
-
-    #NOTE:  the same functions need to be applied to all tree node labels to ensure that
-    # these still map up.  Therefore, it's a bad idea to include conversion
-    # functions that are either stochastic, or that reduce unique labels in ways
-    # that make them non-unique.  Consider yourself warned.  
    
-    #Additional NOTE: for obvious reasons, this needs to be done after filtering
-    #the tree against trait table and vice-versa
-
-    label_conversion_fns = []
-    if remove_whitespace_from_labels:
-        if verbose:
-            print "Removing whitespace from trait table organism labels..."
-        label_conversion_fns.append(remove_spaces)
-
-    trait_table_fields = convert_trait_table_entries(\
-        trait_table_fields,\
-        value_conversion_fns=value_conversion_fns,\
-        label_conversion_fns = label_conversion_fns)
-   
-    
     # Tree reformatting
-    
-    #We now need to apply any formatting functions to the tree nodes as well, to ensure
-    #that names are consistent between the two.
-    if label_conversion_fns:
-        if verbose:
-            print "reformatting tree node names..."
-        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
-    
     if convert_to_bifurcating:
         if verbose:
             print "Converting tree to bifurcating...."
@@ -177,12 +149,61 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     input_tree.prune()
     
+        
+        
+          
+    #Set the functions that will be applied to trait table values 
+    value_conversion_fns = []
+
+    if replace_ambiguous_states:
+        #  Replace ambiguous characters with 0's
+        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
+        if verbose:
+            print "Replacing ambiguous characters:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+        
+        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
+        value_conversion_fns.append(replace_ambig_fn)
+
+    if convert_trait_floats_to_ints:
+        value_conversion_fns.append(lambda x: str(int(float(x))))
+    
+        if verbose:
+            print "Converting floating point trait table values to integers...."
+    
+    #Set the functions that will be applied to trait table labels
+    label_conversion_fns = []
+    if remove_whitespace_from_labels:
+        if verbose:
+            print "Removing whitespace from trait table organism labels..."
+        label_conversion_fns.append(remove_spaces)
+    
+
+    #Apply both to the trait table
+    trait_table_fields = convert_trait_table_entries(\
+        trait_table_fields,\
+        value_conversion_fns = value_conversion_fns,\
+        label_conversion_fns = label_conversion_fns)
+   
     result_trait_table_lines = [header_line]
-    result_trait_table_lines.extend(trait_table_lines)
+    result_trait_table_lines.extend([output_trait_table_delimiter.join(f) for f in trait_table_fields])
+ 
+    #We now need to apply any formatting functions to the tree nodes as well, to ensure
+    #that names are consistent between the two.
+    if label_conversion_fns:
+        if verbose:
+            print "reformatting tree node names..."
+        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
+    
+
     if verbose:
-        print "Final reprocessing of lines..."
+        print "Final reprocessing of trait table lines to remove trailing whitespace..."
     result_trait_table_lines =\
       [line.strip() for line in result_trait_table_lines if line.strip()]
+    
+
+    
     if verbose:
         print "Done reformatting tree and trait table"
     
@@ -340,8 +361,16 @@ def make_translate_conversion_fn(translation_dict):
     def translate_conversion_fn(trait_value_field):
         # Return translation, or the original value if no translation
         # is available
-        return translation_dict.get(trait_value_field,trait_value_field)
+        trait_value_field = str(trait_value_field).strip()
+        #print trait_value_field
+        #print translation_dict.keys()
+        result = translation_dict.get(trait_value_field,trait_value_field)
         
+        if result in translation_dict.keys():
+            raise RuntimeError("failed to translate value: %s" % result)
+        
+        return str(result)
+
     return translate_conversion_fn
 
 def remove_spaces(trait_label_field):
@@ -378,7 +407,8 @@ def convert_trait_table_entries(trait_table_fields,\
     
     """
     name_field_index = 0
-
+    #print "Value conversion fns:",[f.__name__ for f in value_conversion_fns]
+    #print "label_conversion_fns:",[f.__name__ for f in label_conversion_fns]
     for fields in trait_table_fields: 
         new_fields = []
         for i,field in enumerate(fields):
@@ -391,7 +421,7 @@ def convert_trait_table_entries(trait_table_fields,\
             new_val = field
             for curr_conv_fn in converters_to_use:
                 new_val = str(curr_conv_fn(new_val))
-                new_fields.append(new_val)
+            new_fields.append(new_val)
                 
         yield new_fields
 
@@ -485,11 +515,9 @@ def make_id_mapping_dict(tree_to_trait_mappings):
     
     """
     trait_to_tree_mapping_dict = {}
-    tree_to_trait_mapping_dict = {}
     
     for tree_id,trait_id in tree_to_trait_mappings:
         trait_to_tree_mapping_dict[trait_id] = tree_id
-        tree_to_trait_mapping_dict[tree_id] = trait_id
 
     return trait_to_tree_mapping_dict
 
@@ -499,8 +527,7 @@ def parse_id_mapping_file(file_lines,delimiter="\t"):
         yield line.strip().split(delimiter)
 
 
-def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,\
-  input_delimiter="\t",output_delimiter="\t",verbose=False):
+def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,verbose=False):
     """Yield trait table fields with organism ids substituted using the mapping dict
     
     An iterator containing lists for each trait.  The first field in each list
