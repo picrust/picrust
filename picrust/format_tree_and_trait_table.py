@@ -24,6 +24,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     filter_table_by_tree_tips=True, convert_trait_floats_to_ints=False,\
     filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
     add_branch_length_to_root=False, name_unnamed_nodes=True,\
+    remove_whitespace_from_labels = True,\
     min_branch_length=0.0001,\
     verbose=True):
     """Return a full reformatted tree,pruned reformatted tree  and set of trait table lines 
@@ -54,11 +55,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         trait_table_fields = []
         header_line = ''
 
-    #replace any spaces in internal node labels with underscores
-    for n in input_tree.iterNontips():
-        if n.Name:
-            n.Name.replace(" ", "_")
-        
+       
     #Name unnamed nodes
     if name_unnamed_nodes:
         if verbose:
@@ -85,6 +82,8 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
           remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping,\
           input_delimiter="\t",output_delimiter="\t",\
           verbose = verbose)
+    
+          
     #Then filter the trait table to include only tree tips
     if filter_table_by_tree_tips:
         if verbose:
@@ -97,24 +96,54 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         #    print "# of trait_table_lines: %i" %len(trait_table_lines)
         #    all_tip_ids = [tip.Name for tip in input_tree.iterTips()]
         #    print "example tree tip ids:",all_tip_ids[0:10]
-                
-    
-    #Optionally convert floating point values in the trait table to ints
-    if convert_trait_floats_to_ints:
-        if verbose:
-            print "Converting floating point trait table values to integers...."
-        trait_table_fields = convert_trait_table_entries(\
-          trait_table_fields,conversion_fn = int,delimiter=input_trait_table_delimiter)
-   
     if filter_tree_by_table_entries:
         if verbose:
             print "filtering tree tips to match entries in trait table...."
         input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
           trait_table_fields,delimiter=input_trait_table_delimiter,\
           verbose=verbose)
+             
+    #Set the functions that will be applied to trait table values 
+    value_conversion_fns = []
 
+    if convert_trait_floats_to_ints:
+        value_conversion_fns.append(lambda x: str(int(float(x))))
+    
+        if verbose:
+            print "Converting floating point trait table values to integers...."
+    
+
+    #Set the functions that will be applied to trait table labels
+
+    #NOTE:  the same functions need to be applied to all tree node labels to ensure that
+    # these still map up.  Therefore, it's a bad idea to include conversion
+    # functions that are either stochastic, or that reduce unique labels in ways
+    # that make them non-unique.  Consider yourself warned.  
+   
+    #Additional NOTE: for obvious reasons, this needs to be done after filtering
+    #the tree against trait table and vice-versa
+
+    label_conversion_fns = []
+    if remove_whitespace_from_labels:
+        if verbose:
+            print "Removing whitespace from trait table organism labels..."
+        label_conversion_fns.append(remove_spaces)
+
+    trait_table_fields = convert_trait_table_entries(\
+        trait_table_fields,\
+        value_conversion_fns=value_conversion_fns,\
+        label_conversion_fns = label_conversion_fns)
+   
+    
     # Tree reformatting
-
+    
+    #We now need to apply any formatting functions to the tree nodes as well, to ensure
+    #that names are consistent between the two.
+    if label_conversion_fns:
+        if verbose:
+            print "reformatting tree node names..."
+        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
+    
     if convert_to_bifurcating:
         if verbose:
             print "Converting tree to bifurcating...."
@@ -160,8 +189,30 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     return input_tree, result_trait_table_lines
 
+def format_tree_node_names(tree,label_formatting_fns=[]):
+    """Return tree with node names formatted using specified fns
+    
+    tree -- a PyCogent PhyloNode tree object
+    
+    formatting_fns -- a list of formatting functions that are to 
+    be called on each node name in the tree, and which each return
+    a new node name.
+    
+    """
 
+    for n in tree.preorder():
+        if n.Name is None:
+            continue
+        new_node_name = n.Name
 
+        for formatting_fn in label_formatting_fns:
+            new_node_name = formatting_fn(new_node_name)
+
+        n.Name = new_node_name
+
+    return tree
+
+     
 
 
 def nexus_lines_from_tree(tree):
@@ -308,7 +359,7 @@ def remove_spaces(trait_label_field):
 
 
 def convert_trait_table_entries(trait_table_fields,\
-        label_conversion_fns=[str],value_conversion_fns = [lambda x:int(float(x))]):
+        label_conversion_fns=[str],value_conversion_fns = [float]):
     """Convert trait values by running conversion_fns on labels and values
     
     trait_table_fields -- list of strings (from a trait table line)
@@ -332,16 +383,14 @@ def convert_trait_table_entries(trait_table_fields,\
         new_fields = []
         for i,field in enumerate(fields):
             if i != name_field_index:
-                #Run organism label converters on this field
-                new_val = field
-                for curr_conv_fn in value_conversion_fns:
-                    new_val = str(curr_conv_fn(new_val))
-                    new_fields.append(new_val)
+                converters_to_use = value_conversion_fns
             else:
-                #Run trait value converters on this field
-                new_val = field
-                for curr_conv_fn in label_conversion_fns:
-                    new_val = str(curr_conv_fn(new_val))
+                converters_to_use = label_conversion_fns
+            
+            #Run appropriate converters on this field
+            new_val = field
+            for curr_conv_fn in converters_to_use:
+                new_val = str(curr_conv_fn(new_val))
                 new_fields.append(new_val)
                 
         yield new_fields
