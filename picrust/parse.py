@@ -44,6 +44,7 @@ def parse_trait_table(trait_table_lines,delimiter="\t",has_header=True):
     Comment lines (starting with '#') and blank lines will be ignored,
     and won't show up in the output.
     """
+    header_line = None
     if not has_header:
         header_line = ''
     else:
@@ -53,6 +54,8 @@ def parse_trait_table(trait_table_lines,delimiter="\t",has_header=True):
             if i == 0:
                 header_line = line
                 break
+    if header_line is None:
+        raise RuntimeError("Could not find header line in input trait table lines.  Was it skipped due to starting with a comment ('#') sign?")
     #Now that we have the header (if present) yield_trait_table_fields
     #can assume no header exists, and just parse data fields
     return header_line, yield_trait_table_fields(trait_table_lines,\
