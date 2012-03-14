@@ -16,6 +16,7 @@ __status__ = "Development"
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes
+from picrust.format import format_biom_table
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -38,7 +39,7 @@ def main():
     genome_table = parse_biom_table(open(opts.input_genome_table,'U'))
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
     open(opts.output_metagenome_table,'w').write(\
-     predicted_metagenomes.getBiomFormatJsonString('PICRUST'))
+     format_biom_table(predicted_metagenomes))
 
 if __name__ == "__main__":
     main()
