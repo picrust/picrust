@@ -9,7 +9,7 @@ from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
   yield_trait_table_fields,ensure_root_is_bifurcating,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
   add_to_filename,make_id_mapping_dict,make_translate_conversion_fn,\
-  remove_spaces, format_tree_node_names
+  make_char_translation_fn,remove_spaces, format_tree_node_names
 
 """
 Tests for format_tree_and_trait_tables.py
@@ -87,16 +87,26 @@ class TestFormat(TestCase):
         """convert_trait_entries should convert labels,values using conversion fns"""
         lines =[\
           ['organism 1','0','0.3','15','1','6'],\
-          ['organism 2','1','1','13','1','4'],\
+          ['organism 2','1','1','13','-1',-1],\
           ['organism 3','2','0','12','0.9','5']]
-        val_conv_fns = [lambda x: str(int(float(x)))]
+        
+        val_conv_fns = []
+        
+        #Handle replacement of ambiguous values
+        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
+        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
+        val_conv_fns.append(replace_ambig_fn)
         label_conv_fns = [remove_spaces]
+       
+        #Convert values to integers (in string form)
+        val_conv_fns.append(lambda x: str(int(float(x))))
+       
         obs = [l for l in convert_trait_table_entries(lines,\
                 value_conversion_fns = val_conv_fns,\
                 label_conversion_fns=label_conv_fns)]
         exp =[\
           ['organism_1','0','0','15','1','6'],\
-          ['organism_2','1','1','13','1','4'],\
+          ['organism_2','1','1','13','0','0'],\
           ['organism_3','2','0','12','0','5']]
 
         self.assertEqual(obs,exp)
@@ -111,9 +121,26 @@ class TestFormat(TestCase):
           make_translate_conversion_fn(translation_dict)
         
         values = [0,-1,15,'10','-1','Unknown','?']
-        exp = [0,0,15,'10',0,0,0]
+        exp = ['0','0','15','10','0','0','0']
         obs = map(conversion_fn,values)
         self.assertEqual(obs,exp)
+
+    def test_make_char_translation_conversion_fn(self):
+        """make_translate_conversion_fn should make a conversion_fn given dicts """
+        #Replace semicolons and colons with underscores
+        translation_dict =\
+          {';':'_',':':'_'}
+
+        conversion_fn =\
+          make_char_translation_fn(translation_dict)
+        
+        values = [24687,23458,'Proteobacteria;Gammaproteobacteria',\
+                  'test;test:test']
+        exp = ['24687','23458','Proteobacteria_Gammaproteobacteria',\
+                  'test_test_test']
+        obs = map(conversion_fn,values)
+        self.assertEqual(obs,exp)
+
 
     def test_remove_spaces(self):
         """spaces_to_underscores should replaces whitespace with underscores"""
