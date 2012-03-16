@@ -12,12 +12,14 @@ __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
 from os.path import splitext
+from string import maketrans
+from sys import getrecursionlimit,setrecursionlimit
+
 from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
-from picrust.parse import parse_trait_table,yield_trait_table_fields
 
-from sys import getrecursionlimit,setrecursionlimit
+from picrust.parse import parse_trait_table,yield_trait_table_fields
 
 def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     input_trait_table_delimiter="\t", output_trait_table_delimiter="\t",\
@@ -25,7 +27,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     filter_tree_by_table_entries=True,convert_to_bifurcating=False,\
     add_branch_length_to_root=False, name_unnamed_nodes=True,\
     remove_whitespace_from_labels = True,replace_ambiguous_states=True,\
-    min_branch_length=0.0001,\
+    replace_problematic_label_characters = True,min_branch_length=0.0001,\
     verbose=True):
     """Return a full reformatted tree,pruned reformatted tree  and set of trait table lines 
 
@@ -34,10 +36,35 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     trait_table_lines -- the lines of a trait table, where 
       the rows are organisms and the columns are traits (e.g. gene counts).
     
-    trait_id_to_tree_id_mapping -- a dict keyed by trait table ids, with
+    trait_id_to_tree_mapping -- a dict keyed by trait table ids, with
       values of tree ids.   If provided, trait table ids will be mapped to 
       tree ids
-    
+
+    filter_table_by_tree_tips -- if True, remove trait table rows that don't map to ids on the 
+    tree 
+
+    convert_trait_floats_to_ints -- if True, convert floating point values in trait table cells to integers.
+
+    filter_tree_by_table_entries -- if True, save only the subtree that encompasses organisms in the trait table.
+    (equivalent to removing all tips in the tree that don't map to the trait table)
+
+    convert_to_bifurcating -- if True, ensure that the tree is fully bifurcating by resolving polytomies with very short
+    branches.
+
+    add_branch_length_to_root -- if True, ensure that the root node has a minimum branch length
+
+    name_unnamed_nodes -- if True, name unnamed nodes in the tree.   (Useful for ensuring internal nodes can be 
+    consistently identified in both the reference and pruned trees)
+
+    remove_whitespace_from_labels -- if True, replace whitespace in organism labels with underscores
+   
+    replace_ambiguous_states -- if True, replace various strings representing ambiguous character states,
+    as well as '-1' or -1 (used by IMG to represent a lack of data) with 0 values.
+
+    replace_problematic_table_chars -- if True, replace ':' and ';' in the results with '_'.
+    (AncSR methods like ace can't handle these characters in organism labels)
+
+    min_branch_length -- set the minimum branch length for all edges in the tree.   
     
     This function combines the various reformatting functions in the 
     library into a catch-all reformatter.  
@@ -47,6 +74,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     down into several modular parts.  This would need to be done
     with care however, as the order of steps matters quite a bit.
     
+
     """
     
     
@@ -154,7 +182,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
           
     #Set the functions that will be applied to trait table values 
     value_conversion_fns = []
-
+    
     if replace_ambiguous_states:
         #  Replace ambiguous characters with 0's
         replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
@@ -165,7 +193,8 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         
         replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
         value_conversion_fns.append(replace_ambig_fn)
-
+    
+    
     if convert_trait_floats_to_ints:
         value_conversion_fns.append(lambda x: str(int(float(x))))
     
@@ -179,6 +208,19 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
             print "Removing whitespace from trait table organism labels..."
         label_conversion_fns.append(remove_spaces)
     
+    if replace_problematic_label_characters:
+        #  Replace ambiguous characters with 
+        replacement_dict ={":":"_",";":"_"}
+        if verbose:
+            print "Replacing problematic labels in organism labels:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+        
+        replace_problematic_chars_fn =\
+           make_char_translation_fn(replacement_dict)
+        label_conversion_fns.append(replace_problematic_chars_fn)
+
+
 
     #Apply both to the trait table
     trait_table_fields = convert_trait_table_entries(\
@@ -372,6 +414,37 @@ def make_translate_conversion_fn(translation_dict):
         return str(result)
 
     return translate_conversion_fn
+
+def make_char_translation_fn(translation_dict):
+    """Return a new function that replaces values in input values with output_value
+    translation_dict -- a dict that maps inputs that should be translated to 
+    their appropriate output
+    """
+
+    def translate_conversion_fn(trait_value_field):
+        # Return translation, or the original value if no translation
+        # is available
+        trait_value_field = str(trait_value_field).strip()
+        
+        from_chars = ''
+        to_chars = ''
+        for k,v in translation_dict.items():
+            from_chars += k
+            to_chars += v
+
+        translation_table = maketrans(from_chars,to_chars)
+        #print trait_value_field
+        #print translation_dict.keys()
+        result = trait_value_field.translate(translation_table)
+
+        
+        if result in translation_dict.keys():
+            raise RuntimeError("failed to translate value: %s" % result)
+        
+        return str(result)
+
+    return translate_conversion_fn
+
 
 def remove_spaces(trait_label_field):
     """A conversion function that replaces spaces with underscores in a label
