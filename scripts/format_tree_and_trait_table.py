@@ -11,12 +11,12 @@ __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
-from os.path import splitext
+from os.path import join,splitext
 from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 from picrust.format_tree_and_trait_table import *
-
+from picrust.util import make_output_dir
 
 # Set up commandline parameters
 script_info = {}
@@ -44,8 +44,7 @@ script_info['required_options'] = [\
 delimiter_choices = ['tab','space','comma']
 script_info['optional_options'] = [\
           make_option('-m','--tree_to_trait_mapping',default=None,type="existing_filepath",help='a two-column, tab-delimited text file mapping identifiers in the tree(column 1) to identifiers in the trait table (column 2). If supplied, the identifiers in the trait table will be converted to match the identifiers in the tree. (This mapping does not need to be supplied if the tree and trait table already use a common set of identifiers.) [default: %default]'),\
-          make_option('--output_tree',default=None,type="new_filepath",help='the output tree file [default: input tree file with "_formatted" added before the extension]'),\
-          make_option('--output_table_fp',default=None,type="new_filepath",help='the output tree file [default: input table filepath with "_formatted" added before the extension]'),\
+          make_option('-o','--output_dir',default='./formatted/',type="new_filepath",help='the output directory [default: %default]'),\
           make_option('--input_table_delimiter',default='tab',type="choice",choices=delimiter_choices,\
             help='The character delimiting fields in the input trait table. Valid choices are:'+','.join(delimiter_choices)+' [default: %default]'),\
           make_option('--output_table_delimiter',default='tab',type="choice",choices=delimiter_choices,\
@@ -71,20 +70,19 @@ def main():
     tree_file = opts.input_tree
     trait_table_fp = opts.input_trait_table
     verbose = opts.verbose 
-    
-    #Handle parameters with more complex defaults
-    if opts.output_table_fp:
-        output_table_fp = opts.output_table_fp  
-    else:
-        output_table_fp = add_to_filename(trait_table_fp,"reformatted")
-    
-    if opts.output_tree:
-        output_tree_fp = opts.output_tree  
-    else:
-        output_tree_fp = add_to_filename(opts.input_tree,"reformatted")
+  
+    #Set output base file names
+    trait_table_base = 'trait_table.tab'
+    pruned_tree_base = 'pruned_tree.newick'
+    reference_tree_base = 'reference_tree.newick'
 
-    output_reference_tree_fp = add_to_filename(output_tree_fp,"reference")
-    
+    output_dir = make_output_dir(opts.output_dir,strict=False)
+    output_table_fp = join(output_dir,trait_table_base)
+    output_tree_fp = join(output_dir,pruned_tree_base)
+    output_reference_tree_fp = join(output_dir,reference_tree_base)
+
+
+    #Handle parameters with more complex defaults
     delimiter_map = {"space":" ","tab":"\t","comma":","}
     input_delimiter = delimiter_map[opts.input_table_delimiter]
     output_delimiter = delimiter_map[opts.output_table_delimiter] 
