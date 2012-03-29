@@ -34,7 +34,7 @@ from sys import argv
 from copy import deepcopy
 import os
 from random import sample, shuffle
-
+from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
 
 
 
@@ -170,5 +170,96 @@ def write_tree(output_dir,base_name,test_tree,tip_to_predict ):
     f.write(test_tree.getNewick(with_distances=True))
     f.close()
     return filename
+
+
+def trait_dict_from_fields(trait_table_fields):
+    """return a dict keyed by organism with values of the trait table row"""
+    
+    result = {}
+    for fields in trait_table_fields:
+        organism = fields[0]
+        result[organism] = fields
+
+    return result
+
+def yield_genome_test_data_by_distance(tree,trait_table_fields,\
+  test_fn_factory=make_distance_based_exclusion_fn, min_dist=0.0,max_dist=0.70,\
+  increment=0.03,verbose=True):
+    """Yield successive test datasets as analysis_name,test_tree,test_trait_table, test_tip tuples
+    
+    tree  -- a PyCogent PhyloNode object
+    
+    trait_table_fields -- a list of strings from a trait table
+      (the first is organism name, the rest are trait values)
+    
+    test_fn_factory -- a factory function that returns a new test tree generating function,
+      given a distance parameter.  The test tree generating function, in turn, should
+      return a new test tree, given a tip of interest and the full tree. 
+
+    min_dist -- the minimum distance at which to start generating test
+      trees.
+
+    max_dist -- the maximum distance for test trees
+
+    increment -- the increment by which the distance parameter should be
+      increased.
+    
+    """
+
+    #Include only organisms present in the tree
+    
+
+    trait_table_fields = filter_table_by_presence_in_tree(tree,\
+                  trait_table_fields)
+
+    orgs_in_table = [f[0] for f in trait_table_fields]
+    #print orgs_in_table
+    #print [t.Name for t in tree.iterTips()]
+
+    if not orgs_in_table:
+        raise RuntimeError("Could not match trait table organisms to tree")
+    
+    table_by_org = trait_dict_from_fields(trait_table_fields)
+
+    #Generate a test data generation function
+    #using the specified method and distance parameter
+    
+    dists = [min_dist+i*increment for i in range(int((max_dist-min_dist) // increment))]
+     
+    if verbose:
+        print "Building test trees for each of the following distances: %s" \
+        %(",".join(map(str,dists)))
+    
+    
+    for curr_dist in dists:
+        test_fn = test_fn_factory(curr_dist)
+
+
+
+        #For now assume we want to generate tests for
+        #all organisms in the table
+        #TODO: add options for just doing n of these
+
+        tips_to_predict = orgs_in_table
+
+
+        #For each tip, generate a test dataset
+        test_data = []
+        total_organisms = len(tips_to_predict)
+        for i,tip_to_predict in enumerate(tips_to_predict):
+
+            if verbose:
+                print "Generating test dataset for %i/%i: %s" %(i,\
+                  total_organisms,tip_to_predict)
+        
+            tree_copy = tree.deepcopy()
+            
+            test_tree = \
+              test_fn(tree_copy.getNodeMatchingName(tip_to_predict),tree_copy) 
+        
+            expected_traits = table_by_org[tip_to_predict]
+            yield curr_dist,test_tree,tip_to_predict, expected_traits
+        
+
 
 
