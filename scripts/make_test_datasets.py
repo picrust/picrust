@@ -10,7 +10,7 @@ __version__ = "0.1"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
-
+import os
 from copy import deepcopy
 from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
@@ -21,7 +21,7 @@ from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
 
 from picrust.make_test_datasets import yield_test_trees,\
   make_distance_based_tip_label_randomizer,make_distance_based_exclusion_fn,\
-  exclude_tip,write_tree
+  exclude_tip,write_tree, yield_genome_test_data_by_distance
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -60,7 +60,6 @@ def main():
     tree = LoadTree(opts.input_tree)
     make_output_dir(opts.output_dir)
     
-    
 
     method_fns =\
       {"exclude_tips_by_distance":\
@@ -69,57 +68,63 @@ def main():
          make_distance_based_tip_label_randomizer
        }
 
+    test_fn_factory = method_fns[opts.method]
+    
     #Find which taxa are to be used in tests 
     #(by default trait table taxa)
     trait_table_header,trait_table_fields = \
             parse_trait_table(input_trait_table)
 
 
-    trait_table_fields = filter_table_by_presence_in_tree(tree,\
-                  trait_table_fields)
-
-
-    orgs_in_table = [f[0] for f in trait_table_fields]
-
-    #Generate a test data generation function
-    #using the specified method and distance parameter
-    distance_increment = 0.01
-    distance_max = 0.50
-    dists = [distance_increment*i for i in range(1,int(distance_max/distance_increment))]
-    if opts.verbose:
-        print "Building test trees for each of the following distances: %s" % (",".join(map(str,dists)))
+    trait_table_fields = [t for t in trait_table_fields]
+    
+    test_datasets = \
+      yield_genome_test_data_by_distance(tree,trait_table_fields,test_fn_factory,\
+      min_dist = 0.0, max_dist=0.45,increment=0.03, verbose = opts.verbose)
     
     
-    for curr_dist in dists:
-        test_fn = method_fns[opts.method](curr_dist)
+    for curr_dist,test_tree,tip_to_predict,expected_traits in test_datasets:    
+       
 
-
-
-        #For now assume we want to generate tests for
-        #all organisms in the table
-        #TODO: add options for just doing n of these
-
-        tips_to_predict = orgs_in_table
-
-
-        base_name = "_".join(map(str,["test_tree",opts.method,curr_dist]))
-        #For each tip, generate a test dataset
-        test_data = []
-        total_organisms = len(tips_to_predict)
-        for i,tip_to_predict in enumerate(tips_to_predict):
-
-            if opts.verbose:
-                print "Generating test dataset for %i/%i: %s" %(i,total_organisms,tip_to_predict)
+        #Write tree
+        base_name = "--".join(map(str,["test_tree",opts.method,curr_dist]))
+        curr_filepath = write_tree(opts.output_dir,base_name,test_tree,tip_to_predict)
+        if opts.verbose:
+            print "Wrote test tree to: %s" % curr_filepath
         
-            tree_copy = tree.deepcopy()
-            test_tree = \
-            test_fn(tree_copy.getNodeMatchingName(tip_to_predict),tree_copy) 
+        #Write expected trait table
+        base_name = "--".join(map(str,["exp_traits",opts.method,curr_dist,tip_to_predict]))
+                
+        exp_trait_table_lines = [trait_table_header]
+        exp_trait_table_lines.append("\t".join(expected_traits)+"\n")
+        print "Expected_trait_table_lines:",exp_trait_table_lines
+        filename=os.path.join(opts.output_dir,base_name)
         
+        if opts.verbose:
+            print "Writing expected trait table to:", filename
         
-            curr_filepath = write_tree(opts.output_dir,base_name,test_tree,tip_to_predict)
+        f=open(filename,"w")
+        f.write("".join(exp_trait_table_lines))
+        f.close()
+
+        #Write test trait table
+        test_trait_table_fields = deepcopy(trait_table_fields)
+        test_trait_table_fields.remove(expected_traits)
+        test_trait_table_lines = [trait_table_header]
+        test_trait_table_lines.extend(["\t".join(r)+"\n" for r in test_trait_table_fields])
         
-            if opts.verbose:
-                print "Wrote test tree to: %s" % curr_filepath
+        #print "Test_trait_table_lines:",test_trait_table_lines
+        base_name = "--".join(map(str,["test_trait_table",opts.method,curr_dist,tip_to_predict]))
+        filename=os.path.join(opts.output_dir,base_name)
+        
+        if opts.verbose:
+            print "Writing test trait table to:", filename
+        
+        f=open(filename,"w")
+        f.write("".join(test_trait_table_lines))
+        f.close()
+
+
 
 
          
