@@ -13,6 +13,8 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
+from os.path import dirname,isdir
+from os import makedirs
 from picrust.count import wagner_for_picrust
 from picrust.ace import ace_for_picrust
 
@@ -57,7 +59,11 @@ def main():
     elif(opts.asr_method == 'ace_reml'):
         asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
 
+
     #output the table to file
+    output_dir=dirname(opts.output_fp)
+    if not isdir(output_dir):
+            makedirs(output_dir)
     asr_table.writeToFile(opts.output_fp,sep='\t')
    
 
