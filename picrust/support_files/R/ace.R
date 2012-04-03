@@ -10,6 +10,10 @@ tree<-read.tree(Args[1])
 #load in the trait table
 data <-read.table(Args[2],check.names=FALSE,row.names=1,header=TRUE)
 
+asr_method=Args[3]
+count_out_file=Args[4]
+ci_out_file=Args[5]
+
 #order the trait table to match the tree tip labels
 #Note: Can't just reorder with simple "data_ordered <- data[tree$tip.label,]" since this returns a vector (with no row or column names) ONLY when there is a single column in the trait table
 data_ordered<-as.data.frame(data[tree$tip.label,])
@@ -17,7 +21,7 @@ rownames(data_ordered)<-tree$tip.label
 names(data_ordered)<-names(data)
 
 #do the actual ace reconsructions
-reconstructions<-apply(data_ordered,2,ace,tree, type="continuous",method=Args[3])
+reconstructions<-apply(data_ordered,2,ace,tree, type="continuous",method=asr_method)
 
 #pull out only the ace node predictions
 just_ace<-lapply(1:length(reconstructions),function(x) reconstructions[[x]]$ace)
@@ -36,5 +40,14 @@ colnames(just_ace_matrix)[1]<-'nodes'
 out_matrix<-data.frame(just_ace_matrix,check.names=FALSE)
 
 #write to file
-write.table(out_matrix,file=Args[4],row.names=FALSE,quote=FALSE, sep="\t")
- 
+write.table(out_matrix,file=count_out_file,row.names=FALSE,quote=FALSE, sep="\t")
+
+#if(asr_method=="ML"){
+  just_ci<-lapply(1:length(reconstructions),function(x) paste(reconstructions[[x]]$CI95[,1],reconstructions[[x]]$CI95[,2],sep="|"))
+  names(just_ci)<-names(reconstructions)                                                                                
+  just_ci_matrix<-do.call(cbind,just_ci)
+  just_ci_matrix<-cbind(tree$node.label,just_ci_matrix)
+  colnames(just_ci_matrix)[1]<-'nodes'
+  out_matrix<-data.frame(just_ci_matrix,check.names=FALSE)                                                                                                                 
+  write.table(out_matrix,file=ci_out_file,row.names=FALSE,quote=FALSE, sep="\t")
+#}

@@ -37,8 +37,8 @@ make_option('-m','--asr_method',type='choice',
                 help='Method for ancestral state reconstruction. Valid choices are: '+\
                 ', '.join(asr_method_choices) + ' [default: %default]',\
                 choices=asr_method_choices,default='wagner'),\
-make_option('-o','--output_fp',type="new_filepath",help='the output trait table [default:%default]',default='asr_predictions.txt'),\
-make_option('-p','--output_prob_fp',type="new_filepath",help='the probablities for each ASR [default:%default]',default='output_file_prob'),\
+make_option('-o','--output_fp',type="new_filepath",help='output trait table [default:%default]',default='asr_counts.tab'),\
+make_option('-p','--output_ci_fp',type="new_filepath",help='output file for the 95% confidence intervals for each asr prediction [default:%default]',default='asr_ci.tab'),\
 ]
 
 script_info['version'] = __version__
@@ -53,19 +53,27 @@ def main():
     elif(opts.asr_method == 'bayestraits'):
         pass
     elif(opts.asr_method == 'ace_ml'):
-        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
+        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
     elif(opts.asr_method == 'ace_pic'):
-        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
+        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
     elif(opts.asr_method == 'ace_reml'):
-        asr_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
+        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
 
 
     #output the table to file
     output_dir=dirname(opts.output_fp)
-    if not isdir(output_dir):
+    if not isdir(output_dir) and not output_dir =='':
             makedirs(output_dir)
     asr_table.writeToFile(opts.output_fp,sep='\t')
-   
+
+    #output the CI file (unless the method is wagner)
+    if not (opts.asr_method == 'wagner'):
+        output_dir=dirname(opts.output_ci_fp)
+        if not isdir(output_dir) and not output_dir=='':
+            makedirs(output_dir)
+        ci_table.writeToFile(opts.output_ci_fp,sep='\t')
+        
+    
 
 if __name__ == "__main__":
     main()
