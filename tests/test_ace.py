@@ -36,7 +36,13 @@ class AceTests(TestCase):
         self.in_trait1_file.write(in_trait1)
         self.in_trait1_file.close()
 
-        self.files_to_remove = [self.in_tree1_fp,self.in_trait1_fp]
+        #create another tmp trait file (need to test table with only single column seperately)
+        self.in_trait2_fp = get_tmp_filename(prefix='AceTests',suffix='.tsv')
+        self.in_trait2_file=open(self.in_trait2_fp,'w')
+        self.in_trait2_file.write(in_trait2)
+        self.in_trait2_file.close()
+
+        self.files_to_remove = [self.in_tree1_fp,self.in_trait1_fp,self.in_trait2_fp]
 
     def tearDown(self):
         remove_files(self.files_to_remove)
@@ -57,6 +63,14 @@ class AceTests(TestCase):
         expected=Table(['nodes','trait1','trait2'],[['14','2.9737','2.5436'],['12','1.2727','3'],['11','0.6667','3'],['10','5','2']])
         self.assertEqual(actual.tostring(),expected.tostring())
 
+    def test_ace_for_picrust_pic_single_trait(self):
+        """ test_ace_for_picrust with method 'pic' functions as expected with single column trait table
+        """
+        actual= ace_for_picrust(self.in_tree1_fp,self.in_trait2_fp, method="pic")
+        expected=Table(['nodes','trait1'],[['14','2.9737'],['12','1.2727'],['11','0.6667'],['10','5']])
+        self.assertEqual(actual.tostring(),expected.tostring())
+
+
 in_tree1="""(((1:0.1,2:0.2)11:0.6,3:0.8)12:0.2,(4:0.3,D:0.4)10:0.5)14;"""
 
 in_trait1="""tips	trait1	trait2
@@ -65,6 +79,14 @@ in_trait1="""tips	trait1	trait2
 3	2	3
 4	5	2
 D	5	2"""
+
+in_trait2="""tips	trait1
+1	1
+2	0
+3	2
+4	5
+D	5"""
+
 
 if __name__ == "__main__":
     main()
