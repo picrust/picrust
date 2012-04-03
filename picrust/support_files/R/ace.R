@@ -10,8 +10,11 @@ tree<-read.tree(Args[1])
 #load in the trait table
 data <-read.table(Args[2],check.names=FALSE,row.names=1,header=TRUE)
 
-#sort the data matrix so it matches the tree (this is needed before running ace())
-data <- data[tree$tip.label, ]
+#order the trait table to match the tree tip labels
+#Note: Can't just reorder with simple "data_ordered <- data[tree$tip.label,]" since this returns a vector (with no row or column names) ONLY when there is a single column in the trait table
+data_ordered<-as.data.frame(data[tree$tip.label,])
+rownames(data_ordered)<-tree$tip.label
+names(data_ordered)<-names(data)
 
 #do the actual ace reconsructions
 reconstructions<-apply(data,2,ace,tree, type="continuous",method=Args[3])
