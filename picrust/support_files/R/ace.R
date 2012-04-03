@@ -17,23 +17,24 @@ rownames(data_ordered)<-tree$tip.label
 names(data_ordered)<-names(data)
 
 #do the actual ace reconsructions
-reconstructions<-apply(data,2,ace,tree, type="continuous",method=Args[3])
+reconstructions<-apply(data_ordered,2,ace,tree, type="continuous",method=Args[3])
 
 #pull out only the ace node predictions
 just_ace<-lapply(1:length(reconstructions),function(x) reconstructions[[x]]$ace)
 names(just_ace)<-names(reconstructions)
 
 #reformat the list into a matrix
-just_ace_matrix<-do.call(rbind,just_ace)
+just_ace_matrix<-do.call(cbind,just_ace)
 
 #relabel the node names (ones created internally by ape) with the actual node labels in the tree
-colnames(just_ace_matrix)<-tree$node.label
+just_ace_matrix<-cbind(tree$node.label,just_ace_matrix)
 
-just_ace_matrix<-t(just_ace_matrix)
+#give a simple header label for the internal nodes
+colnames(just_ace_matrix)[1]<-'nodes'
 
-nodes<-row.names(just_ace_matrix)
+#Convert to a data frame
+out_matrix<-data.frame(just_ace_matrix,check.names=FALSE)
 
-out_matrix<-data.frame(nodes,just_ace_matrix,check.names=FALSE)
-#write the matrix to file
+#write to file
 write.table(out_matrix,file=Args[4],row.names=FALSE,quote=FALSE, sep="\t")
  
