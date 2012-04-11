@@ -94,6 +94,24 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
             print "Found no trait table lines. Setting data and header to empty"
         trait_table_fields = []
         header_line = ''
+    
+    # Tree reformatting
+    if convert_to_bifurcating:
+        if verbose:
+            print "Converting tree to bifurcating...."
+        input_tree = input_tree.bifurcating() # Required by most ancSR programs
+
+
+        input_tree = ensure_root_is_bifurcating(input_tree)
+        # The below nutty-looking re-filtering step is necessary
+        # When ensuring the root is bifurcating, internal nodes can 
+        #get moved to the tips so without additional filtering we 
+        #get unannotated tip nodes
+        
+        #if filter_tree_by_table_entries:
+        #    input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
+        #      trait_table_fields,delimiter=input_trait_table_delimiter)
+
 
        
     #Name unnamed nodes
@@ -143,23 +161,6 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
           trait_table_fields,delimiter=input_trait_table_delimiter,\
           verbose=verbose)
    
-    # Tree reformatting
-    if convert_to_bifurcating:
-        if verbose:
-            print "Converting tree to bifurcating...."
-        input_tree = input_tree.bifurcating() # Required by most ancSR programs
-
-
-        input_tree = ensure_root_is_bifurcating(input_tree)
-        # The below nutty-looking re-filtering step is necessary
-        # When ensuring the root is bifurcating, internal nodes can 
-        #get moved to the tips so without additional filtering we 
-        #get unannotated tip nodes
-        
-        if filter_tree_by_table_entries:
-            input_tree = filter_tree_tips_by_presence_in_table(input_tree,\
-              trait_table_fields,delimiter=input_trait_table_delimiter)
-
     if min_branch_length:
         if verbose:
             print "Setting a min branch length of %f throughout tree...." \
