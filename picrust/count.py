@@ -15,10 +15,11 @@ from os import remove, environ
 from glob import glob
 from cogent.app.util import CommandLineApplication, ResultPath, get_tmp_filename
 from cogent.app.parameters import ValuedParameter, FilePath
-from cogent import LoadTree
+#from cogent import LoadTree
 from cogent import LoadTable
 from picrust.util import get_picrust_project_dir
 from os.path import join
+from cogent.parse.tree import DndParser
 
 __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2012, The PICRUST Project"
@@ -70,7 +71,9 @@ def wagner_for_picrust(tree_path,trait_table_path,gain=None,max_paralogs=None,HA
     #Remove tmp file
     remove(tmp_table_path)
 
-    tree=LoadTree(tree_path)
+    #tree=LoadTree(tree_path)
+    tree=DndParser(open(tree_path))
+    
     #get the number of tips in the tree
     num_of_tips=sum(1 for x in tree.iterTips())
 
