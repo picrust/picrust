@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Jesse Zaneveld"
 __copyright__ = "Copyright 2011, The PICRUST Project"
-__credits__ = ["Jesse Zaneveld"]
+__credits__ = ["Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.6.0dev"
 __maintainer__ = "Jesse Zaneveld"
@@ -12,11 +12,12 @@ __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
 from os.path import join,splitext
-from cogent import LoadTree
+from cogent.parse.tree import DndParser
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 from picrust.format_tree_and_trait_table import *
-from picrust.util import make_output_dir
+from picrust.util import make_output_dir, PicrustNode
+
 
 # Set up commandline parameters
 script_info = {}
@@ -123,7 +124,9 @@ def main():
         min_branch_length = 0.0001
     
     #Load inputs
-    input_tree = LoadTree(tree_file)
+    if verbose:
+        print "Loading tree...."
+    input_tree =DndParser(open(tree_file),constructor=PicrustNode)
     
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
