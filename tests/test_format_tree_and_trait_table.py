@@ -165,7 +165,14 @@ class TestFormat(TestCase):
 
     def test_filter_tree_tips_by_presence_in_table(self):
         """filter_tree_tips_by_presence_in_table filters appropriately"""
-        pass
+        tree = self.SimpleTree
+        table_fields =[['A',1,0,0,1],['B',1,0,1,1]]
+        obs_tree = filter_tree_tips_by_presence_in_table(tree,table_fields,\
+          verbose = False)
+        exp_tree = "(A:0.02,B:0.01)root;"
+        self.assertEqual(obs_tree.getNewick(with_distances=True),exp_tree)
+
+
 
     def test_print_node_summary_table(self):
         """print_node_summary_table prints a summary of tree nodes"""
