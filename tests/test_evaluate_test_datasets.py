@@ -14,8 +14,8 @@ __status__ = "Development"
 
 from cogent.util.unit_test import TestCase, main
 from picrust.evaluate_test_datasets import convert_vals_to_spearman_ranks,\
-spearman_correlation, calc_spearman_t,evaluate_test_dataset
-
+spearman_correlation, calc_spearman_t,evaluate_test_dataset,calculate_accuracy_stats_from_confusion_matrix,confusion_matrix_from_data,confusion_matrix_results_by_index, roc_points,roc_auc,gini_coefficient,calculate_accuracy_stats_from_observations
+from random import shuffle
 from biom.parse import parse_biom_table_str
 
 class EvaluateTestDatasetTests(TestCase):
@@ -62,7 +62,7 @@ class EvaluateTestDatasetTests(TestCase):
         exp_prob_t_high = 0.6864058
         self.assertFloatEqual(r,exp_rho)
         self.assertFloatEqual(prob,exp_prob_t_high)
-
+ 
     def test_calc_spearman_t(self):
         """calc_spearman_t should produce an adjusted t statistic"""
         r = -0.175757575
@@ -71,6 +71,236 @@ class EvaluateTestDatasetTests(TestCase):
         obs_prob_t_high = calc_spearman_t(r,n,'high')
         
         self.assertFloatEqual(obs_prob_t_high,exp_prob_t_high)
+    
+    def test_calculate_accuracy_stats_from_observations(self):
+        """calculate_accuracy_stats_from_observations should produce accurate values"""
+
+        exp = [1,1,1,0,0,0,1,1,1,0,1,0]
+        fp_only_obs = [1,1,1,1,0,0,1,1,1,1,1,1]
+        
+
+
+
+    def test_calculate_accuracy_stats_from_confusion_matrix(self):
+        """calc_accuracy_stats_from_confusion_matrix should produce accurate values"""
+        #This really only works well for qualitative data, since
+        # most values will be somewhat off with quantitative data.
+        #The method is generic, however, so either can be used.
+        
+        #test data from Wikipedia: http://en.wikipedia.org/wiki/Receiver_operating_characteristic
+        
+        #Example A
+        tp,fp,fn,tn = 63,28,37,72
+        result = calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn)
+        self.assertFloatEqual(result['sensitivity'],0.63)
+        self.assertFloatEqual(result['false_positive_rate'],0.28)
+        self.assertFloatEqual(result['specificity'],0.72)
+        self.assertFloatEqual(result['accuracy'],0.675)
+        
+        #Example B
+        tp,fp,fn,tn = 77,77,23,23
+        result = calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn)
+        self.assertFloatEqual(result['sensitivity'],0.77)
+        self.assertFloatEqual(result['false_positive_rate'],0.77)
+        self.assertFloatEqual(result['specificity'],0.23)
+        self.assertFloatEqual(result['accuracy'],0.50)
+
+        #Example C
+        tp,fp,fn,tn = 24,88,76,12
+        result = calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn)
+        self.assertFloatEqual(result['sensitivity'],0.24)
+        self.assertFloatEqual(result['false_positive_rate'],0.88)
+        self.assertFloatEqual(result['specificity'],0.12)
+        self.assertFloatEqual(result['accuracy'],0.18)
+
+
+
+    def test_confusion_matrix_from_data(self):
+        """confusion_matrix_from_data should work for binary and quantitative data"""
+
+        #binary test
+        exp = [1,1,1,0,0,0,1,1,1,0,1,0,1]
+        obs = [1,1,0,1,0,0,1,1,1,1,1,1,0]
+        exp_tp = 6.0
+        exp_fp = 3.0
+        exp_fn = 2.0
+        exp_tn = 2.0
+        
+        tp,fp,fn,tn = confusion_matrix_from_data(obs,exp)
+        self.assertEqual([tp,fp,fn,tn],\
+          [exp_tp,exp_fp,exp_fn,exp_tn])
+
+        #quantitative test
+        #results should be indentical to binary test
+        #since only presence/absence is considered
+        exp = [1,1,1,0,0,0,1,1,1,0,1,0,1]
+        obs = [13.7,6.5,0,1,0,0,2.3,1,1.0,1.3,1.5,1,0]
+        exp_tp = 6.0
+        exp_fp = 3.0
+        exp_fn = 2.0
+        exp_tn = 2.0
+         
+        tp,fp,fn,tn = confusion_matrix_from_data(obs,exp)
+        self.assertEqual([tp,fp,fn,tn],\
+          [exp_tp,exp_fp,exp_fn,exp_tn])
+
+        
+
+    def test_confusion_matrix_results_by_index(self):
+        """confusion_matrix_results_by_index should return indices for true positives(tp), fp,fn, and tn."""
+        #binary test
+        exp = [1,1,1,0,0,0,1,1,1,0,1,0,1]
+        obs = [1,1,0,1,0,0,1,1,1,1,1,1,0]
+        
+        exp_tp = [0,1,6,7,8,10]
+        exp_fp = [3,9,11]
+        exp_fn = [2,12]
+        exp_tn = [4,5]
+        
+        tp,fp,fn,tn = confusion_matrix_results_by_index(obs,exp)
+        self.assertEqual([tp,fp,fn,tn],\
+          [exp_tp,exp_fp,exp_fn,exp_tn])
+
+        #quantitative test
+        #results should be indentical to binary test
+        #since only presence/absence is considered
+        exp = [1,1,1,0,0,0,1,1,1,0,1,0,1]
+        obs = [13.7,6.5,0,1,0,0,2.3,1,1.0,1.3,1.5,1,0]
+        
+        exp_tp = [0,1,6,7,8,10]
+        exp_fp = [3,9,11]
+        exp_fn = [2,12]
+        exp_tn = [4,5]
+
+        tp,fp,fn,tn = confusion_matrix_results_by_index(obs,exp)
+        self.assertEqual([tp,fp,fn,tn],\
+          [exp_tp,exp_fp,exp_fn,exp_tn])
+
+    def test_roc_points(self):
+        """roc_points should calculate the points for a Receiver Operating Characteristics curve
+        """
+       
+        #The set up here is a bit elaborate since I generate the test datasets
+        #based on the values we need in the confusion matrix.
+        #I test the intermediate results though, so any errors should be due 
+        #to the actual function, not the test
+        
+        tn_obs = 0
+        tn_exp = 0
+
+        fp_obs = 1
+        fp_exp = 0
+
+        tp_obs = 1
+        tp_exp = 1
+
+        fn_obs = 0
+        fn_exp = 1
+
+         #point A
+        obs = [tp_obs] * 63 + [fp_obs] *28 + [fn_obs] * 37 + [tn_obs]*72
+        exp = [tp_exp] * 63 + [fp_exp] *28 + [fn_exp] * 37 + [tn_exp]*72
+        trial_a_results = confusion_matrix_from_data(obs,exp)
+        #Check that this is correct
+        self.assertEqual(trial_a_results,(63,28,37,72))
+        trial_a = (obs,exp)
+        
+       
+        #point B
+        obs = [tp_obs] * 77 + [fp_obs] *77 + [fn_obs] * 23 + [tn_obs]*23
+        exp = [tp_exp] * 77 + [fp_exp] *77 + [fn_exp] * 23 + [tn_exp]*23
+        trial_b_results = confusion_matrix_from_data(obs,exp)
+        #Check that this is correct
+        self.assertEqual(trial_b_results,(77,77,23,23))
+        trial_b = (obs,exp)
+        
+        #point c
+        obs = [tp_obs] * 24 + [fp_obs] *88 + [fn_obs] * 76 + [tn_obs]*12
+        exp = [tp_exp] * 24 + [fp_exp] *88 + [fn_exp] * 76 + [tn_exp]*12
+        trial_c_results = confusion_matrix_from_data(obs,exp)
+        #Check that this is correct
+        self.assertEqual(trial_c_results,(24,88,76,12))
+        trial_c_results = calculate_accuracy_stats_from_observations(obs,exp)
+        #Check that this is correct
+        self.assertEqual(trial_c_results["false_positive_rate"],0.88)
+
+        trial_c = (obs,exp)
+
+        trials = [trial_a, trial_b,trial_c]
+        
+        
+        #Finally the actual test
+
+        obs_points = roc_points(trials)
+        exp_points = [(0.28,0.63),(0.77,0.77),(0.88,0.24)]
+        self.assertFloatEqual(obs_points,exp_points)
+        
+       
+
+
+    def test_roc_auc(self):
+        """roc_auc should calculate the trapezoidal approximation to the area under a ROC curve
+        """
+       
+        # Per Hand and Till 2001, AUC = 2*Gini - 1
+
+        #So I derive the expected value from the Gini example below:
+        
+        # From Catalano et al 2009, table 3, page 11 
+        # Available here:
+        #http://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=1032&context=numeracy
+
+        
+        proportion_of_population = [0.1*i for i in range (11)]
+        cumulative_portion_of_consumption =\
+          [0.000,\
+           0.023,\
+           0.060,\
+           0.110,\
+           0.175,\
+           0.254,\
+           0.345,\
+           0.459,\
+           0.588,\
+           0.754,\
+           1.000]
+        points = zip(proportion_of_population,\
+          cumulative_portion_of_consumption)
+        
+        gini_obs = gini_coefficient(points)
+        gini_exp = 0.346   
+        self.assertFloatEqual(gini_obs,gini_exp,eps=1e-3)
+        
+        obs = roc_auc(points)
+        gini_exp = 0.346
+        exp = (gini_exp + 1.0)/2.0
+        self.assertFloatEqual(obs,exp,eps=1e-3)
+        self.assertFloatEqual(obs,(gini_obs+1.0)/2.0,eps=1e-3)
+
+    def test_gini_coefficient(self):
+        """gini_coefficient should calculate the trapezoidal approximation to the Gini coefficient"""
+        # From Catalano et al 2009, table 3, page 11 
+        # Available here:
+        #http://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=1032&context=numeracy
+        proportion_of_population = [0.1*i for i in range (11)]
+        cumulative_portion_of_consumption =\
+          [0.000,\
+           0.023,\
+           0.060,\
+           0.110,\
+           0.175,\
+           0.254,\
+           0.345,\
+           0.459,\
+           0.588,\
+           0.754,\
+           1.000]
+        points = zip(proportion_of_population,\
+          cumulative_portion_of_consumption)
+        
+        obs = gini_coefficient(points)
+        exp = 0.346   
+        self.assertFloatEqual(obs,exp,eps=1e-3)
 
 genome_table1 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [1, 1, 1.0], [2, 2, 1.0]], "columns": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
