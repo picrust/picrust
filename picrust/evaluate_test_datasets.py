@@ -56,9 +56,11 @@ def evaluate_test_dataset(observed_table,expected_table):
     #print flat_obs_data
     #print flat_exp_data
 
+    #GET THE SCATTER PLOT POINTS
     scatter_data_points =\
       zip(flat_obs_data,flat_exp_data)
     
+    # CALCULATE CORRELATIONS
     correlations = {}
 
     
@@ -71,6 +73,8 @@ def evaluate_test_dataset(observed_table,expected_table):
       spearman_correlation(flat_obs_data,flat_exp_data)
     
     correlations["spearman"] = (spearman_r,spearman_t_prob)
+    
+     
     return scatter_data_points,correlations     
 
 
@@ -126,7 +130,7 @@ def calc_spearman_t(r,n,tails='two-tailed',eps=1e-10):
 
     if r == 1.0:
         r = r-eps
-    print r,n,tails
+    
     t = r*(((n-2)/(1.0-r**2))**0.5)
     
     if tails == 'two-tailed':
@@ -166,3 +170,139 @@ def spearman_correlation(x_array,y_array,tails = 'two-tailed'):
     #return r,spearman_t_prob
     return r,spearman_t_prob
 
+
+def calculate_accuracy_stats_from_observations(obs,exp,verbose=False):
+    """Return statistics derived from the confusion matrix
+    obs -- a list of floats representing observed values
+    exp -- a list of floats for expected values (same order as obs)
+    verbose -- print verbose output 
+    """
+    
+    tp,fp,fn,tn =\
+      confusion_matrix_from_data(obs,exp,verbose)
+    
+    result =\
+      calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose)
+    return result
+    
+def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=False):
+    """Calculate accuracy,sensitivity,specificity,etc from the number of true positives,false positives,false negatives, and true negatives
+    
+    tp -- number of true positives
+    fp -- number of false positives
+    fn -- number of false negatives
+    tn -- number of true negatives
+    verbose -- print verbose output
+    """
+
+    n = sum([tp,fp,tn,fn])
+    results ={} 
+    results['positive_predictive_value'] = tp/(tp+fp) # == precision
+    results['sensitivity'] =  tp/(tp+fn) # == TPR, hit rate, recall
+    results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
+    results['false_positive_rate'] = fp/(fp+tn)
+    results['accuracy'] = (tp + tn)/n  
+
+    return results
+    
+def confusion_matrix_from_data(obs,exp,verbose=False):
+    """Return the number of true_positive,false_positive,false_negatives,false_positives from paired lists of observed and expected values
+
+
+    obs -- a list of floats representing observed values
+    exp -- a list of floats for expected values (same order as obs)
+    verbose -- print verbose output 
+    """
+    tp_indices,fp_indices,fn_indices,tn_indices =\
+      confusion_matrix_results_by_index(obs,exp,verbose)
+    #print obs,exp
+    #print tp_indices,fp_indices,fn_indices,tn_indices 
+    tp = float(len(tp_indices))
+    fp = float(len(fp_indices))
+    fn = float(len(fn_indices))
+    tn = float(len(tn_indices)) 
+    #print tp,fp,fn,tn 
+    return tp,fp,fn,tn
+
+def confusion_matrix_results_by_index(obs,exp,verbose=False):
+    """Return indices in obs that are true positives, false positives, false negatives or true negatives
+
+    
+    obs -- a list of floats representing observed values
+    exp -- a list of floats for expected values (same order as obs)
+    verbose -- print verbose output 
+    
+    All values >= 1 are considered presence and scored
+    identically.  0s are scored as absence.
+    """
+    
+    tp_indices =\
+        [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]>=1]
+    
+    fp_indices =\
+        [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]>=1]
+
+    fn_indices =\
+        [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]==0]
+
+        
+    tn_indices =\
+        [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]==0]
+    
+
+    return tp_indices,fp_indices,fn_indices,tn_indices
+
+def roc_analysis(trials):
+    """Perform ROC analysis for a set of trials, each a list of obs,exp values"""
+    points = roc_points(trials)
+    area_under_the_curve = roc_auc(trials)
+    return points,area_under_the_curve
+
+
+def roc_points(trials):
+    """get points for a roc curve from lists of paired observed and expected values
+    trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
+    
+    Returns a list of points on the ROC curve in x,y format, with the False Positive Rate (FPR, 1-specificity) on the x axis, and the True Positive Rate (sensitivity) on the y axis."""
+    points = []
+    #print trials
+    for obs,exp in trials:
+        curr_result = calculate_accuracy_stats_from_observations(obs,exp)
+        x = curr_result["false_positive_rate"]
+        y = curr_result["sensitivity"]
+        points.append((x,y))
+    #print points
+    return points
+
+def roc_auc(points):
+    """Get the ROC Area Under the Curve given a list of obs,exp values for trials
+    trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
+    
+    This is the average prob. of ranking a random positive above a random negative.
+    """
+
+    #points = roc_points(trials)
+    ordered_points = sorted(points)
+    G = gini_coefficient(points)
+    #print "G:",G
+    area_under_the_curve = (G+1.0)/2.0 
+    #print "AUC:",area_under_the_curve
+    return area_under_the_curve
+ 
+
+def gini_coefficient(points):
+    """Calculate the Gini coefficient using trapezoidal approximations
+    
+    trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
+
+    """
+    points = sorted(points)
+    indices_to_consider = [(i,i-1) for i in range(1,len(points))]
+    #print indices_to_consider
+    #print points
+    X,Y = zip(*points)
+    #print X,Y
+    gini = 1.0 - \
+      sum([float((X[k]-X[k_minus_one])*(Y[k]+Y[k_minus_one])) for k,k_minus_one in indices_to_consider])
+                
+    return gini
