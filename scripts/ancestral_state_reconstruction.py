@@ -13,10 +13,11 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from os.path import dirname,isdir
+from os.path import dirname,isdir, exists
 from os import makedirs
 from picrust.count import wagner_for_picrust
 from picrust.ace import ace_for_picrust
+from picrust.ancestral_state_reconstruction import run_asr_in_parallel
 
 script_info = {}
 script_info['brief_description'] = "Runs ancestral state reconstruction given a tree and trait table"
@@ -31,33 +32,45 @@ script_info['required_options'] = [\
 make_option('-t','--input_tree_fp',type="existing_filepath",help='the tree to use for ASR'),\
 make_option('-i','--input_trait_table_fp',type="existing_filepath",help='the trait table to use for ASR'),\
 ]
-asr_method_choices=['bayestraits','ace_ml','ace_reml','ace_pic','wagner']
+asr_method_choices=['ace_ml','ace_reml','ace_pic','wagner']
+parallel_method_choices=['sge','torque','multithreaded']
+
 script_info['optional_options'] = [\
 make_option('-m','--asr_method',type='choice',
                 help='Method for ancestral state reconstruction. Valid choices are: '+\
                 ', '.join(asr_method_choices) + ' [default: %default]',\
                 choices=asr_method_choices,default='wagner'),\
 make_option('-o','--output_fp',type="new_filepath",help='output trait table [default:%default]',default='asr_counts.tab'),\
-make_option('-p','--output_ci_fp',type="new_filepath",help='output file for the 95% confidence intervals for each asr prediction [default:%default]',default='asr_ci.tab'),\
+make_option('-c','--output_ci_fp',type="new_filepath",help='output file for the 95% confidence intervals for each asr prediction [default:%default]',default='asr_ci.tab'),\
+make_option('-p','--parallel',action="store_true",help='allow parallelization of asr',default=False),\
+make_option('-j','--parallel_method',type='choice',
+                help='Method for parallelizaation. Valid choices are: '+\
+                ', '.join(parallel_method_choices) + ' [default: %default]',\
+                choices=parallel_method_choices,default='sge'),\
+
 ]
 
 script_info['version'] = __version__
+       
 
 def main():
     option_parser, opts, args =\
-       parse_command_line_parameters(**script_info)
-
-    #call the apporpriate ASR app controller 
-    if(opts.asr_method == 'wagner'):
-        asr_table = wagner_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp)
-    elif(opts.asr_method == 'bayestraits'):
-        pass
-    elif(opts.asr_method == 'ace_ml'):
-        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
-    elif(opts.asr_method == 'ace_pic'):
-        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
-    elif(opts.asr_method == 'ace_reml'):
-        asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
+                   parse_command_line_parameters(**script_info)
+    
+    if(opts.parallel):
+        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method)
+    else:
+        #call the apporpriate ASR app controller 
+        if(opts.asr_method == 'wagner'):
+            asr_table = wagner_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp)
+        elif(opts.asr_method == 'bayestraits'):
+            pass
+        elif(opts.asr_method == 'ace_ml'):
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
+        elif(opts.asr_method == 'ace_pic'):
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
+        elif(opts.asr_method == 'ace_reml'):
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
 
 
     #output the table to file
@@ -71,7 +84,7 @@ def main():
         output_dir=dirname(opts.output_ci_fp)
         if not isdir(output_dir) and not output_dir=='':
             makedirs(output_dir)
-        ci_table.writeToFile(opts.output_ci_fp,sep='\t')
+        #ci_table.writeToFile(opts.output_ci_fp,sep='\t')
         
     
 
