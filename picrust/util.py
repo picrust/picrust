@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The PICRUST project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "0.1-dev"
 __maintainer__ = "Greg Caporaso"
@@ -14,6 +14,7 @@ __status__ = "Development"
 from os.path import abspath, dirname, isdir
 from os import mkdir
 from cogent.core.tree import PhyloNode, TreeError
+
 
 def get_picrust_project_dir():
     """ Returns the top-level PICRUST directory
@@ -50,7 +51,6 @@ def make_output_dir(dirpath, strict=False):
         raise IOError(err_str)
 
     return dirpath
-
 
 class PicrustNode(PhyloNode):
     def multifurcating(self, num, eps=None, constructor=None):
@@ -92,7 +92,34 @@ class PicrustNode(PhyloNode):
         """Wrap multifurcating with a num of 2"""
         return self.multifurcating(2, eps, constructor)
 
-    def getSubTree(self, name_list):
+
+    def getSubTree(self,names):
+        """return a new subtree with just the tips in names
+
+        assumes names is a set
+        assumes all names in names are present as tips in tree
+        """
+        tcopy = self.copy()
+        
+        # unset internal names
+        #for n in tcopy.nontips():
+        #   n.Name = None
+            
+            # loop until our tree is the correct size
+            # may want to revisit conditional if goes into picrust. unclear if an infinite loop is possible
+        while len(tcopy.tips()) != len(names):
+            # for each tip, remove it if we do not want to keep it
+            for n in tcopy.tips():
+                if n.Name not in names:
+                    n.Parent.removeNode(n)
+                        
+            # reduce single-child nodes
+            tcopy.prune()
+                        
+        return tcopy
+
+
+    def getSubTree_old(self, name_list):
         """A new instance of a sub tree that contains all the otus that are
         listed in name_list.
         just a small change from that in cogent.core.tree.py so that the root

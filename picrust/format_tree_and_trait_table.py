@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Jesse Zaneveld"
 __copyright__ = "Copyright 2011, The PICRUST Project"
-__credits__ = ["Jesse Zaneveld"]
+__credits__ = ["Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.6.0dev"
 __maintainer__ = "Jesse Zaneveld"
@@ -14,7 +14,7 @@ __status__ = "Development"
 from os.path import splitext
 from string import maketrans
 from sys import getrecursionlimit,setrecursionlimit
-
+import re
 from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
@@ -99,10 +99,12 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     if convert_to_bifurcating:
         if verbose:
             print "Converting tree to bifurcating...."
+       
         input_tree = input_tree.bifurcating() # Required by most ancSR programs
+   
 
+        #input_tree = ensure_root_is_bifurcating(input_tree)
 
-        input_tree = ensure_root_is_bifurcating(input_tree)
         # The below nutty-looking re-filtering step is necessary
         # When ensuring the root is bifurcating, internal nodes can 
         #get moved to the tips so without additional filtering we 
@@ -118,7 +120,9 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     if name_unnamed_nodes:
         if verbose:
             print "Naming unnamed nodes in the reference tree...."
-        input_tree.nameUnnamedNodes()
+        make_internal_nodes_unique(input_tree)
+        #input_tree.nameUnnamedNodes()
+        my_nameUnnamedNodes(input_tree)
     
 
         
@@ -252,6 +256,45 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     
     return input_tree, result_trait_table_lines
+
+
+def make_internal_nodes_unique(tree):
+    """ Removes names that are not unique for internal nodes.
+    First occurence of non-unique node is kept and subsequence ones are set to None"""
+    #make a list of the names that are already in the tree
+    names_in_use = {}
+    for node in tree.iterNontips(include_self=True):
+        if node.Name:
+            if node.Name in names_in_use:
+                node.Name=None
+            else:
+                names_in_use[node.Name]=1
+                
+
+def my_nameUnnamedNodes(self):
+    """sets the Data property of unnamed nodes to an arbitrary value
+        
+    Internal nodes are often unnamed and so this function assigns a
+    value for referencing."""
+    #make a list of the names that are already in the tree
+    names_in_use = {}
+    for node in self.iterNontips(include_self=True):
+        if node.Name:
+            names_in_use[node.Name]=1
+    #assign unique names to the Data property of nodes where Data = None
+    name_index = 1
+    for node in self.iterNontips(include_self=True):
+        if (not node.Name) or re.match('edge',node.Name):
+            new_name = 'node' + str(name_index)
+            #choose a new name if name is already in tree
+            while new_name in names_in_use:
+                name_index += 1
+                new_name = 'node' + str(name_index)
+            node.Name = new_name
+            names_in_use[node.Name]=1
+            name_index += 1
+            
+
 
 def format_tree_node_names(tree,label_formatting_fns=[]):
     """Return tree with node names formatted using specified fns
