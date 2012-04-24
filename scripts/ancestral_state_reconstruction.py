@@ -47,7 +47,10 @@ make_option('-j','--parallel_method',type='choice',
                 help='Method for parallelizaation. Valid choices are: '+\
                 ', '.join(parallel_method_choices) + ' [default: %default]',\
                 choices=parallel_method_choices,default='sge'),\
-
+make_option('-n','--num_jobs',action='store',type='int',\
+                help='Number of jobs to be submitted (if --parallel). [default: %default]',\
+                default=100),\
+make_option('-d','--debug',action="store_true",help='To aid with debugging; get the command that the app controller is going to run',default=False),\
 ]
 
 script_info['version'] = __version__
@@ -58,19 +61,19 @@ def main():
                    parse_command_line_parameters(**script_info)
     
     if(opts.parallel):
-        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method)
+        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method, num_jobs=opts.num_jobs)
     else:
         #call the apporpriate ASR app controller 
         if(opts.asr_method == 'wagner'):
-            asr_table = wagner_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp)
+            asr_table = wagner_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'bayestraits'):
             pass
         elif(opts.asr_method == 'ace_ml'):
-            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML')
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'ML',HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'ace_pic'):
-            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic')
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'pic',HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'ace_reml'):
-            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML')
+            asr_table,ci_table = ace_for_picrust(opts.input_tree_fp,opts.input_trait_table_fp,'REML',HALT_EXEC=opts.debug)
 
 
     #output the table to file
