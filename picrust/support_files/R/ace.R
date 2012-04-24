@@ -14,8 +14,17 @@ asr_method=Args[3]
 count_out_file=Args[4]
 ci_out_file=Args[5]
 
+#If tips in tree contain '_' then read.tree() places single quotes around these tip labels.
+#This then causes sorting errors below since the rownames are different between the trait table and the tree.
+#Fix this by putting quotes around any labels in the trait table that have a '_'.
+for(i in grep("_",rownames(data))){
+ rownames(data)[i]<-paste("'",rownames(data)[i],"'",sep="")
+}
+
+
 #order the trait table to match the tree tip labels
-#Note: Can't just reorder with simple "data_ordered <- data[tree$tip.label,]" since this returns a vector (with no row or column names) ONLY when there is a single column in the trait table
+#Note: Can't just reorder with simple "data_ordered <- data[tree$tip.label,]",
+# since this returns a vector (with no row or column names) ONLY WHEN there is a single column in the trait table
 data_ordered<-as.data.frame(data[tree$tip.label,])
 rownames(data_ordered)<-tree$tip.label
 names(data_ordered)<-names(data)
