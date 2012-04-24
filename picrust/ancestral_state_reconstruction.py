@@ -26,10 +26,10 @@ from time import sleep
 
 
 
-def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix):
+def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix,num_jobs=100):
     """ Submit the jobs to the queue using cluster_jobs.py
     """
-    cmd = '%s -ms %s %s' % (path_to_cluster_jobs, jobs_fp, job_prefix)
+    cmd = '%s -n %s -ms %s %s' % (path_to_cluster_jobs, num_jobs, jobs_fp, job_prefix)
     stdout, stderr, return_value = system_call(cmd)
     if return_value != 0:
         msg = "\n\n*** Could not start parallel jobs. \n" +\
@@ -100,7 +100,7 @@ def combine_asr_tables(output_files):
 
     return combined_table
 
-def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='jobs/'):
+def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='jobs/',num_jobs=100):
     '''Runs the ancestral state reconstructions in parallel'''
 
     asr_script_fp = join(get_picrust_project_dir(),'scripts','ancestral_state_reconstruction.py')
@@ -153,7 +153,7 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
 
     #run the job command
     job_prefix='asr'
-    submit_jobs(cluster_jobs_fp,jobs_fp,job_prefix)
+    submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=num_jobs)
 
     #wait until all jobs finished (e.g. simple poller)
     wait_for_output_files(output_files)
