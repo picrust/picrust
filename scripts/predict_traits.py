@@ -70,17 +70,17 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
     with arrays as values
     """
     f= open(f_out,"w")
-    lines = [sep.join(headers)+"\n"]
+    lines = [sep.join(headers)]
     
     for pred in sorted(predictions.keys()):
         new_fields = [pred]
         value = predictions[pred]
-        print value
+        #print value
         if value is None or len(value) == 0:
             continue
         trait_value_fields = list(value)
         new_fields.extend(trait_value_fields)
-        print new_fields
+        #print new_fields
         new_line = sep.join(map(str,new_fields))
         lines.append("%s\n" % new_line)
     f.writelines(lines)
