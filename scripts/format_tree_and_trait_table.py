@@ -13,10 +13,12 @@ __status__ = "Development"
 
 from os.path import join,splitext
 from cogent.parse.tree import DndParser
+from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 from picrust.format_tree_and_trait_table import *
 from picrust.util import make_output_dir, PicrustNode
+from picrust.parse import parse_trait_table
 
 
 # Set up commandline parameters
@@ -57,6 +59,8 @@ script_info['optional_options'] = [\
           make_option('--supress_tree_filter',default=False,action="store_true",help="If set, don't filter out tree tips that aren't listed in the trait table [default: %default]"),\
           make_option('--supress_table_filter',default=False,action="store_true",help="If set, don't filter out trait table entries that aren't listed in the tree [default: %default]"),\
           make_option('-r','--add_branch_length_to_root',default=False,action="store_true", help='Add a short branch to the root node (this is required by some phylogeny programs).  The length of the branch is determined by the min_branch_length option  [default: %default]'),\
+              make_option('-l','--limit_tree_to_otus_fp',type="existing_filepath",help='Will prune the reference tree to contain only those tips that are within the given OTU table')\
+
            ]
 script_info['version'] = __version__
 
@@ -127,6 +131,7 @@ def main():
     if verbose:
         print "Loading tree...."
     input_tree =DndParser(open(tree_file),constructor=PicrustNode)
+    #input_tree =LoadTree(tree_file)
     
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
@@ -141,31 +146,14 @@ def main():
     else:
         trait_to_tree_mapping = None
 
-    #Make a clean copy of the reference tree before modifying it based on trait table
-    reference_tree = input_tree.deepcopy()
 
-    # Call reformatting function using specified parameters
-    new_tree, new_trait_table_lines = \
-       reformat_tree_and_trait_table(tree=input_tree,\
-       trait_table_lines = trait_table_lines,\
-       trait_to_tree_mapping = trait_to_tree_mapping,\
-       input_trait_table_delimiter= input_delimiter,\
-       output_trait_table_delimiter=output_delimiter,\
-       filter_table_by_tree_tips=True,\
-       convert_trait_floats_to_ints=False,\
-       filter_tree_by_table_entries=True,\
-       convert_to_bifurcating=True,\
-       add_branch_length_to_root=False,\
-       name_unnamed_nodes=True,\
-       min_branch_length=min_branch_length,\
-       verbose=opts.verbose) 
 
     # Call reformatting function using specified parameters 
     # to get reference tree
     
     new_reference_tree, not_useful_trait_table_lines =\
       reformat_tree_and_trait_table(\
-      tree=reference_tree,\
+      tree=input_tree,\
       trait_table_lines = [],\
       trait_to_tree_mapping = None,\
       input_trait_table_delimiter= None,\
@@ -173,24 +161,52 @@ def main():
       filter_table_by_tree_tips=False,\
       convert_trait_floats_to_ints=False,\
       filter_tree_by_table_entries=False,\
-      convert_to_bifurcating=False,\
+      convert_to_bifurcating=True,\
       add_branch_length_to_root=False,\
       name_unnamed_nodes=True,\
       min_branch_length=min_branch_length,\
       verbose=opts.verbose) 
 
+    #Make a copy and use LoadTree instead so that we can call getSubTree later
+    new_reference_tree_copy=LoadTree(treestring=new_reference_tree.getNewick(with_distances=True))
 
-    #Remove tips except those in trait table or in OTU table
-    #if opts.limit_tree_to_otus_fp:
-    #    otu_table = open(opts.limit_tree_to_otus_fp,"U")
-    #    otu_table_lines = otu_table.readlines()
-    #    tips_to_keep = otu_table_lines + trait_table_lines
-    #    tips_to_keep_in_tree = filter_table_by_presence_in_tree(new_reference_tree,tips_to_keep)
-    #    new_reference_tree = filter_tree_tips_by_presence_in_table(new_reference_tree,\
-    #      tips_to_keep_in_tree,verbose=opts.verbose)
+    # Call reformatting function using specified parameters
+    new_tree, new_trait_table_lines = \
+       reformat_tree_and_trait_table(tree=new_reference_tree_copy,\
+       trait_table_lines = trait_table_lines,\
+       trait_to_tree_mapping = trait_to_tree_mapping,\
+       input_trait_table_delimiter= input_delimiter,\
+       output_trait_table_delimiter=output_delimiter,\
+       filter_table_by_tree_tips=True,\
+       convert_trait_floats_to_ints=False,\
+       filter_tree_by_table_entries=True,\
+       convert_to_bifurcating=False,\
+       add_branch_length_to_root=False,\
+       name_unnamed_nodes=False,\
+       min_branch_length=min_branch_length,\
+       verbose=opts.verbose) 
+
+
+
+    #Alter reference tree to only contain tips in OTU table (and of course trait table)
+    if opts.limit_tree_to_otus_fp:
+        if opts.verbose:
+            print "Pruning reference tree to contain only tips in OTU table (and trait table)...."
+        otu_table = open(opts.limit_tree_to_otus_fp,"U")
+        otu_table_lines = otu_table.readlines()
+        header_line,otu_table_fields =parse_trait_table(otu_table_lines,delimiter = input_delimiter,has_header=False)
+        header_line,trait_table_fields =\
+         parse_trait_table(new_trait_table_lines,delimiter = input_delimiter)
+        
+         
+        tips_to_keep = list(otu_table_fields) + list(trait_table_fields)
+        tips_to_keep_in_tree = filter_table_by_presence_in_tree(new_reference_tree_copy,tips_to_keep)
+        new_reference_tree = filter_tree_tips_by_presence_in_table(new_reference_tree_copy,\
+          tips_to_keep_in_tree,verbose=opts.verbose)
 
         
-
+    if opts.verbose:
+        print "Almost finished. Writing trees and trait table to files..."
     #Write results to files
 
     # Open output files
