@@ -121,10 +121,8 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         if verbose:
             print "Naming unnamed nodes in the reference tree...."
         make_internal_nodes_unique(input_tree)
-        #input_tree.nameUnnamedNodes()
-        my_nameUnnamedNodes(input_tree)
-    
-
+        input_tree.nameUnnamedNodes()
+       
         
     #map trait table ids to tree ids
     if trait_to_tree_mapping:
@@ -270,29 +268,6 @@ def make_internal_nodes_unique(tree):
             else:
                 names_in_use[node.Name]=1
                 
-
-def my_nameUnnamedNodes(self):
-    """sets the Data property of unnamed nodes to an arbitrary value
-        
-    Internal nodes are often unnamed and so this function assigns a
-    value for referencing."""
-    #make a list of the names that are already in the tree
-    names_in_use = {}
-    for node in self.iterNontips(include_self=True):
-        if node.Name:
-            names_in_use[node.Name]=1
-    #assign unique names to the Data property of nodes where Data = None
-    name_index = 1
-    for node in self.iterNontips(include_self=True):
-        if (not node.Name) or re.match('edge',node.Name):
-            new_name = 'node' + str(name_index)
-            #choose a new name if name is already in tree
-            while new_name in names_in_use:
-                name_index += 1
-                new_name = 'node' + str(name_index)
-            node.Name = new_name
-            names_in_use[node.Name]=1
-            name_index += 1
             
 
 

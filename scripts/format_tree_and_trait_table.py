@@ -13,7 +13,6 @@ __status__ = "Development"
 
 from os.path import join,splitext
 from cogent.parse.tree import DndParser
-from cogent import LoadTree
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 from picrust.format_tree_and_trait_table import *
@@ -131,7 +130,6 @@ def main():
     if verbose:
         print "Loading tree...."
     input_tree =DndParser(open(tree_file),constructor=PicrustNode)
-    #input_tree =LoadTree(tree_file)
     
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
@@ -167,8 +165,8 @@ def main():
       min_branch_length=min_branch_length,\
       verbose=opts.verbose) 
 
-    #Make a copy and use LoadTree instead so that we can call getSubTree later
-    new_reference_tree_copy=LoadTree(treestring=new_reference_tree.getNewick(with_distances=True))
+    #Make a copy 
+    new_reference_tree_copy=new_reference_tree.deepcopy()
 
     # Call reformatting function using specified parameters
     new_tree, new_trait_table_lines = \
