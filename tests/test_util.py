@@ -20,7 +20,8 @@ from picrust.util import (get_picrust_project_dir,)
 
 from cogent.core.tree import TreeError
 from cogent.parse.tree import DndParser
-from picrust.util import PicrustNode
+from picrust.util import PicrustNode,\
+  transpose_trait_table_fields
 
 class PicrustNodeTests(TestCase):
     def setUp(self):
@@ -114,6 +115,35 @@ class UtilTests(TestCase):
             actual = actual.lower()
             expected = expected.lower()
         self.assertEqual(actual,expected)
+
+    def test_transpose_trait_table_fields(self):
+        """transpose_table_fields should correctly transpose table fields"""
+        # The purpose is to make it easy to transpose tab-delimited tables 
+        # before analysis starts (and to have an internal method where needed
+        
+        # Get header
+        test_header = "genomes\t123456\t123457\t123458\t123459\n"
+        test_data_fields =[\
+          ["gene1",0,3,5,0],\
+          ["gene2",1,2,1,0],\
+          ["gene3",0,0,0,1]]
+
+        exp_header  = "genomes\tgene1\tgene2\tgene3\n"
+         
+        exp_data_fields =[\
+          ['123456',0,1,0],\
+          ['123457',3,2,0],\
+          ['123458',5,1,0],\
+          ['123459',0,0,1]]
+        
+        new_header,new_data_fields = transpose_trait_table_fields(test_data_fields,\
+          header=test_header,id_row_idx=0)
+        
+        self.assertEqual(new_header,exp_header)
+        self.assertEqual(new_data_fields,exp_data_fields)
+
+        
+        pass
 
 
 if __name__ == "__main__":
