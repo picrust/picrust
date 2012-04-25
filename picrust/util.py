@@ -14,6 +14,7 @@ __status__ = "Development"
 from os.path import abspath, dirname, isdir
 from os import mkdir
 from cogent.core.tree import PhyloNode, TreeError
+from numpy import array
 
 
 def get_picrust_project_dir():
@@ -25,6 +26,52 @@ def get_picrust_project_dir():
     current_dir_path = dirname(current_file_path)
     # Return the directory containing the directory containing util.py
     return dirname(current_dir_path)
+
+
+def transpose_trait_table_fields(data_fields,header,id_row_idx=0,\
+    input_header_delimiter="\t",output_delimiter="\t"):
+    """Transpose the fields of a trait table, returning new data_fields,header
+    
+    data_fields:  list of lists for data fields 
+    header:  a string describing the header_line
+    id_row_idx:  index of row labels.  Almost always 0 but included for 
+    but included for completeness
+
+    input_header_delimiter: delimiter for fields in the header string
+    output_delimiter: use this delimiter to join header fields
+
+    NOTE:  typically the header and data fields are generated
+    by parse_trait_table in picrust.parse
+    """
+    
+    header_fields = header.split(input_header_delimiter)
+    
+    #ensure no trailing newlines
+    old_header_fields = [h.strip() for h in header_fields]
+    new_header_fields = [old_header_fields[0]]+\
+      [df[id_row_idx].strip() for df in data_fields]
+
+    non_label_data_fields = []
+    for row in data_fields:
+        non_label_fields =\
+          [e for i,e in enumerate(row) if i != id_row_idx]
+        non_label_data_fields.append(non_label_fields)
+
+
+    data_array = array(non_label_data_fields)
+    new_data_array = data_array.T
+    
+    new_rows = []
+    for i,row in enumerate(new_data_array):
+        label = old_header_fields[i+1] 
+        #this is i+1 not i because i is the blank/meaningless
+        #upper left corner entry.
+        new_row= [label]+list(row)
+        new_rows.append(new_row)
+    new_header = output_delimiter.join(new_header_fields)
+    
+    return new_header+"\n",new_rows
+
 
 def make_output_dir(dirpath, strict=False):
     """Make an output directory if it doesn't exist
