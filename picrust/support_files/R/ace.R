@@ -8,7 +8,8 @@ Args <- commandArgs(TRUE)
 tree<-read.tree(Args[1])
 
 #load in the trait table
-data <-read.table(Args[2],check.names=FALSE,row.names=1,header=TRUE)
+data<-read.delim(Args[2],check.names=FALSE,row.names=1)
+
 
 asr_method=Args[3]
 count_out_file=Args[4]
@@ -17,9 +18,9 @@ ci_out_file=Args[5]
 #If tips in tree contain '_' then read.tree() places single quotes around these tip labels.
 #This then causes sorting errors below since the rownames are different between the trait table and the tree.
 #Fix this by putting quotes around any labels in the trait table that have a '_'.
-for(i in grep("_",rownames(data))){
- rownames(data)[i]<-paste("'",rownames(data)[i],"'",sep="")
-}
+#for(i in grep("_",rownames(data))){
+# rownames(data)[i]<-paste("'",rownames(data)[i],"'",sep="")
+#}
 
 
 #order the trait table to match the tree tip labels

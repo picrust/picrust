@@ -110,10 +110,10 @@ in_trait2="""tips	trait1
 D	5"""
 
 in_trait3="""tips	trait1	trait2
-abc_123	1	3
+'abc_123'	1	3
 2	0	3
 3	2	3
-NC_2345	5	2
+'NC_2345'	5	2
 D	5	2"""
 
 
