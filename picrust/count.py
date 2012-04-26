@@ -74,11 +74,8 @@ def wagner_for_picrust(tree_path,trait_table_path,gain=None,max_paralogs=None,HA
     #tree=LoadTree(tree_path)
     tree=DndParser(open(tree_path))
     
-    #get the number of tips in the tree
-    num_of_tips=sum(1 for x in tree.iterTips())
-
     #parse the results into a Cogent Table
-    asr_table= parse_wagner_parsimony_output(result["StdOut"].readlines(),remove_num_tips=num_of_tips)
+    asr_table= parse_wagner_parsimony_output(result["StdOut"].readlines(),remove_num_tips=len(tree.tips()))
 
     #transpose the table
     asr_table = asr_table.transposed(new_column_name='nodes')
