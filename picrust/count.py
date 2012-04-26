@@ -59,9 +59,18 @@ def wagner_for_picrust(tree_path,trait_table_path,gain=None,max_paralogs=None,HA
     if max_paralogs:
         count.Parameters['-max_paralogs'].on(max_paralogs)
 
-    #Create a transposed trait table and store it as a tmp file
+    ###Have to manipulate the trait table some. Need to transpose it and strip ids surrounded in quotes.
     table = LoadTable(filename=trait_table_path,header=True,sep='\t')
+
+    #get the first column (containing row ids)
+    genome_ids = table.getRawData(table.Header[0])
+    #remove single quotes from the id if they exist
+    genome_ids=[str(id).strip('\'') for id in genome_ids]
+    #transpose the matrix
     table = table.transposed(new_column_name=table.Header[0])
+    #Change the headers
+    table=table.withNewHeader(table.Header[1:],genome_ids)
+    #write the modified table to a tmp file
     tmp_table_path =get_tmp_filename()
     table.writeToFile(tmp_table_path,sep='\t')
        
