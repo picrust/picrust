@@ -6,7 +6,8 @@ from cogent.parse.tree import DndParser
 from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
   fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
-  weighted_average_tip_prediction
+  weighted_average_tip_prediction, get_interval_z_prob,\
+  thresholded_brownian_probability
 
 """
 Tests for predict_traits.py
@@ -90,6 +91,10 @@ class TestPredictTraits(TestCase):
             obs = node.Reconstruction 
             exp = traits.get(node.Name, None)
             self.assertEqual(obs,exp)
+
+    def test_update_trait_dict_from_file(self):
+        """update_trait_dict_from_file should update a dict of states"""
+        pass
 
     def test_predict_traits_from_ancestors(self):
         """predict_traits_from_ancestors should propagate ancestral states"""
@@ -213,6 +218,70 @@ class TestPredictTraits(TestCase):
         #TODO: Test with polytomy trees
 
         # These *should* work, but until they're tested we don't know
+
+    def test_get_interval_z_prob(self):
+        """get_interval_z_prob should get the probability of a Z-score on an interval"""
+
+        #Approximate expected values were calculated from
+        #the table of z-values found in:
+        
+        #Larson, Ron; Farber, Elizabeth (2004). 
+        #Elementary Statistics: Picturing the World. P. 214, 
+        #As recorded here: http://en.wikipedia.org/wiki/Standard_normal_table
+
+        #-- Test 1 --
+        #Expected values for 0 - 0.01
+
+        obs = get_interval_z_prob(0.0,0.01)
+        #Larson & Farber reported values are:
+        #For z of 0.00, p= 0.5000
+        #For z of 0.01, p= 0.5040
+        
+        exp = 0.0040
+        self.assertFloatEqual(obs,exp,eps=0.01)
+        #Error is around 1e-5 from estimate
+        
+        #-- Test 2 --
+        # 0.75 - 0.80
+        obs = get_interval_z_prob(0.75,0.80)
+        #Larson & Farber reported values are:
+        #For z of 0.75, p= 0.7734
+        #For z of 0.80, p= 0.7881
+
+        exp = 0.7881 - 0.7734
+        self.assertFloatEqual(obs,exp,eps=0.01)
+
+    def test_thresholded_brownian_probability(self):
+        """Brownian prob should return dict of state probabilities"""
+        
+        start_state = 2.0
+        var = 1.0
+        d = 0.03
+        min_val = 0.0
+        increment = 1.0
+        trait_prob_cutoff = 0.01
+
+        obs = thresholded_brownian_probability(start_state,d,var,min_val,\
+          increment,trait_prob_cutoff)
+
+        #TODO: Need to calculate exact values for this minimal case 
+        #with the Larson & Farber Z tables, by hand.
+    
+        #For now testing the basics to make sure results look
+        #reasonable
+
+        #Test that keys are correct
+        expected_keys = [0.0,1.0,2.0,3.0,4.0] 
+        self.assertEqualItems(sorted(obs.keys()),expected_keys)
+        
+        #Test that no probabilities below threshold are included
+        self.assertTrue(min(obs.values()) > trait_prob_cutoff)
+
+        
+        
+        #Test that values +1 or -1 are equal
+        self.assertEqual(obs[1.0],obs[3.0])
+
 
 
 if __name__ == "__main__":
