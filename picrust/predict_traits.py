@@ -11,12 +11,12 @@ __maintainer__ = "Jesse RR Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
-
-from math import e
+from collections import defaultdict
+from math import e,sqrt
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from numpy.ma import masked_object, array
 from numpy import where, logical_not
-
+from cogent.maths.stats.distribution import z_high
 
 def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     """Assign a dict of traits to a PyCogent tree
@@ -50,6 +50,114 @@ def equal_weight(d,constant_weight=1.0):
     return weight
     
 
+def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0,trait_prob_cutoff = 0.01):
+    """Calculates the probability of a given discrete state given a continuous, brownian motion process
+     
+    start_state -- the starting, quantitiative value for the state (e.g. 0.36)
+    var -- the variation (this is the Brownian motion parameter
+      estimated during Ancestral State Reconstruction)    
+    d -- the branch length along which the change will occur
+    min_val -- the minimum value for the character (0 for gene copy number for example)
+    increment -- amount to increase gene copy number (almost always 1.0)
+    trait_prob_cutoff -- the value below which you no longer care about rare possibilities
+    
+    Assumes evolution by Brownian motion (directionless, suitable for neutral evolution)
+    
+    See Felsenstein, J. "Inferring Phylogenies" p. 430
+    for further discussion of threshold models of quantitative
+    traits.  The usage here is as a predictor, rather than
+    for phylogenetic inference.
+        
+    This approach might model things like gradual loss of a gene
+    by degradation better than a sudden gain by HGT, because
+    intermediate values between integer copy numbers are allowed
+
+    Algorithm:
+        Variance along a branch is calculated from the supplied variance
+        For each possible state under consideration from min_val --> inf 
+        at increments of size 'increment', I calculate the probability of getting
+        that discrete trait.
+
+        This is calculated as the probability of having a continuous value
+        in the range between that trait and the next one. So if min_val == 0 and 
+        increment = 1.0 (defaults) then any continuous trait value between 0 and 
+        1.0 is converted to a zero value, any value between 1.0 and 2.0 is converted to
+        1, etc. 
+
+        The probability for this interval is calculated using z_high, subtracting
+        the probability of the lower bound from the probability of the upper bound
+        to get the prob. of being somewhere on the interval.
+
+        The algorithm continues until the probability falls below the 
+        trait_prob_cutoff
+    
+    Once we have the probability of each possible change in copy number,
+    we just add or subtract these from the start state to get a final value 
+    
+    """
+    
+       
+    #First we calculate the probabilities of gaining or losing
+    #some number of gene copies, then apply those to the actual copy numbers 
+    trait_initial_value = start_state
+    trait_variance =  var*d
+    trait_std_dev = sqrt(trait_variance)
+    mean_exp_change = 0.0 #By defn of brownian motion
+    # Now we calculate the probability
+    # of drawing each value of interest using the normal distribution
+    
+    i= min_val
+    j = min_val+increment
+    z_i = i/trait_std_dev
+    z_j = j/trait_std_dev
+    p = get_interval_z_prob(z_i,z_j)
+    result = defaultdict(float)
+    result[start_state+i]= p
+    #print result
+    while p > trait_prob_cutoff:
+        i +=increment
+        j +=increment
+        z_i = i/trait_std_dev
+        z_j = j/trait_std_dev
+        p = get_interval_z_prob(i,j)
+        
+        if abs(p) >= trait_prob_cutoff:
+            #print start_state+i,":",p
+            result[start_state+i] = p
+        
+        if start_state - i >= min_val:
+            #print start_state-i,":",p
+            result[start_state - i] = p
+        else:
+            result[min_val] += p 
+            #Values below zero should actually
+            #increase the zero probability,
+            #since we are using this function
+            #only as an endpoint.
+    
+    #print result 
+    
+    # Now we need to get the actual
+        
+    return result
+
+
+def get_interval_z_prob(low_z,high_z):
+    """Get the probability of a range of z scores  
+    """
+    if low_z > high_z:
+        raise ValueError(\
+          "lower z value low_z must be lower than upper bound z value high_z.  Were parameters reversed?")
+    #The low z represents a lower deviation from the mean,
+    # and so will produce the higher probability
+    high_prob = z_high(low_z)
+    low_prob = z_high(high_z)
+    interval_z_prob = high_prob - low_prob
+    return interval_z_prob
+
+def equal_weight(d,constant_weight=1.0):
+    return weight
+    
 def weighted_average_tip_prediction(tree, node_to_predict,\
   trait_label="Reconstruction", weight_fn=linear_weight):
     """Predict node traits, combining reconstructions with tip nodes
@@ -101,6 +209,37 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     #print "Ancestor traits:",anc_traits
 
     #STEP 2:  Infer Parent node traits
+    
+    #TODO: abstract Step 2 to its own fn
+    if anc_traits is not None:
+        prediction = array(anc_traits)*ancestor_weight
+    #print "Trait label:", trait_label 
+    most_rec_recon_anc =\
+      get_most_recent_reconstructed_ancestor(node,trait_label)
+    
+    #Preparation
+    # To handle empty (None) values, we fill unknown values
+    # in the ancestor with values in the tips, and vice versa
+    # This is OK, since 
+
+
+    #STEP 1:  Infer traits, weight for most recently 
+    #reconstructed ancestral node
+    
+    if most_rec_recon_anc is not None: 
+        anc_traits = getattr(most_rec_recon_anc,trait_label,None)
+        ancestor_distance =  parent_node.distance(most_rec_recon_anc)
+        ancestor_weight = weight_fn(ancestor_distance)
+    else:
+        anc_traits = ancestor_distance = ancestor_weight = None
+    
+    #print "Ancestor name:",most_rec_recon_anc 
+    #print "Ancestor distance:",ancestor_distance 
+    #print "Ancestor traits:",anc_traits
+
+    #STEP 2:  Infer Parent node traits
+    
+    #TODO: abstract Step 2 to its own fn
     if anc_traits is not None:
         prediction = array(anc_traits)*ancestor_weight
         total_weights = array([ancestor_weight]*len(prediction))
@@ -128,24 +267,18 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
 
         prediction += array(child_traits)*weight
         total_weights += weight
+    
     if prediction is not None:
         prediction = prediction/total_weights
     else:
         return None
+
+
     # STEP 3: Predict target node given parent
 
-    #NOTES: without probabilites, we're left just predicting
+    #Without probabilites, we're left just predicting
     # the parent
 
-
-
-
-
-    #NOTES;  need to add a safe multiplication function
-    # to handle missing values (Nones)
-
-    #NOTE: this will need to be modified to accomodate
-    # probability values
 
     return prediction
 
@@ -275,7 +408,6 @@ def get_most_recent_ancestral_states(node,trait_label):
     
     
     """
-    
     ancestors = node.ancestors()
     for ancestor in node.ancestors():
         trait = getattr(ancestor,trait_label)
@@ -284,8 +416,8 @@ def get_most_recent_ancestral_states(node,trait_label):
     # If we get through all ancestors, and no traits are found,
     # then there are no most recent ancestral states
     return None
-
-
+    
+    
 def get_most_recent_reconstructed_ancestor(node,trait_label):
     """Traverse ancestors of node until a reconstructed value is found
     
@@ -302,6 +434,4 @@ def get_most_recent_reconstructed_ancestor(node,trait_label):
             return ancestor
     # If we get through all ancestors, and no traits are found,
     # then there are no most recent reconstructed ancestors
-    return None
-
-
+    return None 
