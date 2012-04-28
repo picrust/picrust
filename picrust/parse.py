@@ -85,7 +85,7 @@ def yield_trait_table_fields(trait_table_lines,delimiter="\t",\
         
         #Check for bad delimiters and try to intelligently warn user
         #if they used the wrong delimiter
-        if delimiter not in line:
+        if delimiter and delimiter not in line:
             delimiters_to_check = {"tab":"\t","space":"","comma":","}
             possible_delimiters = []
             for delim in delimiters_to_check.keys():
@@ -102,3 +102,20 @@ def yield_trait_table_fields(trait_table_lines,delimiter="\t",\
         yield fields
 
 
+
+def extract_ids_from_table(table_lines,delimiter="\t",header_start_string="#",id_field_idx=0):
+    """Return a list of ids from a tab-delimited table
+    
+    table_lines -- an iterable collection of lines
+    delimiter -- the delimiter for fields in a line
+    header_start_string -- the string (if any) marking header lines 
+    that should be skipped.
+
+    NOTE:  this works with legacy QIIME OTU tables (amongst others)
+    
+    """
+    header, id_fields = parse_trait_table(table_lines,delimiter=delimiter,has_header=False)
+    result = []
+    for f in id_fields:
+        result.append(f[id_field_idx])
+    return result
