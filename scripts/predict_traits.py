@@ -13,36 +13,34 @@ __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
 
+from warnings import warn
 from math import e
-from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from cogent.parse.table import SeparatorFormatParser, ConvertFields
-from picrust.predict_traits import assign_traits_to_tree,\
-  predict_traits_from_ancestors,make_neg_exponential_weight_fn 
 from numpy import array
+from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from cogent import LoadTree
-
+from picrust.parse import parse_trait_table, extract_ids_from_table
+from picrust.predict_traits import assign_traits_to_tree,\
+  predict_traits_from_ancestors, update_trait_dict_from_file,\
+  make_neg_exponential_weight_fn 
+from biom.table import table_factory
 script_info = {}
 script_info['brief_description'] = "Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states"
 script_info['script_description'] =\
 """
-This script produces predictions of unobserved traits given a phylogenetic tree and a table that summarizes which tratis are present in which ancestral organisms.
+This script produces predictions of unobserved traits given a phylogenetic tree and a table that summarizes which traits are present in which ancestral organisms.
 In the most common usage, this script is used to predict which gene families are present in each OTU (Operational Taxonomic Unit; roughly equivalent to a bacterial 'species'), given a tree and a set of ancestral state reconstructions.
 
-The output of the script is a trait prediction file, which summarizes the predicted traits of each organism of interest (by default, this is all of the organisms that are tips in the phylogenetic tree.
+The output of the script is a trait prediction file, which summarizes the predicted traits of each organism of interest (by default, this is all of the organisms that are tips in the phylogenetic tree).
 
 The prediction method works as follows:
 
-    1.  For each terminal (tip) node where a prediction is to be performed, the algorithm through the reconstructed ancestral states, and finds the last
-    node in the ancestry of our organism of interest for which a prediction is available
+    1.  For each terminal (tip) node where a prediction is to be performed, the algorithm through the reconstructed ancestral states, and finds the last node in the ancestry of our organism of interest for which a prediction is available
 
-    2.  The trait for the organism is then predicted based on a branch-length weighted average of the ancestral node and it's close relatives.
-    (This is necessary because technical limitations involving the handling of ambiguous characters in many Ancestral State Reconstruction programs
-    prevent the parent node of the organism from being directly reconstructed in most cases.)
+    2.  The trait for the organism is then predicted based on a branch-length weighted average of the ancestral node and it's close relatives. (This is necessary because technical limitations involving the handling of ambiguous characters in many Ancestral State Reconstruction programs prevent the parent node of the organism from being directly reconstructed in most cases.)
 
     The exact weight function to use can be specified from the commandline (see options below).
 
-    In general, this approach causes the prediction to be a weighted average of the closest reconstructed ancestor, and the either reconstructed or directly 
-    observed trait value of the organism of interest's sibling node(s).   
+    In general, this approach causes the prediction to be a weighted average of the closest reconstructed ancestor, and the either reconstructed or directly observed trait value of the organism of interest's sibling node(s).   
 
 """
 script_info['script_usage'] = [("","","")]
@@ -56,6 +54,7 @@ make_option('-t','--tree',type="existing_filepath",\
 script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
+make_option('-l','--limit_predictions_by_otu_table',type="existing_filepath",help='Specify a valid path to a legacy QIIME OTU table to perform predictions only for tips that are listed in the OTU table (regardless of abundance)'),\
  make_option('-r','--reconstructed_trait_table',\
    type="existing_filepath",default=None,\
    help='the input trait table describing reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')\
@@ -86,37 +85,6 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
     f.writelines(lines)
     f.close()
 
-def update_trait_dict_from_file(table_file, trait_dict = {},input_sep="\t"):
-    """Update a trait dictionary from a table file
-
-    table_file --  Lines of a trait table.
-    
-    The first line should be a header line, with row headers equal to trait 
-    (e.g. gene family) names, while the column headers should be organism 
-    ids that match the tree.
-
-    trait_dict -- a dictionary of traits, keyed by organism.  
-    Items in trait dict will be overwritten if present.
-    """ 
-    #First line should be headers
-    table_headers = None    
-    traits = trait_dict
-    for i,line in enumerate(table_file):
-        if i == 0:
-            table_headers = line.split(input_sep)
-            continue
-        else:
-            fields= line.split(input_sep)
-            organism = fields[0]
-            try:
-                raw_traits = map(float,fields[1:])
-            except ValueError:
-                err_str =\
-                  "Line %i: could not convert trait table fields:'%s' to float" %(i,fields[1:])
-                raise ValueError(err_str)
-            traits[organism] = raw_traits
-    
-    return table_headers,traits
 
 def main():
     option_parser, opts, args =\
@@ -145,8 +113,7 @@ def main():
         warn(warn_str)
         warn_str =\
             "Observed headers will be used in output"
-        #warn(str(observed_trait_table_headers))
-        #warn(str(reconstruction_table_headers))
+        warn(warn_str)
         
     # Specify the attribute where we'll store the reconstructions
     trait_label = "Reconstruction"
@@ -160,9 +127,36 @@ def main():
     if opts.verbose:
         print "Collecting list of nodes to predict..."
 
-    # For now, predict all tip nodes.
+    #Start by predict all tip nodes.
     nodes_to_predict = [tip.Name for tip in tree.tips()]
-  
+    
+    if opts.verbose:
+        print "Found %i nodes to predict." % len(nodes_to_predict)
+
+    if opts.limit_predictions_by_otu_table:
+        if opts.verbose:
+            print "Limiting predictions to ids in user-specified OTU table:",\
+              opts.limit_predictions_by_otu_table
+        otu_table = open(opts.limit_predictions_by_otu_table,"U")
+        #Parse OTU table for ids
+        
+        otu_ids =\
+          extract_ids_from_table(otu_table.readlines(),delimiter="\t")
+        
+        if not otu_ids:
+            raise RuntimeError(\
+              "Found no valid ids in input OTU table: %s.  Is the path correct?"\
+              % opts.limit_predictions_by_otu_table)
+
+        nodes_to_predict =\
+          [n for n in nodes_to_predict if n in otu_ids]
+
+        if not nodes_to_predict:
+            raise RuntimeError(\
+              "Filtering by OTU table resulted in an empty set of nodes to predict.   Are the OTU ids and tree ids in the same format?  Example tree tip name: %s, example OTU id name: %s" %([tip.Name for tip in tree.tips()][0],otu_ids[0]))
+        
+        if opts.verbose:
+            print "After filtering by OTU table, %i nodes remain to be predicted" %(len(nodes_to_predict))
     #For now, use exponential weighting
     weight_fn = make_neg_exponential_weight_fn(e)
   
@@ -175,9 +169,29 @@ def main():
      weight_fn =weight_fn,verbose=opts.verbose)
 
     if opts.verbose:
-        print "Writing results to file..."
+        print "Writing results to file: ",opts.output_trait_table
+    
+    #TODO: Transpose data 
+    # Tab delimited file
     write_results_to_file(opts.output_trait_table,observed_trait_table_headers,\
       predictions)
+   
+    #Predictions are a dict with organisms as keys, and arrays as values
+    #Make function:
+    # biom_table_from_predictions(predictions,gene_ids)
+    #organism_ids = predictions.keys()
+    #gene_ids = observed_trait_table_headers
+    #new_data = [predictions[org_id] for org_id in organism_ids]
+
+    #Generate a new table object 
+    #new data may need to be transposed???
+    #predicted_biom_table =\
+    #  table_factory(new_data,organism_ids,gene_ids)
+
+
+    #Write the .biom table
+    #open(opts.output_trait_table,'w').write(\
+    #  predicted_biom_table.getBiomFormatJsonString('PICRUST'))
 
 if __name__ == "__main__":
     main()
