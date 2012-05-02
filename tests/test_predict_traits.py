@@ -1,17 +1,32 @@
+#!/usr/bin/env python
+
 from math import e
 from cogent.util.unit_test import main,TestCase
 from numpy import array,array_equal,around
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
+from cogent.app.util import get_tmp_filename
+from cogent.util.misc import remove_files
+
 from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
   fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
   weighted_average_tip_prediction, get_interval_z_prob,\
-  thresholded_brownian_probability
+  thresholded_brownian_probability, update_trait_dict_from_file
 
 """
 Tests for predict_traits.py
 """
+
+in_trait1="""tips	trait1	trait2
+1	1	3
+2	0	3
+3	2	3"""
+
+in_trait2="""nodes	trait2	trait1
+3	3	1
+A	5	2.5
+D	5	2"""
 
 class TestPredictTraits(TestCase):
     """Tests of predict_traits.py"""
@@ -44,7 +59,25 @@ class TestPredictTraits(TestCase):
 
         self.GeneCountTraits =\
                 {"B":[1.0,1.0],"C":[1.0,2.0],"I3":[1.0,1.0],"I1":[0.0,3.0],"D":[0.0,5.0]}
-    
+
+        #create a tmp trait file
+        self.in_trait1_fp = get_tmp_filename(prefix='Predict_Traits_Tests',suffix='.tsv')
+        self.in_trait1_file=open(self.in_trait1_fp,'w')
+        self.in_trait1_file.write(in_trait1)
+        self.in_trait1_file.close()
+
+        #create another tmp trait file (with columns in different order)
+        self.in_trait2_fp = get_tmp_filename(prefix='Predict_Traits_Tests',suffix='.tsv')
+        self.in_trait2_file=open(self.in_trait2_fp,'w')
+        self.in_trait2_file.write(in_trait2)
+        self.in_trait2_file.close()
+
+
+        self.files_to_remove = [self.in_trait1_fp,self.in_trait2_fp]
+
+    def tearDown(self):
+        remove_files(self.files_to_remove)
+
     def test_linear_weight(self):
         """linear_weight weights linearly"""
         
@@ -94,7 +127,15 @@ class TestPredictTraits(TestCase):
 
     def test_update_trait_dict_from_file(self):
         """update_trait_dict_from_file should update a dict of states"""
-        pass
+        header,traits=update_trait_dict_from_file(self.in_trait1_fp)
+        self.assertEqual(header,["tips","trait1","trait2"])
+        self.assertEqual(traits,{1:[1,3],2:[0,3],3:[2,3]})
+        
+        header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,traits)
+        self.assertEqual(header2,["nodes","trait1","trait2"])
+        self.assertEqual(traits,{1:[1,3],2:[0,3],3:[1,3],'A':[2.5,5],'D':[2,5]})
+        
+        
 
     def test_predict_traits_from_ancestors(self):
         """predict_traits_from_ancestors should propagate ancestral states"""
@@ -286,3 +327,5 @@ class TestPredictTraits(TestCase):
 
 if __name__ == "__main__":
     main()
+
+

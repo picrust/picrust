@@ -69,7 +69,7 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
     with arrays as values
     """
     f= open(f_out,"w")
-    lines = [sep.join(headers)]
+    lines = [sep.join(headers)+"\n"]
     
     for pred in sorted(predictions.keys()):
         new_fields = [pred]
@@ -97,15 +97,13 @@ def main():
     trait_dict ={}
 
     if opts.reconstructed_trait_table:
-        reconstructed_trait_file = open(opts.reconstructed_trait_table,"U")
         reconstruction_table_headers,trait_dict =\
-                update_trait_dict_from_file(reconstructed_trait_file)
+                update_trait_dict_from_file(opts.reconstructed_trait_table)
     
     #Add in directly observed traits, overwriting ancestral state reconstructions
     #if the two overlap.
-    observed_trait_file = open(opts.observed_trait_table,"U")
     observed_trait_table_headers,traits =\
-            update_trait_dict_from_file(observed_trait_file,trait_dict)
+            update_trait_dict_from_file(opts.observed_trait_table,trait_dict)
     
     if observed_trait_table_headers[1:] != reconstruction_table_headers[1:]:
         warn_str =\

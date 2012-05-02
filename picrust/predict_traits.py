@@ -17,6 +17,7 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from numpy.ma import masked_object, array
 from numpy import where, logical_not
 from cogent.maths.stats.distribution import z_high
+from cogent import LoadTable
 
 def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     """Assign a dict of traits to a PyCogent tree
@@ -435,3 +436,39 @@ def get_most_recent_reconstructed_ancestor(node,trait_label):
     # If we get through all ancestors, and no traits are found,
     # then there are no most recent reconstructed ancestors
     return None 
+
+def update_trait_dict_from_file(table_file, trait_dict = {},input_sep="\t"):
+    """Update a trait dictionary from a table file
+
+    table_file --  File name of a trait table.
+    
+    The first line should be a header line, with column headers equal to trait 
+    (e.g. gene family) names, while the row headers should be organism 
+    ids that match the tree.
+
+    trait_dict -- a dictionary of traits, keyed by organism.  
+    Items in trait dict will be overwritten if present.
+    """ 
+    #First line should be headers
+    table=LoadTable(filename=table_file,header=True,sep=input_sep)
+
+    #sort the column headings (this will allow files with columns in different orders to match up)
+    #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids)
+    sorted_header=[table.Header[0]]
+    sorted_header.extend(sorted(table.Header[1:]))
+    table = table.getColumns(sorted_header)
+    
+    traits = trait_dict
+    for fields in table:
+#        traits[fields[0]]=[x for x in fields[1:]]
+        
+        organism = fields[0]
+        try:
+            raw_traits = map(float,fields[1:])
+        except ValueError:
+            err_str =\
+                    "Could not convert trait table fields:'%s' to float" %(fields[1:])
+            raise ValueError(err_str)
+        traits[organism] = raw_traits
+    
+    return table.Header,traits
