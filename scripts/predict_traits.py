@@ -55,9 +55,10 @@ script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
 make_option('-l','--limit_predictions_by_otu_table',type="existing_filepath",help='Specify a valid path to a legacy QIIME OTU table to perform predictions only for tips that are listed in the OTU table (regardless of abundance)'),\
- make_option('-r','--reconstructed_trait_table',\
+make_option('-g','--limit_predictions_to_organisms',help='Limit predictions to specific, comma-separated organims ids. (Generally only useful for lists of < 10 organism ids, for example when performing leave-one-out cross-validation).'),\
+make_option('-r','--reconstructed_trait_table',\
    type="existing_filepath",default=None,\
-   help='the input trait table describing reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')\
+   help='the input trait table describing reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')
 ]
 script_info['version'] = __version__
 
@@ -89,7 +90,10 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-
+    
+    if opts.verbose:
+        print "Loading tree from file:", opts.tree
+    
     # Load Tree
     tree = LoadTree(opts.tree)
 
@@ -131,6 +135,31 @@ def main():
     if opts.verbose:
         print "Found %i nodes to predict." % len(nodes_to_predict)
 
+    if opts.limit_predictions_to_organisms:
+        organism_id_str = opts.limit_predictions_to_organisms
+        ok_organism_ids = organism_id_str.split(',')
+        ok_organism_ids = [n.strip() for n in ok_organism_ids]
+
+        if opts.verbose:
+            print "Limiting predictions to user-specified ids:",\
+              ok_organism_ids
+        
+        
+        if not ok_organism_ids:
+            raise RuntimeError(\
+              "Found no valid ids in input: %s. Were comma-separated ids specified on the command line?"\
+              % opts.limit_predictions_to_organisms)
+
+        nodes_to_predict =\
+          [n for n in nodes_to_predict if n in ok_organism_ids]
+
+        if not nodes_to_predict:
+            raise RuntimeError(\
+              "Filtering by user-specified ids resulted in an empty set of nodes to predict.   Are the ids on the commmand-line and tree ids in the same format?  Example tree tip name: %s, example OTU id name: %s" %([tip.Name for tip in tree.tips()][0],ok_organism_ids[0]))
+        
+        if opts.verbose:
+            print "After filtering organisms to predict by the ids specified on the commandline, %i nodes remain to be predicted" %(len(nodes_to_predict))
+    
     if opts.limit_predictions_by_otu_table:
         if opts.verbose:
             print "Limiting predictions to ids in user-specified OTU table:",\
