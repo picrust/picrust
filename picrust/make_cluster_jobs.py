@@ -81,8 +81,7 @@ def grouper(iterable, n, fillvalue=None):
         return izip_longest(*args, fillvalue=fillvalue)
 
 
-def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,
-              walltime="72:00:00"):
+def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,max_hours_per_job=5):
     """prepare qsub text files.
     
     command: list of commands
@@ -93,7 +92,7 @@ def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,
     
     jobs_dir: path to directory where job submision scripts are written
 
-    walltime: the maximal walltime 
+    max_hours_per_job: the maximum expected time for each command (this will be multiplied by number of commands per job to get a 'walltime' 
     
     ncpus: number of cpus
     
@@ -108,6 +107,10 @@ def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,
 
     #calculate the number of commands to put in each job
     num_commands_per_job=int(ceil(len(commands)/float(num_jobs)))
+
+    #calculate the walltime (time before job will be killed by scheduler if still running)
+    total_time = hours_per_job*num_commands_per_job
+    walltime= "{}:00:00".format(total_time)
     
     for command_group in grouper(commands,num_commands_per_job,''):
         job_name = get_tmp_filename(tmp_dir=jobs_dir, prefix=job_prefix+"_",
