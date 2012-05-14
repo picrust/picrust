@@ -7,7 +7,7 @@ from cogent import LoadTree
 from cogent.parse.tree import DndParser
 from cogent.app.util import get_tmp_filename
 from cogent.util.misc import remove_files
-
+from warnings import catch_warnings
 from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
   fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
@@ -28,6 +28,13 @@ in_trait2="""tips	trait1	trait2	trait3
 1	1	3	1
 2	0	3	2
 3	2	3	3"""
+
+in_bad_trait="""tips	not_trait1	trait2	trait3
+1	1	3	1
+2	0	3	2
+3	2	3	3"""
+
+
 
 class TestPredictTraits(TestCase):
     """Tests of predict_traits.py"""
@@ -74,7 +81,13 @@ class TestPredictTraits(TestCase):
         self.in_trait2_file.close()
 
 
-        self.files_to_remove = [self.in_trait1_fp,self.in_trait2_fp]
+        #create a tmp trait file with a incorrect trait name
+        self.in_bad_trait_fp = get_tmp_filename(prefix='Predict_Traits_Tests',suffix='.tsv')
+        self.in_bad_trait_file=open(self.in_bad_trait_fp,'w')
+        self.in_bad_trait_file.write(in_bad_trait)
+        self.in_bad_trait_file.close()
+
+        self.files_to_remove = [self.in_trait1_fp,self.in_trait2_fp,self.in_bad_trait_fp]
 
     def tearDown(self):
         remove_files(self.files_to_remove)
@@ -127,16 +140,23 @@ class TestPredictTraits(TestCase):
             self.assertEqual(obs,exp)
 
     def test_update_trait_dict_from_file(self):
-        """update_trait_dict_from_file should update a dict of states"""
+        """update_trait_dict_from_file should parse input trait tables (asr and genome) and match traits between them"""
         header,traits=update_trait_dict_from_file(self.in_trait1_fp)
         self.assertEqual(header,["nodes","trait2","trait1"])
         self.assertEqual(traits,{3:[3,1],'A':[5,2.5],'D':[5,2]})
-        
-        header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,header)
-        self.assertEqual(header2,["tips","trait2","trait1"])
-        self.assertEqual(traits2,{1:[3,1], 2:[3,0], 3:[3,2]})
-        
-        
+
+        #test that we get a warning when header from other trait table doesn't match perfectly.
+        with catch_warnings(record=True) as w:
+            header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,header)
+            self.assertEqual(header2,["tips","trait2","trait1"])
+            self.assertEqual(traits2,{1:[3,1], 2:[3,0], 3:[3,2]})
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            assert "Missing" in str(w[-1].message)
+                    
+
+        #try giving a trait table with a trait that doesn't match our header
+        self.assertRaises(RuntimeError,update_trait_dict_from_file,self.in_bad_trait_fp,header)
 
     def test_predict_traits_from_ancestors(self):
         """predict_traits_from_ancestors should propagate ancestral states"""

@@ -456,15 +456,14 @@ def update_trait_dict_from_file(table_file, header = [],input_sep="\t"):
 
     #do some extra stuff to match columns if a header is provided
     if header:
-        if header[1:] != table.Header[1:]:
-            if len(header) != len(table.Header):
-                no_traits = len(table.Header) - len(header)
-                warn_str =\
-                         "Note!  {0} traits do not exist in ASR table. We will only make predictions for traits in ASR table.".format(no_traits)
-                warn(warn_str)
+        #error checking to make sure traits in ASR table are a subset of traits in genome table
+        if set(header[1:]) != set(table.Header[1:]):
+            if set(header[1:]).issubset(set(table.Header[1:])):
+                diff_traits = set(table.Header[1:]).difference(set(header[1:]))
+                warn("Missing traits in given ASR table with labels:{0}. Predictions will not be produced for these traits.".format(list(diff_traits))) 
             else:
-                warn("Header names do not match.")
-
+                raise RuntimeError("Given ASR trait table contains one or more traits that do not exist in given genome trait table. Predictions can not be made.")
+            
         #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids)
         sorted_header=[table.Header[0]]
         sorted_header.extend(header[1:])
