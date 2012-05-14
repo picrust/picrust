@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Jesse RR Zaneveld"
 __copyright__ = "Copyright 2012, The PICRUST Project"
-__credits__ = ["Jesse Zaneveld"]
+__credits__ = ["Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "0.1"
 __maintainer__ = "Jesse RR Zaneveld"
@@ -18,6 +18,8 @@ from numpy.ma import masked_object, array
 from numpy import where, logical_not
 from cogent.maths.stats.distribution import z_high
 from cogent import LoadTable
+from warnings import warn
+
 
 def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     """Assign a dict of traits to a PyCogent tree
@@ -437,7 +439,7 @@ def get_most_recent_reconstructed_ancestor(node,trait_label):
     # then there are no most recent reconstructed ancestors
     return None 
 
-def update_trait_dict_from_file(table_file, trait_dict = {},input_sep="\t"):
+def update_trait_dict_from_file(table_file, header = [],input_sep="\t"):
     """Update a trait dictionary from a table file
 
     table_file --  File name of a trait table.
@@ -452,23 +454,29 @@ def update_trait_dict_from_file(table_file, trait_dict = {},input_sep="\t"):
     #First line should be headers
     table=LoadTable(filename=table_file,header=True,sep=input_sep)
 
-    #sort the column headings (this will allow files with columns in different orders to match up)
-    #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids)
-    sorted_header=[table.Header[0]]
-    sorted_header.extend(sorted(table.Header[1:]))
-    table = table.getColumns(sorted_header)
+    #do some extra stuff to match columns if a header is provided
+    if header:
+        if header[1:] != table.Header[1:]:
+            if len(header) != len(table.Header):
+                no_traits = len(table.Header) - len(header)
+                warn_str =\
+                         "Note!  {0} traits do not exist in ASR table. We will only make predictions for traits in ASR table.".format(no_traits)
+                warn(warn_str)
+            else:
+                warn("Header names do not match.")
+
+        #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids)
+        sorted_header=[table.Header[0]]
+        sorted_header.extend(header[1:])
+        table = table.getColumns(sorted_header)
     
-    traits = trait_dict
-    for fields in table:
-#        traits[fields[0]]=[x for x in fields[1:]]
-        
-        organism = fields[0]
+    traits = {}
+    for fields in table: 
         try:
-            raw_traits = map(float,fields[1:])
+            traits[fields[0]] = map(float,fields[1:])
         except ValueError:
             err_str =\
                     "Could not convert trait table fields:'%s' to float" %(fields[1:])
             raise ValueError(err_str)
-        traits[organism] = raw_traits
-    
+       
     return table.Header,traits

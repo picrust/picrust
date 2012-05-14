@@ -18,15 +18,16 @@ from picrust.predict_traits  import assign_traits_to_tree,\
 Tests for predict_traits.py
 """
 
-in_trait1="""tips	trait1	trait2
-1	1	3
-2	0	3
-3	2	3"""
 
-in_trait2="""nodes	trait2	trait1
+in_trait1="""nodes	trait2	trait1
 3	3	1
 A	5	2.5
 D	5	2"""
+
+in_trait2="""tips	trait1	trait2	trait3
+1	1	3	1
+2	0	3	2
+3	2	3	3"""
 
 class TestPredictTraits(TestCase):
     """Tests of predict_traits.py"""
@@ -128,12 +129,12 @@ class TestPredictTraits(TestCase):
     def test_update_trait_dict_from_file(self):
         """update_trait_dict_from_file should update a dict of states"""
         header,traits=update_trait_dict_from_file(self.in_trait1_fp)
-        self.assertEqual(header,["tips","trait1","trait2"])
-        self.assertEqual(traits,{1:[1,3],2:[0,3],3:[2,3]})
+        self.assertEqual(header,["nodes","trait2","trait1"])
+        self.assertEqual(traits,{3:[3,1],'A':[5,2.5],'D':[5,2]})
         
-        header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,traits)
-        self.assertEqual(header2,["nodes","trait1","trait2"])
-        self.assertEqual(traits,{1:[1,3],2:[0,3],3:[1,3],'A':[2.5,5],'D':[2,5]})
+        header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,header)
+        self.assertEqual(header2,["tips","trait2","trait1"])
+        self.assertEqual(traits2,{1:[3,1], 2:[3,0], 3:[3,2]})
         
         
 

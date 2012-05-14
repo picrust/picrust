@@ -5,7 +5,7 @@ from warnings import warn
 
 __author__ = "Jesse Zaneveld"
 __copyright__ = "Copyright 2012, The PICRUST Project"
-__credits__ = ["Jesse RR Zaneveld"]
+__credits__ = ["Jesse RR Zaneveld", "Morgan Langille"]
 __license__ = "GPL"
 __version__ = "0.1dev"
 __maintainer__ = "Jesse Zaneveld"
@@ -97,25 +97,21 @@ def main():
     # Load Tree
     tree = LoadTree(opts.tree)
 
-    #Convert input tables to dict of traits, indexed by organism
-    trait_dict ={}
+    table_headers =[]
 
+    #load the asr trait table using the previous list of functions to order the arrays
     if opts.reconstructed_trait_table:
-        reconstruction_table_headers,trait_dict =\
+        table_headers,traits =\
                 update_trait_dict_from_file(opts.reconstructed_trait_table)
-    
-    #Add in directly observed traits, overwriting ancestral state reconstructions
-    #if the two overlap.
-    observed_trait_table_headers,traits =\
-            update_trait_dict_from_file(opts.observed_trait_table,trait_dict)
-    
-    if observed_trait_table_headers[1:] != reconstruction_table_headers[1:]:
-        warn_str =\
-            "Warning!  Different headers for observed and reconstructed traits:"
-        warn(warn_str)
-        warn_str =\
-            "Observed headers will be used in output"
-        warn(warn_str)
+
+
+    #load the trait table into a dict with organism names as keys and arrays as functions
+    table_headers,genome_traits =\
+            update_trait_dict_from_file(opts.observed_trait_table,table_headers)
+
+
+    #Combine the trait tables overwriting the asr ones if they exist in the genome trait table.
+    traits.update(genome_traits)
         
     # Specify the attribute where we'll store the reconstructions
     trait_label = "Reconstruction"
@@ -200,8 +196,7 @@ def main():
     
     #TODO: Transpose data 
     # Tab delimited file
-    write_results_to_file(opts.output_trait_table,observed_trait_table_headers,\
-      predictions)
+    write_results_to_file(opts.output_trait_table,table_headers,predictions)
    
     #Predictions are a dict with organisms as keys, and arrays as values
     #Make function:
