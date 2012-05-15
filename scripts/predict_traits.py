@@ -21,8 +21,11 @@ from cogent import LoadTree
 from picrust.parse import parse_trait_table, extract_ids_from_table
 from picrust.predict_traits import assign_traits_to_tree,\
   predict_traits_from_ancestors, update_trait_dict_from_file,\
-  make_neg_exponential_weight_fn 
+  make_neg_exponential_weight_fn, biom_table_from_predictions 
 from biom.table import table_factory
+from cogent.util.table import Table
+from picrust.format import format_biom_table
+
 script_info = {}
 script_info['brief_description'] = "Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states"
 script_info['script_description'] =\
@@ -193,27 +196,13 @@ def main():
 
     if opts.verbose:
         print "Writing results to file: ",opts.output_trait_table
-    
-    #TODO: Transpose data 
-    # Tab delimited file
-    write_results_to_file(opts.output_trait_table,table_headers,predictions)
-   
-    #Predictions are a dict with organisms as keys, and arrays as values
-    #Make function:
-    # biom_table_from_predictions(predictions,gene_ids)
-    #organism_ids = predictions.keys()
-    #gene_ids = observed_trait_table_headers
-    #new_data = [predictions[org_id] for org_id in organism_ids]
 
-    #Generate a new table object 
-    #new data may need to be transposed???
-    #predicted_biom_table =\
-    #  table_factory(new_data,organism_ids,gene_ids)
+    #convert to biom format (and transpose)
+    biom_predictions=biom_table_from_predictions(predictions,table_headers)
 
-
-    #Write the .biom table
-    #open(opts.output_trait_table,'w').write(\
-    #  predicted_biom_table.getBiomFormatJsonString('PICRUST'))
+    #write biom table to file
+    open(opts.output_trait_table,'w').write(\
+     format_biom_table(biom_predictions))
 
 if __name__ == "__main__":
     main()

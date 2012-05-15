@@ -19,6 +19,15 @@ from numpy import where, logical_not
 from cogent.maths.stats.distribution import z_high
 from cogent import LoadTable
 from warnings import warn
+from biom.table import table_factory,DenseOTUTable
+
+def biom_table_from_predictions(predictions,trait_ids):
+    organism_ids=predictions.keys()
+    #data is in values (this transposes the matrix)
+    data=map(list,zip(*predictions.values()))
+    biom_table=table_factory(data,organism_ids,trait_ids, constructor=DenseOTUTable)
+    return biom_table
+
 
 
 def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
@@ -457,16 +466,16 @@ def update_trait_dict_from_file(table_file, header = [],input_sep="\t"):
     #do some extra stuff to match columns if a header is provided
     if header:
         #error checking to make sure traits in ASR table are a subset of traits in genome table
-        if set(header[1:]) != set(table.Header[1:]):
-            if set(header[1:]).issubset(set(table.Header[1:])):
-                diff_traits = set(table.Header[1:]).difference(set(header[1:]))
+        if set(header) != set(table.Header[1:]):
+            if set(header).issubset(set(table.Header[1:])):
+                diff_traits = set(table.Header[1:]).difference(set(header))
                 warn("Missing traits in given ASR table with labels:{0}. Predictions will not be produced for these traits.".format(list(diff_traits))) 
             else:
                 raise RuntimeError("Given ASR trait table contains one or more traits that do not exist in given genome trait table. Predictions can not be made.")
             
-        #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids)
+        #Note: keep the first column heading at the beginning not sorted (this is the name for the row ids
         sorted_header=[table.Header[0]]
-        sorted_header.extend(header[1:])
+        sorted_header.extend(header)
         table = table.getColumns(sorted_header)
     
     traits = {}
@@ -478,4 +487,4 @@ def update_trait_dict_from_file(table_file, header = [],input_sep="\t"):
                     "Could not convert trait table fields:'%s' to float" %(fields[1:])
             raise ValueError(err_str)
        
-    return table.Header,traits
+    return table.Header[1:],traits

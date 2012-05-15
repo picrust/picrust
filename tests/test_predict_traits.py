@@ -12,7 +12,9 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
   fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
   weighted_average_tip_prediction, get_interval_z_prob,\
-  thresholded_brownian_probability, update_trait_dict_from_file
+  thresholded_brownian_probability, update_trait_dict_from_file,\
+  biom_table_from_predictions
+
 
 """
 Tests for predict_traits.py
@@ -92,6 +94,22 @@ class TestPredictTraits(TestCase):
     def tearDown(self):
         remove_files(self.files_to_remove)
 
+    def test_biom_table_from_predictions(self):
+        """format predictions into biom format"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        
+        #print "Starting tree:",tree.asciiArt()
+        # Test on simple tree
+        result_tree = assign_traits_to_tree(traits,tree)
+        nodes_to_predict = [n.Name for n in result_tree.tips()]
+        #print "Predicting nodes:", nodes_to_predict
+        predictions = predict_traits_from_ancestors(result_tree,\
+          nodes_to_predict)
+
+        biom_table=biom_table_from_predictions(predictions,["trait1","trait2"])
+        
+
     def test_linear_weight(self):
         """linear_weight weights linearly"""
         
@@ -142,13 +160,13 @@ class TestPredictTraits(TestCase):
     def test_update_trait_dict_from_file(self):
         """update_trait_dict_from_file should parse input trait tables (asr and genome) and match traits between them"""
         header,traits=update_trait_dict_from_file(self.in_trait1_fp)
-        self.assertEqual(header,["nodes","trait2","trait1"])
+        self.assertEqual(header,["trait2","trait1"])
         self.assertEqual(traits,{3:[3,1],'A':[5,2.5],'D':[5,2]})
 
         #test that we get a warning when header from other trait table doesn't match perfectly.
         with catch_warnings(record=True) as w:
             header2,traits2=update_trait_dict_from_file(self.in_trait2_fp,header)
-            self.assertEqual(header2,["tips","trait2","trait1"])
+            self.assertEqual(header2,["trait2","trait1"])
             self.assertEqual(traits2,{1:[3,1], 2:[3,0], 3:[3,2]})
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)

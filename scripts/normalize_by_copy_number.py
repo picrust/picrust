@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The PICRUST project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
@@ -15,7 +15,6 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
-from picrust.parse import parse_marker_gene_copy_numbers
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -24,7 +23,7 @@ script_info['script_usage'] = [("","Normalize the counts in raw_otu_table.biom b
 script_info['output_description']= ""
 script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
- make_option('-c','--input_count_fp',type="existing_filepath",help='the input marker gene counts on per otu basis'),
+ make_option('-c','--input_count_fp',type="existing_filepath",help='the input marker gene counts on per otu basis in biom format'),
  make_option('-o','--output_otu_fp',type="new_filepath",help='the output otu table filepath in biom format'),
 ]
 script_info['optional_options'] = [
@@ -39,17 +38,30 @@ def main():
        parse_command_line_parameters(**script_info)
 
     table = parse_biom_table(open(opts.input_otu_fp,'U'))
-    copy_numbers = parse_marker_gene_copy_numbers(open(opts.input_count_fp),
-                                                  metadata_identifier=opts.metadata_identifer)
+    count_table = parse_biom_table(open(opts.input_count_fp,'U'))
+    
     #Need to only keep data relevant to our otu list
     ids=[]
     for x in table.iterObservations():
         ids.append(str(x[1]))
 
+    ob_id=count_table.ObservationIds[0]
+
     copy_numbers_filtered={}
     for x in ids:
-        copy_numbers_filtered[x]=copy_numbers[x]
+        value = count_table.getValueByIds(ob_id,x)
+        try:
+            #data can be floats so round them and make them integers
+            value = int(round(float(value)))
+            
+        except ValueError:
+            raise ValueError,\
+                "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (value)
+        if value < 1:
+            raise ValueError, "Copy numbers must be greater than or equal to 1."
 
+        copy_numbers_filtered[x]={opts.metadata_identifer:value}
+   
     table.addObservationMetadata(copy_numbers_filtered)
 
     normalized_table = table.normObservationByMetadata(opts.metadata_identifer)
