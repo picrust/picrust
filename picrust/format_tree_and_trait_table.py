@@ -61,7 +61,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     replace_ambiguous_states -- if True, replace various strings representing ambiguous character states,
     as well as '-1' or -1 (used by IMG to represent a lack of data) with 0 values.
 
-    replace_problematic_table_chars -- if True, replace ':' and ';' in the results with '_'.
+    replace_problematic_table_chars -- if True, replace ':' and ';' in the results with '_', and remove double quotes.
     (AncSR methods like ace can't handle these characters in organism labels)
 
     min_branch_length -- set the minimum branch length for all edges in the tree.   
@@ -213,7 +213,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     if replace_problematic_label_characters:
         #  Replace ambiguous characters with 
-        replacement_dict ={":":"_",";":"_"}
+        replacement_dict ={":":"_",";":"_",'"':''}
         if verbose:
             print "Replacing problematic labels in organism labels:"
             for k,v in replacement_dict.items():
@@ -422,10 +422,15 @@ def make_translate_conversion_fn(translation_dict):
     def translate_conversion_fn(trait_value_field):
         # Return translation, or the original value if no translation
         # is available
-        trait_value_field = str(trait_value_field).strip()
+        try:
+            trait_value_field = trait_value_field.strip()
+        except AttributeError:
+            trait_value_field = str(trait_value_field).strip()
+
+        result = translation_dict.get(trait_value_field,trait_value_field)
+            
         #print trait_value_field
         #print translation_dict.keys()
-        result = translation_dict.get(trait_value_field,trait_value_field)
         
         if result in translation_dict.keys():
             raise RuntimeError("failed to translate value: %s" % result)
@@ -472,7 +477,6 @@ def remove_spaces(trait_label_field):
     label = str(trait_label_field)
     fields = trait_label_field.lstrip().strip().split()
     return "_".join(fields)
-
 
 
 
