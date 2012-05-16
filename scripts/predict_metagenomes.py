@@ -26,7 +26,8 @@ script_info['output_description']= ""
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
  make_option('-g','--input_genome_table',type="existing_filepath",help='the input genome filepath in biom format'),
- make_option('-o','--output_metagenome_table',type="new_filepath",help='the output predicted metagenome table in biom format'),
+ make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome'),
+ make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')
 ]
 script_info['optional_options'] = []
 script_info['version'] = __version__
@@ -38,8 +39,10 @@ def main():
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
     genome_table = parse_biom_table(open(opts.input_genome_table,'U'))
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
-    open(opts.output_metagenome_table,'w').write(\
-     format_biom_table(predicted_metagenomes))
+    if(opts.format_tab_delimited):
+        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf())
+    else:
+        open(opts.output_metagenome_table,'w').write(format_biom_table(predicted_metagenomes))
 
 if __name__ == "__main__":
     main()
