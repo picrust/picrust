@@ -15,6 +15,8 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
+from biom.table import table_factory,DenseOTUTable
+from picrust.util import make_output_dir_for_file
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -33,22 +35,33 @@ script_info['optional_options'] = [
 ]
 script_info['version'] = __version__
 
+
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
 
-    table = parse_biom_table(open(opts.input_otu_fp,'U'))
+    otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
     count_table = parse_biom_table(open(opts.input_count_fp,'U'))
     
     #Need to only keep data relevant to our otu list
     ids=[]
-    for x in table.iterObservations():
+    for x in otu_table.iterObservations():
         ids.append(str(x[1]))
 
     ob_id=count_table.ObservationIds[0]
 
-    copy_numbers_filtered={}
+    filtered_otus=[]
+    filtered_values=[]
     for x in ids:
+        if count_table.sampleExists(x):
+            filtered_otus.append(x)
+            filtered_values.append(otu_table.observationData(x))
+
+    #filtered_values = map(list,zip(*filtered_values))
+    filtered_otu_table=table_factory(filtered_values,otu_table.SampleIds,filtered_otus, constructor=DenseOTUTable)
+
+    copy_numbers_filtered={}
+    for x in filtered_otus:
         value = count_table.getValueByIds(ob_id,x)
         try:
             #data can be floats so round them and make them integers
@@ -56,15 +69,18 @@ def main():
             
         except ValueError:
             raise ValueError,\
-                "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (value)
+                  "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (value)
         if value < 1:
             raise ValueError, "Copy numbers must be greater than or equal to 1."
 
         copy_numbers_filtered[x]={opts.metadata_identifer:value}
-   
-    table.addObservationMetadata(copy_numbers_filtered)
+        
+    filtered_otu_table.addObservationMetadata(copy_numbers_filtered)
+            
 
-    normalized_table = table.normObservationByMetadata(opts.metadata_identifer)
+    normalized_table = filtered_otu_table.normObservationByMetadata(opts.metadata_identifer)
+
+    make_output_dir_for_file(opts.output_otu_fp)
     open(opts.output_otu_fp,'w').write(\
      normalized_table.getBiomFormatJsonString('PICRUST'))
 
