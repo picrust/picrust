@@ -13,11 +13,10 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from os.path import dirname,isdir, exists
-from os import makedirs
 from picrust.count import wagner_for_picrust
 from picrust.ace import ace_for_picrust
 from picrust.ancestral_state_reconstruction import run_asr_in_parallel
+from picrust.util import make_output_dir_for_file
 
 script_info = {}
 script_info['brief_description'] = "Runs ancestral state reconstruction given a tree and trait table"
@@ -77,9 +76,7 @@ def main():
 
 
     #output the table to file
-    output_dir=dirname(opts.output_fp)
-    if not isdir(output_dir) and not output_dir =='':
-            makedirs(output_dir)
+    make_output_dir_for_file(opts.output_fp)
     asr_table.writeToFile(opts.output_fp,sep='\t')
 
     #output the CI file (unless the method is wagner)

@@ -17,6 +17,7 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes
 from picrust.format import format_biom_table
+from picrust.util import make_output_dir_for_file
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -39,6 +40,8 @@ def main():
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
     genome_table = parse_biom_table(open(opts.input_genome_table,'U'))
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
+
+    make_output_dir_for_file(opts.output_metagenome_table)
     if(opts.format_tab_delimited):
         open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf())
     else:

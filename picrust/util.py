@@ -12,10 +12,9 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
 from os.path import abspath, dirname, isdir
-from os import mkdir
+from os import mkdir,makedirs
 from cogent.core.tree import PhyloNode, TreeError
 from numpy import array
-
 
 def get_picrust_project_dir():
     """ Returns the top-level PICRUST directory
@@ -71,6 +70,13 @@ def transpose_trait_table_fields(data_fields,header,id_row_idx=0,\
     new_header = output_delimiter.join(new_header_fields)
     
     return new_header+"\n",new_rows
+def make_output_dir_for_file(filepath):
+    """Create sub-directories for a new file if they don't already exist
+    """
+
+    dirpath=dirname(filepath)
+    if not isdir(dirpath) and not dirpath=='':
+        makedirs(dirpath)
 
 
 def make_output_dir(dirpath, strict=False):
@@ -78,9 +84,8 @@ def make_output_dir(dirpath, strict=False):
     
     Returns the path to the directory
     dirpath -- a string describing the path to the directory
-    strict -- if True, raise an exception if dir already
+    strict -- if True, raise an exception if dir already 
     exists
-    
     """
     dirpath = abspath(dirpath)
     

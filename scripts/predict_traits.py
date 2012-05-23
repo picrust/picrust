@@ -25,6 +25,7 @@ from picrust.predict_traits import assign_traits_to_tree,\
 from biom.table import table_factory
 from cogent.util.table import Table
 from picrust.format import format_biom_table
+from picrust.util import make_output_dir_for_file
 
 script_info = {}
 script_info['brief_description'] = "Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states"
@@ -201,6 +202,7 @@ def main():
     biom_predictions=biom_table_from_predictions(predictions,table_headers)
 
     #write biom table to file
+    make_output_dir_for_file(opts.output_trait_table)
     open(opts.output_trait_table,'w').write(\
      format_biom_table(biom_predictions))
 
