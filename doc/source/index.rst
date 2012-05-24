@@ -15,6 +15,8 @@ Contents:
    
    ./prepicrust/index
    ./scripts/index
+   ./tutorials/index
+
 Indices and tables
 ==================
 

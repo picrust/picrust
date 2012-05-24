@@ -31,8 +31,9 @@ Mandatory Options
 
 Optional Options
 ================
- * ``-m``: the asr method to be used. Can be one of (``bayestraits``, ``ace_ml``, ``ace_pic``, ``wagner``). Default is ``wagner``.
- * ``-o``: name for output table(s). Default is STDOUT.
+ * ``-m``: the asr method to be used. Can be one of (``ace_ml``,``ace_reml``, ``ace_pic``, ``wagner``). Default is ``wagner``.
+ * ``-o``: name for output table containing ASR predictions of just the counts [default:asr_counts.tab]
+
 
 Usage examples
 ==============
