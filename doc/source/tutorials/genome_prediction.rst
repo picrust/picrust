@@ -10,7 +10,7 @@ This tutorial explains the initial steps in the **PI-CRUST** pipeline that looks
 
 Essential Files
 ---------------
-All files required run this tutorial are here (https://www.dropbox.com/s/6q3j5otyyrifyz9/picrust_starting_files.zip). Descriptions of these files are below. 
+All files required run this tutorial are here (https://www.dropbox.com/s/l9djlyssn3cspz8/genome_prediction_tutorial_files.zip). Descriptions of these files are below. 
 
 Reference Tree (.nwk)
 ^^^^^^^^^^^^^^^^^^^^^

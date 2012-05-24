@@ -16,7 +16,7 @@ In this tutorial, you will need an OTU table and the output files from the 'pred
 
 The steps required to get the output from the intial steps in the PI-CRUST pipeline are outlined in the `PICRUST Genome Prediction Tutorial <./genome_prediction.html>`_.
 
-You can download all files required to run this tutorial here (). Descriptions of these files are below. 
+You can download all files required to run this tutorial here (https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip). Descriptions of these files are below. 
 
 Marker gene (16S) copy number predictions (biom format .biom)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
