@@ -14,14 +14,14 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom.parse import parse_biom_table
+from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
 from biom.table import table_factory,DenseOTUTable
 from picrust.util import make_output_dir_for_file
 
 script_info = {}
 script_info['brief_description'] = ""
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","Normalize the counts in raw_otu_table.biom by dividing by marker gene copy numbers provided in copy_numbers.txt. Write the resulting table to normalized_otu_table.biom.","%prog -i raw_otu_table.biom -c copy_numbers.txt -o normalized_otu_table.biom")]
+script_info['script_usage'] = [("","Normalize the counts in raw_otu_table.biom by dividing by marker gene copy numbers provided in copy_numbers.biom. Write the resulting table to normalized_otu_table.biom.","%prog -i raw_otu_table.biom -c copy_numbers.biom -o normalized_otu_table.biom")]
 script_info['output_description']= ""
 script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
@@ -32,6 +32,7 @@ script_info['optional_options'] = [
  make_option('--metadata_identifer',
              default='CopyNumber',
              help='identifier for copy number entry as observation metadata [default: %default]'),
+ make_option('-f','--input_format_classic', action="store_true", default=False, help='input otu table (--input_otu_fp) is in classic Qiime format [default: %default]'),
 ]
 script_info['version'] = __version__
 
@@ -39,8 +40,12 @@ script_info['version'] = __version__
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-
-    otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
+    
+    if opts.input_format_classic:
+        otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,DenseOTUTable)
+    else:
+        otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
+    
     count_table = parse_biom_table(open(opts.input_count_fp,'U'))
     
     #Need to only keep data relevant to our otu list
