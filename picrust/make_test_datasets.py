@@ -162,9 +162,9 @@ def yield_test_trees(tree,tree_modifier_fn = exclude_tip):
           tree_modifier_fn(tree_copy.getNodeMatchingName(tip_name),tree_copy)
         yield tip, test_tree 
 
-def write_tree(output_dir,base_name,test_tree,tip_to_predict ):
+def write_tree(output_dir,base_name,test_tree,tip_to_predict,delimiter='--' ):
     """Write a test trees to files with descriptive filenames"""
-    file_base = "_".join([base_name,tip_to_predict])
+    file_base = delimiter.join([base_name,tip_to_predict])
     filename=os.path.join(output_dir,file_base)
     f=open(filename,"w")
     f.write(test_tree.getNewick(with_distances=True))
@@ -206,15 +206,20 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
     
     """
 
+    if verbose:
     #Include only organisms present in the tree
+        print "Prefiltering orgs in trait table:",len([f[0] for f in trait_table_fields])
+        print "Orgs with single quotes:",len([f[0] for f in trait_table_fields if "'" in f[0]]) 
+        print "Tree tips with single quotes:",len([t.Name for t in tree.iterTips() if "'" in t.Name])
     
-
     trait_table_fields = filter_table_by_presence_in_tree(tree,\
                   trait_table_fields)
 
     orgs_in_table = [f[0] for f in trait_table_fields]
-    #print orgs_in_table
-    #print [t.Name for t in tree.iterTips()]
+    if verbose:
+        print "number of organisms matching between tree and table:",len(orgs_in_table)
+        #print "Filtered trait table organisms:", orgs_in_table
+        #print "Tree tips:",[t.Name for t in tree.iterTips()]
 
     if not orgs_in_table:
         raise RuntimeError("Could not match trait table organisms to tree")
