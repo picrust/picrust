@@ -122,7 +122,8 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
             print "Naming unnamed nodes in the reference tree...."
         make_internal_nodes_unique(input_tree)
         input_tree.nameUnnamedNodes()
-       
+    
+    
         
     #map trait table ids to tree ids
     if trait_to_tree_mapping:
@@ -143,6 +144,65 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
           remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping,\
           verbose = verbose)
     
+    #Set the functions that will be applied to trait table labels
+    label_conversion_fns = []
+    if remove_whitespace_from_labels:
+        if verbose:
+            print "Removing whitespace from trait table organism labels..."
+        label_conversion_fns.append(remove_spaces)
+    
+ 
+    if replace_problematic_label_characters:
+        #  Replace ambiguous characters with 
+        replacement_dict ={":":"_",";":"_"}
+        if verbose:
+            print "Replacing problematic labels in organism labels:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+        
+        chars_to_delete = """'"'"""
+        replace_problematic_chars_fn =\
+           make_char_translation_fn(replacement_dict,chars_to_delete)
+        label_conversion_fns.append(replace_problematic_chars_fn)
+
+    #Set the functions that will be applied to trait table values 
+    value_conversion_fns = []
+    
+    if replace_ambiguous_states:
+        #  Replace ambiguous characters with 0's
+        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
+        if verbose:
+            print "Replacing ambiguous characters:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+        
+        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
+        value_conversion_fns.append(replace_ambig_fn)
+    
+    
+    if convert_trait_floats_to_ints:
+        value_conversion_fns.append(lambda x: str(int(float(x))))
+    
+        if verbose:
+            print "Converting floating point trait table values to integers...."
+    
+
+
+    #Apply both label and value converters to the trait table
+    trait_table_fields = convert_trait_table_entries(\
+      trait_table_fields,\
+      value_conversion_fns = value_conversion_fns,\
+      label_conversion_fns = label_conversion_fns)
+   
+ 
+    #We now need to apply any formatting functions to the tree nodes as well, to ensure
+    #that names are consistent between the two.
+    if label_conversion_fns:
+        if verbose:
+            print "reformatting tree node names..."
+        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
+    
+
           
     #Then filter the trait table to include only tree tips
     if filter_table_by_tree_tips:
@@ -183,64 +243,9 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         
         
           
-    #Set the functions that will be applied to trait table values 
-    value_conversion_fns = []
-    
-    if replace_ambiguous_states:
-        #  Replace ambiguous characters with 0's
-        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
-        if verbose:
-            print "Replacing ambiguous characters:"
-            for k,v in replacement_dict.items():
-                print k,'-->',v
-        
-        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
-        value_conversion_fns.append(replace_ambig_fn)
-    
-    
-    if convert_trait_floats_to_ints:
-        value_conversion_fns.append(lambda x: str(int(float(x))))
-    
-        if verbose:
-            print "Converting floating point trait table values to integers...."
-    
-    #Set the functions that will be applied to trait table labels
-    label_conversion_fns = []
-    if remove_whitespace_from_labels:
-        if verbose:
-            print "Removing whitespace from trait table organism labels..."
-        label_conversion_fns.append(remove_spaces)
-    
-    if replace_problematic_label_characters:
-        #  Replace ambiguous characters with 
-        replacement_dict ={":":"_",";":"_",'"':''}
-        if verbose:
-            print "Replacing problematic labels in organism labels:"
-            for k,v in replacement_dict.items():
-                print k,'-->',v
-        
-        replace_problematic_chars_fn =\
-           make_char_translation_fn(replacement_dict)
-        label_conversion_fns.append(replace_problematic_chars_fn)
-
-
-
-    #Apply both to the trait table
-    trait_table_fields = convert_trait_table_entries(\
-        trait_table_fields,\
-        value_conversion_fns = value_conversion_fns,\
-        label_conversion_fns = label_conversion_fns)
-   
+            #Format resulting trait table lines 
     result_trait_table_lines = [header_line]
     result_trait_table_lines.extend([output_trait_table_delimiter.join(f) for f in trait_table_fields])
- 
-    #We now need to apply any formatting functions to the tree nodes as well, to ensure
-    #that names are consistent between the two.
-    if label_conversion_fns:
-        if verbose:
-            print "reformatting tree node names..."
-        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
-    
 
     if verbose:
         print "Final reprocessing of trait table lines to remove trailing whitespace..."
@@ -439,7 +444,7 @@ def make_translate_conversion_fn(translation_dict):
 
     return translate_conversion_fn
 
-def make_char_translation_fn(translation_dict):
+def make_char_translation_fn(translation_dict,deletion_chars=''):
     """Return a new function that replaces values in input values with output_value
     translation_dict -- a dict that maps inputs that should be translated to 
     their appropriate output
@@ -459,7 +464,7 @@ def make_char_translation_fn(translation_dict):
         translation_table = maketrans(from_chars,to_chars)
         #print trait_value_field
         #print translation_dict.keys()
-        result = trait_value_field.translate(translation_table)
+        result = trait_value_field.translate(translation_table,deletion_chars)
 
         
         if result in translation_dict.keys():
