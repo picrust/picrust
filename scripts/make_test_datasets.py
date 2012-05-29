@@ -39,6 +39,12 @@ script_info['required_options'] = [
 script_info['optional_options'] = [\
   make_option('-o','--output_dir',default='./test_datasets/',type='new_dirpath',\
   help='the output directory.  Duplicate trees, trait tables, expected values and prediction files will be saved here.[default:%default]'),\
+  make_option('--min_dist',default=0.0,type='float',\
+  help='the minimum phylogenetic distance to use with the holdout method, if applicable.  Usually 0.0.[default:%default]'),\
+  make_option('--dist_increment',default=0.03,type='float',\
+  help='the phylogenetic distance increment to use with the holdout method, if applicable.[default:%default]'),\
+  make_option('--max_dist',default=0.45,type='float',\
+  help='the maximum phylogenetic distance to use with the holdout method, if applicable.[default:%default]'),\
   make_option('-m','--method',type='choice',\
     choices=method_choices,default=method_choices[0],\
     help='The test method to use in generating test data.  Valid choices are:'\
@@ -79,8 +85,10 @@ def main():
     trait_table_fields = [t for t in trait_table_fields]
     
     test_datasets = \
-      yield_genome_test_data_by_distance(tree,trait_table_fields,test_fn_factory,\
-      min_dist = 0.0, max_dist=0.45,increment=0.03, verbose = opts.verbose)
+      yield_genome_test_data_by_distance(tree,trait_table_fields,\
+      test_fn_factory,min_dist = opts.min_dist,\
+      max_dist=opts.max_dist,increment=opts.dist_increment,\
+      verbose = opts.verbose)
     
     
     for curr_dist,test_tree,tip_to_predict,expected_traits in test_datasets:    
