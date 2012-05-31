@@ -18,8 +18,7 @@ from subprocess import Popen, PIPE, STDOUT
 from cogent.util.misc import app_path, create_dir
 from cogent.app.util import ApplicationNotFoundError
 from cogent.app.util import get_tmp_filename
-
-from itertools import izip_longest
+from picrust.parallel import grouper
 from math import ceil
 
 # qsub template
@@ -75,10 +74,6 @@ echo ------------------------------------------------------
 cd $PBS_O_WORKDIR 
 %s
 """
-
-def grouper(iterable, n, fillvalue=None):
-        args = [iter(iterable)] * n
-        return izip_longest(*args, fillvalue=fillvalue)
 
 
 def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,max_hours_per_job=5):

@@ -24,49 +24,7 @@ from picrust.util import get_picrust_project_dir
 from os.path import join
 from time import sleep
 
-
-
-def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix,num_jobs=100):
-    """ Submit the jobs to the queue using cluster_jobs.py
-    """
-    cmd = '%s -n %s -ms %s %s' % (path_to_cluster_jobs, num_jobs, jobs_fp, job_prefix)
-    stdout, stderr, return_value = system_call(cmd)
-    if return_value != 0:
-        msg = "\n\n*** Could not start parallel jobs. \n" +\
-         "Command run was:\n %s\n" % cmd +\
-         "Command returned exit status: %d\n" % return_value +\
-         "Stdout:\n%s\nStderr\n%s\n" % (stdout,stderr)
-        raise RuntimeError, msg
-    
-    # Leave this comments in as they're useful for debugging.
-    # print 'Return value: %d\n' % return_value
-    # print 'STDOUT: %s\n' % stdout
-    # print 'STDERR: %s\n' % stderr
-
-
-def system_call(cmd):
-    """ Call cmd and return (stdout, stderr, return_value)"""
-    proc = Popen(cmd,shell=True,universal_newlines=True,\
-                 stdout=PIPE,stderr=PIPE)
-    # communicate pulls all stdout/stderr from the PIPEs to 
-    # avoid blocking -- don't remove this line!
-    stdout, stderr = proc.communicate()
-    return_value = proc.returncode
-    return stdout, stderr, return_value
-    
-
-def wait_for_output_files(files):
-    ''' Function waits until all files exist in the filesystem'''
-    #make a copy of the list
-    waiting_files=list(files)
-
-    #wait until nothing left in the list
-    while(waiting_files):
-        #wait 30 seconds between each check
-        sleep(30)
-        #check each file and keep ones that don't yet exist
-        waiting_files=filter(lambda x: not exists(x),waiting_files)
-
+from picrust.parallel import submit_jobs, system_call,wait_for_output_files
 
 def combine_asr_tables(output_files):
     """ Combine all tables coming from asr output. Cuts 2nd column out and joins them together into single table.
