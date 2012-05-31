@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The QIIME Project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
@@ -12,16 +12,22 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
  
 
-from qiime.util import make_option
-from qiime.util import parse_command_line_parameters
+#from qiime.util import make_option
+#from qiime.util import parse_command_line_parameters
+
+from cogent.util.option_parsing import parse_command_line_parameters, make_option
+
 from subprocess import Popen
 from os import makedirs, chmod, getenv, remove
 from os.path import exists
 from shutil import rmtree
 from stat import S_IRWXU
-from qiime.util import load_qiime_config
+from picrust.parallel import grouper
+from math import ceil
 
-qiime_config = load_qiime_config()
+#from qiime.util import load_qiime_config
+
+#qiime_config = load_qiime_config()
 
 
 script_info = {}
@@ -37,12 +43,15 @@ script_info['optional_options'] = [\
  make_option('-m','--make_jobs',action='store_true',\
          help='make the job files [default: %default]'),\
  make_option('-s','--submit_jobs',action='store_true',\
-         help='submit the job files [default: %default]')
+         help='submit the job files [default: %default]'),\
+ make_option('-n','--num_jobs',action='store',type='int',\
+             help='Number of jobs to group commands into. [default: %default]',\
+                default=4)\
 ]
 script_info['version'] = __version__
 script_info['disallow_positional_arguments'] = False
 
-def write_job_files(output_dir,commands,run_id):
+def write_job_files(output_dir,commands,run_id,num_jobs=4):
     jobs_dir = '%s/jobs/' % output_dir
     job_fps = []
     if not exists(jobs_dir):
@@ -65,26 +74,30 @@ def write_job_files(output_dir,commands,run_id):
     # bash/exit to the cluster_jobs script. At that point this function
     # will be greatly simplified.
     ignored_subcommands = {}.fromkeys(['/bin/bash','exit'])
-    
-    for i,command in enumerate(commands):
+
+    #calculate the number of commands to put in each job
+    num_commands_per_job=int(ceil(len(commands)/float(num_jobs)))
+
+    for i,command_group in enumerate(grouper(commands,num_commands_per_job,'')):
         job_fp = '%s/%s%d' % (jobs_dir, run_id, i)
         f = open(job_fp,'w')
-        f.write('\n'.join([subcommand \
-         for subcommand in command.split(';') 
-         if subcommand.strip() not in ignored_subcommands]))
+        for command in command_group:
+            f.write('\n'.join([subcommand \
+              for subcommand in command.split(';') 
+              if subcommand.strip() not in ignored_subcommands]))
         f.close()
         chmod(job_fp, S_IRWXU)
         job_fps.append(job_fp)
     
     return job_fps, paths_to_remove
 
-def run_commands(output_dir,commands,run_id,submit_jobs,keep_temp):
+def run_commands(output_dir,commands,run_id,submit_jobs,keep_temp,num_jobs=4):
     """
     """
     # Popen is not a big fan of how we join commands with semi-colons,
     # so each command is written to a shell script which is then called 
     # by Popen
-    job_fps, paths_to_remove = write_job_files(output_dir,commands,run_id)
+    job_fps, paths_to_remove = write_job_files(output_dir,commands,run_id,num_jobs=num_jobs)
     
     # Call the jobs
     if submit_jobs:
@@ -114,10 +127,10 @@ def main():
     if len(args) < min_args:
        option_parser.error('Exactly two arguments are required.')
        
-    output_dir = qiime_config['working_dir'] or './'
-    run_commands(output_dir,open(args[0]),args[1],\
+    output_dir = './'
+    run_commands(output_dir,open(args[0]).readlines(),args[1],\
      submit_jobs=opts.submit_jobs,\
-     keep_temp=True)
+     keep_temp=True,num_jobs=opts.num_jobs)
 
 
 if __name__ == "__main__":
