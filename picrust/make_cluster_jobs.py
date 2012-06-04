@@ -30,8 +30,8 @@ SGE_QSUB_TEXT = """#!/bin/bash
 #$ -l h_rt=%s
 
 #$ -S /bin/bash
-#$ -o %s
 #$ -e %s
+#$ -o %s
 
 hostname
 
