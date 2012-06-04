@@ -18,7 +18,7 @@ from picrust.util import make_output_dir_for_file
 from cogent.app.util import get_tmp_filename
 from picrust.util import get_picrust_project_dir,make_output_dir
 from picrust.parallel import submit_jobs, wait_for_output_files
-from os.path import join
+from os.path import join,exists
 from re import split
 
 script_info = {}
@@ -28,7 +28,9 @@ Using files created by make_test_datasets.py it runs each test dataset through t
 
 script_info['script_usage'] = [\
 ("Minimum Requirments","Provide a directory that contains one or more datasets created by make_test_datasets.py and the original reference tree used","%prog -i test_datasets_dir -t reference_tree_fp"),\
-("Specify output file","","%prog -i test_datasets_dir -t reference_tree_fp -o output_dir")]
+("Specify output file","","%prog -i test_datasets_dir -t reference_tree_fp -o output_dir"),\
+("Force the launching of jobs that alredy seem done by overwriting existing output files","", "%prog --force -i test_datasets_dir -t reference_tree_fp -o output_dir"),\
+]
 
 script_info['output_description']= "Predictions from predict_traits.py for each test dataset."
 
@@ -48,7 +50,7 @@ make_option('-n','--num_jobs',action='store',type='int',\
             help='Number of jobs to be submitted (if --parallel). [default: %default]',\
             default=100),\
 make_option('--tmp-dir',type="new_dirpath",help='location to store intermediate files [default: <output_dir>]'),\
-
+make_option('--force',action='store_true',default=False, help='run all jobs even if output files exist [default: %default]'),\
 ]
 
 script_info['version'] = __version__
@@ -111,6 +113,12 @@ def main():
         asr_cmd= "{0} -i '{1}' -t '{2}' -m {3} -o '{4}'".format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
 
         predict_traits_out_fp=join(output_dir,'predict_traits--'+test_id)
+
+        if exists(predict_traits_out_fp) and not opts.force:
+            if opts.verbose:
+                print "Output file: {0} already exists, so we will skipt it.".format(predict_traits_out_fp)
+            continue
+        
         output_files.append(predict_traits_out_fp)
 
         genome_id=split('--',test_id)[2]
@@ -126,7 +134,7 @@ def main():
     #created_tmp_files.extend(output_files)
 
     #submit the jobs
-    job_prefix='genome_eval_'
+    job_prefix='eval_'
     submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=opts.num_jobs)
 
     #wait until all jobs finished (e.g. simple poller)
