@@ -5,9 +5,9 @@ Constructing PI-CRUST reference OTU collection
 
 Introduction
 ------------
-This document covers how the nested reference OTU collection was constructed for PI-CRUST. The script and associated test code are available in the ``qiime-dev/nested_reference_otus`` git repository located `here <https://github.com/qiime-dev/nested_reference_otus>`_. A mapping between the version of the reference collection and the version of the nested_reference_otus repository used to generate that reference collection is here:
+This document covers how the nested reference OTU collection was constructed for PI-CRUST. The script and associated test code are available in the ``qiime-dev/nested_reference_otus`` git repository located `here <https://github.com/qiime-dev/nested_reference_otus>`_. Download links for these reference collections are:
 
- * img_gg_otus_18may2012.tgz (md5: 5f1de69a310dc0c261ea76b48ba5dbe2) : `commit 73799024fa4dc7d26d33743ddcb4c1c624520e23 <https://github.com/qiime-dev/nested_reference_otus/commit/73799024fa4dc7d26d33743ddcb4c1c624520e23>`_. 
+ * img_gg_otus_18may2012.tgz (`download <https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz>`_ ; md5: 5f1de69a310dc0c261ea76b48ba5dbe2)
 
 Overall workflow design
 -----------------------
