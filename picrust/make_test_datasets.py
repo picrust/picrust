@@ -184,7 +184,7 @@ def trait_dict_from_fields(trait_table_fields):
 
 def yield_genome_test_data_by_distance(tree,trait_table_fields,\
   test_fn_factory=make_distance_based_exclusion_fn, min_dist=0.0,max_dist=0.70,\
-  increment=0.03,verbose=True):
+  increment=0.03,modify_tree=True,limit_to_tips=False,verbose=True):
     """Yield successive test datasets as analysis_name,test_tree,test_trait_table, test_tip tuples
     
     tree  -- a PyCogent PhyloNode object
@@ -204,6 +204,13 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
     increment -- the increment by which the distance parameter should be
       increased.
     
+    modify_tree -- if set to False, just return the original tree without modification.
+
+    limit_to_tips -- takes a list of organisms(tree tips) to include in the analysis.  If this is provided, instead of making test datasets 
+    for all tips, only generate test datasets for tree tips with names exactly matching an entry in the supplied list of tips.
+    
+    For example, to limit the datasets to just E.coli K-12 MG1655 (when using the IMG / greengenes dataset)
+    pass limit_to_included_tips=['NC_000913|646311926'] 
     """
 
     if verbose:
@@ -237,18 +244,25 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
     
     
     for curr_dist in dists:
+        if verbose:
+            print "Generating test datset for distance: %f" % curr_dist
+        
         test_fn = test_fn_factory(curr_dist)
 
 
+        #Select which tips will be processed
 
-        #For now assume we want to generate tests for
-        #all organisms in the table
-        #TODO: add options for just doing n of these
+        if limit_to_tips is False:
+            tips_to_predict = orgs_in_table
+            if verbose:
+                print "Generating test data for all tips"
+        else:
+            tips_to_predict = limit_to_tips
+            if verbose:
+                print "Generating test data for tips:",tips_to_predict
+            tips_to_predict = limit_to_tips
 
-        tips_to_predict = orgs_in_table
-
-
-        #For each tip, generate a test dataset
+        #For each tip of interest, generate a test dataset
         test_data = []
         total_organisms = len(tips_to_predict)
         for i,tip_to_predict in enumerate(tips_to_predict):
@@ -256,13 +270,22 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
             if verbose:
                 print "Generating test dataset for %i/%i: %s" %(i,\
                   total_organisms,tip_to_predict)
-        
-            tree_copy = tree.deepcopy()
             
-            test_tree = \
-              test_fn(tree_copy.getNodeMatchingName(tip_to_predict),tree_copy) 
-        
+            if modify_tree: 
+                if verbose:
+                    print "Copying tree..."
+                tree_copy = tree.deepcopy()
+                if verbose:
+                    print "Modifying tree copy..."
+                test_tree = \
+                  test_fn(tree_copy.getNodeMatchingName(tip_to_predict),tree_copy) 
+            else:
+                test_tree = tree
+            
+            if verbose:
+                print "Setting expected traits"
             expected_traits = table_by_org[tip_to_predict]
+            
             yield curr_dist,test_tree,tip_to_predict, expected_traits
         
 
