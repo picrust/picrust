@@ -41,10 +41,13 @@ script_info['optional_options'] = [\
   help='the output directory.  Duplicate trees, trait tables, expected values and prediction files will be saved here.[default:%default]'),\
   make_option('--min_dist',default=0.0,type='float',\
   help='the minimum phylogenetic distance to use with the holdout method, if applicable.  Usually 0.0.[default:%default]'),\
+   make_option('--suppress_tree_modification',default=False,action="store_true",help='If passed, modify only the trait table, not the tree . [default: %default]'),\
   make_option('--dist_increment',default=0.03,type='float',\
   help='the phylogenetic distance increment to use with the holdout method, if applicable.[default:%default]'),\
   make_option('--max_dist',default=0.45,type='float',\
   help='the maximum phylogenetic distance to use with the holdout method, if applicable.[default:%default]'),\
+  make_option('--limit_to_tips',default='',type='string',\
+  help='if specified, limit test dataset generation to specified tips (comma-separated).[default:%default]'),\
   make_option('-m','--method',type='choice',\
     choices=method_choices,default=method_choices[0],\
     help='The test method to use in generating test data.  Valid choices are:'\
@@ -84,15 +87,33 @@ def main():
 
     trait_table_fields = [t for t in trait_table_fields]
     
+    if opts.limit_to_tips:
+        
+        included_tips = opts.limit_to_tips.split(",")
+        if opts.verbose:
+            print "Limiting test datasets to %i tips: %s" %(len(included_tips),included_tips)
+    else:
+        included_tips = False
+
+    modify_tree = True
+    if opts.suppress_tree_modification:
+        if opts.verbose:
+            print "Suppressing modification of tree when making test datasets"
+        modify_tree = False
+
     test_datasets = \
       yield_genome_test_data_by_distance(tree,trait_table_fields,\
       test_fn_factory,min_dist = opts.min_dist,\
       max_dist=opts.max_dist,increment=opts.dist_increment,\
-      verbose = opts.verbose)
+      modify_tree=modify_tree,limit_to_tips= included_tips,verbose = opts.verbose)
     
-    
+
     for curr_dist,test_tree,tip_to_predict,expected_traits in test_datasets:    
-       
+        if included_tips is not False:
+            if tip_to_predict not in included_tips:
+                if opts.verbose:
+                    print "Skipping tip %s: limiting to tip(s): %s" %(tip_to_predict,included_tips)
+                continue
 
         #Write tree
         base_name = "--".join(map(str,["test_tree",opts.method,curr_dist]))
