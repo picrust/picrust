@@ -34,7 +34,7 @@ from sys import argv
 from copy import deepcopy
 import os
 from random import sample, shuffle
-from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
+from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree, get_sub_tree
 
 
 
@@ -48,7 +48,7 @@ from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
 def exclude_tip(tip, tree):
     """Return pruned tree with tip excluded
     
-    tip -- a PyCogent PhyloNode object from the tree
+    tip --  a PyCogent PhyloNode object from the tree
     tree -- a PyCogent PhyloNode object (the tree)
     
     NOTE: This function exists to support distance-based exclusion of 
@@ -60,16 +60,24 @@ def exclude_tip(tip, tree):
     if not tip.isTip():
         raise ValueError("The 'holdout' fn got a non-tip node for it's 'tip' parameter.")
     
-
+    #Old exclusion based method...but for large trees this is quite slow
+    
     # Assuming that's OK, remove the tip 
-    if tip.Parent is not None:
-        removal_ok = tip.Parent.remove(tip)
-    else:
-        removal_ok = False
-    if not removal_ok:
-        raise ValueError("holdout could not remove node '%s' from tree." %(tip.Name))
-    tree.prune()
-    return tree
+    #if tip.Parent is not None:
+    #    removal_ok = tip.Parent.remove(tip)
+    #else:
+    #    removal_ok = False
+    #if not removal_ok:
+    #    raise ValueError("holdout could not remove node '%s' from tree." %(tip.Name))
+    #tree.prune()
+    
+    #Newer subtree based method
+    print "Generating subtree"
+    tips_to_keep = [t for t in tips if t.Name != tip.Name]
+    subtree = get_sub_tree(tree,tips_to_keep)
+    
+    
+    return subtree
 
 def make_distance_based_exclusion_fn(exclusion_distance):
     """Returns a function that the neighbors of a tip within d.
@@ -78,24 +86,37 @@ def make_distance_based_exclusion_fn(exclusion_distance):
     """
     
 
-    def exclude_tip_neighbors(tip,tree):
+    def exclude_tip_neighbors(tip,tree, verbose=True):
         # check that the exclusion distance won't exclude the entire tree
         max_dist = tree.maxTipTipDistance()[0]
         tips_to_delete = tip.tipsWithinDistance(exclusion_distance)
-        
+        tips_to_delete = [t.Name for t in tips_to_delete]
+        if verbose:
+            print "Tips to delete:",len(tips_to_delete)
+        tips_to_keep = [t.Name for t in tree.tips() if t.Name not in tips_to_delete]
+
         if float(exclusion_distance) > float(max_dist) or \
           len(tips_to_delete) == len(tree.tips()):
             
             raise ValueError("specified tree would be entirely excluded because branch lengths are too short")
         
         holdout_tip = tip
+        #We're working with the *pruned* tree so we want the holdout tip
+        #removed
+        if holdout_tip in tips_to_keep:
+            tips_to_keep.remove(holdout_tip)
+        if verbose:
+            print "Tips to keep:", len(tips_to_keep)
+        
+        subtree = get_sub_tree(tree,tips_to_keep)
+        del tree
         # Then it's neighbors
-        for tip in tips_to_delete:
-            if tip == holdout_tip:
-                #Don't exclude the tip you're testing
-                continue
-            tree = exclude_tip(tip,tree)
-        return tree
+        #for tip in tips_to_delete:
+        #    if tip == holdout_tip:
+        #        #Don't exclude the tip you're testing
+        #        continue
+        #    tree = exclude_tip(tip,tree)
+        return subtree
 
     new_fn = exclude_tip_neighbors
     
@@ -268,17 +289,27 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
         for i,tip_to_predict in enumerate(tips_to_predict):
 
             if verbose:
-                print "Generating test dataset for %i/%i: %s" %(i,\
+                print "Generating test dataset (%i/%i) for: %s" %(i+1,\
                   total_organisms,tip_to_predict)
             
             if modify_tree: 
+                
                 if verbose:
                     print "Copying tree..."
+                
                 tree_copy = tree.deepcopy()
+                
                 if verbose:
-                    print "Modifying tree copy..."
+                    print "Locating tip of interest in tree..."
+                
+                tip_of_interest = tree_copy.getNodeMatchingName(tip_to_predict)
+                
+                if verbose:
+                    print "Modifying tree using function:",test_fn.__name__,\
+                      test_fn.__doc__
+                
                 test_tree = \
-                  test_fn(tree_copy.getNodeMatchingName(tip_to_predict),tree_copy) 
+                  test_fn(tip_of_interest,tree_copy) 
             else:
                 test_tree = tree
             
@@ -286,7 +317,12 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
                 print "Setting expected traits"
             expected_traits = table_by_org[tip_to_predict]
             
-            yield curr_dist,test_tree,tip_to_predict, expected_traits
+            if verbose:
+                print "Generating test trait table"
+            test_trait_table_fields = filter_table_by_presence_in_tree(test_tree,\
+                  trait_table_fields)
+            
+            yield curr_dist,test_tree,tip_to_predict, expected_traits, test_trait_table_fields
         
 
 
