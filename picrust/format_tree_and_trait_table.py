@@ -611,8 +611,15 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_ind
           n_tips_not_to_prune + len(tips_to_prune), n_tips_not_to_prune)
         print "Example tips that will be removed (first 10):\n\n%s" % \
           tips_to_prune[0:min(len(tips_to_prune),10)]
+        new_tree = get_sub_tree(tree,tips_not_to_prune)
+        return new_tree
+
+
+def get_sub_tree(tree,tips_not_to_prune):
+    """Get sub tree, modifying recursion limit if necessary"""
+
     try:
-        new_tree = new_tree.getSubTree(tips_not_to_prune)
+        new_tree = tree.getSubTree(tips_not_to_prune)
     except RuntimeError:
         #NOTE:  getSubTree will hit 
         #maximum recursion depth on large trees
@@ -620,9 +627,10 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_ind
         #recursion depth limit
         old_recursion_limit = getrecursionlimit()
         setrecursionlimit(50000)
-        new_tree = new_tree.getSubTree(tips_not_to_prune)
+        new_tree = tree.getSubTree(tips_not_to_prune)
         setrecursionlimit(old_recursion_limit)
     return new_tree
+
 
 def print_node_summary_table(input_tree):
     """Print a summary of the name,children,length, and parents of each node"""
