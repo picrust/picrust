@@ -130,24 +130,35 @@ def main():
     if verbose:
         print "Loading tree...."
     input_tree =DndParser(open(tree_file),constructor=PicrustNode)
-    
+   
+    if verbose:
+        print "Loading trait table..."
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
-   
+    if not trait_table_lines:
+        raise IOError("No lines could be loaded from file %s. Please check the input file." %trait_table_fp) 
+    
     #Get id mappings from mapping file
     if opts.tree_to_trait_mapping:
+        if verbose:
+            print "Loading tree to trait table mapping file..."
+
         mapping_file = open(opts.tree_to_trait_mapping,"U")
         
         trait_to_tree_mapping =\
           make_id_mapping_dict(parse_id_mapping_file(mapping_file))
 
     else:
+        if verbose:
+            print "No tree to trait mapping file specified.  Assuming tree tip names and trait table names will match exactly."
         trait_to_tree_mapping = None
 
 
 
     # Call reformatting function using specified parameters 
     # to get reference tree
+    if opts.verbose:
+        print """**BUILDING REFERENCE TREE (without respect to trait table)**"""
     
     new_reference_tree, not_useful_trait_table_lines =\
       reformat_tree_and_trait_table(\
@@ -168,6 +179,8 @@ def main():
     #Make a copy 
     new_reference_tree_copy=new_reference_tree.deepcopy()
 
+    if opts.verbose:
+        print """**BUILDING PRUNED TREE AND TRAIT TABLE**"""
     # Call reformatting function using specified parameters
     new_tree, new_trait_table_lines = \
        reformat_tree_and_trait_table(tree=new_reference_tree_copy,\
@@ -211,6 +224,7 @@ def main():
     output_trait_table_file = open(output_table_fp,"w+")
     output_tree_file  = open(output_tree_fp,"w+")
     output_reference_tree_file  = open(output_reference_tree_fp,"w+")
+   
     
     #Output trait table file
     output_trait_table_file.write("\n".join(new_trait_table_lines))
