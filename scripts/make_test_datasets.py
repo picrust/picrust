@@ -12,19 +12,20 @@ __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 import os
 from copy import deepcopy
-from cogent import LoadTree
+from cogent.parse.tree import DndParser
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
-from picrust.util import make_output_dir
+from picrust.util import make_output_dir, PicrustNode
 from picrust.parse import parse_trait_table
-from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
+from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree,\
+  set_label_conversion_fns, fix_tree_labels, convert_trait_table_entries
 
 from picrust.make_test_datasets import yield_test_trees,\
   make_distance_based_tip_label_randomizer,make_distance_based_exclusion_fn,\
   exclude_tip,write_tree, yield_genome_test_data_by_distance
 
 script_info = {}
-script_info['brief_description'] = ""
+script_info['brief_description'] = "Generates test datasets for cross-validation studies of PICRUST's accuracy"
 script_info['script_description'] = ""
 script_info['script_usage'] = [("","Generate holdout test trees from genome_tree.newick, and save results in the directory ./test_holdout_trees/.","%prog -t genome_tree.newick -o ./test_holdout_trees")]
 script_info['output_description']= ""
@@ -64,28 +65,42 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
     
-
+    if opts.verbose:
+        print "Loading trait table..."
     input_trait_table = open(opts.input_trait_table,"U")
-    tree = LoadTree(opts.input_tree)
-    make_output_dir(opts.output_dir)
-    
 
-    method_fns =\
-      {"exclude_tips_by_distance":\
-         make_distance_based_exclusion_fn,\
-       "randomize_tip_labels_by_distance":\
-         make_distance_based_tip_label_randomizer
-       }
-
-    test_fn_factory = method_fns[opts.method]
-    
+    if opts.verbose:
+        print "Loading tree..."
+    #PicrustNode seems to run into very slow/memory intentsive perfromance...
+    #tree = DndParser(open(opts.input_tree),constructor=PicrustNode)
+    tree = DndParser(open(opts.input_tree))
+   
+    if opts.verbose:
+        print "Parsing trait table..."
     #Find which taxa are to be used in tests 
     #(by default trait table taxa)
     trait_table_header,trait_table_fields = \
             parse_trait_table(input_trait_table)
 
+    if opts.verbose:
+       print "Ensuring tree and trait table labels are formatted consistently..."
+   
+    label_conversion_fns = set_label_conversion_fns(verbose=opts.verbose)
+    
+    fix_tree_labels(tree,label_conversion_fns)
+    
+    trait_table_fields = convert_trait_table_entries(trait_table_fields,\
+      value_conversion_fns = [],\
+      label_conversion_fns = label_conversion_fns)
 
     trait_table_fields = [t for t in trait_table_fields]
+    print "Number of trait table fields with single quotes:",\
+     len([t for t in trait_table_fields if "'" in t[0]])
+
+    if opts.verbose:
+        print "Making output directory..."
+    make_output_dir(opts.output_dir)
+
     
     if opts.limit_to_tips:
         
@@ -95,11 +110,27 @@ def main():
     else:
         included_tips = False
 
+    method_fns =\
+      {"exclude_tips_by_distance":\
+         make_distance_based_exclusion_fn,\
+       "randomize_tip_labels_by_distance":\
+         make_distance_based_tip_label_randomizer
+       }
+
+    test_fn_factory = method_fns[opts.method]
+     
+    if opts.verbose:
+        print "Setting tree modification method to:", opts.method
+        print "(%s)" % test_fn_factory.__doc__
+
     modify_tree = True
     if opts.suppress_tree_modification:
         if opts.verbose:
             print "Suppressing modification of tree when making test datasets"
         modify_tree = False
+    
+    if opts.verbose:
+        print "Starting generation of test datsets"
 
     test_datasets = \
       yield_genome_test_data_by_distance(tree,trait_table_fields,\
@@ -107,26 +138,36 @@ def main():
       max_dist=opts.max_dist,increment=opts.dist_increment,\
       modify_tree=modify_tree,limit_to_tips= included_tips,verbose = opts.verbose)
     
-
-    for curr_dist,test_tree,tip_to_predict,expected_traits in test_datasets:    
+    if opts.verbose:
+        print "Writing files for test  datasets"
+    
+    for curr_dist,test_tree,tip_to_predict,\
+        expected_traits,test_trait_table_fields in test_datasets:    
+        
         if included_tips is not False:
             if tip_to_predict not in included_tips:
                 if opts.verbose:
                     print "Skipping tip %s: limiting to tip(s): %s" %(tip_to_predict,included_tips)
                 continue
 
+
+        #Make a safe version of tip to predict
+        # So odd characters like | don't mess up OS
+
+        safe_tip_to_predict = "'%s'"%tip_to_predict
+
         #Write tree
         base_name = "--".join(map(str,["test_tree",opts.method,curr_dist]))
-        curr_filepath = write_tree(opts.output_dir,base_name,test_tree,tip_to_predict)
+        curr_filepath = write_tree(opts.output_dir,base_name,test_tree,safe_tip_to_predict)
         if opts.verbose:
             print "Wrote test tree to: %s" % curr_filepath
         
         #Write expected trait table
-        base_name = "--".join(map(str,["exp_traits",opts.method,curr_dist,tip_to_predict]))
+        base_name = "--".join(map(str,["exp_traits",opts.method,curr_dist,safe_tip_to_predict]))
                 
         exp_trait_table_lines = [trait_table_header]
         exp_trait_table_lines.append("\t".join(expected_traits)+"\n")
-        print "Expected_trait_table_lines:",exp_trait_table_lines
+        #print "Expected_trait_table_lines:",exp_trait_table_lines
         filename=os.path.join(opts.output_dir,base_name)
         
         if opts.verbose:
@@ -137,13 +178,13 @@ def main():
         f.close()
 
         #Write test trait table
-        test_trait_table_fields = deepcopy(trait_table_fields)
+        test_trait_table_fields = test_trait_table_fields
         test_trait_table_fields.remove(expected_traits)
         test_trait_table_lines = [trait_table_header]
         test_trait_table_lines.extend(["\t".join(r)+"\n" for r in test_trait_table_fields])
         
         #print "Test_trait_table_lines:",test_trait_table_lines
-        base_name = "--".join(map(str,["test_trait_table",opts.method,curr_dist,tip_to_predict]))
+        base_name = "--".join(map(str,["test_trait_table",opts.method,curr_dist,safe_tip_to_predict]))
         filename=os.path.join(opts.output_dir,base_name)
         
         if opts.verbose:
@@ -153,6 +194,8 @@ def main():
         f.write("".join(test_trait_table_lines))
         f.close()
 
+    if opts.verbose:
+        print "Done generating test datasets"
 
 
 
