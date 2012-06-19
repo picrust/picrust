@@ -144,49 +144,13 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
           remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping,\
           verbose = verbose)
     
-    #Set the functions that will be applied to trait table labels
-    label_conversion_fns = []
-    if remove_whitespace_from_labels:
-        if verbose:
-            print "Removing whitespace from trait table organism labels..."
-        label_conversion_fns.append(remove_spaces)
+    label_conversion_fns =\
+      set_label_conversion_fns(remove_whitespace_from_labels=remove_whitespace_from_labels,\
+        replace_problematic_label_characters=replace_problematic_label_characters)
     
- 
-    if replace_problematic_label_characters:
-        #  Replace ambiguous characters with 
-        replacement_dict ={":":"_",";":"_"}
-        if verbose:
-            print "Replacing problematic labels in organism labels:"
-            for k,v in replacement_dict.items():
-                print k,'-->',v
-        
-        chars_to_delete = """'"'"""
-        replace_problematic_chars_fn =\
-           make_char_translation_fn(replacement_dict,chars_to_delete)
-        label_conversion_fns.append(replace_problematic_chars_fn)
-
-    #Set the functions that will be applied to trait table values 
-    value_conversion_fns = []
-    
-    if replace_ambiguous_states:
-        #  Replace ambiguous characters with 0's
-        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
-        if verbose:
-            print "Replacing ambiguous characters:"
-            for k,v in replacement_dict.items():
-                print k,'-->',v
-        
-        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
-        value_conversion_fns.append(replace_ambig_fn)
-    
-    
-    if convert_trait_floats_to_ints:
-        value_conversion_fns.append(lambda x: str(int(float(x))))
-    
-        if verbose:
-            print "Converting floating point trait table values to integers...."
-    
-
+    value_conversion_fns = set_value_conversion_fns(replace_ambiguous_states=replace_ambiguous_states,\
+      convert_trait_floats_to_ints=convert_trait_floats_to_ints) 
+   
 
     #Apply both label and value converters to the trait table
     trait_table_fields = convert_trait_table_entries(\
@@ -197,12 +161,9 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
  
     #We now need to apply any formatting functions to the tree nodes as well, to ensure
     #that names are consistent between the two.
-    if label_conversion_fns:
-        if verbose:
-            print "reformatting tree node names..."
-        input_tree = format_tree_node_names(input_tree,label_conversion_fns)
     
-
+    if label_conversion_fns:
+        input_tree = fix_tree_labels(input_tree, label_conversion_fns)
           
     #Then filter the trait table to include only tree tips
     if filter_table_by_tree_tips:
@@ -243,7 +204,7 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         
         
           
-            #Format resulting trait table lines 
+    #Format resulting trait table lines 
     result_trait_table_lines = [header_line]
     result_trait_table_lines.extend([output_trait_table_delimiter.join(f) for f in trait_table_fields])
 
@@ -259,8 +220,79 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     
     return input_tree, result_trait_table_lines
+           
+def set_label_conversion_fns(remove_whitespace_from_labels=True,\
+  replace_problematic_label_characters=True,verbose=False):
+    """Return a list of functions for formatting tree node or trait table labels"""
+     #Set the functions that will be applied to trait table labels
+    label_conversion_fns = []
+    if remove_whitespace_from_labels:
+        if verbose:
+            print "Removing whitespace from trait table organism labels..."
+        label_conversion_fns.append(remove_spaces)
 
 
+    if replace_problematic_label_characters:
+        #  Replace ambiguous characters with 
+        replacement_dict ={":":"_",";":"_"}
+        if verbose:
+            print "Replacing problematic labels in organism labels:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+
+        chars_to_delete = """'"'"""
+        replace_problematic_chars_fn =\
+           make_char_translation_fn(replacement_dict,chars_to_delete)
+        label_conversion_fns.append(replace_problematic_chars_fn)
+    return label_conversion_fns
+
+
+def set_value_conversion_fns(replace_ambiguous_states=True,\
+      convert_trait_floats_to_ints=False,verbose=False):
+    """Return a list of value conversion functions for trait table values
+    
+     replace_ambiguous_states -- if True, replace values of -,
+       -1,'-1','NULL' or None to 0
+
+     convert_trait_floats_to_ints -- if True convert floats to ints
+
+     verbose -- print verbose output describing the conversion fns
+
+    """
+    #Set the functions that will be applied to trait table values 
+    value_conversion_fns = []
+    
+    if replace_ambiguous_states:
+        #  Replace ambiguous characters with 0's
+        replacement_dict ={'-':0,'-1':0,-1:0,'NULL':0,None:0}
+        if verbose:
+            print "Replacing ambiguous characters:"
+            for k,v in replacement_dict.items():
+                print k,'-->',v
+        
+        replace_ambig_fn = make_translate_conversion_fn(replacement_dict)
+        value_conversion_fns.append(replace_ambig_fn)
+    
+    
+    if convert_trait_floats_to_ints:
+        value_conversion_fns.append(lambda x: str(int(float(x))))
+    
+        if verbose:
+            print "Converting floating point trait table values to integers...."
+    
+    return value_conversion_fns
+
+
+
+
+def fix_tree_labels(tree,label_conversion_fns,verbose=False):
+    """Fix tree labels by removing problematic characters"""
+    if verbose:
+        print "reformatting tree node names..."
+    tree = format_tree_node_names(tree,label_conversion_fns)
+    #print "Number of tree tips with single quotes:",len([t.Name for t in tree if "'" in t.Name]) 
+    return tree
+ 
 def make_internal_nodes_unique(tree):
     """ Removes names that are not unique for internal nodes.
     First occurence of non-unique node is kept and subsequence ones are set to None"""
