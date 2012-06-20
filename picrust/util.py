@@ -70,6 +70,7 @@ def transpose_trait_table_fields(data_fields,header,id_row_idx=0,\
     new_header = output_delimiter.join(new_header_fields)
     
     return new_header+"\n",new_rows
+
 def make_output_dir_for_file(filepath):
     """Create sub-directories for a new file if they don't already exist
     """
@@ -78,6 +79,10 @@ def make_output_dir_for_file(filepath):
     if not isdir(dirpath) and not dirpath=='':
         makedirs(dirpath)
 
+def format_biom_table(biom_table):
+    """ Given a biom-format Table object, returns that Table as a BIOM string"""
+    generated_by_str = "PI-CRUST " + __version__
+    return biom_table.getBiomFormatJsonString(generated_by_str)
 
 def make_output_dir(dirpath, strict=False):
     """Make an output directory if it doesn't exist
@@ -103,6 +108,9 @@ def make_output_dir(dirpath, strict=False):
         raise IOError(err_str)
 
     return dirpath
+
+
+
 
 class PicrustNode(PhyloNode):
     def multifurcating(self, num, eps=None, constructor=None):
