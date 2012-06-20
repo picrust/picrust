@@ -15,6 +15,50 @@ from os.path import abspath, dirname, isdir
 from os import mkdir,makedirs
 from cogent.core.tree import PhyloNode, TreeError
 from numpy import array
+from biom.table import SparseOTUTable, DenseOTUTable, SparsePathwayTable, \
+  DensePathwayTable, SparseFunctionTable, DenseFunctionTable, \
+  SparseOrthologTable, DenseOrthologTable, SparseGeneTable, \
+  DenseGeneTable, SparseMetaboliteTable, DenseMetaboliteTable,\
+  SparseTaxonTable, DenseTaxonTable, table_factory
+from biom.parse import parse_biom_table, convert_biom_to_table, \
+  convert_table_to_biom
+
+def parse_table_to_biom(table_lines, table_format="tab-delimited",\
+    biom_format = 'otu table'): 
+    """Read the lines of an open trait table file, and output a .biom table object 
+     
+    The trait table must be either a biom file, or a picrust tab-delimited file 
+    table_format -- must be either 'tab-delimited' or 'biom' 
+     
+    """ 
+    if table_format == "biom": 
+        return parse_biom_table(table_lines) 
+    elif table_format == "tab-delimited": 
+         
+        idx = 0 # a sparse BIOM table 
+        BIOM_TYPES = {'otu table':[SparseOTUTable, DenseOTUTable], 
+              'pathway table':[SparsePathwayTable, DensePathwayTable], 
+              'function table':[SparseFunctionTable, DenseFunctionTable], 
+              'ortholog table':[SparseOrthologTable, DenseOrthologTable], 
+              'gene table':[SparseGeneTable, DenseGeneTable], 
+              'metabolite table':[SparseMetaboliteTable, DenseMetaboliteTable], 
+              'taxon table':[SparseTaxonTable, DenseTaxonTable]} 
+ 
+ 
+        constructor = BIOM_TYPES[biom_format][idx] 
+        sample_mapping = None 
+        obs_mapping = None 
+        try: 
+            converted_table = (convert_table_to_biom(table_lines,\
+              sample_mapping,obs_mapping, constructor)) 
+            biom_table = parse_biom_table(converted_table) 
+            #print biom_table 
+        except ValueError: 
+            raise ValueError("Input does not look like a classic table.") 
+     
+        #headers, fields = parse_trait_table(table_lines) 
+        #now convert to biom 
+        return biom_table  
 
 def get_picrust_project_dir():
     """ Returns the top-level PICRUST directory
