@@ -109,14 +109,19 @@ def main():
         asr_out_fp=join(output_dir,'asr--'+test_id)
         created_tmp_files.append(asr_out_fp)
         
-        #create the asr command
-        asr_cmd= "{0} -i '{1}' -t '{2}' -m {3} -o '{4}'".format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
+        if exists(asr_out_fp) and not opts.force:
+            if opts.verbose:
+                print "Output file: {0} already exists, so we will skip it.".format(asr_out_fp)
+            asr_cmd = "echo 'Skipping ASR for %s, file %s exists already'" %(test_id,asr_out_fp)
+        else:
+            #create the asr command
+            asr_cmd= """python {0} -i "{1}" -t "{2}" -m {3} -o "{4}" """.format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
 
         predict_traits_out_fp=join(output_dir,'predict_traits--'+test_id)
 
         if exists(predict_traits_out_fp) and not opts.force:
             if opts.verbose:
-                print "Output file: {0} already exists, so we will skipt it.".format(predict_traits_out_fp)
+                print "Prediction file: {0} already exists. Skipping ASR and prediction for this organism".format(predict_traits_out_fp)
             continue
         
         output_files.append(predict_traits_out_fp)
@@ -124,7 +129,7 @@ def main():
         genome_id=split('--',test_id)[2]
         
         #create the predict traits command
-        predict_traits_cmd= "{0} -i '{1}' -t '{2}' -r '{3}' -g '{4}' -o '{5}'".format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp)
+        predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp)
  
         #add job command to the the jobs file
         jobs.write(asr_cmd+';'+predict_traits_cmd+"\n")
@@ -135,10 +140,13 @@ def main():
 
     #submit the jobs
     job_prefix='eval_'
+    
+    if opts.verbose:
+        print "Submitting jobs:",cluster_jobs_fp,jobs_fp,job_prefix,opts.num_jobs
     submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=opts.num_jobs)
-
     #wait until all jobs finished (e.g. simple poller)
-    wait_for_output_files(output_files)
+    #NOTE: Commented out since nothing happens afterwards currently
+    #wait_for_output_files(output_files)
 
 
 if __name__ == "__main__":
