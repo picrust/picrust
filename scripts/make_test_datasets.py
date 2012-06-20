@@ -15,14 +15,17 @@ from copy import deepcopy
 from cogent.parse.tree import DndParser
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
-from picrust.util import make_output_dir, PicrustNode
+from biom.table import table_factory, DenseOTUTable
+from picrust.util import parse_table_to_biom, make_output_dir,\
+     PicrustNode, format_biom_table,transpose_trait_table_fields
 from picrust.parse import parse_trait_table
 from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree,\
   set_label_conversion_fns, fix_tree_labels, convert_trait_table_entries
-
+from numpy import array
 from picrust.make_test_datasets import yield_test_trees,\
   make_distance_based_tip_label_randomizer,make_distance_based_exclusion_fn,\
   exclude_tip,write_tree, yield_genome_test_data_by_distance
+
 
 script_info = {}
 script_info['brief_description'] = "Generates test datasets for cross-validation studies of PICRUST's accuracy"
@@ -169,14 +172,53 @@ def main():
         exp_trait_table_lines.append("\t".join(expected_traits)+"\n")
         #print "Expected_trait_table_lines:",exp_trait_table_lines
         filename=os.path.join(opts.output_dir,base_name)
-        
         if opts.verbose:
             print "Writing expected trait table to:", filename
         
         f=open(filename,"w")
         f.write("".join(exp_trait_table_lines))
         f.close()
+        
+        #Output a transposed, BIOM format expectation table for comparison with predict_traits output
 
+        #NOTE: this is a clumsy way of getting the translated trait table
+        # but more elegant, direct methods (directly feeding data to biom's table_factory)
+        # weren't working for me readily.   In the future, we should streamline this process
+        # Leaving as is for now since this code is mostly for developers so speed/elegence 
+        # are probably not essential here.
+
+        #Let the hackishness begin
+
+        #Reload the tab-delimited trait table
+        header, fields = parse_trait_table(open(filename,"U"))
+        fields = [f for f in fields] #converts generator to list    
+        
+        #Transpose table for .BIOM format so that Observation ids are KOs
+        transposed_header, transposed_trait_table_lines =\
+          transpose_trait_table_fields(fields,header,\
+          id_row_idx=0, input_header_delimiter="\t",output_delimiter="\t")
+       
+        #Eliminate newline in header
+        trans_trait_table_lines = [transposed_header.strip()]
+        trans_trait_table_lines.extend(["\t".join(r) for r in transposed_trait_table_lines])
+        trans_trait_table = '\n'.join(trans_trait_table_lines)
+        
+        #Write BIOM format expected trait table
+        base_name = "--".join(map(str,["exp_biom_traits",opts.method,curr_dist,safe_tip_to_predict]))
+        
+        expected_biom_table = parse_table_to_biom(trans_trait_table.split('\n'),\
+            table_format = "tab-delimited")
+                
+        #print "Expected_trait_table_lines:",exp_trait_table_lines
+        filename=os.path.join(opts.output_dir,base_name)
+        if opts.verbose:
+            print "Writing BIOM-format expected trait table to:", filename
+        
+        f=open(filename,"w")
+        f.write(format_biom_table(expected_biom_table))
+        f.close()
+
+       
         #Write test trait table
         test_trait_table_fields = test_trait_table_fields
         test_trait_table_fields.remove(expected_traits)
