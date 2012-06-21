@@ -35,6 +35,9 @@ def evaluate_test_dataset(observed_table,expected_table):
     #print overlapping_ids
 
     if len(overlapping_ids) < 1:
+        print "obs ids:",observed_table.ObservationIds[0:10]
+        print "exp ids:",expected_table.ObservationIds[0:10]
+        
         raise ValueError,\
          "No ids are in common  between the observed and expected tables, so no evaluations can be performed."
 
@@ -77,6 +80,52 @@ def evaluate_test_dataset(observed_table,expected_table):
      
     return scatter_data_points,correlations     
 
+
+
+##########################
+#  Formatting functions  #
+##########################
+
+def format_scatter_data(scatter_points,metadata=[],delimiter="\t"):
+    """Convert evaluation data to delimited lines
+    metadata -- fixed strings that will be added to their own columns
+    in the order supplied (i.e. which organism/method/distance the results
+    for which the results were calculated)
+
+    """
+    lines =[]
+    fixed_fields = metadata
+    for x,y in scatter_points:
+        data_fields = map(str,[x,y])
+        lines.append('\t'.join(fixed_fields + data_fields)+"\n")
+    return lines
+
+
+def format_correlation_data(correlations,metadata=[],delimiter="\t"):
+    """Convert a dict of correlation data to formatted lines
+    correlations -- a dict of correlation data, keyed by method 
+    metadata-- a list of strings representing metadata for the correlation
+    (e.g. which organism, what prediction method etc)
+    delimiter -- delimiter to separate output.
+    
+    """
+    correlation_lines = []
+    for corr_type in correlations.keys():
+
+        new_correlation_fields =\
+          metadata + [corr_type] + map(str,[d for d in correlations[corr_type]])
+
+        new_correlation_line = "\t".join(new_correlation_fields)+"\n"
+        correlation_lines.append(new_correlation_line)
+
+    return correlation_lines
+
+
+
+
+#########################
+# Evaluation functions  #
+#########################
 
 def convert_vals_to_spearman_ranks(vals):
     """Return the rank of each val in list for Spearman rank correlation
