@@ -76,8 +76,7 @@ def evaluate_test_dataset(observed_table,expected_table):
       spearman_correlation(flat_obs_data,flat_exp_data)
     
     correlations["spearman"] = (spearman_r,spearman_t_prob)
-    
-     
+   
     return scatter_data_points,correlations     
 
 
@@ -85,6 +84,43 @@ def evaluate_test_dataset(observed_table,expected_table):
 ##########################
 #  Formatting functions  #
 ##########################
+def run_and_format_roc_analysis(trials):
+    """Run a receiver-operating characteristics(ROC) analysis and format results
+    trials:  a dict of trials, keyed by relevant metadata strings.  Each trial
+      must be a list of observed,expected values  (so the length of each trial is always two)
+    """  
+    
+    roc_result_lines = []
+    roc_auc_lines = []
+    for roc_analysis_type in trials.keys():
+        roc_trial_data = trials[roc_analysis_type]
+        roc_points, roc_auc, = roc_analysis(roc_trial_data)
+        
+        new_roc_result_lines = format_scatter_data(roc_points,metadata=[roc_analysis_type])
+        roc_result_lines.extend(new_roc_result_lines)
+
+        new_roc_auc_line = '\t'.join(map(str,[roc_analysis_type] + [roc_auc]))+"\n"
+        roc_auc_lines.append(new_roc_auc_line)
+
+    return roc_result_lines, roc_auc_lines
+
+
+
+def format_roc_data(roc_points,metadata=[],delimiter="\t"):
+    """Convert evaluation data to delimited lines
+    metadata -- fixed strings that will be added to their own columns
+    in the order supplied (i.e. which organism/method/distance the results
+    for which the results were calculated)
+
+    """
+    lines =[]
+    fixed_fields = metadata
+    for x,y in scatter_points:
+        data_fields = map(str,[x,y])
+        lines.append('\t'.join(fixed_fields + data_fields)+"\n")
+    return lines
+
+
 
 def format_scatter_data(scatter_points,metadata=[],delimiter="\t"):
     """Convert evaluation data to delimited lines
@@ -304,7 +340,9 @@ def confusion_matrix_results_by_index(obs,exp,verbose=False):
 def roc_analysis(trials):
     """Perform ROC analysis for a set of trials, each a list of obs,exp values"""
     points = roc_points(trials)
-    area_under_the_curve = roc_auc(trials)
+    #These points are now (FPR,TPR) tuples 
+    print "ROC AUC points (FPR,TPR):", sorted(points)
+    area_under_the_curve = roc_auc(points)
     return points,area_under_the_curve
 
 
@@ -325,17 +363,19 @@ def roc_points(trials):
 
 def roc_auc(points):
     """Get the ROC Area Under the Curve given a list of obs,exp values for trials
-    trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
+    points -- a list of (FPR, TPR) tuples.  That is, a list of tuples each providing 
+      a false_positive_rate, sensitivity.
     
     This is the average prob. of ranking a random positive above a random negative.
     """
 
     #points = roc_points(trials)
     ordered_points = sorted(points)
+    print "Ordered points:", ordered_points
     G = gini_coefficient(points)
-    #print "G:",G
+    print "G:",G
     area_under_the_curve = (G+1.0)/2.0 
-    #print "AUC:",area_under_the_curve
+    print "AUC:",area_under_the_curve
     return area_under_the_curve
  
 
