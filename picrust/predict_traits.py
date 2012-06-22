@@ -167,8 +167,6 @@ def get_interval_z_prob(low_z,high_z):
     interval_z_prob = high_prob - low_prob
     return interval_z_prob
 
-def equal_weight(d,constant_weight=1.0):
-    return weight
     
 def weighted_average_tip_prediction(tree, node_to_predict,\
   trait_label="Reconstruction", weight_fn=linear_weight):
