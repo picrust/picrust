@@ -192,37 +192,9 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     
     node = tree.getNodeMatchingName(node_to_predict) 
     parent_node =  node.Parent
-    sibling_nodes = node.siblings()
+    #sibling_nodes = node.siblings()
     #print "Node:",node
     #print "Trait label:", trait_label 
-    most_rec_recon_anc =\
-      get_most_recent_reconstructed_ancestor(node,trait_label)
-    
-    #Preparation
-    # To handle empty (None) values, we fill unknown values
-    # in the ancestor with values in the tips, and vice versa
-    # This is OK, since 
-
-
-    #STEP 1:  Infer traits, weight for most recently 
-    #reconstructed ancestral node
-    
-    if most_rec_recon_anc is not None: 
-        anc_traits = getattr(most_rec_recon_anc,trait_label,None)
-        ancestor_distance =  parent_node.distance(most_rec_recon_anc)
-        ancestor_weight = weight_fn(ancestor_distance)
-    else:
-        anc_traits = ancestor_distance = ancestor_weight = None
-    
-    #print "Ancestor name:",most_rec_recon_anc 
-    #print "Ancestor distance:",ancestor_distance 
-    #print "Ancestor traits:",anc_traits
-
-    #STEP 2:  Infer Parent node traits
-    
-    #TODO: abstract Step 2 to its own fn
-    if anc_traits is not None:
-        prediction = array(anc_traits)*ancestor_weight
     #print "Trait label:", trait_label 
     most_rec_recon_anc =\
       get_most_recent_reconstructed_ancestor(node,trait_label)
@@ -230,7 +202,6 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     #Preparation
     # To handle empty (None) values, we fill unknown values
     # in the ancestor with values in the tips, and vice versa
-    # This is OK, since 
 
 
     #STEP 1:  Infer traits, weight for most recently 
