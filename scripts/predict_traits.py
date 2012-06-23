@@ -24,8 +24,8 @@ from picrust.predict_traits import assign_traits_to_tree,\
   make_neg_exponential_weight_fn, biom_table_from_predictions 
 from biom.table import table_factory
 from cogent.util.table import Table
-from picrust.format import format_biom_table
-from picrust.util import make_output_dir_for_file
+from picrust.util import make_output_dir_for_file, format_biom_table
+from picrust.format_tree_and_trait_table import load_picrust_tree, set_label_conversion_fns
 
 script_info = {}
 script_info['brief_description'] = "Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states"
@@ -99,7 +99,8 @@ def main():
         print "Loading tree from file:", opts.tree
     
     # Load Tree
-    tree = LoadTree(opts.tree)
+    #tree = LoadTree(opts.tree)
+    tree = load_picrust_tree(opts.tree, opts.verbose)
 
     table_headers =[]
 
@@ -139,10 +140,12 @@ def main():
         organism_id_str = opts.limit_predictions_to_organisms
         ok_organism_ids = organism_id_str.split(',')
         ok_organism_ids = [n.strip() for n in ok_organism_ids]
-
+        for f in set_label_conversion_fns(True,True):
+            ok_organism_ids = [f(i) for i in ok_organism_ids]
+        
         if opts.verbose:
             print "Limiting predictions to user-specified ids:",\
-              ok_organism_ids
+              ",".join(ok_organism_ids)
         
         
         if not ok_organism_ids:
@@ -184,6 +187,7 @@ def main():
         
         if opts.verbose:
             print "After filtering by OTU table, %i nodes remain to be predicted" %(len(nodes_to_predict))
+    
     #For now, use exponential weighting
     weight_fn = make_neg_exponential_weight_fn(e)
   
