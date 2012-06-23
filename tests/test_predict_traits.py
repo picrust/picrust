@@ -13,7 +13,8 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
   weighted_average_tip_prediction, get_interval_z_prob,\
   thresholded_brownian_probability, update_trait_dict_from_file,\
-  biom_table_from_predictions
+  biom_table_from_predictions, get_nearest_annotated_neighbor,\
+  predict_nearest_neighbor
 
 
 """
@@ -93,6 +94,87 @@ class TestPredictTraits(TestCase):
 
     def tearDown(self):
         remove_files(self.files_to_remove)
+    
+    def test_nearest_neighbor_prediction(self):
+        """nearest_neighbor_prediction predicts nearest neighbor's traits"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction")
+        
+        #Test with default options
+        results = predict_nearest_neighbor(tree, nodes_to_predict =["B","C"])
+        self.assertEqual(results["B"],array([1.0,1.0]))
+        self.assertEqual(results["C"],array([0.0,0.0]))
+        
+        #Test allowing ancestral NNs
+        results = predict_nearest_neighbor(tree, nodes_to_predict =["B","C"],\
+         tips_only = False)
+        self.assertEqual(results["C"],array([0.0,1.0]))
+
+        #Test allowing self to be NN AND Ancestral NNs
+        results = predict_nearest_neighbor(tree, nodes_to_predict =["A","B","C","D"],\
+         tips_only = False,use_self_in_prediction=True)
+
+        self.assertEqual(results["A"],array([1.0,1.0]))
+        self.assertEqual(results["B"],array([1.0,1.0]))
+        self.assertEqual(results["C"],array([0.0,1.0]))
+        self.assertEqual(results["D"],array([0.0,0.0]))
+
+
+
+    def test_get_nearest_annotated_neightbor(self):
+        """get_nearest_annotated_neighbor finds nearest relative with traits"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree)
+ 
+
+       
+        #Test ancestral NN matching
+        nn =  get_nearest_annotated_neighbor(tree,'A',\
+              tips_only=False, include_self=False)
+        
+        self.assertEqual(nn.Name,'E')
+        
+        nn =  get_nearest_annotated_neighbor(tree,'B',\
+              tips_only=False, include_self=False)
+        
+        self.assertEqual(nn.Name,'E')
+        
+ 
+        nn =  get_nearest_annotated_neighbor(tree,'C',\
+              tips_only=False, include_self=False)
+        
+        self.assertEqual(nn.Name,'F')
+        
+  
+        nn =  get_nearest_annotated_neighbor(tree,'D',\
+              tips_only=False, include_self=False)
+        
+        self.assertEqual(nn.Name,'F')
+        
+       
+        #Test tip only, non-self matching
+        nn =  get_nearest_annotated_neighbor(tree,'A',\
+              tips_only=True, include_self=False)
+        
+        self.assertEqual(nn.Name,'D')
+        
+        nn =  get_nearest_annotated_neighbor(tree,'B',\
+              tips_only=True, include_self=False)
+        
+        self.assertEqual(nn.Name,'A')
+
+ 
+        nn =  get_nearest_annotated_neighbor(tree,'C',\
+              tips_only=True, include_self=False)
+        
+        self.assertEqual(nn.Name,'D')
+
+        nn =  get_nearest_annotated_neighbor(tree,'D',\
+              tips_only=True, include_self=False)
+        
+        self.assertEqual(nn.Name,'A')
 
     def test_biom_table_from_predictions(self):
         """format predictions into biom format"""
@@ -188,12 +270,14 @@ class TestPredictTraits(TestCase):
         #print "Predicting nodes:", nodes_to_predict
         predictions = predict_traits_from_ancestors(result_tree,\
           nodes_to_predict)
-       
+      
+        #print tree.asciiArt()
+        
         #print "Starting traits:", traits
         #print "Predictions:",predictions
-        #for key in predictions.keys():
-        #    
-        #    print key,":",around(predictions[key])
+        for key in predictions.keys():
+            
+            print key,":",around(predictions[key])
 
         #TODO: Add the actual assertion here
 
@@ -218,7 +302,10 @@ class TestPredictTraits(TestCase):
         self.assertTrue(array_equal(obs,exp))
 
         # Ensure that if to_update is None, the value of new is returned
-        obs = fill_unknown_traits(obs, exp)
+        obs = fill_unknown_traits(None, new)
+        print "Obs:",obs
+        exp = new
+        self.assertTrue(array_equal(obs,exp))
 
     def test_weighted_average_tip_prediction(self):
         """Weighted average node prediction should predict node values"""
