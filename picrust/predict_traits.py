@@ -13,6 +13,7 @@ __status__ = "Development"
 
 from collections import defaultdict
 from math import e,sqrt
+from random import choice
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from numpy.ma import masked_object, array
 from numpy import where, logical_not
@@ -263,17 +264,156 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
 
     return prediction
 
+def predict_random_annotated_neighbor(tree,nodes_to_predict,\
+        trait_label="Reconstruction",use_self=True,verbose=False):
+    """Predict traits by selecting a random, annotated tip
+    tree-- PhyloNode tree object, decorated with traits (see trait_label)
 
+    trait_label -- the attribute where arrays of reconstructed traits
+    are stored.  That is, if the label is 'Reconstruction', then 
+    node.Reconstruction or getattr(node,Reconstruction) should return
+    an array of traits.
 
+    use_self -- if True, allow for random prediction of self as one 
+    possible outcome.
 
+    verbose -- print verbose output.
+    """
 
+    results = {}
+    n_traits = None
+    annotated_nodes = \
+      [t for t in tree.tips() if \
+       getattr(t,trait_label,None) is not None]
+    
+    for node_label in nodes_to_predict:
+        
+        if verbose:
+            print "Predicting traits for node:",node_label
+        
+        node_to_predict = tree.getNodeMatchingName(node_label)
+        if not use_self:
+            possible_nodes = [t for t in annotated_nodes if \
+                t.Name != node_label]
+        else:
+            possible_nodes = annotated_nodes
 
+        node_to_predict = choice(possible_nodes)
+        
+        if verbose:
+            print "Predicting using node:", node_to_predict.Name
+        
+        prediction = getattr(node_to_predict,trait_label)
+        results[node_label] = prediction
+    return results
 
+def predict_nearest_neighbor(tree,nodes_to_predict,\
+  trait_label="Reconstruction",use_self_in_prediction=True,\
+  tips_only = True, verbose = False):
+    """Predict node traits given labeled ancestral states
+    
+    tree -- a PyCogent phylonode object, with each node decorated with the 
+    attribute defined in trait label (e.g. node.Reconstruction = [0,1,1,0])
 
+    nodes_to_predict -- a list of node names for which a trait 
+    prediction should be generated
+    
+    trait_label -- a string defining the attribute in which the
+    trait to be reconstructed is stored.  This attribute should
+    contain a numpy array of trait values (which can be set to None if 
+    not known)
+
+    use_self_in_prediction -- if set to True, nodes that already
+    have a trait value will be predicted using that trait value.
+    If set to False, each node will ignore it's own traits when performing
+    predictions, which can be useful for validation (otherwise a tree 
+    would need to be generated in which known nodes have their data removed)
+
+    verbose -- output verbose debugging info 
+
+    """
+    closest_annotated_node = None
+    results = {}
+    n_traits = None    
+    for node_label in nodes_to_predict:
+        if verbose:
+            print "Predicting traits for node:",node_label
+        node_to_predict = tree.getNodeMatchingName(node_label)
+        
+        traits = getattr(node_to_predict,trait_label)
+        
+        # Do a little checking to make sure trait values either look 
+        # like valid numpy arrays of equal length, are not specified
+        # or are set to None.
+
+        if traits is not None:
+            if n_traits is None:
+                #Check that trait length is consistent
+                try:
+                    n_traits = len(traits)
+                except TypeError:
+                    raise TypeError("Node trait values must be arrays!  Couldn't call len() on %s" % traits)
+
+            if traits and len(traits) != n_traits:
+                raise ValueError(\
+                  "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(\
+                   node_to_predict,len(traits),n_traits))
+        
+                
+        if not use_self_in_prediction:
+            # ignore knowledge about self without modifying tree
+            traits = None 
+       
+        nearest_annotated_neighbor =\
+          get_nearest_annotated_neighbor(tree,node_label,\
+          trait_label=trait_label, tips_only = tips_only,\
+          include_self = use_self_in_prediction)
+        #print "NAN:", nearest_annotated_neighbor 
+        if nearest_annotated_neighbor is None:
+            raise ValueError("Couldn't find an annotated nearest neighbor for node %s on tree" % node_label)
+
+        results[node_label] = getattr(nearest_annotated_neighbor,trait_label)
+    return results
+
+def get_nearest_annotated_neighbor(tree,node_name,\
+    trait_label="Reconstruction",tips_only= True, include_self=True):
+    """Return the nearest annotated node, and its distance
+    
+    tree -- PhyloNode object, decorated with traits in the
+    attribute specified in trait_label
+    node -- name of the node of interest
+    trait_label -- attribute where traits are stored where 
+    available
+    tips_only -- if True, consider only extant, tip nodes 
+    as neighbors.  if False, allow the nearest neighbor to be
+    ancestral.
+    """
+    n1 = tree.getNodeMatchingName(node_name)
+    min_dist = 99999999999999999.0
+    curr_best_match = None
+    if tips_only:
+        neighbors = tree.tips()
+    else:
+        neighbors = tree.preorder()
+    #print neighbors
+    for n2 in neighbors:
+        traits = getattr(n2,trait_label,None)
+        #print n2.Name, traits
+        if not traits:
+            continue
+        if not include_self and n1.Name == n2.Name:
+            continue
+        dist = n1.distance(n2) 
+        if dist < min_dist:
+            curr_best_match = n2
+            min_dist = dist
+    return curr_best_match
+
+        
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
     weight_fn=linear_weight, verbose = False):
-    """Predict node traits given labelled ancestral states
+    """Predict node traits given labeled ancestral states
     
     tree -- a PyCogent phylonode object, with each node decorated with the 
     attribute defined in trait label (e.g. node.Reconstruction = [0,1,1,0])
