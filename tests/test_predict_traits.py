@@ -14,7 +14,7 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   weighted_average_tip_prediction, get_interval_z_prob,\
   thresholded_brownian_probability, update_trait_dict_from_file,\
   biom_table_from_predictions, get_nearest_annotated_neighbor,\
-  predict_nearest_neighbor
+  predict_nearest_neighbor, predict_random_annotated_neighbor
 
 
 """
@@ -119,6 +119,57 @@ class TestPredictTraits(TestCase):
         self.assertEqual(results["B"],array([1.0,1.0]))
         self.assertEqual(results["C"],array([0.0,1.0]))
         self.assertEqual(results["D"],array([0.0,0.0]))
+
+
+    def test_predict_random_annotated_neighbor(self):
+        """predict_random_annotated_neighbor predicts randomly"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree)
+        
+        #If there is only one other valid result, this
+        #should always be predicted
+        
+        #self.SimpleTreeTraits =\
+        #            {"A":[1.0,1.0],"E":[1.0,1.0],"F":[0.0,1.0],"D":[0.0,0.0]}
+        
+        #If self predictions are disallowed, then the prediction for A should
+        #always come from node D, and be 0,0.   
+
+        results = predict_random_annotated_neighbor(tree,['A'],\
+          trait_label = "Reconstruction",use_self=False)
+
+        self.assertEqual(results['A'],[0.0,0.0])
+
+        #If use_self is True, ~50% of predictions should be [1.0,1.0] and
+        # half should be [0.0,0.0]
+
+        #Pick repeatedly and make sure frequencies are
+        #reasonable.  The technique is fast, so 
+        #many iterations are reasonable.
+        
+        iterations = 100000
+        a_predictions = 0
+        d_predictions = 0
+        for i in range(iterations):
+            results = predict_random_annotated_neighbor(tree,['A'],\
+              trait_label = "Reconstruction",use_self=True)
+            #print results
+            if results['A'] == [1.0,1.0]:
+                #print "A pred"
+                a_predictions += 1
+            elif results['A'] == [0.0,0.0]:
+                #print "D pred"
+                d_predictions +=1
+            else:
+                raise RuntimeError(\
+                  "Bad prediction result: Neither node A nor node D traits used in prediction")
+        #print "All a predictions:",a_predictions
+        #print "All d predictions:",d_predictions
+        ratio = float(a_predictions)/float(iterations)
+        #print "Ratio:", ratio
+        self.assertFloatEqual(ratio,0.5,eps=1e-2)
+
 
 
 
