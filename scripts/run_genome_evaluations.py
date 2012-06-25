@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2012, The PI-CRUST Project"
-__credits__ = ["Morgan Langille"]
+__credits__ = ["Morgan Langille","Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "0.1"
 __maintainer__ = "Morgan Langille"
@@ -38,7 +38,11 @@ script_info['required_options'] = [\
 make_option('-i','--input_dir',type="existing_dirpath",help='directory containing one or more test datasets'),\
 make_option('-t','--ref_tree',type="existing_filepath",help='reference tree that was used with make_test_datasets'),\
 ]
+
+# Choices for choice options
 parallel_method_choices=['sge','torque','multithreaded']
+predict_traits_choices =['asr_and_weighting','nearest_neighbor','random_neighbor']
+asr_choices = ['ace_ml', 'ace_reml', 'ace_pic', 'wagner']
 
 script_info['optional_options'] = [\
 make_option('-o','--output_dir',type="new_dirpath",help='the output directory [default: <input_dir>]'),\
@@ -46,6 +50,17 @@ make_option('-j','--parallel_method',type='choice',\
             help='Method for parallelization. Valid choices are: '+\
             ', '.join(parallel_method_choices) + ' [default: %default]',\
             choices=parallel_method_choices,default='multithreaded'),\
+make_option('-m','--prediction_method',type='choice',\
+            help='Method for trait prediction.  See predict_traits.py for full documentation. Valid choices are: '+\
+            ', '.join(predict_traits_choices) + ' [default: %default]',\
+            choices=predict_traits_choices,default='asr_and_weighting'),\
+make_option('-a','--asr_method',type='choice',\
+            help='Method for ancestral_state_reconstruction.  See ancestral_state_reconstruction.py for full documentation. Valid choices are: '+\
+            ', '.join(asr_choices) + ' [default: %default]',\
+            choices=asr_choices,default='wagner'),\
+
+
+
 make_option('-n','--num_jobs',action='store',type='int',\
             help='Number of jobs to be submitted (if --parallel). [default: %default]',\
             default=100),\
@@ -65,7 +80,19 @@ def main():
     output_dir=opts.output_dir or input_dir
     tmp_dir=opts.tmp_dir or output_dir
     parallel_method=opts.parallel_method
+    asr_method = opts.asr_method
+    predict_traits_method = opts.prediction_method
+    
+    if opts.num_jobs > 20 and parallel_method == 'multithreaded':
+        raise ValueError('You probably dont want to run multithreaded evaluations with a large num_jobs. Please adjust options num_jobs and or parallel_method')
+        
 
+    if opts.verbose:
+        print "Reconstruction method:",asr_method
+        print "Prediction method:",predict_traits_method
+        print "Parallel method:",parallel_method
+        print "num_jobs:",opts.num_jobs
+        print "\nOutput will be saved here:'%s'" %output_dir 
 
     #create the output directory unless it already exists
     make_output_dir(output_dir)
@@ -101,12 +128,12 @@ def main():
     asr_script_fp = join(get_picrust_project_dir(),'scripts','ancestral_state_reconstruction.py')
     predict_traits_script_fp = join(get_picrust_project_dir(),'scripts','predict_traits.py')
 
-    asr_method='wagner'
+    #asr_method='wagner'
 
     #run each test dataset through the pipeline
     for test_id in test_datasets:
 
-        asr_out_fp=join(output_dir,'asr--'+test_id)
+        asr_out_fp=join(output_dir,'asr--'+asr_method+'--'+test_id)
         created_tmp_files.append(asr_out_fp)
         
         if exists(asr_out_fp) and not opts.force:
@@ -117,7 +144,7 @@ def main():
             #create the asr command
             asr_cmd= """python {0} -i "{1}" -t "{2}" -m {3} -o "{4}" """.format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
 
-        predict_traits_out_fp=join(output_dir,'predict_traits--'+test_id)
+        predict_traits_out_fp=join(output_dir,'predict_traits--'+predict_traits_method+'--'+test_id)
 
         if exists(predict_traits_out_fp) and not opts.force:
             if opts.verbose:
@@ -129,7 +156,7 @@ def main():
         genome_id=split('--',test_id)[2]
         
         #create the predict traits command
-        predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp)
+        predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" -m "{6}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp,predict_traits_method)
  
         #add job command to the the jobs file
         jobs.write(asr_cmd+';'+predict_traits_cmd+"\n")
