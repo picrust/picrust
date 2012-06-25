@@ -264,8 +264,9 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
 
     return prediction
 
-def predict_random_annotated_neighbor(tree,nodes_to_predict,\
-        trait_label="Reconstruction",use_self=True,verbose=False):
+def predict_random_neighbor(tree,nodes_to_predict,\
+        trait_label="Reconstruction",use_self_in_prediction=True,\
+        verbose=False):
     """Predict traits by selecting a random, annotated tip
     tree-- PhyloNode tree object, decorated with traits (see trait_label)
 
@@ -274,8 +275,8 @@ def predict_random_annotated_neighbor(tree,nodes_to_predict,\
     node.Reconstruction or getattr(node,Reconstruction) should return
     an array of traits.
 
-    use_self -- if True, allow for random prediction of self as one 
-    possible outcome.
+    use_self_in_prediction -- if True, allow for random prediction
+    of self as one possible outcome.
 
     verbose -- print verbose output.
     """
@@ -292,7 +293,7 @@ def predict_random_annotated_neighbor(tree,nodes_to_predict,\
             print "Predicting traits for node:",node_label
         
         node_to_predict = tree.getNodeMatchingName(node_label)
-        if not use_self:
+        if not use_self_in_prediction:
             possible_nodes = [t for t in annotated_nodes if \
                 t.Name != node_label]
         else:
