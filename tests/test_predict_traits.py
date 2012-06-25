@@ -14,7 +14,7 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   weighted_average_tip_prediction, get_interval_z_prob,\
   thresholded_brownian_probability, update_trait_dict_from_file,\
   biom_table_from_predictions, get_nearest_annotated_neighbor,\
-  predict_nearest_neighbor, predict_random_annotated_neighbor
+  predict_nearest_neighbor, predict_random_neighbor
 
 
 """
@@ -121,8 +121,8 @@ class TestPredictTraits(TestCase):
         self.assertEqual(results["D"],array([0.0,0.0]))
 
 
-    def test_predict_random_annotated_neighbor(self):
-        """predict_random_annotated_neighbor predicts randomly"""
+    def test_predict_random_neighbor(self):
+        """predict_random_neighbor predicts randomly"""
         traits = self.SimpleTreeTraits
         tree = self.SimpleTree
         result_tree = assign_traits_to_tree(traits,tree)
@@ -136,8 +136,9 @@ class TestPredictTraits(TestCase):
         #If self predictions are disallowed, then the prediction for A should
         #always come from node D, and be 0,0.   
 
-        results = predict_random_annotated_neighbor(tree,['A'],\
-          trait_label = "Reconstruction",use_self=False)
+        results = predict_random_neighbor(tree,['A'],\
+          trait_label = "Reconstruction",\
+          use_self_in_prediction=False)
 
         self.assertEqual(results['A'],[0.0,0.0])
 
@@ -152,8 +153,9 @@ class TestPredictTraits(TestCase):
         a_predictions = 0
         d_predictions = 0
         for i in range(iterations):
-            results = predict_random_annotated_neighbor(tree,['A'],\
-              trait_label = "Reconstruction",use_self=True)
+            results = predict_random_neighbor(tree,['A'],\
+              trait_label = "Reconstruction",\
+              use_self_in_prediction=True)
             #print results
             if results['A'] == [1.0,1.0]:
                 #print "A pred"
@@ -354,7 +356,7 @@ class TestPredictTraits(TestCase):
 
         # Ensure that if to_update is None, the value of new is returned
         obs = fill_unknown_traits(None, new)
-        print "Obs:",obs
+        #print "Obs:",obs
         exp = new
         self.assertTrue(array_equal(obs,exp))
 
