@@ -49,8 +49,9 @@ script_info['version'] = __version__
 
 def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         file_name_field_order=\
-          {'file_type':0,"method":1,"distance":2,"organism":3},strict=False, verbose=True):
-    """Return evaluation results from the given directories
+          {'file_type':0,"prediction_method":1, "holdout_method":2,\
+          "distance":3,"organism":4},strict=False, verbose=True):
+    """Return control evaluation results from the given directories
     
     obs_dir_fp -- directory containing PICRUST-predicted genomes.   These MUST start with
     'predict_traits', and must contain the values specified in file_name_field_order,\
@@ -105,14 +106,17 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
             print "Examining file: %s" %f
         filename_components = f.split(file_name_delimiter)
         try:
-            file_type,method,distance,organism = \
+            file_type,holdout_method,prediction_method,distance,organism = \
               filename_components[file_name_field_order['file_type']],\
-              filename_components[file_name_field_order['method']],\
+              filename_components[file_name_field_order['holdout_method']],\
+              filename_components[file_name_field_order['prediction_method']],\
               filename_components[file_name_field_order['distance']],\
               filename_components[file_name_field_order['organism']]
         except IndexError, e:
             print "Could not parse filename %s using delimiter: %s.  Skipping..." %(f,file_name_delimiter)
             continue
+        if verbose:
+            print "HOLDOUT METHOD:", holdout_method
 
         #Get predicted traits
         if file_type == 'predict_traits':
@@ -131,7 +135,7 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         
         
         # Get paired observation file
-        exp_filename = file_name_delimiter.join(['exp_biom_traits',method,distance,organism])
+        exp_filename = file_name_delimiter.join(['exp_biom_traits',holdout_method,distance,organism])
         exp_filepath = join(exp_dir_fp,exp_filename)
         if verbose:
             print "Looking for the expected trait file matching %s here: %s" %(f,exp_filepath)
@@ -152,9 +156,9 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         
         #For AUC, format = [(all_obs_points,all_exp_points)]
         new_trial = unzip(scatter_data_points)
-        trials["_".join(map(str,[method]))].append(new_trial)
+        trials["_".join(map(str,[holdout_method,prediction_method]))].append(new_trial)
         #Format results for printing
-        metadata = [organism,method,distance]
+        metadata = [organism,holdout_method,prediction_method,distance]
         
         new_scatter_lines = format_scatter_data(scatter_data_points,metadata)
         scatter_lines.extend(new_scatter_lines)
@@ -182,7 +186,8 @@ def main():
     scatter_lines,correlation_lines,roc_result_lines,roc_auc_lines =\
       evaluate_test_dataset_dir(opts.trait_table_dir,\
       opts.exp_trait_table_dir,file_name_delimiter="--",\
-      file_name_field_order={'file_type':0,"method":1,"distance":2,"organism":3})
+      file_name_field_order={'file_type':0,"prediction_method":1,\
+      "holdout_method":2,"distance":3,"organism":4})
    
 
     #Output scatter data
