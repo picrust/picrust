@@ -15,11 +15,12 @@ from os.path import splitext
 from string import maketrans
 from sys import getrecursionlimit,setrecursionlimit
 import re
-from cogent import LoadTree
+from cogent.parse.tree import DndParser
 from cogent.util.option_parsing import parse_command_line_parameters,\
     make_option
 
 from picrust.parse import parse_trait_table,yield_trait_table_fields
+from util import PicrustNode
 
 def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     input_trait_table_delimiter="\t", output_trait_table_delimiter="\t",\
@@ -127,14 +128,14 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         
     #map trait table ids to tree ids
     if trait_to_tree_mapping:
-        if verbose:
-            print "Validating that trait --> tree mappings match tree ids..."
-            good,bad = validate_trait_table_to_tree_mappings(input_tree,\
-              trait_to_tree_mapping.values(), verbose = True)
-            print "Found %i valid ids." %(len(good))
-            print "Found %i invalid ids." %(len(bad))
-            #if bad:
-            #    raise RuntimeError("The following putative tree ids in mapping file aren't actually in the input tree: %s" % bad)
+        #if verbose:
+        #    print "Validating that trait --> tree mappings match tree ids..."
+        #    good,bad = validate_trait_table_to_tree_mappings(input_tree,\
+        #      trait_to_tree_mapping.values(), verbose = True)
+        #    print "Found %i valid ids." %(len(good))
+        #    print "Found %i invalid ids." %(len(bad))
+        #    #if bad:
+        #    #    raise RuntimeError("The following putative tree ids in mapping file aren't actually in the input tree: %s" % bad)
     
     
         if verbose:
@@ -416,7 +417,7 @@ def validate_trait_table_to_tree_mappings(tree,trait_table_ids,verbose=True):
     """Report whether tree ids are even in mapping file"""
     good = []
     bad = []
-    nodes = [n.Name for n in tree.preorder()]
+    nodes = [n.Name for n in tree.iterTips()]
     for tt_id in trait_table_ids:
         if tt_id in nodes:
             good.append(tt_id)
@@ -426,7 +427,7 @@ def validate_trait_table_to_tree_mappings(tree,trait_table_ids,verbose=True):
         print "Of %i ids, %i were OK (mapped to tree)" %(len(trait_table_ids),len(good))
         print "Example good ids",good[0:min(len(good),10)]
         print "Example bad ids",bad[0:min(len(bad),10)]
-        print "Example node ids",nodes[0:min(len(nodes),10)]
+        print "Example tip ids",nodes[0:min(len(nodes),10)]
     return good,bad
 
 def filter_table_by_presence_in_tree(tree,trait_table_fields,name_field_index = 0,delimiter="\t"):
@@ -700,3 +701,36 @@ def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,ve
         print "Example trait table ids that could not be mapped to tree:" %(bad_ids[:min(len(bad_ids),10)])
     
     return remapped_fields
+
+def load_picrust_tree(tree_fp, verbose):
+    """Safely load a tree for picrust"""
+    #PicrustNode seems to run into very slow/memory intentsive perfromance...
+    #tree = DndParser(open(opts.input_tree),constructor=PicrustNode)
+    tree = DndParser(open(tree_fp),constructor=PicrustNode)
+    label_conversion_fns = set_label_conversion_fns(verbose=verbose)
+
+    tree = fix_tree_labels(tree,label_conversion_fns)
+    return tree
+
+def load_tab_delimited_trait_table(trait_table_fp,verbose=False):
+    """Load a tab delimited trait table for picrust"""
+    input_trait_table = open(trait_table_fp,"U")
+    if verbose:
+        print "Parsing trait table..."
+    #Find which taxa are to be used in tests 
+    #(by default trait table taxa)
+    trait_table_header,trait_table_fields = \
+            parse_trait_table(input_trait_table)
+
+    label_conversion_fns = set_label_conversion_fns(verbose=verbose)
+    trait_table_fields = convert_trait_table_entries(trait_table_fields,\
+      value_conversion_fns = [],\
+      label_conversion_fns = label_conversion_fns)
+
+    trait_table_fields = [t for t in trait_table_fields]
+
+    if verbose:
+        print "Number of trait table fields with single quotes:",\
+          len([t for t in trait_table_fields if "'" in t[0]])
+
+    return trait_table_header,trait_table_fields
