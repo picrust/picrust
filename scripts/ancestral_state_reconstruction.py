@@ -40,7 +40,7 @@ make_option('-m','--asr_method',type='choice',
                 ', '.join(asr_method_choices) + ' [default: %default]',\
                 choices=asr_method_choices,default='wagner'),\
 make_option('-o','--output_fp',type="new_filepath",help='output trait table [default:%default]',default='asr_counts.tab'),\
-make_option('-c','--output_ci_fp',type="new_filepath",help='output file for the 95% confidence intervals for each asr prediction [default:%default]',default='asr_ci.tab'),\
+make_option('-c','--output_ci_fp',type="new_filepath",help='output table containing 95% confidence intervals, loglik, and brownian motion parameters for each asr prediction [default:%default]',default='asr_ci.tab'),\
 make_option('-p','--parallel',action="store_true",help='allow parallelization of asr',default=False),\
 make_option('-j','--parallel_method',type='choice',
                 help='Method for parallelizaation. Valid choices are: '+\
@@ -81,10 +81,8 @@ def main():
 
     #output the CI file (unless the method is wagner)
     if not (opts.asr_method == 'wagner'):
-        output_dir=dirname(opts.output_ci_fp)
-        if not isdir(output_dir) and not output_dir=='':
-            makedirs(output_dir)
-        #ci_table.writeToFile(opts.output_ci_fp,sep='\t')
+        make_output_dir_for_file(opts.output_ci_fp)
+        ci_table.writeToFile(opts.output_ci_fp,sep='\t')
         
     
 

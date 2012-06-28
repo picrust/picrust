@@ -63,17 +63,35 @@ class AceTests(TestCase):
     def test_ace_for_picrust_ml(self):
         """ test_ace_for_picrust with method 'ML' functions as expected with valid input
         """
-        actual,ci= ace_for_picrust(self.in_tree1_fp, self.in_trait1_fp, method="ML")
+        actual,actual_ci= ace_for_picrust(self.in_tree1_fp, self.in_trait1_fp, method="ML")
         expected=Table(['nodes','trait1','trait2'],[['14','2.9737','2.5436'],['12','2.3701','2.7056'],['11','0.8370','2.9706'],['10','4.4826','2.1388']])
         self.assertEqual(actual.tostring(),expected.tostring())
+        expected_ci=Table(['nodes','trait1','trait2'],\
+                              [['14','1.4467|4.5007','2.1979|2.8894'],\
+                               ['12','0.9729|3.7674','2.3892|3.0219'],\
+                               ['11','0.147|1.527','2.8143|3.1268'],\
+                               ['10','3.4227|5.5426','1.8988|2.3788'],\
+                               ['sigma','1.9742|0.6981','0.1012|0.0359'],\
+                               ['loglik','-6.7207','5.1623'],\
+                               ])
+        self.assertEqual(actual_ci.tostring(),expected_ci.tostring())
+
    
 
     def test_ace_for_picrust_pic(self):
         """ test_ace_for_picrust with method 'pic' functions as expected with valid input
         """
-        actual,ci= ace_for_picrust(self.in_tree1_fp,self.in_trait1_fp, method="pic")
+        actual,actual_ci= ace_for_picrust(self.in_tree1_fp,self.in_trait1_fp, method="pic")
         expected=Table(['nodes','trait1','trait2'],[['14','2.9737','2.5436'],['12','1.2727','3'],['11','0.6667','3'],['10','5','2']])
         self.assertEqual(actual.tostring(),expected.tostring())
+        expected_ci=Table(['nodes','trait1','trait2'],\
+                              [['14','0.7955|5.1519','0.3655|4.7218'],\
+                               ['12','-1.1009|3.6464','0.6264|5.3736'],\
+                               ['11','-0.4068|1.7402','1.9265|4.0735'],\
+                               ['10','3.3602|6.6398','0.3602|3.6398'],\
+                               ])
+        self.assertEqual(actual_ci.tostring(),expected_ci.tostring())
+
 
     def test_ace_for_picrust_pic_single_trait(self):
         """ test_ace_for_picrust with method 'pic' functions as expected with single column trait table
