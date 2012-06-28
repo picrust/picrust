@@ -129,8 +129,12 @@ def main():
     #Load inputs
     if verbose:
         print "Loading tree...."
-    input_tree =DndParser(open(tree_file),constructor=PicrustNode)
-   
+    
+    input_tree =DndParser(open(tree_file))
+    #input_tree =DndParser(open(tree_file), constructor=PicrustNode)
+    
+    #input_tree = load_picrust_tree(opts.input_tree,opts.verbose) 
+    
     if verbose:
         print "Loading trait table..."
     trait_table = open(trait_table_fp,"U")
@@ -227,11 +231,17 @@ def main():
    
     
     #Output trait table file
+    
+    if opts.verbose:
+        print "Writing trait table to:", output_table_fp
+    
     output_trait_table_file.write("\n".join(new_trait_table_lines))
     trait_table.close()
     output_trait_table_file.close()
 
     #Output tree file
+    if opts.verbose:
+        print "Writing pruned tree to:", output_tree_fp
 
     if opts.convert_to_nexus is True:
         lines = nexus_lines_from_tree(new_tree)
@@ -242,10 +252,46 @@ def main():
     output_tree_file.close() 
 
 
+    if opts.verbose:
+        print "Writing reference tree to:", output_reference_tree_fp
     #Output reference tree file
     output_reference_tree_file.write(new_reference_tree.getNewick(with_distances=True))
     output_reference_tree_file.close() 
     
+def load_picrust_tree(tree_fp, verbose):
+    """Safely load a tree for picrust"""
+    if verbose:
+        print "Loading tree..."
+    #PicrustNode seems to run into very slow/memory intentsive perfromance...
+    #tree = DndParser(open(opts.input_tree),constructor=PicrustNode)
+    tree = DndParser(open(tree_fp),constructor=PicrustNode)
+    label_conversion_fns = set_label_conversion_fns(verbose=verbose)
+
+    tree = fix_tree_labels(tree,label_conversion_fns)
+    return tree
+
+def load_tab_delimited_trait_table(trait_table_fp,verbose=False):
+    """Load a tab delimited trait table for picrust"""
+    input_trait_table = open(trait_table_fp,"U")
+    if verbose:
+        print "Parsing trait table..."
+    #Find which taxa are to be used in tests 
+    #(by default trait table taxa)
+    trait_table_header,trait_table_fields = \
+            parse_trait_table(input_trait_table)
+
+    label_conversion_fns = set_label_conversion_fns(verbose=verbose)
+    trait_table_fields = convert_trait_table_entries(trait_table_fields,\
+      value_conversion_fns = [],\
+      label_conversion_fns = label_conversion_fns)
+
+    trait_table_fields = [t for t in trait_table_fields]
+
+    if verbose:
+        print "Number of trait table fields with single quotes:",\
+          len([t for t in trait_table_fields if "'" in t[0]])
+
+    return trait_table_header,trait_table_fields
 
 if __name__ == "__main__":
     main()
