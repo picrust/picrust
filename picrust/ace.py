@@ -47,7 +47,11 @@ def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
 
     tmp_output_count_path=get_tmp_filename()
     tmp_output_prob_path=get_tmp_filename()
-       
+
+    #quote file names
+    tree_path='"{}"'.format(tree_path)
+    trait_table_path='"{}"'.format(trait_table_path)
+    
     as_string = " ".join([tree_path,trait_table_path,method,tmp_output_count_path,tmp_output_prob_path])
     #Run ace here
     result = ace(data=as_string)
