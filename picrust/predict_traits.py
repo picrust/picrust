@@ -410,6 +410,45 @@ def get_nearest_annotated_neighbor(tree,node_name,\
             min_dist = dist
     return curr_best_match
 
+
+def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
+        trait_label="Reconstruction",include_self=True, verbose = False):
+    """Calculate an index of the average distance to the nearest sequenced taxon on the tree"""
+    distances = []
+    if limit_to_tips:
+        # limit to specified tips if this value is passed
+        # this is both faster and allows customized metrics for each OTU table
+        # rather than just generically for all sequenced genomes + greengenes
+        tips_to_examine = [tree.getNodeMatchingName(t) for t in limit_to_tips]
+    else:
+        # If no set is specficied, calculate for all tips
+        tips_to_examine = tree.tips()
+    
+    if verbose:
+        print "Calculating Nearest Sequenced Taxon Index (NTSI):"
+
+    for tip in tips_to_examine:
+        
+        nn = get_nearest_annotated_neighbor(tree, tip.Name, trait_label = trait_label,\
+            include_self=include_self)
+        
+        # NOTE: probably need to use the DM directly, as
+        # iterative approaches will be REALLY slow when there are 200k tips.
+        
+        dist = nn.distance(tip)
+        
+        if verbose:
+            print "Tip: %s --> NN: %s.  Dist = %f" %(tip.Name, nn.Name, dist) 
+        
+        distances.append(dist)
+        
+
+    # Average the nearest sequenced neighbor in each case to get a composite score
+    nsti =  sum(distances)/float(len(distances))
+    if verbose:
+        print "NTSI:",ntsi
+    return nsti
+
         
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
