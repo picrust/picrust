@@ -13,10 +13,11 @@ __status__ = "Development"
 
 from collections import defaultdict
 from math import e,sqrt
+from copy import copy
 from random import choice
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from numpy.ma import masked_object, array
-from numpy import where, logical_not
+from numpy import where, logical_not, argmin
 from cogent.maths.stats.distribution import z_high
 from cogent import LoadTable
 from warnings import warn
@@ -414,7 +415,18 @@ def get_nearest_annotated_neighbor(tree,node_name,\
 def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         trait_label="Reconstruction",include_self=True, verbose = False):
     """Calculate an index of the average distance to the nearest sequenced taxon on the tree"""
+    
     distances = []
+    
+    if verbose:
+        print "Getting dists, tips for the whole tree"
+   
+    #caching here saves time with some options by preventing recalculation
+    tree_tips = tree.tips()
+    #NOTE: tried the below, but getting all distances
+    # is too memory-intensive for large trees:
+    #dists,tree_tips = tree.tipToTipDistances()
+
     if limit_to_tips:
         # limit to specified tips if this value is passed
         # this is both faster and allows customized metrics for each OTU table
@@ -422,31 +434,67 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         tips_to_examine = [tree.getNodeMatchingName(t) for t in limit_to_tips]
     else:
         # If no set is specficied, calculate for all tips
-        tips_to_examine = tree.tips()
+        tips_to_examine = tree_tips
     
     if verbose:
         print "Calculating Nearest Sequenced Taxon Index (NTSI):"
 
-    for tip in tips_to_examine:
-        
-        nn = get_nearest_annotated_neighbor(tree, tip.Name, trait_label = trait_label,\
-            include_self=include_self)
-        
-        # NOTE: probably need to use the DM directly, as
-        # iterative approaches will be REALLY slow when there are 200k tips.
-        
-        dist = nn.distance(tip)
+
+    #Next, build up a list of tips that are annotated with traits
+    if verbose:
+        print "Building a list of annotated tree tips"
+    
+    #not_annot_tip_indices = \
+    #  [i for i,t in enumerate(tree_tips) if getattr(t,trait_label,None) is None]
+    #big_number = 1e250
+    distances = []
+    
+    if verbose:
+        print "Finding min dists for each node"
+    
+    for i,t in enumerate(tree_tips):
+        if t not in tips_to_examine:
+            continue
+        #dists, considering only annotated nodes
+        dists = [t.distance(j) for j in tree.tips() if getattr(j,trait_label,None) is not None]
+        #Mask non-annotated indices by setting to 
+        #a non-minimal value
+        #dist_to_curr_tip[not_annot_tip_indices] = big_number
         
         if verbose:
-            print "Tip: %s --> NN: %s.  Dist = %f" %(tip.Name, nn.Name, dist) 
+            print "Including self?", include_self
         
-        distances.append(dist)
+        if not include_self:
+            #remove self from consideration
+            #if multiple 0 distances exist
+            #allow 0 to be returned (only the first is removed)
+            dists.remove(0.0)
+         
+        distances.append(min(dists))
+        del dists
+    
+    
+    
+    #for tip in tips_to_examine:
+    #    
+    #    nn = get_nearest_annotated_neighbor(tree, tip.Name, trait_label = trait_label,\
+    #        include_self=include_self)
+    #    
+    #    # NOTE: probably need to use the DM directly, as
+    #    # iterative approaches will be REALLY slow when there are 200k tips.
+    #    
+    #    dist = nn.distance(tip)
+    #    
+    #    if verbose:
+    #        print "Tip: %s --> NN: %s.  Dist = %f" %(tip.Name, nn.Name, dist) 
+    #    
+    #    distances.append(dist)
         
 
     # Average the nearest sequenced neighbor in each case to get a composite score
     nsti =  sum(distances)/float(len(distances))
     if verbose:
-        print "NTSI:",ntsi
+        print "NSTI:",nsti
     return nsti
 
         
