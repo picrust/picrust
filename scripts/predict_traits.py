@@ -22,7 +22,8 @@ from picrust.parse import parse_trait_table, extract_ids_from_table
 from picrust.predict_traits import assign_traits_to_tree,\
   predict_traits_from_ancestors, update_trait_dict_from_file,\
   make_neg_exponential_weight_fn, biom_table_from_predictions,\
-  predict_random_neighbor,predict_nearest_neighbor
+  predict_random_neighbor,predict_nearest_neighbor,\
+  calc_nearest_sequenced_taxon_index
 from biom.table import table_factory
 from cogent.util.table import Table
 from picrust.util import make_output_dir_for_file, format_biom_table
@@ -63,6 +64,8 @@ make_option('-t','--tree',type="existing_filepath",\
 script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
+ make_option('-a','--output_accuracy_metrics',type="new_filepath",\
+   default='accuracy_metrics.tsv',help='the output filepath for accuracy metrics [default: %default]'),\
 
  make_option('-m','--prediction_method',default='asr_and_weighting',choices=METHOD_CHOICES,help='Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(METHOD_CHOICES)+'.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information.    [default: %default]'),\
  make_option('-l','--limit_predictions_by_otu_table',type="existing_filepath",help='Specify a valid path to a legacy QIIME OTU table to perform predictions only for tips that are listed in the OTU table (regardless of abundance)'),\
@@ -133,7 +136,11 @@ def main():
 
     # Decorate tree using the traits
     tree = assign_traits_to_tree(traits,tree, trait_label=trait_label)
-    
+
+
+
+
+
     if opts.verbose:
         print "Collecting list of nodes to predict..."
 
@@ -194,6 +201,34 @@ def main():
         
         if opts.verbose:
             print "After filtering by OTU table, %i nodes remain to be predicted" %(len(nodes_to_predict))
+
+    # Calculate accuracy of PICRUST for the given tree, sequenced genomes
+    # and set of ndoes to predict
+    accuracy_metrics = ['NSTI']
+    if opts.verbose and accuracy_metrics:
+        print "Calculating accuracy metrics: %s" %([",".join(accuracy_metrics)])
+        accuracy_metric_results = {}
+        if 'NSTI' in accuracy_metrics:
+
+            nsti_result =\
+                calc_nearest_sequenced_taxon_index(tree,\
+                limit_to_tips = nodes_to_predict,\
+                trait_label = trait_label)
+            
+            accuracy_metric_results['NSTI'] = nsti_result
+        
+            if opts.verbose:
+                print "NSTI:", nsti_result
+    
+        if opts.verbose:
+            print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
+   
+        f = open(opts.output_accuracy_metrics,'w+')
+        lines = ["Accuracy metricsi\n"]
+        for m in sorted(accuracy_metric_results.keys()):
+            lines.append('\t'.join([m,str(accuracy_metric_results[m])])+'\n')
+        f.writelines(lines)
+        f.close()
 
 
     if opts.verbose:
