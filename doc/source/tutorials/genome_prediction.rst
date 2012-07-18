@@ -1,4 +1,4 @@
-.. _genome_prediction:
+.. _genome_prediction_tutorial:
 
 PICRUST Genome Prediction Tutorial
 ==================================
@@ -12,31 +12,22 @@ Essential Files
 ---------------
 All files required run this tutorial are here (https://www.dropbox.com/s/l9djlyssn3cspz8/genome_prediction_tutorial_files.zip). Descriptions of these files are below. 
 
-Reference Tree (.nwk)
-^^^^^^^^^^^^^^^^^^^^^
-This is a phylogenetic tree constructed from a marker gene (typically 16S), that has tips representing both sequenced genomes and non-sequenced genomes. 
+* Reference Tree (.nwk)
+    * This is a phylogenetic tree constructed from a marker gene (typically 16S), that has tips representing both sequenced genomes and non-sequenced genomes. 
+    * We will use the greengenes tree **gg_tree.nwk**.
 
-We will use the greengenes tree **gg_tree.nwk**.
+* Marker gene copy number (tab-delimited .tab)
+    * This is a simple tab-delimited table with two columns. The first column contains the genome identfiers column ids (typically IMG), and the second column contains the number of copies of the marker gene (16S). The first row must contain header ids for the columns.
+    * We will use the file **IMG_16S_counts.tab**.
 
-Marker gene copy number (tab-delimited .tab)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This is a simple tab-delimited table with two columns. The first column contains the genome identfiers column ids (typically IMG), and the second column contains the number of copies of the marker gene (16S). The first row must contain header ids for the columns.
+* Functional trait copy number (tab-delimited .tab)
+    * Same format as the marker gene copy number table above with genome identifiers being the first column, but contains an additional column for every functional trait with the column id representing that trait (e.g. K00001).
+    * We will use KEGG KO functions **IMG_ko_counts.tab**.
 
-We will use the file **IMG_16S_counts.tab**.
-
-Functional trait copy number (tab-delimited .tab)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Same format as the marker gene copy number table above with genome identifiers being the first column, but contains an additional column for every functional trait with the column id representing that trait (e.g. K00001).
-
-We will use KEGG KO functions **IMG_ko_counts.tab**.
-
-Mapping file for tree tip ids to genome ids (tab-delimited .tab)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Simple two column tab delimited file with first column containing ids of tips in the tree that have genome sequences. Second column contains genome identifiers from marker gene and functional trait copy number files. 
-
-We will use the file **GG_to_IMGv350.txt**.
-
-*Note: This file is optional if the tips representing genomes in the reference tree exactly match genome identifiers in the trait tables*. 
+* Mapping file for tree tip ids to genome ids (tab-delimited .tab)
+    * Simple two column tab delimited file with first column containing ids of tips in the tree that have genome sequences. Second column contains genome identifiers from marker gene and functional trait copy number files. 
+    * We will use the file **GG_to_IMGv350.txt**.
+    * *(Note: This file is optional if the tips representing genomes in the reference tree exactly match genome identifiers in the trait tables)*. 
 
 
 Formatting tree and trait tables
