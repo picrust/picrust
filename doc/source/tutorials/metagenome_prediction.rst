@@ -5,7 +5,7 @@ PICRUST Metagenome Prediction Tutorial
 
 Introduction
 ------------
-This tutorial explains the final steps in the **PI-CRUST** pipeline that takes in a users OTU table and produces metagenome predictions. 
+This tutorial explains the final steps in the **PICRUST** pipeline that takes in a users OTU table and produces metagenome predictions. 
 
 These commands would be done after the steps outlined in the `PICRUST Genome Prediction Tutorial <./genome_prediction.html>`_. 
 
@@ -14,7 +14,7 @@ Essential Files
 
 In this tutorial, you will need an OTU table and the output files from the 'predict_traits.py' script. 
 
-The steps required to get the output from the intial steps in the PI-CRUST pipeline are outlined in the :ref:`genome_prediction_tutorial`.
+The steps required to get the output from the intial steps in the PICRUST pipeline are outlined in the :ref:`genome_prediction_tutorial`.
 
 **Note: If you are trying to run PICRUST with your own OTU table ensure you have properly reference picked your OTU table:** :ref:`otu_picking_tutorial`
 

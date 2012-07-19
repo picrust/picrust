@@ -1,11 +1,11 @@
 .. _constructing_reference_otus:
 
-Constructing PI-CRUST reference OTU collection
+Constructing PICRUST reference OTU collection
 ==============================================
 
 Introduction
 ------------
-This document covers how the nested reference OTU collection was constructed for PI-CRUST. The script and associated test code are available in the ``qiime-dev/nested_reference_otus`` git repository located `here <https://github.com/qiime-dev/nested_reference_otus>`_. Download links for these reference collections are:
+This document covers how the nested reference OTU collection was constructed for PICRUST. The script and associated test code are available in the ``qiime-dev/nested_reference_otus`` git repository located `here <https://github.com/qiime-dev/nested_reference_otus>`_. Download links for these reference collections are:
 
  * img_gg_otus_18may2012.tgz (`download <https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz>`_ ; md5: 5f1de69a310dc0c261ea76b48ba5dbe2)
 
@@ -13,7 +13,7 @@ Overall workflow design
 -----------------------
 Beginning with a collection of sequences of a single marker gene (16S in our case), a user-defined list of percent identities to cluster at, and an optional phylogenetic tree, the following steps are performed:
 
- #. Pick OTUs (using ``pick_otus.py`` in `QIIME <http://www.qiime.org>`_) on input sequences at first specified percent identity using `uclust <http://www.drive5.com/uclust>`_, suppressing QIIME's pre-sorting of sequences (by passing ``-DB`` to ``pick_otus.py``). Suppressing of the pre-sorting is included so the user can pre-sort sequences as they prefer before OTU picking: sequences that are listed first in the users input will preferentially be cluster centroids. In the case of PI-CRUST, these are sequences for which we have full genomes.
+ #. Pick OTUs (using ``pick_otus.py`` in `QIIME <http://www.qiime.org>`_) on input sequences at first specified percent identity using `uclust <http://www.drive5.com/uclust>`_, suppressing QIIME's pre-sorting of sequences (by passing ``-DB`` to ``pick_otus.py``). Suppressing of the pre-sorting is included so the user can pre-sort sequences as they prefer before OTU picking: sequences that are listed first in the users input will preferentially be cluster centroids. In the case of PICRUST, these are sequences for which we have full genomes.
  #. Pick a representative sequence for each OTU as the centroid of the OTU cluster. 
  #. Filter the input tree (if any) to contain only tips that are representative sequences generated in the previous step. If no input tree was provided, do not create a tree.
  #. Using the representative sequence collection from the previous step, pick otus on input sequences at the next specified percent identity using the same parameters as applied in Step1. 
