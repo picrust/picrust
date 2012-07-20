@@ -1,8 +1,8 @@
 .. _index_scripts:
 
-==================================
-PICRUST script usage examples
-==================================
+===============
+PICRUST Scripts
+===============
 
 .. toctree::
    :maxdepth: 1

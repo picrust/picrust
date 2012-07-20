@@ -1,40 +1,45 @@
-.. PICRUST documentation master file, created by
-   sphinx-quickstart on Wed Nov 23 08:21:30 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: global.rst
 
 PICRUST: Phylogenetic Investigation of Communities by Reconstruction of Unobserved STates
-===========================================================================================
+=========================================================================================
 
-**Contents:**
+PICRUST is a bioinformatics software package, **currently still in development**, designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.
+
+PICRUST is freely available here under the `GPL`_. However, the software and documentation are still under active development, so we discourage the use of PICRUST for general scientific research (for now).
 
 .. toctree::
    :maxdepth: 2
    
-   ./scripts/index
    ./tutorials/index
    ./methods/index
+   ./scripts/index
 
-Overview
+Download
 ========
 
-PICRUST is a bioinformatics software package, **currently still in development**, designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.
+Two files are needed to **run PICRUST** on your own data:
 
-PICRUST is freely available under the GNU-GPL here. However, we are still making changes to various aspects of the software and writing documentation. For now we discourage using PICRUST for general scientific research.
+* The `PICRUST software`_ is available from our `Sourceforge page <http://picrust.sourceforge.net>`_
+* To generate a PICRUST-compatible OTU table, you need this `reference data for OTU picking <http://***>`_, the use of which is described in the :ref:`otu_picking_tutorial`.
+
+Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**:
+
+* PICRUST uses a suite of `ancestral state reconstruction tools <http://***>`_ to generate the data needed for metagenomic inference.
 
 Quickstart
 ==========
 
-Looking to get predictions for your 16S data? Follow the :ref:`quickstart`
+Looking to get metagenome predictions for your 16S data? Follow the :ref:`quickstart`.
 
 Contact Us
 ==========
-* To get information about when PICRUST will be ready for use, you can subscribe to the `PICRUST users list <https://groups.google.com/group/picrust-users/subscribe?note=1&hl=en&noredirect=true&pli=1>`_.
+
+For PICRUST announcements and questions, including notification of new releases, you can subscribe to the `PICRUST users list <https://groups.google.com/group/picrust-users/subscribe?note=1&hl=en&noredirect=true&pli=1>`_.
 
 Citation
 ========
 
-* Coming soon...hopefully ;). 
+Hopefully coming soon ;)
 
 News & Announcements
 ====================
@@ -45,10 +50,9 @@ News & Announcements
    
 * More :ref:`news`
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+..	Indices and tables
+	==================
+	
+	* :ref:`genindex`
+	* :ref:`modindex`
+	* :ref:`search`
