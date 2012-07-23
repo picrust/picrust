@@ -361,28 +361,76 @@ def roc_points(trials):
     #print points
     return points
 
-def roc_auc(points):
-    """Get the ROC Area Under the Curve given a list of obs,exp values for trials
-    points -- a list of (FPR, TPR) tuples.  That is, a list of tuples each providing 
-      a false_positive_rate, sensitivity.
+def roc_auc(points, add_endpoints = True):
+    """Get the ROC Area Under the Curve given a list of FPR,TPR values for trials
+    points -- a list of (FPR, TPR) tuples.  That is, a list of tuples each providing a false_positive_rate, sensitivity.
+    
+    add_endpoints -- if True, add values for 0,0 and 1.0,1.0 if not present.  This allows natural calculation of the AUC, even if there is only one data point present.
     
     This is the average prob. of ranking a random positive above a random negative.
     """
 
-    #points = roc_points(trials)
+    #print points 
+    predict_none = (0.0,0.0)
+    predict_all = (1.0,1.0)
+    if add_endpoints:
+        if predict_none not in points:
+            #print "Adding %s" % str(predict_none)
+            points.append(predict_none)
+        if predict_all not in points:
+            #print "Adding %s" % str(predict_all)
+            points.append(predict_all)
+    
     ordered_points = sorted(points)
-    print "Ordered points:", ordered_points
-    G = gini_coefficient(points)
-    print "G:",G
-    area_under_the_curve = (G+1.0)/2.0 
-    print "AUC:",area_under_the_curve
+    #print "Ordered points:", ordered_points
+    
+    #gini_coefficient will order points for us
+    #G = gini_coefficient(points)
+    #print "G:",G
+    #area_under_the_curve = (G+1.0)/2.0 
+    
+    
+    area_under_the_curve =\
+      trapezoidal_approx_to_auc(ordered_points)
+    #print "AUC:",area_under_the_curve
+    
     return area_under_the_curve
  
+def trapezoidal_area(x1,y1,x2,y2):
+    """Calculate the area of a trapezoid given x,y coordinates
+    
+    
+    """
+    
+    #formula = (a + b)/2 *h
+    height = max(x2,x1)-min(x2,x1)
+    a = y1
+    b = y2
+    average_side = (a+b)/2.0
+    area =  average_side * height
+    return area
+
+def trapezoidal_approx_to_auc(points):
+    """Return the trapezoidal approximation to the AUC, given a list of (TPR,FPR) points
+    
+    The area under the curve is calculated using a trapezoidal approximation.
+    Effectively, this results in linear interpolation between the different
+    True Positive Rate and False Positive Rate values.
+    """
+    
+    points = sorted(points)
+    indices_to_consider = [(i,i-1) for i in range(1,len(points))]
+    X,Y = zip(*points)
+    area = sum([float(trapezoidal_area(X[k],Y[k],X[k_minus_one],\
+           Y[k_minus_one])) for k,k_minus_one in indices_to_consider])
+    return area
+      
+
 
 def gini_coefficient(points):
     """Calculate the Gini coefficient using trapezoidal approximations
     
-    trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
+    trials -- a list of (TPR,FPR) tuples, where TPR  and FPR are lists of true positive rate vs. false_positive_rate values
 
     """
     points = sorted(points)
@@ -390,8 +438,8 @@ def gini_coefficient(points):
     #print indices_to_consider
     #print points
     X,Y = zip(*points)
-    #print X,Y
+    print X,Y
     gini = 1.0 - \
-      sum([float((X[k]-X[k_minus_one])*(Y[k]+Y[k_minus_one])) for k,k_minus_one in indices_to_consider])
+        sum([float((X[k]-X[k_minus_one])*(Y[k]+Y[k_minus_one])) for k,k_minus_one in indices_to_consider])
                 
     return gini
