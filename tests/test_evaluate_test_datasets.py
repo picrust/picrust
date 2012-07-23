@@ -14,7 +14,11 @@ __status__ = "Development"
 
 from cogent.util.unit_test import TestCase, main
 from picrust.evaluate_test_datasets import convert_vals_to_spearman_ranks,\
-spearman_correlation, calc_spearman_t,evaluate_test_dataset,calculate_accuracy_stats_from_confusion_matrix,confusion_matrix_from_data,confusion_matrix_results_by_index, roc_points,roc_auc,gini_coefficient,calculate_accuracy_stats_from_observations
+spearman_correlation, calc_spearman_t,evaluate_test_dataset,calculate_accuracy_stats_from_confusion_matrix,\
+confusion_matrix_from_data,confusion_matrix_results_by_index,\
+roc_points,roc_auc,gini_coefficient,calculate_accuracy_stats_from_observations,\
+trapezoidal_area
+
 from random import shuffle
 from biom.parse import parse_biom_table_str
 
@@ -241,7 +245,24 @@ class EvaluateTestDatasetTests(TestCase):
     def test_roc_auc(self):
         """roc_auc should calculate the trapezoidal approximation to the area under a ROC curve
         """
-       
+ 
+        #Uninformative single-point case:
+        points = [(0.5,0.5)]
+        exp = 0.50
+        self.assertFloatEqual(roc_auc(points,add_endpoints=True),exp)
+
+        #Perfect single-point case:
+        points = [(0.0,1.0)]
+        exp = 1.00
+        self.assertFloatEqual(roc_auc(points,add_endpoints=True),exp)
+        
+        #Basic test of two-point perfect prediction
+        points = [(0.0,1.00),(0.75,1.00)]
+        #exp = 0.75*0.75+(0.25*0.75*0.25)*2  #Calculate using one rectangle and two triangles
+        exp = 1.0
+        self.assertFloatEqual(roc_auc(points,add_endpoints=True),exp)
+        
+      
         # Per Hand and Till 2001, AUC = 2*Gini - 1
 
         #So I derive the expected value from the Gini example below:
@@ -271,11 +292,37 @@ class EvaluateTestDatasetTests(TestCase):
         gini_exp = 0.346   
         self.assertFloatEqual(gini_obs,gini_exp,eps=1e-3)
         
-        obs = roc_auc(points)
-        gini_exp = 0.346
-        exp = (gini_exp + 1.0)/2.0
+        roc_obs = roc_auc(points, add_endpoints=True)
+        print "ROC AUC obs:",roc_obs
+        exp = gini_exp
+        #Convert ROC to equivalent Gini index 
+        obs = abs(2.0*roc_obs - 1.0)
         self.assertFloatEqual(obs,exp,eps=1e-3)
-        self.assertFloatEqual(obs,(gini_obs+1.0)/2.0,eps=1e-3)
+
+        
+    def test_trapezoidal_area(self):
+        """trapezoidal_area should calcualte the area of a trapezoid, given X and Y coords"""
+        
+        #simple square
+        x1 = 0.0
+        x2 = 2.0
+        y1 = 2.0
+        y2 = 2.0
+
+        exp = 4.0
+        obs = trapezoidal_area(x1,y1,x2,y2)
+        self.assertFloatEqual(obs,exp)
+
+        #triangle
+        x1 = 1.0
+        x2 = 3.0
+        y1 = 0.0
+        y2 = 2.0
+
+        exp = 2.0
+        obs = trapezoidal_area(x1,y1,x2,y2)
+        self.assertFloatEqual(obs,exp)
+
 
     def test_gini_coefficient(self):
         """gini_coefficient should calculate the trapezoidal approximation to the Gini coefficient"""
