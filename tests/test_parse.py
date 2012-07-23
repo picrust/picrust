@@ -14,7 +14,7 @@ __status__ = "Development"
 
 from cogent.util.unit_test import TestCase, main
 from picrust.parse import parse_marker_gene_copy_numbers,\
-  extract_ids_from_table
+  extract_ids_from_table, parse_asr_confidence_output
 
 class ParseTests(TestCase):
     """ """
@@ -54,6 +54,55 @@ class ParseTests(TestCase):
         self.assertEqual(obs,exp)
         
     
+    def test_parse_asr_confidence_output(self):
+        """parse_asr_confidence_output parses PICRUST per node confidence output"""
+        
+        asr_lines = asr_confidence_output
+
+        min_vals ={\
+          'node1': -36.0545,\
+          'node10': -15.3024,\
+          "'f__Acaryochloridaceae__g__Acaryochloris'":-7.1233,\
+          "'f__Synechococcaceae'": -9.2953
+        }
+        max_vals ={\
+          'node1': 44.0219,\
+          'node10': 23.2732,\
+          "'f__Acaryochloridaceae__g__Acaryochloris'":14.682,\
+          "'f__Synechococcaceae'": 17.0651
+        }
+        sigma = 5986.9627
+        loglik = -12353.4949
+        
+        obs_min_vals,obs_max_vals, params,column_mapping =\
+         parse_asr_confidence_output(asr_confidence_output)
+        obs_sigma = params['sigma'][0]
+        obs_loglik = params['loglik'][0]
+        self.assertFloatEqual(obs_sigma,sigma)
+        self.assertFloatEqual(obs_loglik, loglik)
+        obs_node1 = obs_min_vals['node1']
+        exp_node1 = min_vals['node1']
+        self.assertFloatEqual(obs_node1,exp_node1)
+        
+        #Test all min values
+        for k in min_vals.keys():
+            self.assertFloatEqual(obs_min_vals[k],min_vals[k])
+
+        #Test all min values
+        for k in max_vals.keys():
+            self.assertFloatEqual(obs_max_vals[k],max_vals[k])
+
+
+
+
+asr_confidence_output=[\
+"nodes\t16S_rRNA_Count",\
+"node1\t-36.0545|44.0219",\
+"node10\t-15.3024|23.2732",\
+"'f__Acaryochloridaceae__g__Acaryochloris'\t-7.1233|14.682",\
+"'f__Synechococcaceae'\t-9.2953|17.0651",\
+"sigma\t5986.9627|NaN",\
+"loglik\t-12353.4949"]
 
         
 otu_table_lines =[\
