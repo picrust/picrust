@@ -65,7 +65,7 @@ def equal_weight(d,constant_weight=1.0):
     
 
 def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0,trait_prob_cutoff = 0.01):
-    """Calculates the probability of a given discrete state given a continuous, brownian motion process
+    """Calculates the probability of a given character value given a continuous, Brownian motion process
      
     start_state -- the starting, quantitiative value for the state (e.g. 0.36)
     var -- the variation (this is the Brownian motion parameter
@@ -94,9 +94,9 @@ def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0
 
         This is calculated as the probability of having a continuous value
         in the range between that trait and the next one. So if min_val == 0 and 
-        increment = 1.0 (defaults) then any continuous trait value between 0 and 
-        1.0 is converted to a zero value, any value between 1.0 and 2.0 is converted to
-        1, etc. 
+        increment = 1.0 (defaults) then any continuous trait value between -0.5 and 
+        1.5 is converted to a zero value, any value between 1.5 and 2.5 is converted to
+        2, etc. 
 
         The probability for this interval is calculated using z_high, subtracting
         the probability of the lower bound from the probability of the upper bound
@@ -119,39 +119,49 @@ def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0
     mean_exp_change = 0.0 #By defn of brownian motion
     # Now we calculate the probability
     # of drawing each value of interest using the normal distribution
+   
+
     
-    i= min_val
-    j = min_val+increment
+    #Start with a range centered around the start state
+    
+    half_width = increment/2.0
+    curr_trait_offset = 0
+    i=  curr_trait_offset
+    j = curr_trait_offset + half_width
     z_i = i/trait_std_dev
     z_j = j/trait_std_dev
-    p = get_interval_z_prob(z_i,z_j)
+    p = get_interval_z_prob(z_i,z_j)*2
     result = defaultdict(float)
-    result[start_state+i]= p
-    #print result
+    result[start_state] += p
+    #print "Prob for range %f - %f: %f" %(start_state-half_width,start_state+half_width,p)
     while p > trait_prob_cutoff:
-        i +=increment
-        j +=increment
+        #strategy:  calculate the high_values
+        #then mirror to get the values below start state
+        curr_trait_offset += increment
+
+        i= curr_trait_offset 
+        j= curr_trait_offset + increment
+        
         z_i = i/trait_std_dev
         z_j = j/trait_std_dev
-        p = get_interval_z_prob(i,j)
+        p = get_interval_z_prob(z_i,z_j)
+        if p < trait_prob_cutoff:
+            break
+        #p = prob of deviating from the mean 
+        # an amount in the range between i,j
+        high_value = start_state + curr_trait_offset 
         
-        if abs(p) >= trait_prob_cutoff:
-            #print start_state+i,":",p
-            result[start_state+i] = p
-        
-        if start_state - i >= min_val:
-            #print start_state-i,":",p
-            result[start_state - i] = p
-        else:
-            result[min_val] += p 
-            #Values below zero should actually
-            #increase the zero probability,
-            #since we are using this function
-            #only as an endpoint.
+        #print "Prob for range %f - %f: %f" %(high_value-half_width,\
+        #  high_value+half_width,p)
+        result[high_value] += p
+        #Now we set the low value to the same since the distribution
+        #is symmetrical.
+        #Note that because there is a lower threshold, multiple values
+        #could accumulate, resulting in a higher P for the lower threshold
+        low_value = max(min_val,start_state - curr_trait_offset)
+        #print "Prob for range %f - %f: %f" %(low_value-half_width,low_value+half_width,p)
+        result[low_value] += p
     
-    #print result 
-    
-    # Now we need to get the actual
         
     return result
 
@@ -413,20 +423,11 @@ def get_nearest_annotated_neighbor(tree,node_name,\
 
 
 def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
-        trait_label="Reconstruction",include_self=True, verbose = False):
+        trait_label="Reconstruction",include_self=True, verbose = True):
     """Calculate an index of the average distance to the nearest sequenced taxon on the tree"""
     
     distances = []
-    
-    if verbose:
-        print "Getting dists, tips for the whole tree"
-   
-    #caching here saves time with some options by preventing recalculation
-    tree_tips = tree.tips()
-    #NOTE: tried the below, but getting all distances
-    # is too memory-intensive for large trees:
-    #dists,tree_tips = tree.tipToTipDistances()
-
+    tree_tips = tree.tips() 
     if limit_to_tips:
         # limit to specified tips if this value is passed
         # this is both faster and allows customized metrics for each OTU table
@@ -438,40 +439,76 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
     
     if verbose:
         print "Calculating Nearest Sequenced Taxon Index (NTSI):"
-
+        print "NOTE: this can be slow.  Run without -a to disable"
 
     #Next, build up a list of tips that are annotated with traits
     if verbose:
         print "Building a list of annotated tree tips"
+    annot_tree_tip_names =\
+        [t for t in tree_tips if getattr(t,trait_label,None) is not None]
+   
+    #Build up the set of tips we actually need info about:
+    #The sequenced/annotated tips plus those we want to predict.
+    annot_plus_to_predict = annot_tree_tip_names
+    for tip in tips_to_examine:
+        if tip not in annot_plus_to_predict:
+            annot_plus_to_predict.append(tip)
+
+    if verbose:
+        print "Getting dists, tips for %i tips" % len(annot_plus_to_predict) 
+   
+
+    #Armed with the set of all annotated tips, plus all tips
+    #that we care to calculate NSTI for, we can restrict
+    #our analysis to just these tips.
+
+    #Restricting the space is critical for working with 
+    #large trees....
+
+    dists,tree_tips =\
+      tree.tipToTipDistances(annot_plus_to_predict) 
     
-    #not_annot_tip_indices = \
-    #  [i for i,t in enumerate(tree_tips) if getattr(t,trait_label,None) is None]
-    #big_number = 1e250
-    distances = []
+    # caching here saves time with some options by preventing recalculation
     
     if verbose:
+        print "Checking which tips are annotated with trait data..."
+    
+    not_annot_tip_indices =\
+      [i for i,t in enumerate(tree_tips) if getattr(t,trait_label,None) is None]
+
+    if verbose:
+        print "Not annotated tip indices:",not_annot_tip_indices
+    big_number = 1e250
+    min_distances = []
+    
+    if verbose:
+        print "Done"
         print "Finding min dists for each node"
+    
+    if verbose and include_self:
+        print "(annotated nodes of interest use themselves as the nearest neighbor)"
     
     for i,t in enumerate(tree_tips):
         if t not in tips_to_examine:
             continue
-        #dists, considering only annotated nodes
-        dists = [t.distance(j) for j in tree.tips() if getattr(j,trait_label,None) is not None]
+        #Copy to avoid messing up source tree when resetting dists
+        #NOTE: need to check if this is strictly necessary?
+        dist_to_curr_tip = copy(dists[i])
         #Mask non-annotated indices by setting to 
         #a non-minimal value
-        #dist_to_curr_tip[not_annot_tip_indices] = big_number
-        
-        if verbose:
-            print "Including self?", include_self
+        dist_to_curr_tip[not_annot_tip_indices] = big_number
+        #if verbose:
+        #    print "distances:",dist_to_curr_tip
         
         if not include_self:
-            #remove self from consideration
-            #if multiple 0 distances exist
-            #allow 0 to be returned (only the first is removed)
-            dists.remove(0.0)
-         
-        distances.append(min(dists))
-        del dists
+            #Mask out self
+            dist_to_curr_tip[i] = big_number
+        
+        min_dist = min(dist_to_curr_tip)
+        if verbose:
+            print t.Name," NSTI:",min_dist
+        min_distances.append(min_dist)
+
     
     
     
@@ -492,7 +529,7 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         
 
     # Average the nearest sequenced neighbor in each case to get a composite score
-    nsti =  sum(distances)/float(len(distances))
+    nsti =  sum(min_distances)/float(len(min_distances))
     if verbose:
         print "NSTI:",nsti
     return nsti
@@ -500,7 +537,10 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
-    weight_fn=linear_weight, verbose = False):
+    weight_fn=linear_weight, verbose = False,\
+    calc_confidence_intervals=True,brownian_motion_param=None,\
+    
+    ):
     """Predict node traits given labeled ancestral states
     
     tree -- a PyCogent phylonode object, with each node decorated with the 
@@ -526,9 +566,17 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     #result_tree = tree.deepcopy()
     results = {}
     n_traits = None    
-    for node_label in nodes_to_predict:
+    one_percent_progress = float(len(nodes_to_predict))*0.01
+    print_this_node = False
+    for i,node_label in enumerate(nodes_to_predict):
         if verbose:
-            print "Predicting traits for node:",node_label
+            if i%one_percent_progress==0:
+                print_this_node = True
+            else:
+                print_this_node = False
+
+        if print_this_node:
+            print "Predicting traits for node %i/%i:%s" %(i,len(nodes_to_predict),node_label)
         node_to_predict = tree.getNodeMatchingName(node_label)
         
         traits = getattr(node_to_predict,trait_label)
@@ -572,8 +620,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         #print "Prediction:", prediction
         #
         results[node_label] = prediction
-        if verbose:
-            print "First 80:",list(prediction[:min(len(prediction),80)])
+        if print_this_node:
+            print "First 50:",list(prediction[:min(len(prediction),50)])
         #NOTE:  We may want to add a 'limit of accuracy' param:
         # tip nodes within 'limit of accuracy' are grouped together
         # for purposes of reconstruction
