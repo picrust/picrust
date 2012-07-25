@@ -427,7 +427,13 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
     """Calculate an index of the average distance to the nearest sequenced taxon on the tree"""
     
     distances = []
-    tree_tips = tree.tips() 
+    if verbose:
+        print "Finding all tree tips (may take a moment for large trees)"
+    tree_tips = tree.tips()
+    #TODO: there may be a way to use itertips her instead
+    #if tips to examine is specified.  This would be much
+    #more memory-efficient
+
     if limit_to_tips:
         # limit to specified tips if this value is passed
         # this is both faster and allows customized metrics for each OTU table
