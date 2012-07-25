@@ -7,6 +7,7 @@ from cogent import LoadTree
 from cogent.parse.tree import DndParser
 from cogent.app.util import get_tmp_filename
 from cogent.util.misc import remove_files
+from cogent.maths.stats.special import ndtri
 from warnings import catch_warnings
 from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
@@ -14,7 +15,9 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   weighted_average_tip_prediction, get_interval_z_prob,\
   thresholded_brownian_probability, update_trait_dict_from_file,\
   biom_table_from_predictions, get_nearest_annotated_neighbor,\
-  predict_nearest_neighbor, predict_random_neighbor
+  predict_nearest_neighbor, predict_random_neighbor,\
+  calc_nearest_sequenced_taxon_index,\
+  fit_normal_to_confidence_interval
 
 
 """
@@ -120,6 +123,34 @@ class TestPredictTraits(TestCase):
         self.assertEqual(results["C"],array([0.0,1.0]))
         self.assertEqual(results["D"],array([0.0,0.0]))
 
+ 
+    def test_calc_nearest_sequenced_taxon_index(self):
+        """calc_nearest_sequenced_taxon_index calculates the NSTI measure"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction")
+        #Expected distances:
+        # A --> A 0.0
+        # B --> A 0.03
+        # C --> D 0.02
+        # D --> D 0.0
+        # = 0.05/4.0 = 0.0125
+        exp = 0.0125
+        verbose = True
+        #Test with default options
+        obs = calc_nearest_sequenced_taxon_index(tree,verbose=verbose)
+        self.assertFloatEqual(obs,exp)
+
+        #Test calcing the index while 
+        #limiting prediction to B and C
+        
+        # B --> A 0.03
+        # C --> D 0.02
+        
+        exp = 0.025
+        obs = calc_nearest_sequenced_taxon_index(tree,\
+          limit_to_tips = ["B","C"],verbose=False)
+        self.assertFloatEqual(obs,exp)
 
     def test_predict_random_neighbor(self):
         """predict_random_neighbor predicts randomly"""
@@ -473,36 +504,67 @@ class TestPredictTraits(TestCase):
 
     def test_thresholded_brownian_probability(self):
         """Brownian prob should return dict of state probabilities"""
+        #x = thresholded_brownian_probability(2.2755, 1001**0.5, 0.03, min_val = 0.0,increment = 1.00,trait_prob_cutoff = 1e-4)
+        #lines =  ["\t".join(map(str,[k,x[k]]))+"\n" for k in sorted(x.keys())]
+        #for line in lines:
+        #    print line
         
-        start_state = 2.0
-        var = 1.0
+        #print "Total prob:", sum(x.values())
+        start_state = 3.0
+        var = 30.00
         d = 0.03
         min_val = 0.0
         increment = 1.0
-        trait_prob_cutoff = 0.01
+        trait_prob_cutoff =  1e-200
 
         obs = thresholded_brownian_probability(start_state,d,var,min_val,\
           increment,trait_prob_cutoff)
-
         #TODO: Need to calculate exact values for this minimal case 
         #with the Larson & Farber Z tables, by hand.
-    
-        #For now testing the basics to make sure results look
-        #reasonable
-
-        #Test that keys are correct
-        expected_keys = [0.0,1.0,2.0,3.0,4.0] 
-        self.assertEqualItems(sorted(obs.keys()),expected_keys)
+        
+        #For now test for sanity
         
         #Test that no probabilities below threshold are included
         self.assertTrue(min(obs.values()) > trait_prob_cutoff)
-
+        #Test that start values +1 or -1 are equal
+        self.assertEqual(obs[2.0],obs[4.0])
+        #Test that the start state is the highest prob value
+        self.assertEqual(max(obs.values()),obs[start_state])
         
+
+    def test_fit_normal_to_confidence_interval(self):
+        """fit_normal_to_confidence_interval should return a mean and variance given CI"""
+
+        #Lets use a normal distribution to generate test values
+        normal_95 = ndtri(0.95)
+        mean = 0
+        upper = mean + normal_95
+        lower = mean - normal_95
+        print "upper:",upper
+        print "lower:",lower
+        obs_mean,obs_var =\
+          fit_normal_to_confidence_interval(upper,lower,confidence=0.95)
+        print "obs_mean:",obs_mean
+        exp_mean = mean
+        exp_var = 1.0
+        self.assertFloatEqual(obs_mean,exp_mean)
+        self.assertFloatEqual(obs_var,exp_var)
         
-        #Test that values +1 or -1 are equal
-        self.assertEqual(obs[1.0],obs[3.0])
-
-
+        #An alternative normal:
+        normal_99 = ndtri(0.99)
+        mean = 5.0
+        upper = mean + normal_99
+        lower = mean - normal_99
+        print "upper:",upper
+        print "lower:",lower
+        obs_mean,obs_var =\
+          fit_normal_to_confidence_interval(upper,lower,confidence=0.99)
+        print "obs_mean:",obs_mean
+        exp_mean = mean
+        exp_var = 1.0
+        self.assertFloatEqual(obs_mean,exp_mean)
+        self.assertFloatEqual(obs_var,exp_var)
+        
 
 if __name__ == "__main__":
     main()
