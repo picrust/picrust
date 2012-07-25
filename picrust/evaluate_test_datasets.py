@@ -10,7 +10,7 @@ __version__ = "1.4.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
-
+from collections import defaultdict
 from numpy import  array,ravel
 from copy import copy
 from cogent.maths.stats.test import correlation 
@@ -341,7 +341,7 @@ def roc_analysis(trials):
     """Perform ROC analysis for a set of trials, each a list of obs,exp values"""
     points = roc_points(trials)
     #These points are now (FPR,TPR) tuples 
-    print "ROC AUC points (FPR,TPR):", sorted(points)
+    #print "ROC AUC points (FPR,TPR):", sorted(points)
     area_under_the_curve = roc_auc(points)
     return points,area_under_the_curve
 
@@ -365,25 +365,27 @@ def roc_auc(points, add_endpoints = True):
     """Get the ROC Area Under the Curve given a list of FPR,TPR values for trials
     points -- a list of (FPR, TPR) tuples.  That is, a list of tuples each providing a false_positive_rate, sensitivity.
     
-    add_endpoints -- if True, add values for 0,0 and 1.0,1.0 if not present.  This allows natural calculation of the AUC, even if there is only one data point present.
+    add_endpoints -- if True, add values for 0,0 and 1.0,1.0 if *the corresponding x values* are not present.  This allows natural calculation of the AUC, even if there is only one data point present.
     
     This is the average prob. of ranking a random positive above a random negative.
     """
-
-    #print points 
     predict_none = (0.0,0.0)
     predict_all = (1.0,1.0)
     if add_endpoints:
-        if predict_none not in points:
+        if min([p[0] for p in points]) > 0.0: 
             #print "Adding %s" % str(predict_none)
             points.append(predict_none)
-        if predict_all not in points:
+        if max([p[0] for p in points]) < 1.0: 
             #print "Adding %s" % str(predict_all)
             points.append(predict_all)
-    
-    ordered_points = sorted(points)
-    #print "Ordered points:", ordered_points
-    
+   
+    #Average identical x values with
+    #different y values to produce a
+    #single curve (when multiple or 
+    #stochastic measurements are available)
+    points = average_y_values(points) 
+
+   
     #gini_coefficient will order points for us
     #G = gini_coefficient(points)
     #print "G:",G
@@ -391,11 +393,30 @@ def roc_auc(points, add_endpoints = True):
     
     
     area_under_the_curve =\
-      trapezoidal_approx_to_auc(ordered_points)
+      trapezoidal_approx_to_auc(points)
     #print "AUC:",area_under_the_curve
     
     return area_under_the_curve
- 
+
+def average_y_values(points):
+    """Given a list of points, return a list averaging all y values with identical x values
+    
+    points -- a list of (x,y) tuples
+    
+    Example:  [1,3],[1,5] --> (1,4)
+    """
+
+    tprs = defaultdict(list)
+    for fpr, tpr in points:
+        tprs[fpr].append(tpr)
+
+    for y in tprs.keys():
+        tprs[y] = sum(tprs[y])/len(tprs[y])
+     
+    result = zip(tprs.keys(),tprs.values())
+    return result
+
+
 def trapezoidal_area(x1,y1,x2,y2):
     """Calculate the area of a trapezoid given x,y coordinates
     
