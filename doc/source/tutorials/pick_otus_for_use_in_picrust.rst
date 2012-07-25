@@ -1,7 +1,7 @@
-.. _constructing_reference_otus:
+.. _otu_picking_tutorial:
 
 Picking OTUs for use in PICRUST
-==============================================
+===============================
 
 Introduction
 ------------
