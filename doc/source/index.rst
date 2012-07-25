@@ -20,7 +20,7 @@ Download
 Two files are needed to **run PICRUST** on your own data:
 
 * The `PICRUST software`_ is available from our `Sourceforge page <http://picrust.sourceforge.net>`_
-* To generate a PICRUST-compatible OTU table, you need this `reference data for OTU picking <http://***>`_, the use of which is described in the :ref:`otu_picking_tutorial`.
+* To generate a PICRUST-compatible OTU table, you need this `reference data for OTU picking  <https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz>`_, the use of which is described in the :ref:`otu_picking_tutorial`.
 
 Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**:
 
