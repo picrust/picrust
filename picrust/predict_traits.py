@@ -19,6 +19,7 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from numpy.ma import masked_object, array
 from numpy import where, logical_not, argmin
 from cogent.maths.stats.distribution import z_high
+from cogent.maths.stats.special import ndtri
 from cogent import LoadTable
 from warnings import warn
 from biom.table import table_factory,DenseOTUTable
@@ -63,6 +64,39 @@ def make_neg_exponential_weight_fn(exp_base = 2.0):
 def equal_weight(d,constant_weight=1.0):
     return weight
     
+
+def fit_normal_to_confidence_interval(upper,lower,mean=None, confidence = 0.95):
+    """Return the mean and variance for  a normal distribution given confidence intervals
+    upper -- upper bound
+    
+    lower -- lower bound
+    
+    mean -- mean, if known.  If not specified, will be set to be
+    halfway between upper & lower bounds
+
+    confidence -- the confidence for this interval, e.g.
+    0.95 for the 95% confidence intervals
+    """
+
+    #Start by calculating Z-scores using the inverse normal distribution,
+    #starting with the given confidence value
+    z = ndtri(confidence)
+    #print "Z:",z
+    #Now we need to fit a normal distribution given the confidence
+    #limits
+    if mean is None:
+        mean = (upper+lower)/2.0
+    #print "mean:",mean
+    #Z-score = deviation from mean/ stdev (equivalently x-mu/sigma)
+    # Therefore with a little algebra we get stdev = (upper_CI - mean)/Z
+
+    estimated_stdev = abs(upper-mean)/z
+    #print "stdev:",estimated_stdev
+    variance = estimated_stdev**2  #i.e. sigma^2
+    #print "var:",variance
+
+    return mean,variance
+
 
 def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0,trait_prob_cutoff = 0.01):
     """Calculates the probability of a given character value given a continuous, Brownian motion process
@@ -131,6 +165,9 @@ def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0
     z_i = i/trait_std_dev
     z_j = j/trait_std_dev
     p = get_interval_z_prob(z_i,z_j)*2
+    #The above is multiplied by two
+    #because we only calculate one half of the interval
+    #centered on the mean.
     result = defaultdict(float)
     result[start_state] += p
     #print "Prob for range %f - %f: %f" %(start_state-half_width,start_state+half_width,p)
