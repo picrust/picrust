@@ -17,7 +17,7 @@ from picrust.evaluate_test_datasets import convert_vals_to_spearman_ranks,\
 spearman_correlation, calc_spearman_t,evaluate_test_dataset,calculate_accuracy_stats_from_confusion_matrix,\
 confusion_matrix_from_data,confusion_matrix_results_by_index,\
 roc_points,roc_auc,gini_coefficient,calculate_accuracy_stats_from_observations,\
-trapezoidal_area
+trapezoidal_area, average_y_values
 
 from random import shuffle
 from biom.parse import parse_biom_table_str
@@ -322,6 +322,13 @@ class EvaluateTestDatasetTests(TestCase):
         exp = 2.0
         obs = trapezoidal_area(x1,y1,x2,y2)
         self.assertFloatEqual(obs,exp)
+    def test_average_y_values(self):
+        """average y values should return points for a function by averaging y values for points with same x coordinate"""
+        
+        points = [[0,0],[1,3],[1,5],[3,3],[4,1]]
+        obs = average_y_values(points)
+        exp = [(0,0.0),(1,4.0),(3,3.0),(4,1.0)]
+        self.assertEqual(obs,exp)
 
 
     def test_gini_coefficient(self):
