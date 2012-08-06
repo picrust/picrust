@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from math import e
+from math import e,sqrt
 from cogent.util.unit_test import main,TestCase
-from numpy import array,array_equal,around
+from numpy import array,arange,array_equal,around
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
 from cogent.app.util import get_tmp_filename
@@ -17,7 +17,9 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   biom_table_from_predictions, get_nearest_annotated_neighbor,\
   predict_nearest_neighbor, predict_random_neighbor,\
   calc_nearest_sequenced_taxon_index,\
-  fit_normal_to_confidence_interval
+  variance_of_weighted_mean,fit_normal_to_confidence_interval,\
+  get_most_recent_reconstructed_ancestor,\
+  normal_product_monte_carlo, get_bounds_from_histogram
 
 
 """
@@ -136,10 +138,14 @@ class TestPredictTraits(TestCase):
         # D --> D 0.0
         # = 0.05/4.0 = 0.0125
         exp = 0.0125
-        verbose = True
+        verbose = False
         #Test with default options
-        obs = calc_nearest_sequenced_taxon_index(tree,verbose=verbose)
-        self.assertFloatEqual(obs,exp)
+        obs_nsti,obs_distances = calc_nearest_sequenced_taxon_index(tree,verbose=verbose)
+        self.assertFloatEqual(obs_nsti,exp)
+        self.assertFloatEqual(obs_distances["A"],0.0)
+        self.assertFloatEqual(obs_distances["B"],0.03)
+        self.assertFloatEqual(obs_distances["C"],0.02)
+        self.assertFloatEqual(obs_distances["D"],0.00)
 
         #Test calcing the index while 
         #limiting prediction to B and C
@@ -148,9 +154,11 @@ class TestPredictTraits(TestCase):
         # C --> D 0.02
         
         exp = 0.025
-        obs = calc_nearest_sequenced_taxon_index(tree,\
+        obs_nsti,obs_distances = calc_nearest_sequenced_taxon_index(tree,\
           limit_to_tips = ["B","C"],verbose=False)
-        self.assertFloatEqual(obs,exp)
+        self.assertFloatEqual(obs_nsti,exp)
+        self.assertFloatEqual(obs_distances["B"],0.03)
+        self.assertFloatEqual(obs_distances["C"],0.02)
 
     def test_predict_random_neighbor(self):
         """predict_random_neighbor predicts randomly"""
@@ -344,27 +352,24 @@ class TestPredictTraits(TestCase):
 
     def test_predict_traits_from_ancestors(self):
         """predict_traits_from_ancestors should propagate ancestral states"""
-        traits = self.SimpleTreeTraits
-        tree = self.SimpleTree
         
-        #print "Starting tree:",tree.asciiArt()
-        # Test on simple tree
-        result_tree = assign_traits_to_tree(traits,tree)
-        nodes_to_predict = [n.Name for n in result_tree.tips()]
-        #print "Predicting nodes:", nodes_to_predict
-        predictions = predict_traits_from_ancestors(result_tree,\
-          nodes_to_predict)
-      
-        #print tree.asciiArt()
+        # When the node is very close to I3, prediction should be approx. I3
+
+        traits = self.PartialReconstructionTraits
+        tree = assign_traits_to_tree(traits,self.CloseToI3Tree)
         
-        #print "Starting traits:", traits
-        #print "Predictions:",predictions
-        for key in predictions.keys():
-            
-            print key,":",around(predictions[key])
+        nodes_to_predict = ['A'] 
+        prediction = predict_traits_from_ancestors(tree=tree,\
+          nodes_to_predict=nodes_to_predict) 
+        
+        exp = traits["I3"]
+        #print "PREDICTION:",prediction 
+        for node in nodes_to_predict:
+            self.assertFloatEqual(around(prediction[node]),exp)
 
-        #TODO: Add the actual assertion here
 
+
+        
     def test_fill_unknown_traits(self):
         """fill_unknown_traits should propagate only known characters"""
 
@@ -399,10 +404,20 @@ class TestPredictTraits(TestCase):
 
         traits = self.PartialReconstructionTraits
         tree = assign_traits_to_tree(traits,self.CloseToI3Tree)
+        
         node_to_predict = "A"
+        node = tree.getNodeMatchingName(node_to_predict)
+        most_recent_reconstructed_ancestor =\
+          get_most_recent_reconstructed_ancestor(node)
+        
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict) 
+          node_to_predict=node_to_predict,\
+          most_recent_reconstructed_ancestor=\
+          most_recent_reconstructed_ancestor)
+            
+        
         exp = traits["I3"]
+        
         self.assertFloatEqual(around(prediction),exp)
 
 
@@ -412,9 +427,20 @@ class TestPredictTraits(TestCase):
         traits = self.PartialReconstructionTraits
         tree = assign_traits_to_tree(traits,self.CloseToI1Tree)
         node_to_predict = "A"
+        #print "tree:",tree.asciiArt()
+        node = tree.getNodeMatchingName(node_to_predict)
+        most_recent_reconstructed_ancestor =\
+          get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict) 
+          node_to_predict=node_to_predict,\
+          most_recent_reconstructed_ancestor=\
+          most_recent_reconstructed_ancestor)
         exp = traits["I1"]
+        #print "prediction:",prediction
+        #print "exp:",exp
+        a_node = tree.getNodeMatchingName('A')
+        #for node in tree.preorder():
+        #    print node.Name,node.distance(a_node),node.Reconstruction
         self.assertFloatEqual(around(prediction),exp)
 
         # Try out the B case with exponential weighting
@@ -425,8 +451,16 @@ class TestPredictTraits(TestCase):
         
         
         node_to_predict = "A"
+        node = tree.getNodeMatchingName(node_to_predict)
+        most_recent_reconstructed_ancestor =\
+          get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,weight_fn=weight_fn) 
+          node_to_predict=node_to_predict,\
+          most_recent_reconstructed_ancestor=\
+          most_recent_reconstructed_ancestor)
+
+        #prediction = weighted_average_tip_prediction(tree=tree,\
+        #  node_to_predict=node_to_predict,weight_fn=weight_fn) 
         exp = traits["B"]
         self.assertFloatEqual(around(prediction),exp)
 
@@ -438,9 +472,14 @@ class TestPredictTraits(TestCase):
         #weight_fn = linear_weight
         
         node_to_predict = "A"
+        node = tree.getNodeMatchingName(node_to_predict)
+        most_recent_reconstructed_ancestor =\
+          get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,weight_fn=weight_fn) 
-        
+          node_to_predict=node_to_predict,\
+          most_recent_reconstructed_ancestor=\
+          most_recent_reconstructed_ancestor)
+
         exp = traits["I1"]
         self.assertFloatEqual(around(prediction),exp)
 
@@ -455,12 +494,25 @@ class TestPredictTraits(TestCase):
         weight_fn = make_neg_exponential_weight_fn(exp_base=e)
         
         node_to_predict = "A"
+        
+        node = tree.getNodeMatchingName(node_to_predict)
+        most_recent_reconstructed_ancestor =\
+          get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,weight_fn=weight_fn) 
+          node_to_predict=node_to_predict,\
+          most_recent_reconstructed_ancestor=\
+          most_recent_reconstructed_ancestor)
+
+
+        
+        
+        
+        #prediction = weighted_average_tip_prediction(tree=tree,\
+        #  node_to_predict=node_to_predict,weight_fn=weight_fn) 
         
         exp = (array(traits["I1"]) + array(traits["I3"]))/2.0
         self.assertFloatEqual(prediction,exp)
-
+        
         #TODO: test the case with partial missing data (Nones)
 
         #TODO: test the case with fully missing data for either
@@ -540,11 +592,8 @@ class TestPredictTraits(TestCase):
         mean = 0
         upper = mean + normal_95
         lower = mean - normal_95
-        print "upper:",upper
-        print "lower:",lower
         obs_mean,obs_var =\
           fit_normal_to_confidence_interval(upper,lower,confidence=0.95)
-        print "obs_mean:",obs_mean
         exp_mean = mean
         exp_var = 1.0
         self.assertFloatEqual(obs_mean,exp_mean)
@@ -555,16 +604,151 @@ class TestPredictTraits(TestCase):
         mean = 5.0
         upper = mean + normal_99
         lower = mean - normal_99
-        print "upper:",upper
-        print "lower:",lower
         obs_mean,obs_var =\
           fit_normal_to_confidence_interval(upper,lower,confidence=0.99)
-        print "obs_mean:",obs_mean
         exp_mean = mean
         exp_var = 1.0
         self.assertFloatEqual(obs_mean,exp_mean)
         self.assertFloatEqual(obs_var,exp_var)
+    
+    def test_variance_of_weighted_mean(self):
+        """variance_of_weighted_mean calculates the variance of a weighted mean"""
         
+        #Just a hand calculated example using the formula from here:
+        #http://en.wikipedia.org/wiki/Weighted_mean
+        
+        #If all weights and standard deviations are equal, then
+        #variance = stdev/sqrt(n)
+        weights = array([0.5,0.5])
+        sample_stdevs = array([4.0,4.0])
+        variances = sample_stdevs**2
+        exp = 4.0/sqrt(2.0)
+        obs = variance_of_weighted_mean(weights,variances)
+        self.assertFloatEqual(obs,exp)
+
+        #If standard deviations are equal, but weights are not, the result
+        #is equal to stdev*sqrt(sum(squared_weights))
+
+        weights = array([0.1,0.9])
+        sample_stdevs = array([4.0,4.0])
+        variances = sample_stdevs**2
+        exp_unbalanced = 4.0*sqrt(sum(weights**2))
+        obs = variance_of_weighted_mean(weights,variances)
+        self.assertEqual(obs,exp_unbalanced)
+
+        #If all standard deviations are equal:
+        #The minimal value for the variance is when all weights are equal
+        #the maximal value is when one weight is 1.0 and another is 0.0
+
+        sample_variances = array([3.0,3.0,3.0,3.0])
+        
+        balanced_weights = array([0.25,0.25,0.25,0.25])
+        two_weights = array([0.0,0.50,0.50,0.0])
+        unbalanced_weights = array([0.0,1.0,0.0,0.0])
+
+        balanced_variance = variance_of_weighted_mean(balanced_weights,sample_variances)
+        two_weight_variance = variance_of_weighted_mean(two_weights,sample_variances)
+        unbalanced_variance = variance_of_weighted_mean(unbalanced_weights,sample_variances)
+        
+        #We expect balanced_variance < two-weight_variance < unbalanced_variance
+        self.assertTrue(balanced_variance < two_weight_variance)
+        self.assertTrue(balanced_variance < unbalanced_variance)
+        self.assertTrue(two_weight_variance < unbalanced_variance)
+
+
+        #Check that doing this for two 1D arrays is equal to using a single 2d array
+        weights1 = array([0.1,0.9])
+        weights2 = array([0.5,0.5])
+        vars1 = array([4.0,4.0])
+        vars2 = array([1000.0,1000.0])
+        obs1 = variance_of_weighted_mean(weights1,vars1)
+        obs2 = variance_of_weighted_mean(weights2,vars2)
+        
+        #Expect that calculating the result as a single 2D array
+        #gives identical results to calculating as two 1D arrays
+        exp = array([obs1,obs2])
+        
+        combined_weights = array([[0.1,0.9],[0.5,0.5]])
+        combined_vars = array([[4.0,4.0],[1000.0,1000.0]])
+        combined_obs = variance_of_weighted_mean(combined_weights,combined_vars)
+
+        self.assertFloatEqual(combined_obs,exp)
+
+        
+        
+    def test_normal_product_monte_carlo(self):
+        """normal_product_monte_carlo calculates the confidence limits of two normal distributions empirically"""
+        
+        # Need good test data here.  
+        #The APPL statistical language apparently has an analytical
+        # solution to the product normal that could be used
+
+        #Result for product of two standard normal distributions
+        lower,upper = normal_product_monte_carlo(0.0,1.0,0.0,1.0)
+        print "95% confidence limit for product of two standard normal distributions:",\
+            lower,upper
+       # 1.60 corresponds to the value for the 0.10 (10%) confidence limit
+       #when using a two-tailed test.
+       #Therefore for the one tailed upper limit, I believe we expect 1.60 to 
+       #correspond to a type I error rate of 0.05
+
+        #self.assertFloatEqual(lower,-1.60,eps=.1)
+        #self.assertFloatEqual(upper,1.60,eps=.1)
+
+        #result = normal_product_monte_carlo(1.0/3.0,1.0,2.0,1.0)
+        #print result
+        mean1 = 0.4
+        mean2 = 1.2
+        v1 = 1.0
+        v2 = 1.0
+        lower,upper = normal_product_monte_carlo(mean1,v1,mean2,\
+          v2,confidence=0.95)
+        #print "confidence limit for product of two normal distributions:",\
+        #    lower,upper
+
+        lower_estimate = mean1*mean2 + lower
+        upper_estimate = mean1*mean2 + upper
+        #self.assertFloatEqual(lower_estimate,-1.8801,eps=.1)
+        #self.assertFloatEqual(upper_estimate,2.3774,eps=.1)
+    
+    def test_get_bounds_from_histogram(self):
+        """Get bounds from histogram finds upper and lower tails of distribution at specified confidence levels"""
+        
+        #Test a simple array
+
+        test_hist = array([0.01,0.98,0.01])
+        test_bin_edges = arange(3)
+        obs_lower,obs_upper = get_bounds_from_histogram(test_hist,test_bin_edges,confidence=0.90)
+        #Upper and lower bounds should be conservative, and therefore exclude the center
+        exp_lower = 1
+        exp_upper = 2
+        self.assertFloatEqual(obs_lower,exp_lower)
+        self.assertFloatEqual(obs_upper,exp_upper)
+        
+        # Confirm that summing the histogram over given indices
+        # gives <= confidence % of the mass
+
+        obs_sum_lower = sum(test_hist[:obs_lower])
+        self.assertTrue(obs_sum_lower <= 0.05*sum(test_hist))
+        obs_sum_upper = sum(test_hist[obs_upper:])
+        self.assertTrue(obs_sum_upper <= 0.05*sum(test_hist))
+
+        #Repeat for a more complex test case
+
+        test_hist =array([1.0,2.0,0.0,5.0,25.0,2.0,50.0,10.0,5.0,1.0])
+        test_bin_edges = array(arange(len(test_hist)+1))
+        obs_lower,obs_upper = get_bounds_from_histogram(test_hist,test_bin_edges,confidence=0.90)
+        
+        exp_lower = 3
+        exp_upper = 9
+        self.assertFloatEqual(obs_lower,exp_lower)
+        self.assertFloatEqual(obs_upper,exp_upper)
+
+        obs_sum_lower = sum(test_hist[:obs_lower])
+        self.assertTrue(obs_sum_lower <= 0.05*sum(test_hist))
+        obs_sum_upper = sum(test_hist[obs_upper:])
+        self.assertTrue(obs_sum_upper <= 0.05*sum(test_hist))
+
 
 if __name__ == "__main__":
     main()
