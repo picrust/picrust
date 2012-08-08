@@ -105,7 +105,7 @@ def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,max
 
     #calculate the walltime (time before job will be killed by scheduler if still running)
     total_time = max_hours_per_job*num_commands_per_job
-    walltime= "{}:00:00".format(total_time)
+    walltime= "{0}:00:00".format(total_time)
     
     for command_group in grouper(commands,num_commands_per_job,''):
         job_name = get_tmp_filename(tmp_dir=jobs_dir, prefix=job_prefix+"_",
