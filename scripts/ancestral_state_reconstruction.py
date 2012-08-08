@@ -16,7 +16,7 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from picrust.count import wagner_for_picrust
 from picrust.ace import ace_for_picrust
 from picrust.ancestral_state_reconstruction import run_asr_in_parallel
-from picrust.util import make_output_dir_for_file
+from picrust.util import make_output_dir_for_file,make_output_dir
 
 script_info = {}
 script_info['brief_description'] = "Runs ancestral state reconstruction given a tree and trait table"
@@ -60,7 +60,9 @@ def main():
                    parse_command_line_parameters(**script_info)
     
     if(opts.parallel):
-        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method, num_jobs=opts.num_jobs)
+        tmp_dir='jobs/'
+        make_output_dir(tmp_dir)
+        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method, num_jobs=opts.num_jobs,tmp_dir=tmp_dir,verbose=opts.verbose)
     else:
         #call the apporpriate ASR app controller 
         if(opts.asr_method == 'wagner'):

@@ -58,7 +58,7 @@ def combine_asr_tables(output_files):
 
     return combined_table
 
-def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='jobs/',num_jobs=100):
+def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='jobs/',num_jobs=100, verbose=False):
     '''Runs the ancestral state reconstructions in parallel'''
 
     asr_script_fp = join(get_picrust_project_dir(),'scripts','ancestral_state_reconstruction.py')
@@ -86,6 +86,9 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
     jobs=open(jobs_fp,'w')
     created_tmp_files.append(jobs_fp)
 
+    if(verbose):
+        print "Creating temporary input files in: ",tmp_dir
+        
     #iterate over each column
     for i in range(1,dim[1]):
         #create a new table with only a single trait
@@ -109,9 +112,15 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
     jobs.close()
     created_tmp_files.extend(output_files)
 
+    if(verbose):
+        print "Launching parallel jobs."
+        
     #run the job command
     job_prefix='asr'
     submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=num_jobs)
+
+    if(verbose):
+        print "Jobs are now running. Will wait until finished."
 
     #wait until all jobs finished (e.g. simple poller)
     wait_for_output_files(output_files)
