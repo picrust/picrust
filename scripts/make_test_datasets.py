@@ -221,7 +221,8 @@ def main():
        
         #Write test trait table
         test_trait_table_fields = test_trait_table_fields
-        test_trait_table_fields.remove(expected_traits)
+        if expected_traits in test_trait_table_fields:
+            test_trait_table_fields.remove(expected_traits)
         test_trait_table_lines = [trait_table_header]
         test_trait_table_lines.extend(["\t".join(r)+"\n" for r in test_trait_table_fields])
         

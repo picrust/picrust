@@ -94,17 +94,21 @@ def make_distance_based_exclusion_fn(exclusion_distance):
         if verbose:
             print "Tips to delete:",len(tips_to_delete)
         tips_to_keep = [t.Name for t in tree.tips() if t.Name not in tips_to_delete]
-
+    
         if float(exclusion_distance) > float(max_dist) or \
           len(tips_to_delete) == len(tree.tips()):
             
             raise ValueError("specified tree would be entirely excluded because branch lengths are too short")
         
-        holdout_tip = tip
+        
+        #holdout_tip = tip
+        holdout_tip = tip.Name
         #We're working with the *pruned* tree so we want the holdout tip
         #removed
         if holdout_tip in tips_to_keep:
             tips_to_keep.remove(holdout_tip)
+            if verbose:
+                print "Will remove our tip of interest from the tree: {0}".format(holdout_tip)
         if verbose:
             print "Tips to keep:", len(tips_to_keep)
         
@@ -301,9 +305,9 @@ def yield_genome_test_data_by_distance(tree,trait_table_fields,\
                 
                 if verbose:
                     print "Locating tip of interest in tree..."
-                
+
                 tip_of_interest = tree_copy.getNodeMatchingName(tip_to_predict)
-                
+
                 if verbose:
                     print "Modifying tree using function:",test_fn.__name__,\
                       test_fn.__doc__
