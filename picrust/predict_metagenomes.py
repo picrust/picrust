@@ -14,17 +14,21 @@ __status__ = "Development"
 from numpy import dot, array
 from biom.table import table_factory
 
-def predict_metagenomes(otu_table,genome_table):
-    """ predict metagenomes from otu table and genome table 
-    """
-    # identify the overlapping otus that can be used to predict metagenomes 
+def get_overlapping_ids(otu_table,genome_table):
+    """Get the ids that overlap between the OTU and genome tables"""
     overlapping_otus = list(set(otu_table.ObservationIds) & 
                             set(genome_table.SampleIds))
     
     if len(overlapping_otus) < 1:
         raise ValueError,\
          "No common OTUs between the otu table and the genome table, so can't predict metagenome."
-    
+    return overlapping_otus
+
+def predict_metagenomes(otu_table,genome_table):
+    """ predict metagenomes from otu table and genome table 
+    """
+    # identify the overlapping otus that can be used to predict metagenomes 
+    overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     # create lists to contain filtered data - we're going to need the data in 
     # numpy arrays, so it makes sense to compute this way rather than filtering
     # the tables
@@ -43,3 +47,28 @@ def predict_metagenomes(otu_table,genome_table):
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
     return table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+
+def calc_nsti(otu_table,genome_table,weighted=True):
+    """Calculate the weighted Nearest Sequenced Taxon Index for ids
+    otu_table -- a .biom OTU table object
+    genome_table -- the corresponding set of PICRUST per-OTU genome predictions
+    weighted -- if True, normalize by OTU abundance
+    """
+    
+    # identify the overlapping otus that can be used to calculate the NSTI
+    overlapping_otus = get_overlapping_otus(otu_table,genome_table)
+    total = 0.0 
+    n = 0.0
+    for obs_id in overlapping_otus:
+        curr_nsti =  otu_table.ObservationMetadata[obs_id]['NSTI']
+        if weighted:
+            curr_counts = otu_table.observationData(obs_id)
+            total += counts*curr_nsti
+            n += counts
+        else:
+            total += curr_nsti
+            n += 1
+    
+    result=total/n
+    return result
+
