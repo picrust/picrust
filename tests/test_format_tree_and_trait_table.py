@@ -1,4 +1,5 @@
-#from unittest import main, TestCase 
+
+
 from cogent.util.unit_test import main, TestCase
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
@@ -10,6 +11,7 @@ from picrust.format_tree_and_trait_table import reformat_tree_and_trait_table,\
   filter_tree_tips_by_presence_in_table,print_node_summary_table,\
   add_to_filename,make_id_mapping_dict,make_translate_conversion_fn,\
   make_char_translation_fn,remove_spaces, format_tree_node_names
+
 
 """
 Tests for format_tree_and_trait_tables.py
@@ -41,7 +43,6 @@ class TestFormat(TestCase):
         """Test the main function under various conditions"""
         pass
    
-
     def test_reformat_tree_node_names(self):
         """Reformat_tree_node_names reformats tree nodes using supplied fns"""
         
@@ -170,6 +171,8 @@ class TestFormat(TestCase):
         obs_tree = filter_tree_tips_by_presence_in_table(tree,table_fields,\
           verbose = False)
         exp_tree = "(A:0.02,B:0.01)root;"
+        #print "valid tree tips:", ",".join([t.Name for t in tree.tips()])
+        #print "obs_tree:",obs_tree
         self.assertEqual(obs_tree.getNewick(with_distances=True),exp_tree)
 
 
