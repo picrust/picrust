@@ -597,9 +597,9 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_ind
     for tip in tree.iterTips():
         if tip.Name.strip() not in org_ids_in_trait_table:
             tips_to_prune.append(tip.Name)
-            #if verbose:
-            #    print "Tree tip name:",tip.Name
-            #    print "Example org ids:",org_ids_in_trait_table[0:10]
+            if verbose:
+                print "Tree tip name:",tip.Name
+                print "Example org ids:",org_ids_in_trait_table[0:10]
         else:
             n_tips_not_to_prune += 1
             tips_not_to_prune.append(tip.Name)
@@ -612,8 +612,8 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_ind
           n_tips_not_to_prune + len(tips_to_prune), n_tips_not_to_prune)
         print "Example tips that will be removed (first 10):\n\n%s" % \
           tips_to_prune[0:min(len(tips_to_prune),10)]
-        new_tree = get_sub_tree(tree,tips_not_to_prune)
-        return new_tree
+    new_tree = get_sub_tree(tree,tips_not_to_prune)
+    return new_tree
 
 
 def get_sub_tree(tree,tips_not_to_prune):
