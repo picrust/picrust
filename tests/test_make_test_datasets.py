@@ -60,19 +60,30 @@ class TestMakeTestTrees(TestCase):
         exclude_similar_strains =\
             make_distance_based_exclusion_fn(0.03)
         
+        #Test that new function is documented
+        exp_doc = 'Exclude neighbors of tip within 0.030000 branch length units'
+        self.assertEqual(exp_doc,exclude_similar_strains.__doc__)
+        
         #Test that the function works
         
         test_tree = self.SimpleTree.deepcopy()
         #print test_tree.getNewick(with_distances=True)
         tip = test_tree.getNodeMatchingName('C')
         obs = exclude_similar_strains(tip,test_tree).getNewick(with_distances=True) 
-        exp = "((A:0.02,B:0.01)E:0.05,C:0.06)root;"
+        exp = "(A:0.02,B:0.01)root;"
         self.assertEqual(obs,exp)
-        #Test that new function is documented
-        exp_doc = 'Exclude neighbors of tip within 0.030000 branch length units'
-        self.assertEqual(exp_doc,exclude_similar_strains.__doc__)
+        
 
-
+        #Test on a tree where a single node will remain
+        test_tree = \
+          DndParser("((A:0.02,B:0.01)E:0.05,(C:0.06,D:0.01)F:0.05)root;")
+        #print test_tree.getNewick(with_distances=True)
+        tip = test_tree.getNodeMatchingName('D')
+        obs = exclude_similar_strains(tip,test_tree).getNewick(with_distances=True) 
+        exp = "((A:0.02,B:0.01)E:0.05,C:0.11)root;"
+        self.assertEqual(obs,exp)
+        
+        
         #Test that we raise if distance is too large
         test_tree = self.SimpleTree.deepcopy()
         test_fn = make_distance_based_exclusion_fn(300.0)
@@ -112,13 +123,13 @@ class TestMakeTestTrees(TestCase):
         obs = [o for o in yield_test_trees(start_tree, test_fn)]
         test_tips =  [tip for tip,tree in obs]
         test_trees = [tree for tip,tree in obs]
-        print test_tips
-        print test_trees 
+        #print test_tips
+        #print test_trees 
         #Test that each tree  excludes the correct tip
         for i,exp_tip in enumerate(start_tree.tips()):
-            print exp_tip
+            #print exp_tip
             node_names = [obs_tip.Name for obs_tip in test_trees[i].tips()]
-            print node_names
+            #print node_names
             self.assertTrue(exp_tip.Name not in node_names)
             
         #Test that the topology is correct for an example tree 
@@ -131,31 +142,34 @@ class TestMakeTestTrees(TestCase):
         obs = [o for o in yield_test_trees(start_tree, test_fn)]
         test_tips =  [tip for tip,tree in obs]
         test_trees = [tree for tip,tree in obs]
-        #Test that each tree doesn't exclude the tip of interest  
+        
+        #Test that each tree excludes the tip of interest 
+        #NOTE: this behavior changed some time ago
+        #We want to exclude the test tip.
         for i,exp_tip in enumerate(start_tree.tips()):
-            print exp_tip
+            #print exp_tip
             node_names = [obs_tip.Name for obs_tip in test_trees[i].tips()]
-            print node_names
-            self.assertTrue(exp_tip.Name in node_names)
+            #print node_names
+            self.assertFalse(exp_tip.Name in node_names)
             
         #Test that the topology is correct for all tips
         
         
         #Tip 'A'
         self.assertEqual(test_trees[0].getNewick(with_distances=True),\
-            "((C:0.01,D:0.01)F:0.05,A:0.07)root;")
+            "(C:0.01,D:0.01)root;")
         
         #Tip 'B'
         self.assertEqual(test_trees[1].getNewick(with_distances=True),\
-            "((C:0.01,D:0.01)F:0.05,B:0.06)root;")
+            "(C:0.01,D:0.01)root;")
         
         #Tip 'C'
         self.assertEqual(test_trees[2].getNewick(with_distances=True),\
-            "((A:0.02,B:0.01)E:0.05,C:0.06)root;")
+            "(A:0.02,B:0.01)root;")
 
         #Tip 'D'
         self.assertEqual(test_trees[3].getNewick(with_distances=True),\
-            "((A:0.02,B:0.01)E:0.05,D:0.06)root;")
+            "(A:0.02,B:0.01)root;")
 
 
 
