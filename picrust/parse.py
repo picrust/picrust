@@ -10,6 +10,8 @@ __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
+
+
  
 def parse_marker_gene_copy_numbers(counts_f,
                                    metadata_identifier):
@@ -29,8 +31,6 @@ def parse_marker_gene_copy_numbers(counts_f,
             raise ValueError, "Copy numbers must be greater than or equal to 1."
         result[fields[0]] = {metadata_identifier:copy_number}
     return result
-
-
 
 def parse_trait_table(trait_table_lines,delimiter="\t",has_header=True):
     """Return a header line, and a generator that will yield data fields
@@ -60,9 +60,6 @@ def parse_trait_table(trait_table_lines,delimiter="\t",has_header=True):
     #can assume no header exists, and just parse data fields
     return header_line, yield_trait_table_fields(trait_table_lines,\
       delimiter=delimiter,has_header=False)
-
-
-
 
 def yield_trait_table_fields(trait_table_lines,delimiter="\t",\
     skip_comment_lines=True,has_header=False):
@@ -119,3 +116,40 @@ def extract_ids_from_table(table_lines,delimiter="\t",header_start_string="#",id
     for f in id_fields:
         result.append(f[id_field_idx])
     return result
+
+
+def parse_asr_confidence_output(table_lines,param_names=['loglik','sigma']):
+    """Return reconstruction parameters from reconstruction table"""
+    min_value_dict = {}
+    max_value_dict = {}
+    params = {}
+    column_mapping = {}
+    for i,line in enumerate(table_lines):
+        if i == 0:
+            #Header line, skip it
+            column_names = line.split("\t")[1:]        
+            for i in range(len(column_names)):
+                column_mapping[column_names[i]] = i
+            continue
+        fields = line.split("\t")
+        if fields[0] in param_names:
+            vals = fields[1].split("|")
+            valid_vals = []
+            for val in vals:
+                if val == "NaN":
+                    valid_vals.append(None)
+                else:
+                    valid_vals.append(float(val))
+            params[fields[0]]=valid_vals
+            continue
+        organism_name = fields[0]
+        data_fields = fields[1:]
+        #print "data_fields:",data_fields
+        min_vals = map(float,[f.split("|")[0] for f in data_fields])
+        max_vals = map(float,[f.split("|")[1] for f in data_fields])
+        min_value_dict[organism_name]=min_vals
+        max_value_dict[organism_name]=max_vals
+        #print "min_val_dict:",min_value_dict
+    return min_value_dict,max_value_dict,params,column_mapping 
+        
+
