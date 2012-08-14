@@ -11,7 +11,7 @@ __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 from collections import defaultdict
-from numpy import  array,ravel
+from numpy import  array,ravel,around
 from copy import copy
 from cogent.maths.stats.test import correlation 
 from cogent.maths.stats.distribution import tprob,t_high
@@ -63,19 +63,27 @@ def evaluate_test_dataset(observed_table,expected_table):
     scatter_data_points =\
       zip(flat_obs_data,flat_exp_data)
     
-    # CALCULATE CORRELATIONS
     correlations = {}
+    if len(scatter_data_points) <= 2:
+        #can't validly calc correlation
+        correlations["pearson"] = (None,None)
+        correlations["spearman"] = (None,None)
+        return scatter_data_points,correlations    
+    # CALCULATE CORRELATIONS
 
     
     pearson_r,pearson_t_prob =\
       correlation(flat_obs_data,flat_exp_data)
     
     correlations["pearson"] = (pearson_r,pearson_t_prob)
-    
+    pearson_r2 = pearson_r**2
+    correlations["pearson_r2"] = [pearson_r2]
     spearman_r,spearman_t_prob =\
       spearman_correlation(flat_obs_data,flat_exp_data)
     
     correlations["spearman"] = (spearman_r,spearman_t_prob)
+    spearman_r2 = spearman_r**2
+    correlations["spearman_r2"] = [spearman_r2]
    
     return scatter_data_points,correlations     
 
@@ -84,17 +92,20 @@ def evaluate_test_dataset(observed_table,expected_table):
 ##########################
 #  Formatting functions  #
 ##########################
-def run_and_format_roc_analysis(trials):
+def run_and_format_roc_analysis(trials, success_criterion='binary',verbose=False):
     """Run a receiver-operating characteristics(ROC) analysis and format results
     trials:  a dict of trials, keyed by relevant metadata strings.  Each trial
       must be a list of observed,expected values  (so the length of each trial is always two)
+    
+    success_criterion -- method for determining if a quantitative prediciton is a 'success' or 'failure' for purposes of constructing ROC curves
     """  
     
     roc_result_lines = []
     roc_auc_lines = []
     for roc_analysis_type in trials.keys():
         roc_trial_data = trials[roc_analysis_type]
-        roc_points, roc_auc, = roc_analysis(roc_trial_data)
+        roc_points, roc_auc, = roc_analysis(roc_trial_data,\
+          success_criterion=success_criterion,verbose=verbose)
         
         new_roc_result_lines = format_scatter_data(roc_points,metadata=[roc_analysis_type])
         roc_result_lines.extend(new_roc_result_lines)
@@ -146,7 +157,7 @@ def format_correlation_data(correlations,metadata=[],delimiter="\t"):
     
     """
     correlation_lines = []
-    for corr_type in correlations.keys():
+    for corr_type in sorted(correlations.keys()):
 
         new_correlation_fields =\
           metadata + [corr_type] + map(str,[d for d in correlations[corr_type]])
@@ -256,7 +267,8 @@ def spearman_correlation(x_array,y_array,tails = 'two-tailed'):
     return r,spearman_t_prob
 
 
-def calculate_accuracy_stats_from_observations(obs,exp,verbose=False):
+def calculate_accuracy_stats_from_observations(obs,exp,success_criterion='binary',\
+  verbose=False):
     """Return statistics derived from the confusion matrix
     obs -- a list of floats representing observed values
     exp -- a list of floats for expected values (same order as obs)
@@ -264,7 +276,7 @@ def calculate_accuracy_stats_from_observations(obs,exp,verbose=False):
     """
     
     tp,fp,fn,tn =\
-      confusion_matrix_from_data(obs,exp,verbose)
+      confusion_matrix_from_data(obs,exp,success_criterion=success_criterion,verbose=verbose)
     
     result =\
       calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose)
@@ -284,13 +296,19 @@ def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=False):
     results ={} 
     results['positive_predictive_value'] = tp/(tp+fp) # == precision
     results['sensitivity'] =  tp/(tp+fn) # == TPR, hit rate, recall
-    results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
-    results['false_positive_rate'] = fp/(fp+tn)
+    try:
+        results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
+    except ZeroDivisionError:
+        results['specificity'] = 0.0
+    try:
+        results['false_positive_rate'] = fp/(fp+tn)
+    except ZeroDivisionError:
+        results['false_positive_rate'] = 0.0
     results['accuracy'] = (tp + tn)/n  
 
     return results
     
-def confusion_matrix_from_data(obs,exp,verbose=False):
+def confusion_matrix_from_data(obs,exp,success_criterion='binary',verbose=False):
     """Return the number of true_positive,false_positive,false_negatives,false_positives from paired lists of observed and expected values
 
 
@@ -299,7 +317,8 @@ def confusion_matrix_from_data(obs,exp,verbose=False):
     verbose -- print verbose output 
     """
     tp_indices,fp_indices,fn_indices,tn_indices =\
-      confusion_matrix_results_by_index(obs,exp,verbose)
+      confusion_matrix_results_by_index(obs,exp,\
+        success_criterion=success_criterion,verbose=verbose)
     #print obs,exp
     #print tp_indices,fp_indices,fn_indices,tn_indices 
     tp = float(len(tp_indices))
@@ -309,44 +328,67 @@ def confusion_matrix_from_data(obs,exp,verbose=False):
     #print tp,fp,fn,tn 
     return tp,fp,fn,tn
 
-def confusion_matrix_results_by_index(obs,exp,verbose=False):
+def confusion_matrix_results_by_index(obs,exp,success_criterion='binary',verbose=False):
     """Return indices in obs that are true positives, false positives, false negatives or true negatives
 
     
     obs -- a list of floats representing observed values
     exp -- a list of floats for expected values (same order as obs)
     verbose -- print verbose output 
-    
+    success_criterion -- choose either 'binary' or 'exact'.  If binary,
+      all non-zero values are considered equal. If 'exact', the exp value is compared
+      to the observation.  If 'int_exact', floats are rounded to integers, then 'exact' comparison is performed.
     All values >= 1 are considered presence and scored
     identically.  0s are scored as absence.
     """
     
-    tp_indices =\
-        [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]>=1]
-    
-    fp_indices =\
-        [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]>=1]
+    if success_criterion == 'int_exact':
+        obs = around(obs)
+        exp = around(exp)
+        #Like exact, but first round numbers such that e.g. 0.7 == 1.0
+        success_criterion = 'exact'
 
-    fn_indices =\
-        [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]==0]
+    if success_criterion == 'exact':
+        
+        tp_indices =\
+            [i for i,f in enumerate(obs) if exp[i] == obs[i] and exp[i] != 0]
+        fp_indices =\
+            [i for i,f in enumerate(obs) if obs[i] > exp[i]]
+        fn_indices =\
+            [i for i,f in enumerate(obs) if obs[i] < exp[i]]
+        tn_indices =\
+            [i for i,f in enumerate(obs) if exp[i] == obs[i] and exp[i] == 0]
+    
+    elif success_criterion == 'binary':
+        #Binary method (all non-zero values equal success 
+        tp_indices =\
+            [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]>=1]
+    
+        fp_indices =\
+            [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]>=1]
+
+        fn_indices =\
+            [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]==0]
 
         
-    tn_indices =\
-        [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]==0]
+        tn_indices =\
+            [i for i,f in enumerate(obs) if exp[i] == 0 and obs[i]==0]
     
-
+    else: 
+        raise ValueError('Specify either "binary" or "exact" as success criterion')
     return tp_indices,fp_indices,fn_indices,tn_indices
 
-def roc_analysis(trials):
+def roc_analysis(trials,success_criterion='binary',verbose= False):
     """Perform ROC analysis for a set of trials, each a list of obs,exp values"""
-    points = roc_points(trials)
+    points = roc_points(trials,success_criterion=success_criterion,verbose=verbose)
     #These points are now (FPR,TPR) tuples 
     #print "ROC AUC points (FPR,TPR):", sorted(points)
+    points = average_y_values(points) 
     area_under_the_curve = roc_auc(points)
     return points,area_under_the_curve
 
 
-def roc_points(trials):
+def roc_points(trials,success_criterion='binary',verbose=False):
     """get points for a roc curve from lists of paired observed and expected values
     trials -- a list of (obs,exp) tuples, where obs and exp are lists of observed vs. expected data values
     
@@ -354,7 +396,7 @@ def roc_points(trials):
     points = []
     #print trials
     for obs,exp in trials:
-        curr_result = calculate_accuracy_stats_from_observations(obs,exp)
+        curr_result = calculate_accuracy_stats_from_observations(obs,exp,success_criterion=success_criterion,verbose=verbose)
         x = curr_result["false_positive_rate"]
         y = curr_result["sensitivity"]
         points.append((x,y))
