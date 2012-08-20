@@ -123,7 +123,7 @@ def main():
     tree = load_picrust_tree(opts.tree, opts.verbose)
 
     table_headers =[]
-
+    traits={}
     #load the asr trait table using the previous list of functions to order the arrays
     if opts.reconstructed_trait_table:
         table_headers,traits =\
