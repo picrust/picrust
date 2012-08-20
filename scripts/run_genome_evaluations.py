@@ -154,12 +154,17 @@ def main():
         output_files.append(predict_traits_out_fp)
 
         genome_id=split('--',test_id)[2]
-        
-        #create the predict traits command
-        predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" -m "{6}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp,predict_traits_method)
+
+        if(predict_traits_method == 'nearest_neighbor'):
+            #don't do asr step
+            predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -g "{3}" -o "{4}" -m "{5}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, genome_id, predict_traits_out_fp,predict_traits_method)
+            jobs.write(predict_traits_cmd+"\n")
+        else:
+            #create the predict traits command
+            predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" -m "{6}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp,predict_traits_method)
  
-        #add job command to the the jobs file
-        jobs.write(asr_cmd+';'+predict_traits_cmd+"\n")
+            #add job command to the the jobs file
+            jobs.write(asr_cmd+';'+predict_traits_cmd+"\n")
 
     jobs.close()
 
