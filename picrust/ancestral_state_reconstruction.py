@@ -71,7 +71,10 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
         cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs_torque.py')
     else:
         raise RuntimeError
-    
+
+    if(verbose):
+        print "Loading trait table..."
+        
     #foreach trait in the table, create a new tmp file with just that trait, and create the job command and add it a tmp jobs file
     table=LoadTable(filename=table, header=True, sep='\t')
 
@@ -80,6 +83,7 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
     
     created_tmp_files=[]    
     output_files=[]
+    ci_files=[]
 
     #create a tmp file to store the job commands (which we will pass to our parallel script to run)
     jobs_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='jobs_asr_')
@@ -99,19 +103,22 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
         single_col_table.writeToFile(single_col_fp,sep='\t')
         created_tmp_files.append(single_col_fp)
 
-        #create the job command
+        #create tmp output files
         tmp_output_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='out_asr_')
         output_files.append(tmp_output_fp)
-        #tmp_prob_fp=get_tmp_filename()
+        tmp_ci_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='out_asr_ci_')
+        ci_files.append(tmp_ci_fp)
 
-        cmd= "{0} -i {1} -t {2} -m {3} -o {4}".format(asr_script_fp, single_col_fp, tree, asr_method, tmp_output_fp)
+        #create the job command
+        cmd= "{0} -i {1} -t {2} -m {3} -o {4} -c {5}".format(asr_script_fp, single_col_fp, tree, asr_method, tmp_output_fp, tmp_ci_fp)
  
         #add job command to the the jobs file
         jobs.write(cmd+"\n")
 
     jobs.close()
     created_tmp_files.extend(output_files)
-
+    created_tmp_files.extend(ci_files)
+    
     if(verbose):
         print "Launching parallel jobs."
         
@@ -127,13 +134,15 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
 
     #Combine output files
     combined_table=combine_asr_tables(output_files)
+    combined_ci_table=combine_asr_tables(ci_files)
     
     #create a Table object
     combined_table=Table(header=combined_table[0],rows=combined_table[1:])
+    combined_ci_table=Table(header=combined_ci_table[0],rows=combined_ci_table[1:])
         
     #clean up all tmp files
     for file in created_tmp_files:
         remove(file)
 
     #return the combined table
-    return combined_table
+    return combined_table,combined_ci_table

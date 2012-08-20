@@ -62,7 +62,7 @@ def main():
     if(opts.parallel):
         tmp_dir='jobs/'
         make_output_dir(tmp_dir)
-        asr_table=run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method, num_jobs=opts.num_jobs,tmp_dir=tmp_dir,verbose=opts.verbose)
+        asr_table, ci_table =run_asr_in_parallel(tree=opts.input_tree_fp,table=opts.input_trait_table_fp,asr_method=opts.asr_method,parallel_method=opts.parallel_method, num_jobs=opts.num_jobs,tmp_dir=tmp_dir,verbose=opts.verbose)
     else:
         #call the apporpriate ASR app controller 
         if(opts.asr_method == 'wagner'):
