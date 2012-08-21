@@ -101,8 +101,13 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
         if verbose:
             print "Converting tree to bifurcating...."
        
+        #maximum recursion depth on large trees
+        #Try working around this issue with a large
+        #recursion depth limit
+        old_recursion_limit = getrecursionlimit()
+        setrecursionlimit(50000)
         input_tree = input_tree.bifurcating() # Required by most ancSR programs
-   
+        setrecursionlimit(old_recursion_limit)
 
         #input_tree = ensure_root_is_bifurcating(input_tree)
 
@@ -121,9 +126,15 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     if name_unnamed_nodes:
         if verbose:
             print "Naming unnamed nodes in the reference tree...."
-        make_internal_nodes_unique(input_tree)
-        input_tree.nameUnnamedNodes()
-    
+        input_tree=make_internal_nodes_unique(input_tree)
+        #input_tree.nameUnnamedNodes()
+        check_node_labels(input_tree,verbose=verbose)
+        #Paranoid check for missing names:
+        #if verbose:
+        #    print "Checking that all nodes were named..."
+        #for i,n in enumerate(input_tree.preorder()):
+        #    if n.Name is None:
+        #        raise ValueError('Node #%s (in tree.preorder()) was not named!'%str(i))
     
         
     #map trait table ids to tree ids
@@ -221,7 +232,17 @@ def reformat_tree_and_trait_table(tree,trait_table_lines,trait_to_tree_mapping,\
     
     
     return input_tree, result_trait_table_lines
-           
+
+def check_node_labels(input_tree,verbose=False):
+    """Check that all nodes are named!"""
+    if verbose:
+        print "Checking that all nodes were named..."
+    for i,n in enumerate(input_tree.preorder()):
+        print i,n.Name, n.NameLoaded
+        if n.Name is None:
+            err_text = 'WARNING: Node #%s (in tree.preorder()) was not named!.  Node properties: %s'%(str(i),str(dir(n)))
+            print err_text
+
 def set_label_conversion_fns(remove_whitespace_from_labels=True,\
   replace_problematic_label_characters=True,verbose=False):
     """Return a list of functions for formatting tree node or trait table labels"""
@@ -294,19 +315,31 @@ def fix_tree_labels(tree,label_conversion_fns,verbose=False):
     #print "Number of tree tips with single quotes:",len([t.Name for t in tree if "'" in t.Name]) 
     return tree
  
-def make_internal_nodes_unique(tree):
+def make_internal_nodes_unique(tree,base_name='internal_node_%i'):
     """ Removes names that are not unique for internal nodes.
     First occurence of non-unique node is kept and subsequence ones are set to None"""
     #make a list of the names that are already in the tree
-    names_in_use = {}
-    for node in tree.iterNontips(include_self=True):
-        if node.Name:
+    names_in_use = set()
+    for i,node in enumerate(tree.preorder(include_self=True)):
+        if node.Name is not None:
             if node.Name in names_in_use:
                 node.Name=None
             else:
-                names_in_use[node.Name]=1
-                
-            
+                names_in_use.add(node.Name)
+        
+        if node.Name is None:
+            while node.Name is None:
+                #Find a unique name by adding integers
+                proposed_name = base_name % i
+                if proposed_name not in names_in_use:
+                    node.Name = proposed_name
+                    names_in_use.add(proposed_name)
+                    break
+                else:
+                    i += 1
+        #Set this so that the PhyloNode *actually* outputs the Name
+        node.NameLoaded = True
+    return tree 
 
 
 def format_tree_node_names(tree,label_formatting_fns=[]):
@@ -432,6 +465,7 @@ def validate_trait_table_to_tree_mappings(tree,trait_table_ids,verbose=True):
 
 def filter_table_by_presence_in_tree(tree,trait_table_fields,name_field_index = 0,delimiter="\t"):
     """yield lines of a trait table lacking organisms missing from the tree"""
+    
     tree_tips = [str(node.Name.strip()) for node in tree.preorder()]
     #print tree_tips
     result_fields = [] 
@@ -597,13 +631,14 @@ def filter_tree_tips_by_presence_in_table(tree,trait_table_fields,name_field_ind
     for tip in tree.iterTips():
         if tip.Name.strip() not in org_ids_in_trait_table:
             tips_to_prune.append(tip.Name)
-            if verbose:
-                print "Tree tip name:",tip.Name
-                print "Example org ids:",org_ids_in_trait_table[0:10]
         else:
             n_tips_not_to_prune += 1
             tips_not_to_prune.append(tip.Name)
 
+    if verbose and tips_to_prune:
+        print "Found %i tips to prune." %(len(tips_to_prune))
+        print "Example pruned tree tip names:",tips_to_prune[0:min(len(tips_to_prune),10)]
+        print "Example valid org ids:",org_ids_in_trait_table[0:min(len(org_ids_in_trait_table),10)]
     if not n_tips_not_to_prune:
         raise RuntimeError(\
           "filter_tree_tips_by_presence_in_table:  operation would remove all tips.  Is this due to a formatting error in inputs?")
@@ -686,8 +721,6 @@ def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,ve
     #    print sorted(list(set(trait_to_tree_mapping_dict.keys())))
     for fields in trait_table_fields:
             
-        if verbose:
-            old_id = fields[0]
         try:
             fields[0] = trait_to_tree_mapping_dict[fields[0]]
         except KeyError:
@@ -702,7 +735,7 @@ def remap_trait_table_organisms(trait_table_fields,trait_to_tree_mapping_dict,ve
     
     return remapped_fields
 
-def load_picrust_tree(tree_fp, verbose):
+def load_picrust_tree(tree_fp, verbose=False):
     """Safely load a tree for picrust"""
     #PicrustNode seems to run into very slow/memory intentsive perfromance...
     #tree = DndParser(open(opts.input_tree),constructor=PicrustNode)
