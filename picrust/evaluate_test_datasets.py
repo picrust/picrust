@@ -282,7 +282,7 @@ def calculate_accuracy_stats_from_observations(obs,exp,success_criterion='binary
       calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose)
     return result
     
-def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=False):
+def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,allow_zero_results=True,verbose=False):
     """Calculate accuracy,sensitivity,specificity,etc from the number of true positives,false positives,false negatives, and true negatives
     
     tp -- number of true positives
@@ -290,20 +290,23 @@ def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=False):
     fn -- number of false negatives
     tn -- number of true negatives
     verbose -- print verbose output
-    """
 
+    allow_zero_results --
+    """
+    if allow_zero_results:
+        #Add a tiny pseudocount to all categories
+        small_num = 1e-10
+        tp += small_num
+        tn += small_num
+        fn += small_num
+        fp += small_num
+    
     n = sum([tp,fp,tn,fn])
     results ={} 
     results['positive_predictive_value'] = tp/(tp+fp) # == precision
     results['sensitivity'] =  tp/(tp+fn) # == TPR, hit rate, recall
-    try:
-        results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
-    except ZeroDivisionError:
-        results['specificity'] = 0.0
-    try:
-        results['false_positive_rate'] = fp/(fp+tn)
-    except ZeroDivisionError:
-        results['false_positive_rate'] = 0.0
+    results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
+    results['false_positive_rate'] = fp/(fp+tn)
     results['accuracy'] = (tp + tn)/n  
 
     return results
