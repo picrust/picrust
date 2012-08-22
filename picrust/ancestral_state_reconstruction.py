@@ -26,7 +26,7 @@ from time import sleep
 
 from picrust.parallel import submit_jobs, system_call,wait_for_output_files
 
-def combine_asr_tables(output_files):
+def combine_asr_tables(output_files,verbose=False):
     """ Combine all tables coming from asr output. Cuts 2nd column out and joins them together into single table.
     Assumes all output files have same row identifiers and that these are in the same order.
     """
@@ -42,7 +42,9 @@ def combine_asr_tables(output_files):
         combined_table.append([row_id])
             
     #Now add the rest of the files to the table
-    for output_file in output_files:
+    for i,output_file in enumerate(output_files):
+        if verbose:
+            print "Combining file {0} of {1}: {2}".format(i,len(output_files),output_file)
         #pull out the second column (first column with actual preditions)
         table=LoadTable(filename=output_file,header=True,sep='\t')
         predictions = table.getRawData(columns=[table.Header[1]])
@@ -132,6 +134,8 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
     #wait until all jobs finished (e.g. simple poller)
     wait_for_output_files(output_files)
 
+    if(verbose):
+        print "Jobs are done running. Now combining all tmp files."
     #Combine output files
     combined_table=combine_asr_tables(output_files)
     combined_ci_table=combine_asr_tables(ci_files)
