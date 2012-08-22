@@ -15,10 +15,139 @@ from numpy import  array,ravel,around
 from copy import copy
 from cogent.maths.stats.test import correlation 
 from cogent.maths.stats.distribution import tprob,t_high
-from biom.table import table_factory
+from biom.table import table_factory,DenseOTUTable
 
 
+def merge_by_column_union(old_table,new_table,new_field_modifier):
+    """Merge tables using observations"""
+    #print "Old new table:",new_table
+    obs_ids,obs_meta,sample_ids,sample_meta,data =\
+      new_table.ObservationIds, new_table.ObservationMetadata,new_table.SampleIds,new_table.SampleMetadata,new_table._data
+    new_sample_ids = []
+    for sample_id in sample_ids:
+        new_sample_ids.append(sample_id +'_'+ new_field_modifier)
+    #Note that sample metadata is a list of dicts, so renaming should be OK
+    new_table = table_factory(data,new_sample_ids,obs_ids,sample_meta,obs_meta,constructor=DenseOTUTable)
+    #print "\nnew new table:",new_table
+    #print "\nold table:",old_table
+    merged_table =  old_table.merge(new_table,Sample='union',Observation='intersection')
+    #print "\nmerged table:",merged_table
+    #raise ValueError("")
+    return merged_table
 
+def update_pooled_data(obs_table,exp_table,tags,pooled_observations,\
+   pooled_expectations,new_unique_id,verbose=False):
+    """Update pooled data using an observed and expected table, tags, and a dict of pooled_observations"""
+
+    #Update the global pooled obs,exp tables with the current results
+    #Format results for printing
+    #NOTE: currently merged values actually add value into a single column rather than creating new columns for each  
+    #print "Non-pooled fields:", "_".join(non_pooled_fields)
+    #print "pooled_observations:",pooled_observations
+    #print "pooled_expectations:",pooled_expectations
+    for tag in tags:
+        #pooled entries will either be empty or be a .BIOM table
+        if pooled_observations.get(tag,None) is None:
+            pooled_observations[tag] = obs_table
+            pooled_expectations[tag] = exp_table
+        else:    
+            #Entry should already be a table.  So we want to update it by merging in 
+            #the current result
+            #if verbose:
+            # 
+            #    print "Merging observations with existing biom table for ", tag
+            old_obs_table = pooled_observations[tag]
+            
+            pooled_observations[tag]=\
+                merge_by_column_union(old_obs_table,obs_table,new_unique_id)
+            
+            #pooled_observations[tag] =\
+            #    old_obs_table.merge(obs_table,Sample='union',Observation='union')
+            
+            #if verbose:
+            #    print "Merging observations with existing biom table for ", tag
+            
+            old_exp_table = pooled_expectations[tag]
+            #pooled_expectations[tag] =\
+            #    old_exp_table.merge(exp_table,Sample='union',Observation='union')
+            pooled_expectations[tag]=\
+                merge_by_column_union(old_exp_table,exp_table,new_unique_id)
+    
+    return pooled_observations,pooled_expectations
+
+def unzip(l):
+    """Unzip a list into a tuple"""
+    return tuple(zip(*l))
+
+def run_accuracy_calculations_on_biom_table(obs_table,exp_table,metadata,verbose=False):
+    """Run correlation and AUC measures for paired obs,exp .biom Table objects"""
+
+    scatter_data_points, correlations=\
+        evaluate_test_dataset(obs_table,exp_table)
+
+    #For AUC, format = [(all_obs_points,all_exp_points)]
+    new_trial = unzip(scatter_data_points)
+
+    new_scatter_lines = format_scatter_data(scatter_data_points,metadata)
+    #scatter_lines.extend(new_scatter_lines)
+
+    new_correlation_lines = format_correlation_data(correlations,metadata)
+    #correlation_lines.extend(new_correlation_lines)
+
+    if verbose:
+        for l in new_correlation_lines:
+            print l
+    return new_scatter_lines,new_correlation_lines,new_trial
+
+def run_accuracy_calculations_on_pooled_data(pooled_observations,pooled_expectations,roc_success_criteria=['binary','exact'],verbose=False):
+    """Run pearson, spearman calculations on pooled observation & expectation datai
+    
+    pooled_observations -- a dict of observations, with keys set to a descriptive tag and values equal to the observed .biom Table object
+
+    pooled_expectations -- a dict of expectations, with keys set to a descriptive tag and values equal to the observed .biom Table object
+    success_criterion -- criterion for success in ROC trial.  Either 'binary' or 'exact'
+    verbose -- if set to True, print verbose output
+    """
+    all_scatter_lines = []
+    all_correlation_lines = []
+    trials = defaultdict(list)
+    for tag in sorted(pooled_observations.keys()):
+        if verbose:
+            print "calculating scatter,correlations,trials for tag:",tag
+
+        metadata= tag.split('\t')
+        obs_table = pooled_observations[tag]
+        exp_table = pooled_expectations[tag]
+        scatter_lines,correlation_lines,new_trial =\
+           run_accuracy_calculations_on_biom_table(obs_table,\
+           exp_table,metadata,verbose=verbose)
+        #trials["_".join(map(str,[holdout_method,prediction_method]))].append(new_trial)
+        trials["_".join(map(str,[metadata[0],metadata[1]]))].append(new_trial)
+        #field[0] = holdout_method, field[1] = prediction_method
+        all_scatter_lines.extend(scatter_lines)
+        all_correlation_lines.extend(correlation_lines)
+
+    if verbose:
+        print "Running ROC analysis..."
+
+
+    # Now that we have all trials calculated, we can produce AUC results
+    # (ROC stands for receiver-operating characteristics)
+
+    #TODO: calculate the 'binary' and 'exact' ROC curves for each dataset
+    all_roc_result_lines={}
+    all_roc_auc_lines={}
+    for success_criterion in roc_success_criteria:
+        if verbose:
+            print "Calculating ROC graph points, AUC for criterion:",success_criterion
+        roc_result_lines, roc_auc_lines = run_and_format_roc_analysis(trials,success_criterion=success_criterion,verbose=verbose)
+        if verbose:
+            for l in roc_auc_lines:
+                print l
+        all_roc_result_lines[success_criterion]=roc_result_lines
+        all_roc_auc_lines[success_criterion]=roc_auc_lines
+
+    return all_scatter_lines, all_correlation_lines, all_roc_result_lines, all_roc_auc_lines
 
 def evaluate_test_dataset(observed_table,expected_table):
     """ evaluate the correlation between an observed and expected
@@ -279,7 +408,7 @@ def calculate_accuracy_stats_from_observations(obs,exp,success_criterion='binary
       confusion_matrix_from_data(obs,exp,success_criterion=success_criterion,verbose=verbose)
     
     result =\
-      calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose)
+      calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=verbose)
     return result
     
 def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,allow_zero_results=True,verbose=False):
