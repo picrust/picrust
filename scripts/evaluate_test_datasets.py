@@ -16,8 +16,9 @@ from os import listdir
 from os.path import join
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
-from picrust.evaluate_test_datasets import evaluate_test_dataset,\
-  format_scatter_data, format_correlation_data, run_and_format_roc_analysis
+from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
+ update_pooled_data, run_accuracy_calculations_on_biom_table,run_accuracy_calculations_on_pooled_data,\
+ format_scatter_data, format_correlation_data, run_and_format_roc_analysis
 
 from biom.parse import parse_biom_table, convert_biom_to_table
 
@@ -37,15 +38,14 @@ script_info['required_options'] = [
  make_option('-o','--output_dir',type="new_dirpath",help='the output directory'),
 ]
 script_info['optional_options'] = [
+        make_option('-f','--field_order',\
+                default='file_type,prediction_method,weighting_method,holdout_method,distance,organism',help='pass comma-separated categories, in the order they appear in file names.   Categories are "file_type","prediction_method","weighting_method","holdout_method" (randomization vs. holdout),"distance",and "organism".  Example:  "-f file_type,test_method,asr_method specifies that files will be in the form: predict_traits--distance_exclusion--wagner.  Any unspecified values are set to "not_specified".  [default: %default]'),\
         make_option('-p','--pool_by',\
           default='distance',help='pass comma-separated categories to pool results by those metadata categories. Valid categories are: holdout_method, prediction_method,weighting_method,distance and organism. For example, pass "distance" to output results pooled by holdout distance in addition to holdout method and prediction method  [default: %default]')
 ]
 script_info['version'] = __version__
 
 
-def unzip(l):
-    """Unzip a list into a tuple"""
-    return tuple(zip(*l))
 
 def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         file_name_field_order=\
@@ -72,7 +72,7 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     file_name_field_order -- the order of the required metadata fields in the filename.
     Required fields are file_type,method,distance,and organism
 
-    pool_by -- if passed, concatenate traits from each trial that is identical in this category.  e.g. pool_by 'distance' will pool traits across individual test genomes with the same holdoout distance.
+    pool_by -- if passed, concatenate traits from each trial that is identical in this category.  e.g. pool_by 'distance' will pool traits across individual test genomes with the same holdout distance.
     
     roc_success_criteria -- a list of methods for measuring 'success' of a prediction.  Separate  ROC curves will be created for each.
     Description:
@@ -91,50 +91,56 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         --- Summary of correlations (table by organism and distance)
         --- Summary of AUC (table by organism,method,distance)
 
-
-    
-    
     """
-    
-    
     trials = defaultdict(list)
     correlation_lines = []
     scatter_lines = []
-
     #We'll want a quick unzip fn for converting points to trials
     #TODO: separate out into a 'get_paired_data_from_dirs' function
 
     pooled_observations = {}
     pooled_expectations = {}
-    for f in sorted(listdir(obs_dir_fp)):
+    for file_number,f in enumerate(sorted(listdir(obs_dir_fp))):
         if verbose:
-            print "Examining file: %s" %f
-        filename_components = f.split(file_name_delimiter)
+            print "\nExamining file: %s" %f
+        if 'accuracy_metrics' in f:
+            print "%s is an Accuracy file...skipping" %str(f)
+            continue
+        #filename_components_list = f.split(file_name_delimiter)
+        filename_components = {}
+        for i,field in enumerate(f.split(file_name_delimiter)):
+            filename_components[i]=field
+        #if verbose:
+        #    print "Filename components:",filename_components
         try:
             file_type,holdout_method,weighting_method,\
             prediction_method,distance,organism = \
-              filename_components[file_name_field_order['file_type']],\
-              filename_components[file_name_field_order['holdout_method']],\
-              filename_components[file_name_field_order['weighting_method']],\
-              filename_components[file_name_field_order['prediction_method']],\
-              filename_components[file_name_field_order['distance']],\
-              filename_components[file_name_field_order['organism']]
+              filename_components.get(file_name_field_order.get('file_type','not_specified'),'not_specified'),\
+              filename_components.get(file_name_field_order.get('holdout_method','not_specified'),'not_specified'),\
+              filename_components.get(file_name_field_order.get('weighting_method','not_specified'),'not_specified'),\
+              filename_components.get(file_name_field_order.get('prediction_method','not_specified'),'not_specified'),\
+              filename_components.get(file_name_field_order.get('distance','not_specified'),'not_specified'),\
+              filename_components.get(file_name_field_order.get('organism','not_specified'),'not_specified')
+
+            #if verbose:
+            #    print file_type,holdout_method,weighting_method,\
+            #      prediction_method,distance,organism
         except IndexError, e:
             print "Could not parse filename %s using delimiter: %s.  Skipping..." %(f,file_name_delimiter)
             continue
-        if verbose:
-            print "HOLDOUT METHOD:", holdout_method
 
         #Get predicted traits
         if file_type == 'predict_traits':
             if verbose:
-                print "Found a prediction file"
-                print "Loading .biom format observation table:",f
+                #print "Found a prediction file"
+                print "\tLoading .biom format observation table:",f
             
-            #try:
-            obs_table =\
-              parse_biom_table(open(join(obs_dir_fp,f),'U'))
-            #except:
+            try:
+              obs_table =\
+                parse_biom_table(open(join(obs_dir_fp,f),'U'))
+            except ValueError:
+                print 'Failed, skipping...'
+                continue
             #    raise RuntimeError(\
             #      "Could not parse predicted trait file: %s.   Is it a .biom formatted file?" %(f))
         else:
@@ -145,7 +151,7 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         exp_filename = file_name_delimiter.join(['exp_biom_traits',holdout_method,distance,organism])
         exp_filepath = join(exp_dir_fp,exp_filename)
         if verbose:
-            print "Looking for the expected trait file matching %s here: %s" %(f,exp_filepath)
+            print "\tLooking for the expected trait file matching %s here: %s" %(f,exp_filepath)
 
         try:
             exp_table =\
@@ -159,130 +165,51 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
                 continue
         base_tag =  '%s\t%s\t' %(holdout_method,prediction_method)
         tags = [base_tag+'all_results']
-        if pool_by: 
-            combined_tag = base_tag +\
-                    "\t".join([str(field)+"_"+str(filename_components[file_name_field_order[field]]) for field in pool_by])
-            tags.append(combined_tag)
+        combined_tag = base_tag +\
+                "\t".join([str(field)+"_"+str(filename_components[file_name_field_order[field]]) for field in pool_by])
+        tags.append(combined_tag)
         
-        if verbose:
-          print "Pooling by:", pool_by
-          print "Combined tags:",tags
+        #if verbose:
+        #  print "Pooling by:", pool_by
+        #  print "Combined tags:",tags
         
+        #TODO: abstract out pooling into its own function
+        non_pooled_fields = [filename_components.get(file_name_field_order[k],None) for k in file_name_field_order.keys() if k not in pool_by]
+        pooled_observations,pooled_expectations =\
+                update_pooled_data(obs_table,exp_table,tags,pooled_observations,\
+          pooled_expectations,str(file_number),verbose=verbose)
 
-        #Update the global pooled obs,exp tables with the current results
-        #Format results for printing
-        for tag in tags:
-            #pooled entries will either be empty or be a .BIOM table
-            if pooled_observations.get(tag,None) is None:
-                pooled_observations[tag] = obs_table
-                pooled_expectations[tag] = obs_table
-            else:    
-                #Entry should already be a table.  So we want to update it by merging in 
-                #the current result
-                if verbose:
-                
-                    print "Merging observations with existing biom table for ", tag
-                old_obs_table = pooled_observations[tag]
-                pooled_observations[tag] =\
-                    old_obs_table.merge(obs_table,Sample='union',Observation='union')
-                
-                if verbose:
-                    print "Merging observations with existing biom table for ", combined_tag
-                
-                old_exp_table = pooled_expectations[tag]
-                pooled_expectations[tag] =\
-                    old_exp_table.merge(exp_table,Sample='union',Observation='union')
 
+    #if verbose:
+    #    for tag in pooled_observations.keys():
+    #        print "Merged obs biom:", pooled_observations[tag]
+    #        print "\nMedged *exp* biom:", pooled_expectations[tag]
     return run_accuracy_calculations_on_pooled_data(pooled_observations,\
       pooled_expectations,roc_success_criteria=roc_success_criteria,verbose=verbose)
-
-
-def run_accuracy_calculations_on_pooled_data(pooled_observations,pooled_expectations,roc_success_criteria=['binary','exact'],verbose=False):
-    """Run pearson, spearman calculations on pooled observation & expectation datai
-    
-    pooled_observations -- a dict of observations, with keys set to a descriptive tag and values equal to the observed .biom Table object
-
-    pooled_expectations -- a dict of expectations, with keys set to a descriptive tag and values equal to the observed .biom Table object
-    success_criterion -- criterion for success in ROC trial.  Either 'binary' or 'exact'
-    verbose -- if set to True, print verbose output
-    """
-    all_scatter_lines = []
-    all_correlation_lines = []
-    trials = defaultdict(list)
-    for tag in sorted(pooled_observations.keys()):
-        if verbose:
-            print "calculating scatter,correlations,trials for tag:",tag
-        
-        metadata= tag.split('\t')
-        obs_table = pooled_observations[tag]
-        exp_table = pooled_expectations[tag]
-        scatter_lines,correlation_lines,new_trial =\
-           run_accuracy_calculations_on_biom_table(obs_table,\
-           exp_table,metadata,verbose=verbose)
-        #trials["_".join(map(str,[holdout_method,prediction_method]))].append(new_trial)
-        trials["_".join(map(str,[metadata[0],metadata[1]]))].append(new_trial)
-        #field[0] = holdout_method, field[1] = prediction_method
-        all_scatter_lines.extend(scatter_lines)
-        all_correlation_lines.extend(correlation_lines)
-    
-    if verbose:
-        print "Running ROC analysis..."
-    
-    
-    # Now that we have all trials calculated, we can produce AUC results
-    # (ROC stands for receiver-operating characteristics)
-
-    #TODO: calculate the 'binary' and 'exact' ROC curves for each dataset
-    all_roc_result_lines={}
-    all_roc_auc_lines={}
-    for success_criterion in roc_success_criteria:
-        if verbose:
-            print "Calculating ROC graph points, AUC for criterion:",success_criterion
-        roc_result_lines, roc_auc_lines = run_and_format_roc_analysis(trials,success_criterion=success_criterion,verbose=verbose)
-        if verbose:
-            for l in roc_auc_lines:
-                print l
-        all_roc_result_lines[success_criterion]=roc_result_lines
-        all_roc_auc_lines[success_criterion]=roc_auc_lines
-        
-    return all_scatter_lines, all_correlation_lines, all_roc_result_lines, all_roc_auc_lines
-
-  
-def run_accuracy_calculations_on_biom_table(obs_table,exp_table,metadata,verbose=False): 
-        
-
-    scatter_data_points, correlations=\
-        evaluate_test_dataset(obs_table,exp_table)
-        
-    #For AUC, format = [(all_obs_points,all_exp_points)]
-    new_trial = unzip(scatter_data_points)
-        
-    new_scatter_lines = format_scatter_data(scatter_data_points,metadata)
-    #scatter_lines.extend(new_scatter_lines)
-
-    new_correlation_lines = format_correlation_data(correlations,metadata)
-    #correlation_lines.extend(new_correlation_lines)
-
-    if verbose:
-        for l in new_correlation_lines:
-            print l
-    return new_scatter_lines,new_correlation_lines,new_trial 
 
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
     pool_by = opts.pool_by.split(',') 
     
-    file_name_field_order={'file_type':0,"prediction_method":1,\
-      "weighting_method":2,"holdout_method":3,"distance":4,"organism":5}
+    #file_name_field_order={'file_type':0,"prediction_method":1,\
+    #  "weighting_method":2,"holdout_method":3,"distance":4,"organism":5}
+    
+    #Construct a dict from user specified field order
+    file_name_field_order = {}
+    for i,field in enumerate(opts.field_order.split(',')):
+        file_name_field_order[field]=i
+        if opts.verbose:
+            print "Assuming file names are in this order:",file_name_field_order
 
     for k in pool_by:
-        
+        #Check that we're only pooling by values that exist 
         if k not in file_name_field_order.keys():
             err_text=\
               "Bad value for option '--pool_by'.  Can't pool by '%s'.   Valid categories are: %s" %(k,\
               ",".join(file_name_field_order.keys()))
             raise ValueError(err_text)
+    
     if opts.verbose:
         print "Pooling results by:",pool_by
     
@@ -297,10 +224,10 @@ def main():
    
 
     #Output scatter data
-    if opts.verbose:
-        print "Writing scatter plot data..."
     
     output_fp = join(opts.output_dir,'evaluation_scatter_data.tab')
+    if opts.verbose:
+        print "Writing scatter plot data to:",output_fp
     file_lines = scatter_lines
     
     f = open(output_fp,"w+")
@@ -308,10 +235,12 @@ def main():
     f.close()
 
     #Output correlation data
-    if opts.verbose:
-        print "Writing correlation data..."
     
     output_fp = join(opts.output_dir,'evaluation_correlation_data.tab')
+    
+    if opts.verbose:
+        print "Writing correlation data to:",output_fp
+    
     file_lines = correlation_lines
     
     f = open(output_fp,"w+")
