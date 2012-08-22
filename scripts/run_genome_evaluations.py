@@ -14,11 +14,12 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from glob import glob
-from picrust.util import make_output_dir_for_file
+from picrust.util import make_output_dir_for_file,file_contains_nulls
 from cogent.app.util import get_tmp_filename
 from picrust.util import get_picrust_project_dir,make_output_dir
 from picrust.parallel import submit_jobs, wait_for_output_files
 from os.path import join,exists
+from os import remove
 from re import split
 
 script_info = {}
@@ -58,14 +59,12 @@ make_option('-a','--asr_method',type='choice',\
             help='Method for ancestral_state_reconstruction.  See ancestral_state_reconstruction.py for full documentation. Valid choices are: '+\
             ', '.join(asr_choices) + ' [default: %default]',\
             choices=asr_choices,default='wagner'),\
-
-
-
 make_option('-n','--num_jobs',action='store',type='int',\
             help='Number of jobs to be submitted (if --parallel). [default: %default]',\
             default=100),\
 make_option('--tmp-dir',type="new_dirpath",help='location to store intermediate files [default: <output_dir>]'),\
 make_option('--force',action='store_true',default=False, help='run all jobs even if output files exist [default: %default]'),\
+make_option('--check_for_null_files',action='store_true',default=False, help='check if pre-existing output files have null files. If so remove them and re-run. [default: %default]'),\
 ]
 
 script_info['version'] = __version__
@@ -128,13 +127,17 @@ def main():
     asr_script_fp = join(get_picrust_project_dir(),'scripts','ancestral_state_reconstruction.py')
     predict_traits_script_fp = join(get_picrust_project_dir(),'scripts','predict_traits.py')
 
-    #asr_method='wagner'
-
     #run each test dataset through the pipeline
     for test_id in test_datasets:
 
         asr_out_fp=join(output_dir,'asr--'+asr_method+'--'+test_id)
         created_tmp_files.append(asr_out_fp)
+
+        if opts.check_for_null_files and exists(asr_out_fp) and file_contains_nulls(asr_out_fp):
+            #remove file
+            if opts.verbose:
+                print "Existing ASR file contains null characters. Will run ASR again after removing: "+asr_out_fp
+            remove(asr_out_fp)
         
         if exists(asr_out_fp) and not opts.force:
             if opts.verbose:
@@ -145,6 +148,11 @@ def main():
             asr_cmd= """python {0} -i "{1}" -t "{2}" -m {3} -o "{4}" """.format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
 
         predict_traits_out_fp=join(output_dir,'predict_traits--'+predict_traits_method+'--'+test_id)
+
+        if opts.check_for_null_files and exists(predict_traits_out_fp) and file_contains_nulls(predict_traits_out_fp):
+            if opts.verbose:
+                print "Existing trait predictions file contains null characters. Will run it again after removing: "+predict_traits_out_fp
+            remove(predict_traits_out_fp)
 
         if exists(predict_traits_out_fp) and not opts.force:
             if opts.verbose:

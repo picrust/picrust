@@ -23,6 +23,12 @@ from biom.table import SparseOTUTable, DenseOTUTable, SparsePathwayTable, \
 from biom.parse import parse_biom_table, convert_biom_to_table, \
   convert_table_to_biom
 
+def file_contains_nulls(file):
+    """Checks given file for null characters. These are sometimes created on SGE clusters when system IO is overloaded."""
+
+    return '\x00' in open(file,'rb').read()
+          
+
 def parse_table_to_biom(table_lines, table_format="tab-delimited",\
     biom_format = 'otu table'): 
     """Read the lines of an open trait table file, and output a .biom table object 
