@@ -1,9 +1,10 @@
 .. _metagenome_prediction_tutorial:
 
-.. include:: ../global.rst
-
 Metagenome Prediction
 =====================
+
+.. include:: ../global.rst
+
 
 Introduction
 ------------
@@ -14,28 +15,57 @@ Given this input, the process additionally needs the `PICRUST software`_ package
 Essential Files
 ---------------
 
-In this tutorial, you will need an OTU table and the output files from the ``predict_traits.py`` script. 
+You should already have the following files before starting this tutorial:
 
-The steps required to get the output from the intial steps in the PICRUST pipeline are outlined in :ref:`genome_prediction_tutorial`.
-
-.. warning::
-
-	If you are trying to run PICRUST with your own OTU table, ensure you have properly reference picked your OTU table: :ref:`otu_picking_tutorial`
+1. The `PICRUST software`_ package
+2. A PICRUST compatible OTU table (:ref:`otu_picking_tutorial`)
+3. The `PICRUST precalculated files`_ **(Note: Not yet available)**
 
 .. warning::
 
-	As of July 2012, our prerelease PICRUST does not yet include precomputed data for all `Greengenes`_ reference OTUs. 
-	Therefore you will have to run ``predict_traits.py`` using your OTU table and the ``-l`` option. See: :ref:`genome_prediction_tutorial`
+	As of August 2012, our prerelease PICRUST does not yet include precomputed data for all `Greengenes`_ reference OTUs. 
+	Therefore you will have to run ``predict_traits.py`` using your OTU table and the ``-l`` option. See **Temporary: Create PICRUST data files** below for more information.
 
-You can download all files required to run this tutorial here: https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip.
-Descriptions of these files are below. 
+Temporary: Create PICRUST data files
+------------------------------------
+
+* Download and unpack `PICRUST temporary files`_.
+
+* If your OTU table is in biom format then you need it also in classic QIIME format.::
+
+	convert_biom.py -b -i your_otu_table.biom -o your_otu_table.tab 
+
+* Now run ``predict_traits`` for 16S copy number: ::
+
+	predict_traits.py
+		-t reference_tree.newick
+		-l your_otu_table.tab	
+ 		-i 16S_trait_table.tab	
+		-r 16S_asr_wagner_counts.tab
+		-o trait_predictions_16S_wagner.biom
+
+* Now run ``predict_traits`` for KEGG: ::
+
+	predict_traits.py 
+		-t reference_tree.newick
+		-l your_otu_table.tab
+		-i KEGG_trait_table.tab
+		-r KEGG_asr_wagner_counts.tab
+		-o trait_predictions_KEGG_wagner.biom
+	
+
+
+Tutorial Files (optional)
+-------------------------
+
+The `PICRUST metagenome tutorial files`_ allow testing of PICRUST using a simple two sample OTU table and smaller support files. Descriptions of the files within this download are as follows:
 
 * OTU table (`biom`_ format ``.biom``)
 	* ``hmp_mock_otu_table.biom``
 	* This is an OTU table that contains OTU IDs that match IDs in the reference tree.  This is usually done by picking OTUs against the `Greengenes`_ reference package in `QIIME`_.
 
 * Functional trait (`KEGG`_ `KO`_) copy number predictions (`biom`_ format ``.biom``)
-    * ``trait_predictions_KEGG_wagner.biom`` is precomputed by PICRUST.
+    * ``trait_predictions_KEGG_wagner.biom`` is generated using :ref:`predict_traits`
     * Contains predictions for `KO`_ traits for each OTU that has a tip in the reference tree. 
 
 .. warning:
@@ -44,7 +74,7 @@ Descriptions of these files are below.
 	It can NOT be used with other OTU tables.
 
 * Marker gene (16S) copy number predictions (`biom`_ format ``.biom``)
-    * ``trait_predictions_16S_wagner.biom``
+    * ``trait_predictions_16S_wagner.biom`` is generated using :ref:`predict_traits`
     * Contains predictions for 16S copy number for each OTU that has a tip in the reference tree. 
 
 .. warning:
@@ -61,15 +91,18 @@ Input is the users OTU table (that has been referenced picked against green gene
 
 Input and output files are in biom format. ::
 
-	normalize_by_copy_number.py -i hmp_mock_otu_table.biom
+	normalize_by_copy_number.py 
+		-i your_otu_table.biom
 		-c trait_predictions_16S_wagner.biom
-		-o normalized/hmp_mock_wagner.biom
+		-o your_normalized_otu_table.biom
 
 (Optional) Input format of OTU table can be changed to "classic" `QIIME`_ OTU instead of `biom`_ format using the ``-f`` option: ::
 
-	 normalize_by_copy_number.py -f -i hmp_mock_otu_table.biom
+	 normalize_by_copy_number.py 
+		-f 
+		-i your_otu_table.tab
 		-c trait_predictions_16S_wagner.biom
-		-o normalized/hmp_mock_wagner.biom
+		-o your_normalized_otu_table.biom
 
 Predict Functions For Metagenome
 --------------------------------
@@ -80,12 +113,15 @@ Input is the normalized OTU table created by :ref:`normalize_by_copy_number` and
  
 Output is in `biom`_ format by default: ::
 
-	predict_metagenomes.py -i normalized/hmp_mock_wagner.biom
-		-g trait_predictions_KEGG_wagner.biom
-		-o hmp_mock_predictions_wagner.biom
+	predict_metagenomes.py 
+		-i your_normalized_otu_table.biom
+		-c trait_predictions_KEGG_wagner.biom
+		-o your_KEGG_predictions.biom
 
 (Optional) Output format can be changed to tab delimited using ``-f`` option: ::
 
-	predict_metagenomes.py -f -i normalized/hmp_mock_wagner.biom
-		-g trait_predictions_KEGG_wagner.biom
-		-o hmp_mock_predictions_wagner.tab
+	predict_metagenomes.py 
+		-f 
+		-i your_normalized_otu_table.biom
+		-c trait_predictions_KEGG_wagner.biom
+		-o your_KEGG_predictions.tab

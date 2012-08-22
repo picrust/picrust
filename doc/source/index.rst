@@ -14,17 +14,50 @@ PICRUST is freely available here under the `GPL`_. However, the software and doc
    ./methods/index
    ./scripts/index
 
+Requirements
+============
+**Mandatory**
+
+* `PyCogent`_
+* `biom`_
+
+**Rebuilding PICRUST OR Genome Prediction (optional)**
+
+* `R`_ installed with `APE`_ library
+
+
 Download
 ========
 
-Two files are needed to **run PICRUST** on your own data:
+**PICRUST Software (All Users)**
 
-* The `PICRUST software`_ is available from our `Sourceforge page <http://picrust.sourceforge.net>`_
-* To generate a PICRUST-compatible OTU table, you need this `reference data for OTU picking  <https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz>`_, the use of which is described in the :ref:`otu_picking_tutorial`.
+* `PICRUST software`_
 
-Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**:
+.. warning::
 
-* PICRUST uses a suite of `ancestral state reconstruction tools <http://***>`_ to generate the data needed for metagenomic inference.
+       An official release version is not yet available. Please instead download the `PICRUST development software`_.
+
+**OTU table preperation (Most Users)**
+
+* Before using PICRUST for metagenome prediction, you must ensure your OTU table is PICRUST-compatible (OTU identifiers are `Greengenes`_ identifiers). 
+* To generate a PICRUST-compatible OTU table, you need the `PICRUST GG reference data`_. 
+* For use, see tutorial: :ref:`otu_picking_tutorial`
+
+**Metagenome Prediction (Most Users)**
+
+* `PICRUST precalculated files`_ (NOTE: Not available yet!!)
+
+.. warning::
+       
+	Our prerelease PICRUST does not yet include precomputed data for all `Greengenes`_ reference OTUs. 
+	Therefore, to produce this needed data you will have to run a temporary extra step using the `PICRUST temporary files`_ 
+
+* For use, see tutorial: :ref:`metagenome_prediction_tutorial`
+
+**Inferring Individual Genomes (Advanced Users)**
+
+* Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**: `PICRUST starting files`_.
+* For use, see tutorial: :ref:`genome_prediction_tutorial`
 
 Quickstart
 ==========
@@ -34,7 +67,7 @@ Looking to get metagenome predictions for your 16S data? Follow the :ref:`quicks
 Contact Us
 ==========
 
-For PICRUST announcements and questions, including notification of new releases, you can subscribe to the `PICRUST users list <https://groups.google.com/group/picrust-users/subscribe?note=1&hl=en&noredirect=true&pli=1>`_.
+For PICRUST announcements and questions, including notification of new releases, you can subscribe to the `PICRUST users list`_.
 
 Citation
 ========
