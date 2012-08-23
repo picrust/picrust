@@ -78,7 +78,8 @@ my $query_dir = $abs_dir."queries/";
 system ("mkdir -p $query_dir");
 
 #my @func_types=("subsystem","EC","role","pfam");
-my @func_types=("pfam10");
+#my @func_types=("pfam10");
+my @func_types=("pfam");
 
 #do entire pipeline unless --figures flag is set
 if(!exists $opt{'figures'} ||$opt{'figures'}==0){
@@ -110,14 +111,20 @@ if(!exists $opt{'figures'} ||$opt{'figures'}==0){
 	my $create_query_cmd=$abs_dir."bin/create_query_seq.pl $ref $id $query";
 	system($create_query_cmd) unless -e $query;
 
-	my $asr_method='pic';
+	#my $asr_method='pic';
 	#my $asr_method='REML';
 	#my $asr_method='ML';
 
+	#my @asr_methods=('pic','wagner','REML','ML');
+	my @asr_methods=('pic','wagner');
+
+
 	#Do ancestral state reconstruction
 	foreach my $func (@func_types){ 
-	    my $ace_ref_cmd=$abs_dir."build_asr.pl --func $func -m $asr_method -r $new_ref_name";
-	    system($ace_ref_cmd);
+	    foreach my $asr_method (@asr_methods){
+		my $ace_ref_cmd=$abs_dir."build_asr.pl --func $func -m $asr_method -r $new_ref_name";
+		system($ace_ref_cmd);
+	    }
 	}
 
 	#Sometimes query sequence is not seen as a valid 16S by pynast. This creates an empty alignment file.
@@ -141,6 +148,13 @@ if(!exists $opt{'figures'} ||$opt{'figures'}==0){
 
 	    my $ace_accuracy_file=$abs_dir."tmp/".$query_name."/$func"."_pic_precision_accuracy.txt";
 	    system($abs_dir."bin/test_accuracy.pl -m pic --func $func $query_name") unless -e $ace_accuracy_file;
+
+	    #make predictions using wagner
+	    my $asr_wagner_cmd=$abs_dir."make_predictions.pl -m wagner --func $func -q $query_name -r $new_ref_name";
+	    system($asr_wagner_cmd);
+
+	    my $asr_wagner_accuracy_file=$abs_dir."tmp/".$query_name."/$func"."_wagner_precision_accuracy.txt";
+	    system($abs_dir."bin/test_accuracy.pl -m wagner --func $func $query_name") unless -e $asr_wagner_accuracy_file;
 
 	    #make predictions using ace with ML
 	    my $REML_cmd=$abs_dir."make_predictions.pl -m reml --func $func -q $query_name -r $new_ref_name";

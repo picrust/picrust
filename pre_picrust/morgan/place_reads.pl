@@ -29,7 +29,7 @@ my $logger = Log::Log4perl->get_logger;
 
 
 my $ref_dir=$abs_dir."ref_trees/".$opt{'ref_tree'}.'/';
-my $raxml_tree_file = $ref_dir.'RAxML_result.16s_with_node_labels';
+my $raxml_tree_file = $ref_dir.'RAxML_bestTree.16s';
 my $raxml_stats_file= $ref_dir.'RAxML_info.16s';
 my $ref_alignment_file = $ref_dir.'pynast_trimmed_alignment.fa';
 
@@ -65,7 +65,7 @@ if ($? != 0) {
 my $pynast_alignment_file=$tmp_dir .'pynast_alignment.fa';
 my $pynast_fail_file=$tmp_dir.'pynast_fail.fa';
 my $pynast_log_file=$tmp_dir.'pynast_log.txt';
-my $pynast_cmd="pynast -g $pynast_log_file -f $pynast_fail_file -t $template_file -a $pynast_alignment_file -i $fasta_file";
+my $pynast_cmd="pynast -g $pynast_log_file -f $pynast_fail_file -t $template_file -a $pynast_alignment_file -i $fasta_file -l 50";
 $logger->info("Creating alignment of query sequences using pynast with green genes template");
 $logger->debug($pynast_cmd);
 system($pynast_cmd);

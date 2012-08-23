@@ -26,23 +26,59 @@ foreach my $option ('ref_tree','method','func'){
     pod2usage($0.': You must specify option for --'.$option) unless exists $opt{$option};
 }
 
-my $data_file=$abs_dir."data/".$opt{'func'}."_vs_gp_id.txt";
-
-$logger->logdie("File $data_file does not exist. Did you specify wrong --func ?") unless -e $data_file;
-
 
 my $ref_name=$opt{'ref_tree'};
 my $ref_dir=$abs_dir.'ref_trees/'.$ref_name;
-my $ref_tree= $ref_dir.'/RAxML_result.16s';
+my $labelled_ref_tree= $ref_dir.'/RAxML_result.16s';
+
 my $ace_file=$ref_dir.'/'.$opt{'func'}.'_'.$opt{'method'}.'_counts.txt.gz';
-my $ace_ref_cmd=join(" ",$abs_dir.'bin/find_ace.R',$ace_file, $data_file, $ref_tree, $opt{'method'});
+
 if(!-e $ace_file || exists $opt{'Force'}){
-    $logger->info("Running ASR on $ref_name.");
-    system($ace_ref_cmd);
+    $logger->info("Running $opt{'method'} ASR on $ref_name.");
+    
+    if($opt{'method'} eq 'wagner'){
+
+	my $data_file=$abs_dir."data/".$opt{'func'}."_vs_gp_id.count";
+	$logger->logdie("File $data_file does not exist. Did you specify wrong --func ?") unless -e $data_file;
+	my $wagner_results = run_count_wagner($data_file,$labelled_ref_tree);
+	open(my $OUT_GZ,"|gzip -c > $ace_file");
+	print $OUT_GZ join("\n",@$wagner_results),"\n"; 
+	close($OUT_GZ);
+
+    }else{
+ 
+	my $data_file=$abs_dir."data/".$opt{'func'}."_vs_gp_id.txt";
+	$logger->logdie("File $data_file does not exist. Did you specify wrong --func ?") unless -e $data_file;
+
+	my $ace_ref_cmd=join(" ",$abs_dir.'bin/find_ace.R',$ace_file, $data_file, $labelled_ref_tree, $opt{'method'});
+	$logger->debug("Running cmd: $ace_ref_cmd");
+	system($ace_ref_cmd);
+    }
 }else{
-    $logger->info("Not running ASR on $ref_name becase ASR output file already exists. Use --Force to overwrite existing files.");
+    $logger->info("Not running $opt{'method'} ASR on $ref_name becase ASR output file already exists. Use --Force to overwrite existing files.");
 }
 
+sub run_count_wagner{
+    my($table,$tree)=@_;
+    
+    my $count_jar=$abs_dir.'bin/Count.jar';
+    my $cmd= join(" ",'java -cp',$count_jar,'ca.umontreal.iro.evolution.genecontent.AsymmetricWagner',$tree,$table,'| grep \'# FAMILY\' ');
+    my @output=`$cmd`;    
+    chomp(@output);
+
+    #process output
+
+    #process header
+    my @head_fields=split(/\t/,$output[0]);
+    $output[0]=join("\t",@head_fields[2..$#head_fields-4]);
+
+    #process all other fields
+    for my $i(1..$#output){
+	my @fields=split(/\t/,$output[$i]);
+	$output[$i]=join("\t",@fields[1..$#fields-4]);
+    }
+    return \@output;
+}
 
 
 __END__
@@ -53,7 +89,7 @@ build_asr.pl - Runs user's choice of ancestral state reconstruction method on a 
 
 =head1 USAGE
 
-build_asr.pl [OPTIONS] -f=[pfam|EC|subsystem|role] -m=[pic|ML|REML] -r=<reference_tree_name>
+build_asr.pl [OPTIONS] -f=[pfam|EC|subsystem|role] -m=[pic|ML|REML|wagner] -r=<reference_tree_name>
 
 E.g.:
 

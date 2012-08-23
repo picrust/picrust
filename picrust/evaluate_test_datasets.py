@@ -21,13 +21,13 @@ from biom.table import table_factory,DenseOTUTable
 def merge_by_column_union(old_table,new_table,new_field_modifier):
     """Merge tables using observations"""
     #print "Old new table:",new_table
-    obs_ids,obs_meta,sample_ids,sample_meta,data =\
-      new_table.ObservationIds, new_table.ObservationMetadata,new_table.SampleIds,new_table.SampleMetadata,new_table._data
     new_sample_ids = []
-    for sample_id in sample_ids:
+    for sample_id in new_table.SampleIds:
         new_sample_ids.append(sample_id +'_'+ new_field_modifier)
-    #Note that sample metadata is a list of dicts, so renaming should be OK
-    new_table = table_factory(data,new_sample_ids,obs_ids,sample_meta,obs_meta,constructor=DenseOTUTable)
+
+    #assign the new SampleIds to the table
+    new_table.SampleIds=new_sample_ids
+
     #print "\nnew new table:",new_table
     #print "\nold table:",old_table
     merged_table =  old_table.merge(new_table,Sample='union',Observation='intersection')

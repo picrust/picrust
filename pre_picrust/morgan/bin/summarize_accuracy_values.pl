@@ -13,8 +13,9 @@ my $results_dir=$abs_dir.'results/';
 
 system ("mkdir -p $results_dir");
 
-foreach my $func ('pfam','subsystem','role','EC'){
-    foreach my $method ('neighbour','random','pic'){   
+#foreach my $func ('pfam','subsystem','role','EC'){
+foreach my $func ('pfam'){
+    foreach my $method ('neighbour','random','pic','wagner'){   
 	foreach my $acc_type ('precision','recall'){
 	    my $acc_file = $func.'_'.$method.'_'.$acc_type.'_accuracy.txt';
 	    my $cat_cmd = "cat $abs_dir"."tmp/*/$acc_file > ".$results_dir.$acc_file;

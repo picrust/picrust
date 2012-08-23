@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-#./find_ace.R <output: file.gz> <input: functional_matrix_file> <input: reference_tree> <ace_method>
+#./find_ace.R <output: file.gz> <input: functional_matrix_file> <input: reference_tree_with_internal_nodes_labelled> <ace_method>
 
 library(ape)
 library(geiger)
@@ -8,16 +8,6 @@ Args <- commandArgs(TRUE)
 out_file_FH<-gzfile(Args[1],"w")
 
 tree<-read.tree(Args[3])
-
-#give the tree node labels (same as those used by Phylo internally)
-tree$node.label<-Ntip(tree)+(1:(Ntip(tree)-1))
-
-new_tree_file<-paste(Args[3],'_with_node_labels',sep="")
-#and write it back to file
-write.tree(tree,file=new_tree_file)
-
-tree<-multi2di(tree,random=FALSE)
-
 
 #load in the pfam data
 data <-read.table(Args[2],check.names=FALSE)
@@ -45,6 +35,9 @@ names(just_ace)<-names(pic_reconstructions)
 
 #reformat the list into a matrix
 just_ace_matrix<-do.call(rbind,just_ace)
+
+#relabel the node names (ones created internally by ape) with the actual node labels in the tree
+colnames(just_ace_matrix)<-tree$node.label
 
 #write the matrix to file
 write.table(just_ace_matrix,file=out_file_FH,quote=FALSE, sep="\t")

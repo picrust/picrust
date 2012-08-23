@@ -57,7 +57,7 @@ foreach my $gp_id(keys %{$genome_counts}){
 }
 my @pfam_ids=keys %pfam_id_uniq;
 
-if($method eq 'ML' || $method eq 'REML' || $method eq 'pic'){
+if($method eq 'ML' || $method eq 'REML' || $method eq 'pic' || $method eq 'wagner'){
     my $ace_predictions = make_ace_predictions();
     output_predictions($ace_predictions);
 }elsif($method eq 'random'){

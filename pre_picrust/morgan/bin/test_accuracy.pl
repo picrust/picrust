@@ -17,7 +17,7 @@ GetOptions("method=s" =>\$method, "func=s"=>\$func);
 
 my $query_id_name=$ARGV[0];
 
-my $usage ="test_accuracy.pl --method [random|ace|neighbour|aceML] --func [pfam|subsystem|role|EC] <query_id_name>";
+my $usage ="test_accuracy.pl --method [random|ace|neighbour|aceML|wagner] --func [pfam|subsystem|role|EC] <query_id_name>";
 unless (defined($method) && ($func)){
     print $usage;
     exit;
