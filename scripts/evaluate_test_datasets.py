@@ -100,9 +100,10 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
 
     pooled_observations = {}
     pooled_expectations = {}
-    for file_number,f in enumerate(sorted(listdir(obs_dir_fp))):
+    input_files=sorted(listdir(obs_dir_fp))
+    for file_number,f in enumerate(input_files):
         if verbose:
-            print "\nExamining file: %s" %f
+            print "\nExamining file {0} of {1}: {2}".format(file_number+1,len(input_files),f)
         if 'accuracy_metrics' in f:
             print "%s is an Accuracy file...skipping" %str(f)
             continue
