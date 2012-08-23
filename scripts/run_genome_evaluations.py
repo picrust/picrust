@@ -44,6 +44,7 @@ make_option('-t','--ref_tree',type="existing_filepath",help='reference tree that
 parallel_method_choices=['sge','torque','multithreaded']
 predict_traits_choices =['asr_and_weighting','nearest_neighbor','random_neighbor']
 asr_choices = ['ace_ml', 'ace_reml', 'ace_pic', 'wagner']
+weighting_choices = ['linear','exponential','equal']
 
 script_info['optional_options'] = [\
 make_option('-o','--output_dir',type="new_dirpath",help='the output directory [default: <input_dir>]'),\
@@ -55,16 +56,24 @@ make_option('-m','--prediction_method',type='choice',\
             help='Method for trait prediction.  See predict_traits.py for full documentation. Valid choices are: '+\
             ', '.join(predict_traits_choices) + ' [default: %default]',\
             choices=predict_traits_choices,default='asr_and_weighting'),\
+make_option('--with_confidence',action='store_true',default=False,\
+            help='If set, calculate confidence intervals with ace_ml or ace_reml, and use confidence intervals in trait prediction'),\
+make_option('--with_accuracy',action='store_true',default=False,\
+            help='If set, calculate accuracy using the NSTI (nearest sequenced taxon index) during trait prediction'),\
 make_option('-a','--asr_method',type='choice',\
             help='Method for ancestral_state_reconstruction.  See ancestral_state_reconstruction.py for full documentation. Valid choices are: '+\
             ', '.join(asr_choices) + ' [default: %default]',\
             choices=asr_choices,default='wagner'),\
+make_option('-w','--weighting_method',type='choice',\
+            help='Method for weighting during trait prediction.  See predict_traits.py for full documentation. Valid choices are: '+\
+            ', '.join(weighting_choices) + ' [default: %default]',\
+            choices=weighting_choices,default='exponential'),\
 make_option('-n','--num_jobs',action='store',type='int',\
             help='Number of jobs to be submitted (if --parallel). [default: %default]',\
             default=100),\
 make_option('--tmp-dir',type="new_dirpath",help='location to store intermediate files [default: <output_dir>]'),\
 make_option('--force',action='store_true',default=False, help='run all jobs even if output files exist [default: %default]'),\
-make_option('--check_for_null_files',action='store_true',default=False, help='check if pre-existing output files have null files. If so remove them and re-run. [default: %default]'),\
+make_option('--check_for_null_files',action='store_true',default=False, help='check if pre-existing output files have null files. If so remove them and re-run. [default: %default]')
 ]
 
 script_info['version'] = __version__
@@ -85,6 +94,8 @@ def main():
     if opts.num_jobs > 20 and parallel_method == 'multithreaded':
         raise ValueError('You probably dont want to run multithreaded evaluations with a large num_jobs. Please adjust options num_jobs and or parallel_method')
         
+    if opts.with_confidence and asr_method not in ['ace_ml','ace_reml']:
+        raise ValueError("PICRUST currently only supports confidence intervals with the ace_ml and ace_reml ASR methods")
 
     if opts.verbose:
         print "Reconstruction method:",asr_method
@@ -92,7 +103,7 @@ def main():
         print "Parallel method:",parallel_method
         print "num_jobs:",opts.num_jobs
         print "\nOutput will be saved here:'%s'" %output_dir 
-
+    
     #create the output directory unless it already exists
     make_output_dir(output_dir)
 
@@ -131,6 +142,7 @@ def main():
     for test_id in test_datasets:
 
         asr_out_fp=join(output_dir,'asr--'+asr_method+'--'+test_id)
+        asr_params_out_fp=join(output_dir,'--'.join(['asr',asr_method,'asr_params',test_id]))
         created_tmp_files.append(asr_out_fp)
 
         if opts.check_for_null_files and exists(asr_out_fp) and file_contains_nulls(asr_out_fp):
@@ -139,15 +151,21 @@ def main():
                 print "Existing ASR file contains null characters. Will run ASR again after removing: "+asr_out_fp
             remove(asr_out_fp)
         
+
         if exists(asr_out_fp) and not opts.force:
             if opts.verbose:
                 print "Output file: {0} already exists, so we will skip it.".format(asr_out_fp)
             asr_cmd = "echo 'Skipping ASR for %s, file %s exists already'" %(test_id,asr_out_fp)
         else:
             #create the asr command
-            asr_cmd= """python {0} -i "{1}" -t "{2}" -m {3} -o "{4}" """.format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp)
+            asr_cmd= """python {0} -i "{1}" -t "{2}" -m {3} -o "{4}" -c "{5}" """.format(asr_script_fp, test_datasets[test_id][0], test_datasets[test_id][1], asr_method, asr_out_fp, asr_params_out_fp)
 
-        predict_traits_out_fp=join(output_dir,'predict_traits--'+predict_traits_method+'--'+test_id)
+        predict_traits_out_fp=join(output_dir,'--'.join(['predict_traits',predict_traits_method,\
+          opts.weighting_method,test_id]))
+        
+        if opts.with_accuracy:
+            predict_traits_accuracy_out_fp=join(output_dir,'--'.join(['predict_traits',predict_traits_method,\
+              opts.weighting_method,'accuracy_metrics',test_id]))
 
         if opts.check_for_null_files and exists(predict_traits_out_fp) and file_contains_nulls(predict_traits_out_fp):
             if opts.verbose:
@@ -162,14 +180,31 @@ def main():
         output_files.append(predict_traits_out_fp)
 
         genome_id=split('--',test_id)[2]
-
-        if(predict_traits_method == 'nearest_neighbor'):
+        
+        if predict_traits_method == 'nearest_neighbor':
             #don't do asr step
             predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -g "{3}" -o "{4}" -m "{5}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, genome_id, predict_traits_out_fp,predict_traits_method)
             jobs.write(predict_traits_cmd+"\n")
         else:
+
             #create the predict traits command
-            predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" -m "{6}" """.format(predict_traits_script_fp, test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp,predict_traits_method)
+            predict_traits_cmd= """python {0} -i "{1}" -t "{2}" -r "{3}" -g "{4}" -o "{5}" -m "{6}" -w {7} """.format(predict_traits_script_fp,\
+            test_datasets[test_id][0], opts.ref_tree, asr_out_fp,genome_id, predict_traits_out_fp,predict_traits_method,opts.weighting_method)
+
+            #Instruct predict_traits to use confidence intervals output by ASR
+            if opts.with_confidence:
+                confidence_param = ' -c "%s"' %(asr_params_out_fp)
+                predict_traits_cmd = predict_traits_cmd + confidence_param
+        
+            #Instruct predict traits to output the NTSI measure of distance to
+            #nearby sequences.
+
+            if opts.with_accuracy:
+                accuracy_param = ' -a "%s"' %(predict_traits_accuracy_out_fp)
+            predict_traits_cmd = predict_traits_cmd + accuracy_param
+
+        
+
  
             #add job command to the the jobs file
             jobs.write(asr_cmd+';'+predict_traits_cmd+"\n")
