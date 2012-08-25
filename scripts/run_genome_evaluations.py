@@ -201,7 +201,7 @@ def main():
 
             if opts.with_accuracy:
                 accuracy_param = ' -a "%s"' %(predict_traits_accuracy_out_fp)
-            predict_traits_cmd = predict_traits_cmd + accuracy_param
+                predict_traits_cmd = predict_traits_cmd + accuracy_param
 
         
 
