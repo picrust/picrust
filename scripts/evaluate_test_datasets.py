@@ -21,7 +21,7 @@ from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
  format_scatter_data, format_correlation_data, run_and_format_roc_analysis
 
 from biom.parse import parse_biom_table, convert_biom_to_table
-
+from picrust.util import make_output_dir
 
 from picrust.parse import parse_trait_table, parse_marker_gene_copy_numbers
 
@@ -192,6 +192,10 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
     pool_by = opts.pool_by.split(',') 
+
+    
+    #create output directory
+    make_output_dir(opts.output_dir)
     
     #file_name_field_order={'file_type':0,"prediction_method":1,\
     #  "weighting_method":2,"holdout_method":3,"distance":4,"organism":5}
@@ -222,7 +226,6 @@ def main():
       opts.exp_trait_table_dir,file_name_delimiter="--",\
       file_name_field_order=file_name_field_order,pool_by=pool_by,\
       roc_success_criteria=roc_success_criteria,verbose=opts.verbose)
-   
 
     #Output scatter data
     
