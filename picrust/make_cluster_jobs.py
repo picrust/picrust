@@ -76,7 +76,7 @@ cd $PBS_O_WORKDIR
 """
 
 
-def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,max_hours_per_job=5):
+def make_sge_jobs(commands, job_prefix, queue, jobs_dir="jobs/",num_jobs=100,max_hours_per_job=24):
     """prepare qsub text files.
     
     command: list of commands
