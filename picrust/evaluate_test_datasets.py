@@ -436,7 +436,8 @@ def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,allow_zero_result
     results['sensitivity'] =  tp/(tp+fn) # == TPR, hit rate, recall
     results['specificity'] =  tn/(tn+fp) # == 1- FPR, TNR
     results['false_positive_rate'] = fp/(fp+tn)
-    results['accuracy'] = (tp + tn)/n  
+    results['accuracy'] = (tp + tn)/n
+    results['balanced_accuracy']=(results['sensitivity']+results['specificity'])/2
 
     return results
     
@@ -492,6 +493,8 @@ def confusion_matrix_results_by_index(obs,exp,success_criterion='binary',verbose
             [i for i,f in enumerate(obs) if exp[i] == obs[i] and exp[i] == 0]
     
     elif success_criterion == 'binary':
+        obs = around(obs)
+        exp = around(exp)
         #Binary method (all non-zero values equal success 
         tp_indices =\
             [i for i,f in enumerate(obs) if exp[i] >= 1 and obs[i]>=1]
