@@ -38,7 +38,7 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
-    genome_table = parse_biom_table(open(opts.input_genome_table,'U'))
+    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
 
     make_output_dir_for_file(opts.output_metagenome_table)
