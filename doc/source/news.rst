@@ -2,6 +2,7 @@
 
 News & Announcements
 ====================
+* 09-16-12: PICRUST presented by Morgan Langille & Curtis Huttenhower at `Microbial Genomics 2012 conference <http://www.mimg.ucla.edu/arrowhead2012/>`_.
 * 07-10-12: PICRUST presented by Morgan Langille at the `iEvoBio conference <http://ievobio.org/>`_ (`Presentation on Slideshare <http://www.slideshare.net/mlangill/leveraging-ancestral-state-reconstruction-to-infer-community-function-from-a-single-marker-gene>`_).
 * 07-10-12: PICRUST presented by Jesse Zaneveld at `ICRS <http://www.icrs2012.com/>`_.
 * 06-25-12: PICRUST presented by Jack Gilbert at the `Gordon Marine Microbes conference <http://www.grc.org/programs.aspx?year=2012&program=marinemicr>`_.
