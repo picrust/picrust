@@ -11,7 +11,7 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from numpy import dot, array
+from numpy import dot, array, around
 from biom.table import table_factory
 
 def get_overlapping_ids(otu_table,genome_table):
@@ -42,6 +42,9 @@ def predict_metagenomes(otu_table,genome_table):
     
     # matrix multiplication to get the predicted metagenomes
     new_data = dot(array(otu_data).T,array(genome_data)).T
+    
+    #Round counts to nearest whole numbers
+    new_data = around(new_data)
     
     # return the result as a sparse biom table - the sample ids are now the 
     # sample ids from the otu table, and the observation ids are now the 
