@@ -17,6 +17,8 @@ from cogent.util.option_parsing import parse_command_line_parameters, make_optio
 from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
 from biom.table import table_factory,DenseOTUTable
 from picrust.util import make_output_dir_for_file
+from os import path
+import gzip
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -45,9 +47,13 @@ def main():
         otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,DenseOTUTable)
     else:
         otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
-    
-    count_table = parse_biom_table(open(opts.input_count_fp,'U'))
-    
+
+    ext=path.splitext(opts.input_count_fp)[1]
+    if (ext == '.gz'):
+        count_table = parse_biom_table(gzip.open(opts.input_count_fp,'rb'))
+    else:
+        count_table = parse_biom_table(open(opts.input_count_fp,'U'))
+        
     #Need to only keep data relevant to our otu list
     ids=[]
     for x in otu_table.iterObservations():
