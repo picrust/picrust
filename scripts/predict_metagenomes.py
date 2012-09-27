@@ -18,6 +18,8 @@ from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes
 from picrust.format import format_biom_table
 from picrust.util import make_output_dir_for_file
+from os import path
+import gzip
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -37,9 +39,24 @@ script_info['version'] = __version__
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
+    if opts.verbose:
+        print "Loading otu table: ",opts.input_otu_table
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
-    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+    ext=path.splitext(opts.input_count_table)[1]
+
+    if opts.verbose:
+        print "Loading count table: ", opts.input_count_table
+    if (ext == '.gz'):
+        genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+    else:
+        genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+
+    if opts.verbose:
+        print "Predicting the metagenome..."
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
+
+    if opts.verbose:
+        print "Writing results to output file: ",opts.output_metagenome_table
 
     make_output_dir_for_file(opts.output_metagenome_table)
     if(opts.format_tab_delimited):
