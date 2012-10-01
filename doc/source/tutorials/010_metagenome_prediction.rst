@@ -19,40 +19,7 @@ You should already have the following files before starting this tutorial:
 
 1. The `PICRUST software`_ package
 2. A PICRUST compatible OTU table (:ref:`otu_picking_tutorial`)
-3. The `PICRUST precalculated files`_ **(Note: Not yet available)**
-
-.. warning::
-
-	As of August 2012, our prerelease PICRUST does not yet include precomputed data for all `Greengenes`_ reference OTUs. 
-	Therefore you will have to run ``predict_traits.py`` using your OTU table and the ``-l`` option. See **Temporary: Create PICRUST data files** below for more information.
-
-Temporary: Create PICRUST data files
-------------------------------------
-
-* Download and unpack `PICRUST temporary files`_.
-
-* If your OTU table is in biom format then you need it also in classic QIIME format.::
-
-	convert_biom.py -b -i your_otu_table.biom -o your_otu_table.tab 
-
-* Now run ``predict_traits`` for 16S copy number: ::
-
-	predict_traits.py
-		-t reference_tree.newick
-		-l your_otu_table.tab	
- 		-i 16S_trait_table.tab	
-		-r 16S_asr_wagner_counts.tab
-		-o trait_predictions_16S_wagner.biom
-
-* Now run ``predict_traits`` for KEGG: ::
-
-	predict_traits.py 
-		-t reference_tree.newick
-		-l your_otu_table.tab
-		-i KEGG_trait_table.tab
-		-r KEGG_asr_wagner_counts.tab
-		-o trait_predictions_KEGG_wagner.biom
-	
+3. The `PICRUST precalculated files`_
 
 
 Tutorial Files (optional)
@@ -82,18 +49,18 @@ The `PICRUST metagenome tutorial files`_ allow testing of PICRUST using a simple
 	This file was created specifically for the OTU table included in this tutorial using the ``-l`` option in ``predict_traits.py``.
 	It can NOT be used with other OTU tables.
 
-Normalize OTU Table
--------------------
+Step 1: Normalize OTU Table
+---------------------------
 
 :ref:`normalize_by_copy_number` normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.
 
-Input is the users OTU table (that has been referenced picked against green genes), and the 16S copy number table for each OTU (produced by :ref:`predict_traits`).
+Input is the users OTU table (that has been referenced picked against green genes), and the PICRUST 16S copy number pre-calculated file (**16S_acepic_predict_traits_97.biom.gz**).
 
-Input and output files are in biom format. ::
+Input and output files are in `biom`_ format::
 
 	normalize_by_copy_number.py 
 		-i your_otu_table.biom
-		-c trait_predictions_16S_wagner.biom
+		-c 16S_acepic_predict_traits_97.biom.gz
 		-o your_normalized_otu_table.biom
 
 (Optional) Input format of OTU table can be changed to "classic" `QIIME`_ OTU instead of `biom`_ format using the ``-f`` option: ::
@@ -101,21 +68,21 @@ Input and output files are in biom format. ::
 	 normalize_by_copy_number.py 
 		-f 
 		-i your_otu_table.tab
-		-c trait_predictions_16S_wagner.biom
+		-c 16S_acepic_predict_traits_97.biom.gz
 		-o your_normalized_otu_table.biom
 
-Predict Functions For Metagenome
---------------------------------
+Step 2: Predict Functions For Metagenome
+----------------------------------------
 
 :ref:`predict_metagenomes` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).
 
-Input is the normalized OTU table created by :ref:`normalize_by_copy_number` and the functional trait predictions produced by :ref:`predict_traits`. 
+Input is the normalized OTU table created by :ref:`normalize_by_copy_number` and the PICRUST KEGG pre-calculated file (**KEGG_acepic_predict_traits_97.biom.gz**). 
  
 Output is in `biom`_ format by default: ::
 
 	predict_metagenomes.py 
 		-i your_normalized_otu_table.biom
-		-c trait_predictions_KEGG_wagner.biom
+		-c KEGG_acepic_predict_traits_97.biom.gz
 		-o your_KEGG_predictions.biom
 
 (Optional) Output format can be changed to tab delimited using ``-f`` option: ::
@@ -123,5 +90,5 @@ Output is in `biom`_ format by default: ::
 	predict_metagenomes.py 
 		-f 
 		-i your_normalized_otu_table.biom
-		-c trait_predictions_KEGG_wagner.biom
+		-c KEGG_acepic_predict_traits_97.biom.gz
 		-o your_KEGG_predictions.tab

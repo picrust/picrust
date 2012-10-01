@@ -10,7 +10,7 @@
 .. _PICRUST metagenome tutorial files:	https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip
 .. _PICRUST GG reference data:		https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz
 .. _PICRUST starting files: 		https://dl.dropbox.com/s/yvymi52uiwgltqt/picrust_starting_files.zip?dl=1
-.. _PICRUST precalculated files: 	replace:: :py:mod:`dummy`
+.. _PICRUST precalculated files: 	https://dl.dropbox.com/s/f8sy84kxi2havww/picrust_precalculated_files.tgz?dl=1
 .. _PICRUST temporary files:		https://dl.dropbox.com/sh/7x2e2zh65yuf45u/VbWVrx392K/tutorial_files/picrust_temporary_files.zip?dl=1
 .. _PICRUST users list: 		https://groups.google.com/group/picrust-users/subscribe?note=1&hl=en&noredirect=true&pli=1
 .. _PyCogent:				http://pycogent.sourceforge.net/

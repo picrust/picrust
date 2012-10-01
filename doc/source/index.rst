@@ -31,7 +31,7 @@ Download
 
 **PICRUST Software (All Users)**
 
-* `PICRUST software`_
+* PICRUST software
 
 .. warning::
 
@@ -45,12 +45,7 @@ Download
 
 **Metagenome Prediction (Most Users)**
 
-* `PICRUST precalculated files`_ (NOTE: Not available yet!!)
-
-.. warning::
-       
-	Our prerelease PICRUST does not yet include precomputed data for all `Greengenes`_ reference OTUs. 
-	Therefore, to produce this needed data you will have to run a temporary extra step using the `PICRUST temporary files`_ 
+* `PICRUST precalculated files`_
 
 * For use, see tutorial: :ref:`metagenome_prediction_tutorial`
 
@@ -58,6 +53,13 @@ Download
 
 * Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**: `PICRUST starting files`_.
 * For use, see tutorial: :ref:`genome_prediction_tutorial`
+
+
+Install
+=======
+
+* Directory location of 'PICRUST/picrust' must be added to your PYTHONPATH environment variable
+* Directory location of 'PICRUST/scripts' can be added to your PATH environment variable for ease of use (optional)
 
 Quickstart
 ==========
