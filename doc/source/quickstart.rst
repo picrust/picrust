@@ -56,7 +56,7 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 
 	normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/16S_acepic_predict_traits_97.biom.gz -o your_normalized_otu_table.biom
 
-* Get KEGG predictions (NOTE: This step currently requires approx 10GB RAM)::
+* Get KEGG predictions (NOTE: This step currently requires approx 5GB RAM)::
 
 	predict_metagenomes.py -i your_normalized_otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/KEGG_acepic_predict_traits_97.biom.gz -o your_KEGG_predictions.biom
 
