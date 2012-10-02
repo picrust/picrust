@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The PICRUST project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
@@ -22,17 +22,19 @@ from os import path
 import gzip
 
 script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = ""
-script_info['script_usage'] = [("","Predict metagenomes from genomes.biom and otus.biom.","%prog -g genomes.biom -i otus.biom -o predicted_metagenomes.biom")]
-script_info['output_description']= ""
+script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
+script_info['script_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
+script_info['script_usage'] = [("","Basic usage:","%prog -i otus.biom -c KEGG_acepic_predict_traits_97.biom.gz -o predicted_metagenomes.biom"),
+                               ("","Change output format to plain tab-delimited:","%prog -f -i otus.biom -c KEGG_acepic_predict_traits_97.biom.gz -o predicted_metagenomes.tab")]
+script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
- make_option('-c','--input_count_table',type="existing_filepath",help='the input trait counts on per otu basis in biom format'),
+ make_option('-c','--input_count_table',type="existing_filepath",help='the input trait counts on per otu basis in biom format (can be gzipped)'),
  make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome'),
+]
+script_info['optional_options'] = [
  make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')
 ]
-script_info['optional_options'] = []
 script_info['version'] = __version__
 
 

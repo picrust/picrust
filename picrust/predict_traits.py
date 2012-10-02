@@ -25,13 +25,16 @@ from cogent.maths.stats.distribution import z_high
 from cogent.maths.stats.special import ndtri
 from cogent import LoadTable
 from warnings import warn
-from biom.table import table_factory,DenseOTUTable
+from biom.table import table_factory,DenseOTUTable,SparseOTUTable
 
 def biom_table_from_predictions(predictions,trait_ids):
     organism_ids=predictions.keys()
     #data is in values (this transposes the matrix)
     data=map(list,zip(*predictions.values()))
+    data=array(data,dtype=int)
+    #import pdb; pdb.set_trace()
     biom_table=table_factory(data,organism_ids,trait_ids, constructor=DenseOTUTable)
+    #biom_table=table_factory(data,organism_ids,trait_ids, constructor=SparseOTUTable)
     return biom_table
 
 
@@ -944,7 +947,11 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         
         #print "Prediction:", prediction
         
+        #import pdb; pdb.set_trace()
 
+        #round all predictions to whole numbers
+        prediction=around(prediction)
+        
         results[node_label] = prediction
         
         
