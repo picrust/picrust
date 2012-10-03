@@ -11,9 +11,9 @@ __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 from collections import defaultdict
-from numpy import  array,ravel,around
+from numpy import  array,ravel,around,ceil
 from copy import copy
-from cogent.maths.stats.test import correlation 
+from cogent.maths.stats.test import correlation,spearman,correlation_test 
 from cogent.maths.stats.distribution import tprob,t_high
 from biom.table import table_factory,DenseOTUTable
 
@@ -409,6 +409,38 @@ def calculate_accuracy_stats_from_observations(obs,exp,success_criterion='binary
     
     result =\
       calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,verbose=verbose)
+
+    result['sum_expected']=sum(exp)
+    result['sum_observed']=sum(obs)
+
+    #pearson correlation (using new method from pycogent 1.5.3)
+    pearson_r,pearson_para_p,pearson_permuted_r,pearson_nonpara_p,pearson_ci =correlation_test(obs,exp,method='pearson',permutations=0)
+    result['pearson_r']=pearson_r
+    #result['pearson_permuted_r']=pearson_permuted_r
+    #result['pearson_nonpara_p']=pearson_nonpara_p
+    result['pearson_p']=pearson_para_p
+    #result['pearson_ci']=pearson_ci
+    result['pearson_r2']=pearson_r**2
+
+    #spearman correlation (using new method from pycogent 1.5.3)
+    spearman_r,spearman_para_p,spearman_permuted_r,spearman_nonpara_p,spearman_ci =correlation_test(obs,exp,method='spearman',permutations=0)
+    result['spearman_r']=spearman_r
+    #result['spearman_permuted_r']=spearman_permuted_r
+    #result['spearman_nonpara_p']=spearman_nonpara_p
+    result['spearman_p']=spearman_para_p
+    #result['spearman_ci']=spearman_ci
+    result['spearman_r2']=spearman_r**2
+
+    #add in correlations (old)
+    #pearson_r,pearson_t_prob =correlation(obs,exp)
+    #result['pearson']=pearson_r
+    #result['pearson_prob']=pearson_t_prob
+    #result['pearson_r2']=pearson_r**2
+
+    #spearman_r,spearman_t_prob =spearman_correlation(obs,exp)
+    #result['spearman']=spearman_r
+    #result['spearman_prob']=spearman_t_prob
+    #result['spearman_r2']=spearman_r**2
     return result
     
 def calculate_accuracy_stats_from_confusion_matrix(tp,fp,fn,tn,allow_zero_results=True,verbose=False):
@@ -479,6 +511,13 @@ def confusion_matrix_results_by_index(obs,exp,success_criterion='binary',verbose
         obs = around(obs)
         exp = around(exp)
         #Like exact, but first round numbers such that e.g. 0.7 == 1.0
+        success_criterion = 'exact'
+
+    if success_criterion == 'ra_exact':
+        obs = ceil(obs)
+        exp = ceil(exp)
+        #take ceiling of numbers (used for relative abundances)
+        #Note could use binary here as well since relative abundances will translate into all 0s or 1s.
         success_criterion = 'exact'
 
     if success_criterion == 'exact':
