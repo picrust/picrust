@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2012, The PICRUST project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
@@ -59,19 +59,29 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     """
     
     # identify the overlapping otus that can be used to calculate the NSTI
-    overlapping_otus = get_overlapping_otus(otu_table,genome_table)
+    overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     total = 0.0 
     n = 0.0
+    observation_ids = otu_table.SampleIds
     for obs_id in overlapping_otus:
-        curr_nsti =  otu_table.ObservationMetadata[obs_id]['NSTI']
+        #print "Curr observed id:",obs_id
+        obs_id_idx = genome_table.getSampleIndex(obs_id)
+        #observatin_ids.append(genome_table.ObservationIds[obs_id_idx])
+        curr_nsti =  genome_table.SampleMetadata[obs_id_idx]['NSTI']
+        #print "Current NSTI", curr_nsti
         if weighted:
             curr_counts = otu_table.observationData(obs_id)
-            total += counts*curr_nsti
-            n += counts
+            #print "Curr counts:",curr_counts
+            total += curr_counts*curr_nsti
+            #print "total:",total
+            n += curr_counts
+            #print "n:",n
         else:
             total += curr_nsti
             n += 1
     
     result=total/n
-    return result
+    #print "result:",result
+    
+    return observation_ids,result
 
