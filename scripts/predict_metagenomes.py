@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The PICRUST project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
 __maintainer__ = "Greg Caporaso"
@@ -15,7 +15,7 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
-from picrust.predict_metagenomes import predict_metagenomes
+from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
 from picrust.util import make_output_dir_for_file,format_biom_table
 
 script_info = {}
@@ -38,14 +38,32 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
-    genome_table = parse_biom_table(open(opts.input_genome_table,'U'))
+    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
     
     if opts.accuracy_metrics:
         # Calculate accuracy metrics
-        unweighted_nsti = calc_nsti(otu_table,genome_table,weighted=False)
-        print "Unweighted NSTI:", unweighted_nsti
+        #unweighted_nsti = calc_nsti(otu_table,genome_table,weighted=False)
+        #print "Unweighted NSTI:", unweighted_nsti
+        
         weighted_nsti = calc_nsti(otu_table,genome_table,weighted=True)
-        print "Weighted NSTI:", weighted_nsti
+        samples= weighted_nsti[0]
+        nstis = list(weighted_nsti[1])
+        #print "Samples:",samples
+        #print "NSTIs:",nstis
+        samples_and_nstis = zip(samples,nstis)
+        #print "Samples and NSTIs:",samples_and_nstis
+        lines = ["#Sample\tMetric\tValue\n"]
+        #print weighted_nsti
+        for sample,nsti in samples_and_nstis:
+            line = "%s\tWeighted NSTI\t%s\n" %(sample,str(nsti))
+            lines.append(line)
+
+        if opts.verbose:
+            for l in sorted(lines):
+                print l
+        if opts.verbose:
+            print "Writing accuracy information to file:", opts.accuracy_metrics
+        open(opts.accuracy_metrics,'w').writelines(sorted(lines))
 
     predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
 
