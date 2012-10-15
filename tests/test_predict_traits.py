@@ -11,7 +11,8 @@ from cogent.maths.stats.special import ndtri
 from warnings import catch_warnings
 from picrust.predict_traits  import assign_traits_to_tree,\
   predict_traits_from_ancestors, get_most_recent_ancestral_states,\
-  fill_unknown_traits, linear_weight, make_neg_exponential_weight_fn,\
+  fill_unknown_traits, equal_weight,linear_weight,\
+  inverse_variance_weight, make_neg_exponential_weight_fn,\
   weighted_average_tip_prediction, get_interval_z_prob,\
   thresholded_brownian_probability, update_trait_dict_from_file,\
   biom_table_from_predictions, get_nearest_annotated_neighbor,\
@@ -283,6 +284,35 @@ class TestPredictTraits(TestCase):
 
         biom_table=biom_table_from_predictions(predictions,["trait1","trait2"])
         
+    def test_equal_weight(self):
+        """constant_weight weights by a constant"""
+        w = 1.0
+        d = 0.1
+        for i in range(100):
+            obs = equal_weight(i)
+            exp = w
+            self.assertFloatEqual(obs,exp)
+    
+    def test_make_neg_exponential_weight_fn(self):
+        """make_neg_exponential_weight_fn returns the specified fn"""
+        
+        exp_base = 10
+        weight_fn = make_neg_exponential_weight_fn(exp_base)
+        
+        d = 10.0
+        obs = weight_fn(d)
+        exp = 10.0**-10.0
+        self.assertFloatEqual(obs,exp)
+
+        #Test for base two
+        exp_base = 2
+        weight_fn = make_neg_exponential_weight_fn(exp_base)
+        
+        d = 16.0
+        obs = weight_fn(d)
+        exp = 2.0**-16.0
+        self.assertFloatEqual(obs,exp)
+
 
     def test_linear_weight(self):
         """linear_weight weights linearly"""
@@ -303,6 +333,25 @@ class TestPredictTraits(TestCase):
         obs = linear_weight(d,max_d)
         exp = 0.50
         self.assertFloatEqual(obs, exp)
+    
+    def test_inverse_variance_weight(self):
+        """inverse_variance_weight"""
+        
+        var = 1000.0
+        for d in range(1,10):
+            d = float(d)
+            obs = inverse_variance_weight(d,var)
+            exp = 1.0/1000.0
+            self.assertFloatEqual(obs,exp)
+
+        #Now test the special case of zero variance
+        var = 0.0
+        for d in range(1,10):
+            d = float(d)
+            obs = inverse_variance_weight(d,var)
+            exp = 1.0/1e-10
+            self.assertFloatEqual(obs,exp)
+
 
     def test_assign_traits_to_tree(self):
         """assign_traits_to_tree should map reconstructed traits to tree nodes"""
