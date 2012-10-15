@@ -840,7 +840,46 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         print "NSTI:",nsti
     return nsti,min_distances
 
+def get_nn_by_tree_descent(tree,node_of_interest,filter_by_property = "Reconstruction",verbose=False):
+    """An alternative method for getting the NN of a node using tree descent
+    
+    The idea with this method is that if we descend the tree from a node of interest,
+    then as soon as we hit a node whose length is greater than the distance from the node of interest
+    to its sibling nodes, we know we have the set of nodes where the NN must reside.
+    """
+
+    #Start at a node of interest
+    start_node = tree.getNodeMatchingName(node_of_interest)
+    #if verbose:
+    #    print "Found node:", start_node.Name
+    
+    found_NN_clade = False
+    curr_base_node = start_node.Parent
+    
+    while not found_NN_clade:
+        #print "curr_base_node:", curr_base_node.Name
+        #print dir(curr_base_node)
+        if filter_by_property:
+            possible_NNs = [n for n in curr_base_node.tipChildren() if getattr(n,"Reconstruction",None) is not None]
+        else:
+            #consider all non-self possibilities
+            possible_NNs = [n for n in curr_base_node.tipChildren() if n !=start_node]
         
+        dists = [start_node.distance(n) for n in possible_NNs]
+
+        curr_min = min(dists)
+        if curr_base_node.Length + curr_base_node.distance(start_node) >= curr_min:
+            found_NN_clade = True
+            break
+        curr_base_node=curr_base_node.Parent
+
+    distance = curr_min
+    nearest_neighbor = possible_NNs[argmin(dists)]
+     
+    #Find siblings
+    return nearest_neighbor,distance
+
+
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
     weight_fn=linear_weight, verbose = False,\
