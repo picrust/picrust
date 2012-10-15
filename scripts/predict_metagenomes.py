@@ -16,8 +16,7 @@ __status__ = "Development"
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes
-from picrust.format_tree_and_trait_table import format_biom_table
-from picrust.util import make_output_dir_for_file
+from picrust.util import make_output_dir_for_file,format_biom_table
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -27,11 +26,11 @@ script_info['output_description']= ""
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
  make_option('-c','--input_count_table',type="existing_filepath",help='the input trait counts on per otu basis in biom format'),
- make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome'),
- make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')
+ make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome')
 ]
 script_info['optional_options'] = [\
- make_option('-a','--accuracy_metrics',default='./metagenome_accuracy_metrics.txt',type="new_filepath",help='If provided calculate accuracy metrics for the predicted metagenome')]
+ make_option('-a','--accuracy_metrics',default='./metagenome_accuracy_metrics.txt',type="new_filepath",help='If provided calculate accuracy metrics for the predicted metagenome'),
+  make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
 
