@@ -20,7 +20,8 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   calc_nearest_sequenced_taxon_index,\
   variance_of_weighted_mean,fit_normal_to_confidence_interval,\
   get_most_recent_reconstructed_ancestor,\
-  normal_product_monte_carlo, get_bounds_from_histogram
+  normal_product_monte_carlo, get_bounds_from_histogram,\
+  get_nn_by_tree_descent
 
 
 """
@@ -160,6 +161,53 @@ class TestPredictTraits(TestCase):
         self.assertFloatEqual(obs_nsti,exp)
         self.assertFloatEqual(obs_distances["B"],0.03)
         self.assertFloatEqual(obs_distances["C"],0.02)
+    
+    def test_get_nn_by_tree_descent(self):
+        """calc_nearest_sequenced_taxon_index calculates the NSTI measure"""
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction")
+        #Expected distances:
+        # A --> A 0.0
+        # B --> A 0.03
+        # C --> D 0.02
+        # D --> D 0.0
+        # = 0.05/4.0 = 0.0125
+        exp = 0.0125
+        #Test with default options
+        nn,distance = get_nn_by_tree_descent(tree,"B",verbose=True)
+        self.assertEqual(nn.Name,"A")
+        self.assertFloatEqual(distance,0.03)
+        
+        nn,distance = get_nn_by_tree_descent(tree,"A",verbose=True)
+        self.assertEqual(nn.Name,"A")
+        self.assertFloatEqual(distance,0.00)
+        
+        nn,distance = get_nn_by_tree_descent(tree,"A",filter_by_property=False,verbose=True)
+        self.assertEqual(nn.Name,"B")
+        self.assertFloatEqual(distance,0.03)
+        
+        nn,distance = get_nn_by_tree_descent(tree,"C",verbose=True)
+        self.assertEqual(nn.Name,"D")
+        self.assertFloatEqual(distance,0.02)
+        #self.assertFloatEqual(obs_distances["A"],0.0)
+        #self.assertFloatEqual(obs_distances["B"],0.03)
+        #self.assertFloatEqual(obs_distances["C"],0.02)
+        #self.assertFloatEqual(obs_distances["D"],0.00)
+
+        #Test calcing the index while 
+        #limiting prediction to B and C
+        
+        # B --> A 0.03
+        # C --> D 0.02
+        
+        exp = 0.025
+        obs_nsti,obs_distances = calc_nearest_sequenced_taxon_index(tree,\
+          limit_to_tips = ["B","C"],verbose=False)
+        self.assertFloatEqual(obs_nsti,exp)
+        self.assertFloatEqual(obs_distances["B"],0.03)
+        self.assertFloatEqual(obs_distances["C"],0.02)
+
 
     def test_predict_random_neighbor(self):
         """predict_random_neighbor predicts randomly"""
