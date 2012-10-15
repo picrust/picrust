@@ -66,6 +66,33 @@ def parse_table_to_biom(table_lines, table_format="tab-delimited",\
         #now convert to biom 
         return biom_table  
 
+
+#def map_metadata_by_key(biom_table,metadata,keys_are="sample_ids"):
+#    """Map a dict of metadata to a biom table
+#    biom_table -- a BIOM format table
+#    metadata -- a dictionary of metadata values, 
+#    keyed by either sample or observation id.
+#    keys_are -- choose 'sample_ids' or 'observation_ids'
+#
+#    NOTE: if your metadata dict is already keyed by metadata label,
+#    and is a list, use the biom objects built in functions instead
+#    of this.
+#    
+#    """
+#    metadata_keys = metadata_dict.keys()
+#    result_list = []*len(metadata_keys)
+#    for k in metadata_keys:
+#        if keys_are == 'sample_ids':
+#            curr_idx = biom_table.getSampleIndex(k) 
+#            result_list[k] = metadata
+#            biom_table.getSampleIndex(k)
+#        elif keys_are == 'observation_ids':
+#            result_list[k] = metadata
+#            biom_table.getObservationIndex(k)
+#        else:
+#            raise ValueError('keys_are must be "sample_ids", or "observation_ids", not "%s"' %(keys_are))
+#
+
 def get_picrust_project_dir():
     """ Returns the top-level PICRUST directory
     """
