@@ -55,20 +55,30 @@ def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     return tree
 
 
-def linear_weight(d,max_d=1.0):
+#Note that I needed to add an empty variance parameter to each fn,
+#and a distance to the variance weighting to support a common interface
+
+def linear_weight(d,max_d=1.0,variance=None):
     return (max_d - d)/max_d
 
 def make_neg_exponential_weight_fn(exp_base = 2.0):
     """Return function that exponentially weights exp_base by -d"""
     
-    def neg_exponential_weight(d):
+    def neg_exponential_weight(d,variance=None):
         return exp_base**(-1*d)
     
     return neg_exponential_weight
 
 
-def equal_weight(d,constant_weight=1.0):
-    return weight
+def equal_weight(d,constant_weight=1.0,variance=None):
+    return constant_weight
+
+def inverse_variance_weight(d,variance,min_variance=1e-10):
+    """weight by the inverse of variance
+    NOTE: if variance is zero, weight by the inverse of min_variance"""
+    adj_var = max(variance,min_variance)
+    return 1.0/adj_var
+
     
 
 def fit_normal_to_confidence_interval(upper,lower,mean=None, confidence = 0.95):
