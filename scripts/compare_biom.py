@@ -18,8 +18,7 @@ from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
 from picrust.evaluate_test_datasets import calculate_accuracy_stats_from_observations
 from biom.parse import parse_biom_table, convert_biom_to_table
-from picrust.util import make_output_dir
-
+from picrust.util import make_output_dir_for_file
 from biom.table import table_factory,DenseOTUTable,SparseOTUTable
 from picrust.parse import parse_trait_table, parse_marker_gene_copy_numbers
 
@@ -154,7 +153,8 @@ def match_biom_tables_by_sample(observed_table,expected_table_keep,verbose=False
         observed_table=observed_table.normObservationBySample()        
         expected_table=expected_table.normObservationBySample()        
 
-
+    if verbose:
+        print "Extracting data from biom objects..."
     # create lists to contain filtered data - we're going to need the data in 
     # numpy arrays, so it makes sense to compute this way rather than filtering
     # the tables
@@ -182,13 +182,13 @@ def main():
     observed_files=args
    
 
+    make_output_dir_for_file(opts.output_fp)
+    out_fh=open(opts.output_fp,'w')
+
     if verbose:
         print "Loading expected trait table file:",opts.exp_trait_table_fp
 
     exp_table =parse_biom_table(open(opts.exp_trait_table_fp,'U'))
-
-
-    out_fh=open(opts.output_fp,'w')
 
     header_printed=False
     header_keys=[]
