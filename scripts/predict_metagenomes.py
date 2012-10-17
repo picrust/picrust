@@ -32,7 +32,7 @@ script_info['required_options'] = [
  make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome')
 ]
 script_info['optional_options'] = [\
- make_option('-a','--accuracy_metrics',default='./metagenome_accuracy_metrics.txt',type="new_filepath",help='If provided calculate accuracy metrics for the predicted metagenome'),
+        make_option('-a','--accuracy_metrics',default=None,type="new_filepath",help='If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using predict_traits.py during genome prediction (e.g. there are "NSTI" values in the genome .biom file metadata)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
