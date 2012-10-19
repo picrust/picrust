@@ -44,7 +44,7 @@ def main():
        parse_command_line_parameters(**script_info)
     
     if opts.input_format_classic:
-        otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,DenseOTUTable)
+        otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,None,DenseOTUTable)
     else:
         otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
 
