@@ -19,6 +19,7 @@ from biom.table import table_factory,DenseOTUTable
 from picrust.util import make_output_dir_for_file
 from os import path
 import gzip
+import sys
 
 script_info = {}
 script_info['brief_description'] = ""
@@ -42,10 +43,13 @@ script_info['version'] = __version__
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-    
+
+    input_ext=path.splitext(opts.input_otu_fp)[1]
     if opts.input_format_classic:
         otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,None,DenseOTUTable)
     else:
+        if input_ext != '.biom':
+            sys.stderr.write("\nOTU table does not have '.biom' extension! If loading causes error consider using '-f' option to load tab-delimited OTU table!\n\n")
         otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
 
     ext=path.splitext(opts.input_count_fp)[1]
