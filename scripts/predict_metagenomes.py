@@ -52,7 +52,9 @@ def main():
         genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
     else:
         genome_table = parse_biom_table(open(opts.input_count_table,'U'))
-    
+
+    make_output_dir_for_file(opts.output_metagenome_table)
+
     if opts.accuracy_metrics:
         # Calculate accuracy metrics
         #unweighted_nsti = calc_nsti(otu_table,genome_table,weighted=False)
