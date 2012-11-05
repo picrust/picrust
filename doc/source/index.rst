@@ -58,8 +58,8 @@ Download
 Install
 =======
 
-* Directory location of 'PICRUST/picrust' must be added to your PYTHONPATH environment variable
-* Directory location of 'PICRUST/scripts' can be added to your PATH environment variable for ease of use (optional)
+* Add the location of your 'PICRUST' directory to your PYTHONPATH environment variable.
+* Add the location of your 'PICRUST/scripts' to your PATH environment variable for ease of use (optional).
 
 Quickstart
 ==========
