@@ -42,8 +42,8 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 
 * Pick reference based OTUs (assuming QIIME already installed and demultiplexed fasta file (seqs.fna))::
 
-	cat "pick_otus:enable_rev_strand_match True"  >> $PWD/otu_picking_params_97.txt
-	cat "pick_otus:similarity 0.97" >> $PWD/otu_picking_params_97.txt
+	echo "pick_otus:enable_rev_strand_match True"  >> $PWD/otu_picking_params_97.txt
+	echo "pick_otus:similarity 0.97" >> $PWD/otu_picking_params_97.txt
 	pick_reference_otus_through_otu_table.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta
 
 * For more information see :ref:`otu_picking_tutorial`.
@@ -56,7 +56,7 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 
 	normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/16S_acepic_predict_traits_97.biom.gz -o your_normalized_otu_table.biom
 
-* Get KEGG predictions (NOTE: This step currently requires approx 5GB RAM)::
+* Get KEGG predictions (**NOTE: This step currently requires approx 5GB RAM**)::
 
 	predict_metagenomes.py -i your_normalized_otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/KEGG_acepic_predict_traits_97.biom.gz -o your_KEGG_predictions.biom
 

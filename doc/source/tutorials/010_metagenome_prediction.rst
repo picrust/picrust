@@ -77,6 +77,8 @@ Step 2: Predict Functions For Metagenome
 :ref:`predict_metagenomes` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).
 
 Input is the normalized OTU table created by :ref:`normalize_by_copy_number` and the PICRUST KEGG pre-calculated file (**KEGG_acepic_predict_traits_97.biom.gz**). 
+
+(**NOTE: This step currently requires approx 5GB RAM**)
  
 Output is in `biom`_ format by default: ::
 
