@@ -16,14 +16,14 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 * Install PICRUST::
 
 	#For Bash shell 
-	echo 'export PYTHONPATH=~/picrust-dev/picrust/:$PYTHONPATH' | cat >> ~/.bashrc	
-	echo 'export PATH=~/picrust-dev/scripts/:$PATH' | cat >> ~/.bashrc	
+	echo 'export PYTHONPATH=~/picrust-dev/:$PYTHONPATH' >> ~/.bashrc	
+	echo 'export PATH=~/picrust-dev/scripts/:$PATH' >> ~/.bashrc	
 
 	OR
 
 	#For tsch shell
-	echo 'setenv PYTHONPATH ~/picrust-dev/picrust/:$PTYHONPATH' | cat >> ~/.tschrc
-	echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' | cat >> ~/.tschrc
+	echo 'setenv PYTHONPATH ~/picrust-dev/:$PTYHONPATH' >> ~/.tschrc
+	echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' >> ~/.tschrc
 
 2. Download PICRUST Data Files
 ------------------------------
