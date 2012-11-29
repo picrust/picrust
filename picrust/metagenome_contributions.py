@@ -13,7 +13,7 @@ __status__ = "Development"
 
 from numpy import dot, array, around
 from biom.table import table_factory
-from picrust.metagenome_prediction import get_overlapping_otus,extract_otu_and_genome_data
+from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
 def partition_metagenome_contributions(otu_table,genome_table):
     """Return a list of the contribution of each organism to each function, per sample
