@@ -24,10 +24,13 @@ def get_overlapping_ids(otu_table,genome_table):
          "No common OTUs between the otu table and the genome table, so can't predict metagenome."
     return overlapping_otus
 
-def predict_metagenomes(otu_table,genome_table):
-    """ predict metagenomes from otu table and genome table 
+             
+def extract_otu_and_genome_data(otu_table,genome_table):
+    """Return lists of otu,genome data, and overlapping genome/otu ids
+    
+    otu_table -- biom Table object for the OTUs
+    genome_table -- biom Table object for the genomes
     """
-    # identify the overlapping otus that can be used to predict metagenomes 
     overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     # create lists to contain filtered data - we're going to need the data in 
     # numpy arrays, so it makes sense to compute this way rather than filtering
@@ -39,7 +42,15 @@ def predict_metagenomes(otu_table,genome_table):
     for obs_id in overlapping_otus:
         otu_data.append(otu_table.observationData(obs_id))
         genome_data.append(genome_table.sampleData(obs_id))
+    return otu_data,genome_data,overlapping_otus 
+
+        
+
+def predict_metagenomes(otu_table,genome_table):
+    """ predict metagenomes from otu table and genome table 
+    """
     
+    otu_data,genome_data,overlapping_otus = extract_otu_and_genome_data(otu_table,genome_table)
     # matrix multiplication to get the predicted metagenomes
     new_data = dot(array(otu_data).T,array(genome_data)).T
     
@@ -50,6 +61,9 @@ def predict_metagenomes(otu_table,genome_table):
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
     return table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+
+
+
 
 def calc_nsti(otu_table,genome_table,weighted=True):
     """Calculate the weighted Nearest Sequenced Taxon Index for ids
