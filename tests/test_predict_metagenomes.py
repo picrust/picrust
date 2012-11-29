@@ -62,9 +62,9 @@ class PredictMetagenomeTests(TestCase):
         #First, sanity checks
         #We expect to see the contributions broken down by OTU 
         metagenome_table = predict_metagenomes(self.otu_table1,self.genome_table1)
-        otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(self.otu_table1,self.genome_table1)
-
-        obs = partition_metagenome_contributions(otu_data,genome_data,self.otu_table1,self.genome_table1,overlapping_ids)
+        obs = partition_metagenome_contributions(self.otu_table1,self.genome_table1)
+        #otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(self.otu_table1,self.genome_table1)
+        #obs = partition_metagenome_contributions(otu_data,genome_data,self.otu_table1,self.genome_table1,overlapping_ids)
         obs_text = "\n".join(["\t".join(map(str,i)) for i in obs])
         exp_text = "\n".join(["\t".join(map(str,r.split())) for r in self.predicted_gene_partition_table.split('\n')])
 
