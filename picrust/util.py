@@ -54,9 +54,10 @@ def parse_table_to_biom(table_lines, table_format="tab-delimited",\
         constructor = BIOM_TYPES[biom_format][idx] 
         sample_mapping = None 
         obs_mapping = None 
+        process_func = None
         try: 
             converted_table = (convert_table_to_biom(table_lines,\
-              sample_mapping,obs_mapping, constructor)) 
+              sample_mapping,obs_mapping,process_func, constructor)) 
             biom_table = parse_biom_table(converted_table) 
             #print biom_table 
         except ValueError: 
