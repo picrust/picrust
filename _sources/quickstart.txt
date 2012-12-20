@@ -9,9 +9,9 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 
 1. Download PICRUST Software
 ----------------------------
-* Download the `PICRUST development software`_ using SVN:: 
+* Download the `PICRUST development software`_ using git::
 	
-	svn checkout svn://svn.code.sf.net/p/picrust/code/trunk ~/picrust-dev
+	git clone git://github.com/picrust/picrust.git ~/picrust-dev
 
 * Install PICRUST::
 
