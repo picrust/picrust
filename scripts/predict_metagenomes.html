@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>predict_metagenomes.py &mdash; PI-CRUST 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
+    <link rel="up" title="PICRUST Scripts" href="index.html" />
+    <link rel="next" title="predict_traits.py" href="predict_traits.html" />
+    <link rel="prev" title="normalize_by_copy_number.py" href="normalize_by_copy_number.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="predict_traits.html" title="predict_traits.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="normalize_by_copy_number.html" title="normalize_by_copy_number.py"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PICRUST Scripts</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="predict-metagenomes-py">
+<span id="predict-metagenomes"></span><h1>predict_metagenomes.py<a class="headerlink" href="#predict-metagenomes-py" title="Permalink to this headline">¶</a></h1>
+<p>This document covers use of the <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt> script.</p>
+<div class="section" id="description-of-code">
+<h2>Description of code<a class="headerlink" href="#description-of-code" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>The <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt> script produces the actual metagenome functional predictions for a given OTU table.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="input-requirements">
+<h2>Input Requirements<a class="headerlink" href="#input-requirements" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>An OTU table (that has been properly reference picked against green genes) in biom format. This table should have SampleIds (columns) as some arbitrary sample id, and ObservationIds (rows) as green gene identifiers.</li>
+<li>A table of pre-computed genome contents for all green gene identifiers (in the gg ref package). Usually downloaded from PICRUST (<strong>KEGG_acepic_predict_traits_97.biom.gz</strong>).Also in biom format.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>A table of functional identifiers (e.g. KEGG KOs) by the users sample ids. (biom format).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="mandatory-options">
+<h2>Mandatory Options<a class="headerlink" href="#mandatory-options" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">-i</span></tt>: the input OTU table</li>
+<li><tt class="docutils literal"><span class="pre">-c</span></tt>: the input pre-computed genome contents</li>
+<li><tt class="docutils literal"><span class="pre">-o</span></tt>: the output file</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optional-options">
+<h2>Optional Options<a class="headerlink" href="#optional-options" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">-f</span></tt>: output the predicted metagenome table in tab-delimited format (instead of biom).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="usage-examples">
+<h2>Usage examples<a class="headerlink" href="#usage-examples" title="Permalink to this headline">¶</a></h2>
+<p>This section provides a description of how to run <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt>:</p>
+<ul>
+<li><p class="first">Basic usage:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -i your_normalized_otu_table.biom -c KEGG_acepic_predict_traits_97.biom.gz -o your_output.biom</pre>
+</div>
+</li>
+<li><p class="first">Output format can be set to plain tab-delimited format (instead of biom) using <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -f -i your_normalized_otu_table.biom -c KEGG_acepic_predict_traits_97.biom.gz -o your_output.tab</pre>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">-c</span></tt> file does can be gzipped or uncompressed:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -i your_normalized_otu_table.biom -c KEGG_acepic_predict_traits_97.biom -o your_output.biom</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">predict_metagenomes.py</a><ul>
+<li><a class="reference internal" href="#description-of-code">Description of code</a></li>
+<li><a class="reference internal" href="#input-requirements">Input Requirements</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+<li><a class="reference internal" href="#mandatory-options">Mandatory Options</a></li>
+<li><a class="reference internal" href="#optional-options">Optional Options</a></li>
+<li><a class="reference internal" href="#usage-examples">Usage examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="normalize_by_copy_number.html"
+                        title="previous chapter">normalize_by_copy_number.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="predict_traits.html"
+                        title="next chapter">predict_traits.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/scripts/predict_metagenomes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="predict_traits.html" title="predict_traits.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="normalize_by_copy_number.html" title="normalize_by_copy_number.py"
+             >previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PICRUST Scripts</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

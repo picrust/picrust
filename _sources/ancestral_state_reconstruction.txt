@@ -1,0 +1,28 @@
+.. _ancestral_state_reconstruction:
+
+==============================
+Ancestral State Reconstruction
+==============================
+
+This document covers use of the ``picrust/ancestral_state_reconstruction.py`` script and the various app controllers that it calls. Questions on usage should be directed to Morgan Langille (morgan.g.i.langille@gmail.com)
+
+Description of code
+===================
+
+The ancestral_state_reconstruction.py script is a wrapper script that interfaces with various third party programs of ancestral state recontruction (ASR).
+Each of these ASR programs all have their own pycogent app controllers, with a method that can be called by ancestral_state_reconstruction.py with the same formatted files and expect the results to be in the same format as well. 
+
+Input Requirements
+==================
+ * A tree in newick format with unique labels for the tips AND the internal nodes. The tree must be dichotomous (e.g. no polytomies), with no zero branch lengths. 
+ * A tab-delimited table with the first row being a list of trait identifiers, the first column being a list of ALL tip labels from the tree, and the cell values being counts of data.
+ * Note: These files will usually be the outputs produced by the ``format_tree_and_trait_table.py`` script. 
+
+Usage examples
+==============
+
+This section provides a description of how to run ``ancestral_state_reconstruction.py``:
+
+Basic Example::
+    ancestral_state_reconstruction.py -i your_trait_table.txt -t your_tree.newick -m asr_method
+

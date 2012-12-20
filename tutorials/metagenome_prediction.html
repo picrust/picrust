@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PICRUST Metagenome Prediction Tutorial &mdash; PI-CRUST 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
+    <link rel="up" title="PICRUST Tutorials" href="index.html" />
+    <link rel="next" title="PICRUST OTU Picking Tutorial" href="otu_picking.html" />
+    <link rel="prev" title="PICRUST Genome Prediction Tutorial" href="genome_prediction.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="otu_picking.html" title="PICRUST OTU Picking Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="genome_prediction.html" title="PICRUST Genome Prediction Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PICRUST Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="picrust-metagenome-prediction-tutorial">
+<span id="metagenome-prediction-tutorial"></span><h1>PICRUST Metagenome Prediction Tutorial<a class="headerlink" href="#picrust-metagenome-prediction-tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial explains the final steps in the <strong>PICRUST</strong> pipeline that takes in a users OTU table and produces metagenome predictions.</p>
+<p>These commands would be done after the steps outlined in the <a class="reference external" href="./genome_prediction.html">PICRUST Genome Prediction Tutorial</a>.</p>
+</div>
+<div class="section" id="essential-files">
+<h2>Essential Files<a class="headerlink" href="#essential-files" title="Permalink to this headline">¶</a></h2>
+<p>In this tutorial, you will need an OTU table and the output files from the &#8216;predict_traits.py&#8217; script.</p>
+<p>The steps required to get the output from the intial steps in the PICRUST pipeline are outlined in the <a class="reference internal" href="genome_prediction.html#genome-prediction-tutorial"><em>PICRUST Genome Prediction Tutorial</em></a>.</p>
+<p><strong>Note: If you are trying to run PICRUST with your own OTU table ensure you have properly reference picked your OTU table:</strong> <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><em>PICRUST OTU Picking Tutorial</em></a></p>
+<p><strong>Note2: Trait predictions have not been pre-calculated yet for all greengenes tips. Therefore you will have to run &#8216;predict_traits.py&#8217; using your OTU table using the `-l` option. See:</strong> <a class="reference internal" href="genome_prediction.html#genome-prediction-tutorial"><em>PICRUST Genome Prediction Tutorial</em></a></p>
+<p>You can download all files required to run this tutorial here (<a class="reference external" href="https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip">https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip</a>). Descriptions of these files are below.</p>
+<ul>
+<li><dl class="first docutils">
+<dt>Marker gene (16S) copy number predictions (biom format .biom)</dt>
+<dd><ul class="first last simple">
+<li>Contains predictions for 16S copy number for each OTU that has a tip in the reference tree.</li>
+<li>We will use the precomputed file <strong>trait_predictions_16S_wagner.biom</strong></li>
+<li><em>Note: This file was created specifically for the OTU table included in this tutorial using the &#8216;-l&#8217; option in &#8216;predict_traits.py&#8217;. It can NOT be used with other OTU tables.</em></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Functional trait (KEGG KO) copy number predictions (biom format .biom)</dt>
+<dd><ul class="first last simple">
+<li>Contains predictions for KO traits for each OTU that has a tip in the reference tree.</li>
+<li>We will use the precomputed file <strong>trait_predictions_KEGG_wagner.biom</strong>.</li>
+<li><em>Note: This file was created specifically for the OTU table included in this tutorial using the &#8216;-l&#8217; option in &#8216;predict_traits.py&#8217;. It can NOT be used with other OTU tables.</em></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>OTU table (biom format .biom)</dt>
+<dd><ul class="first last simple">
+<li>This is an OTU table that contains OTU ids that match ids in the reference tree. This is usally done by picking OTUs against the GG reference package in QIIME.</li>
+<li>Example OTU table  <strong>hmp_mock_otu_table.biom</strong>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="normalize-otu-table">
+<h2>Normalize OTU Table<a class="headerlink" href="#normalize-otu-table" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="../scripts/normalize_by_copy_number.html">normalize_by_copy_number.py</a> normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.</p>
+<p>Input is the users OTU table (that has been referenced picked against green genes), and the 16S copy number table for each OTU (produced by &#8216;predict_traits.py&#8217;).</p>
+<p>Input and output files are in biom format.</p>
+<div class="highlight-python"><pre>normalize_by_copy_number.py -i hmp_mock_otu_table.biom -c trait_predictions_16S_wagner.biom -o normalized/hmp_mock_wagner.biom</pre>
+</div>
+<p>(Optional) Input format of OTU table can be changed to &#8220;classic&#8221; QIIME OTU instead of biom format using the &#8216;-f&#8217; option:</p>
+<div class="highlight-python"><pre>normalize_by_copy_number.py -f -i hmp_mock_otu_table.biom -c trait_predictions_16S_wagner.biom -o normalized/hmp_mock_wagner.biom</pre>
+</div>
+</div>
+<div class="section" id="predict-functions-for-metagenome">
+<h2>Predict Functions For Metagenome<a class="headerlink" href="#predict-functions-for-metagenome" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="../scripts/predict_metagenomes.html">predict_metagenomes.py</a> creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).</p>
+<p>Input is the normalized OTU table created by &#8216;normalize_by_copy_number.py&#8217; and the functional trait predictions produced by &#8216;predict_traits.py&#8217;.</p>
+<p>Output is in &#8216;biom&#8217; format by default:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -i normalized/hmp_mock_wagner.biom -g trait_predictions_KEGG_wagner.biom -o hmp_mock_predictions_wagner.biom</pre>
+</div>
+<p>(Optional) Output format can be changed to tab delimited using &#8216;-f&#8217; option:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -f -i normalized/hmp_mock_wagner.biom -g trait_predictions_KEGG_wagner.biom -o hmp_mock_predictions_wagner.tab</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PICRUST Metagenome Prediction Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#essential-files">Essential Files</a></li>
+<li><a class="reference internal" href="#normalize-otu-table">Normalize OTU Table</a></li>
+<li><a class="reference internal" href="#predict-functions-for-metagenome">Predict Functions For Metagenome</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="genome_prediction.html"
+                        title="previous chapter">PICRUST Genome Prediction Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="otu_picking.html"
+                        title="next chapter">PICRUST OTU Picking Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/metagenome_prediction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="otu_picking.html" title="PICRUST OTU Picking Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="genome_prediction.html" title="PICRUST Genome Prediction Tutorial"
+             >previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PICRUST Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>
