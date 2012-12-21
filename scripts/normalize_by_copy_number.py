@@ -18,20 +18,25 @@ from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
 from biom.table import table_factory,DenseOTUTable
 from picrust.util import make_output_dir_for_file
 from os import path
+from os.path import join
+from picrust.util import get_picrust_project_dir
 import gzip
 import sys
 
 script_info = {}
-script_info['brief_description'] = ""
+script_info['brief_description'] = "Normalize an OTU table by marker gene copy number"
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","Normalize the counts in raw_otu_table.biom by dividing by marker gene copy numbers provided in copy_numbers.biom. Write the resulting table to normalized_otu_table.biom.","%prog -i raw_otu_table.biom -c copy_numbers.biom -o normalized_otu_table.biom")]
-script_info['output_description']= ""
+script_info['script_usage'] = [
+("","Normalize the counts in raw_otus.biom. Write the resulting table to normalized_otus.biom.","%prog -i raw_otus.biom -o normalized_otus.biom"),
+("","Input tab-delimited OTU table:","%prog -f -i raw_otus.tab -o predicted_metagenomes.biom")
+]
+script_info['output_description']= "A normalized OTU table"
 script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
- make_option('-c','--input_count_fp',type="existing_filepath",help='the input marker gene counts on per otu basis in biom format'),
  make_option('-o','--output_otu_fp',type="new_filepath",help='the output otu table filepath in biom format'),
 ]
 script_info['optional_options'] = [
+ make_option('-c','--input_count_fp',default=join(get_picrust_project_dir(),'data','16S_precalculated.biom.gz'),type="existing_filepath",help='the input marker gene counts on per otu basis in biom format (can be gzipped) [default: %default]'),
  make_option('--metadata_identifer',
              default='CopyNumber',
              help='identifier for copy number entry as observation metadata [default: %default]'),
