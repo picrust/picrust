@@ -226,7 +226,7 @@ class EvaluateTestDatasetTests(TestCase):
         self.assertEqual(trial_c_results,(24,88,76,12))
         trial_c_results = calculate_accuracy_stats_from_observations(obs,exp)
         #Check that this is correct
-        self.assertEqual(trial_c_results["false_positive_rate"],0.88)
+        self.assertFloatEqual(trial_c_results["false_positive_rate"],0.88)
 
         trial_c = (obs,exp)
 
