@@ -43,13 +43,7 @@ Download
 * To generate a PICRUST-compatible OTU table, you need the `PICRUST GG reference data`_. 
 * For use, see tutorial: :ref:`otu_picking_tutorial`
 
-**Metagenome Prediction (Most Users)**
-
-* `PICRUST precalculated files`_
-
-* For use, see tutorial: :ref:`metagenome_prediction_tutorial`
-
-**Inferring Individual Genomes (Advanced Users)**
+**Inferring Individual Genomes (Optional: For Advanced Users)**
 
 * Additional files are available for those looking to **develop for PICRUST** or perform **single-genome ancestral state reconstruction**: `PICRUST starting files`_.
 * For use, see tutorial: :ref:`genome_prediction_tutorial`
@@ -64,7 +58,7 @@ Install
 Quickstart
 ==========
 
-Looking to get metagenome predictions for your 16S data? Follow the :ref:`quickstart`.
+Looking to get metagenome predictions for your 16S data? Follow the :ref:`quickstart_tutorial`.
 
 Contact Us
 ==========

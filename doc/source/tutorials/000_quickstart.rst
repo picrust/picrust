@@ -1,14 +1,14 @@
-.. _quickstart:
+.. _quickstart_tutorial:
 
-PICRUST Quickstart Guide
-========================
+Quickstart Tutorial
+===================
 
-This gives the barebone commands needed to run PICRUST from start to finish.
+This gives the basic commands needed to use PICRUST from start to finish.
 
-.. include:: global.rst
+.. include:: ../global.rst
 
-1. Download PICRUST Software
-----------------------------
+1. Download & Install PICRUST Software
+--------------------------------------
 * Download the `PICRUST development software`_ using git::
 	
 	git clone git://github.com/picrust/picrust.git ~/picrust-dev
@@ -25,15 +25,7 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 	echo 'setenv PYTHONPATH ~/picrust-dev/:$PTYHONPATH' >> ~/.tschrc
 	echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' >> ~/.tschrc
 
-2. Download PICRUST Data Files
-------------------------------
-
-* Download the `PICRUST precalculated files`_::
-
-	cd ~/picrust-dev && wget -O - "http://dl.dropbox.com/s/f8sy84kxi2havww/picrust_precalculated_files.tgz" | tar -xvf -
-	
-
-3. Prepare your OTU table
+2. Prepare your OTU table
 -------------------------
 
 * Download the `PICRUST GG reference data`_::
@@ -49,15 +41,15 @@ This gives the barebone commands needed to run PICRUST from start to finish.
 * For more information see :ref:`otu_picking_tutorial`.
 
 
-4. Run PICRUST
+3. Run PICRUST
 --------------
 
-* Normalize your OTU table::
+* Normalize your OTU table (:ref:`normalize_by_copy_number`)::
 
-	normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/16S_acepic_predict_traits_97.biom.gz -o your_normalized_otu_table.biom
+	normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -o normalized_otus.biom
 
-* Get KEGG predictions (**NOTE: This step currently requires approx 5GB RAM**)::
+* Get KEGG predictions (:ref:`predict_metagenomes`) (**NOTE: This step currently requires approx 5GB RAM**)::
 
-	predict_metagenomes.py -i your_normalized_otu_table.biom -c ~/picrust-dev/picrust_precalculated_files/KEGG_acepic_predict_traits_97.biom.gz -o your_KEGG_predictions.biom
+	predict_metagenomes.py -i normalized_otus.biom -o metagenome_predictions.biom
 
 * For more information see :ref:`metagenome_prediction_tutorial`
