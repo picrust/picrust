@@ -25,7 +25,7 @@ Step 1: Normalize OTU Table
 
 :ref:`normalize_by_copy_number` normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.
 
-Input is the users OTU table (that has been referenced picked against green genes).
+Input is the users OTU table (that has been referenced picked against Greengenes).
 
 Input and output files are in `biom`_ format::
 
