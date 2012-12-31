@@ -1,8 +1,17 @@
+#!/usr/bin/env python
+
+__author__ = "Jesse Zaneveld"
+__copyright__ = "Copyright 2011, The PICRUST project"
+__credits__ = ["Jesse Zaneveld"]
+__license__ = "GPL"
+__version__ = "0.0.0-dev"
+__maintainer__ = "Jesse Zaneveld"
+__email__ = "zaneveld@gmail.com"
+__status__ = "Development"
+
 from unittest import main, TestCase 
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
-from make_test_trees import exclude_tip, yield_test_trees,\
-  make_distance_based_exclusion_fn
 """
 Tests for format.py
 """
