@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+__author__ = "Jesse Zaneveld"
+__copyright__ = "Copyright 2011, The PICRUST project"
+__credits__ = ["Jesse Zaneveld"]
+__license__ = "GPL"
+__version__ = "0.0.0-dev"
+__maintainer__ = "Jesse Zaneveld"
+__email__ = "zaneveld@gmail.com"
+__status__ = "Development"
+
 from math import e,sqrt
 from cogent.util.unit_test import main,TestCase
 from numpy import array,arange,array_equal,around
@@ -782,8 +791,7 @@ class TestPredictTraits(TestCase):
 
         #Result for product of two standard normal distributions
         lower,upper = normal_product_monte_carlo(0.0,1.0,0.0,1.0)
-        print "95% confidence limit for product of two standard normal distributions:",\
-            lower,upper
+        #print "95% confidence limit for product of two standard normal distributions:",lower,upper
        # 1.60 corresponds to the value for the 0.10 (10%) confidence limit
        #when using a two-tailed test.
        #Therefore for the one tailed upper limit, I believe we expect 1.60 to 
