@@ -15,7 +15,7 @@ __status__ = "Development"
 from cogent.util.unit_test import TestCase, main
 from biom.parse import parse_biom_table_str
 from biom.table import DenseTable
-from picrust.predict_metagenomes import partition_metagenome_contributions
+from picrust.metagenome_contributions import partition_metagenome_contributions
 from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids, extract_otu_and_genome_data
 
