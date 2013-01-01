@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2012, The PICRUST project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"

@@ -3,7 +3,7 @@
 """A simple qsub based cluster submission script."""
 
 __author__ = "Jens Reeder"
-__copyright__ = "Copyright 2011, The QIIME Project" 
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project" 
 __credits__ = ["Jens Reeder", "Rob Knight", "Morgan Langille"]#remember to add yourself if you make changes
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
