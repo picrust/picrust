@@ -28,7 +28,7 @@
     <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
     <link rel="up" title="PICRUST Tutorials" href="index.html" />
     <link rel="next" title="Inferring Individual Genomes" href="020_genome_prediction.html" />
-    <link rel="prev" title="Picking OTUs for use in PICRUST" href="000_otu_picking.html" /> 
+    <link rel="prev" title="Picking OTUs for use in PICRUST" href="001_otu_picking.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="020_genome_prediction.html" title="Inferring Individual Genomes"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="000_otu_picking.html" title="Picking OTUs for use in PICRUST"
+          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">PICRUST Tutorials</a> &raquo;</li> 
@@ -57,7 +57,7 @@
 <span id="metagenome-prediction-tutorial"></span><h1>Metagenome Prediction<a class="headerlink" href="#metagenome-prediction" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="000_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>.
+<p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>.
 Given this input, the process additionally needs the <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUST software</a> package.</p>
 </div>
 <div class="section" id="essential-files">
@@ -65,79 +65,39 @@ Given this input, the process additionally needs the <a class="reference externa
 <p>You should already have the following files before starting this tutorial:</p>
 <ol class="arabic simple">
 <li>The <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUST software</a> package</li>
-<li>A PICRUST compatible OTU table (<a class="reference internal" href="000_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>)</li>
-<li>The <a class="reference external" href="https://dl.dropbox.com/s/f8sy84kxi2havww/picrust_precalculated_files.tgz?dl=1">PICRUST precalculated files</a></li>
+<li>A PICRUST compatible OTU table (<a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>)</li>
 </ol>
-</div>
-<div class="section" id="tutorial-files-optional">
-<h2>Tutorial Files (optional)<a class="headerlink" href="#tutorial-files-optional" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://www.dropbox.com/s/yndl609h5m069y6/metagenome_prediction_tutorial_files.zip">PICRUST metagenome tutorial files</a> allow testing of PICRUST using a simple two sample OTU table and smaller support files. Descriptions of the files within this download are as follows:</p>
-<ul>
-<li><dl class="first docutils">
-<dt>OTU table (<a class="reference external" href="http://biom-format.org">biom</a> format <tt class="docutils literal"><span class="pre">.biom</span></tt>)</dt>
-<dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">hmp_mock_otu_table.biom</span></tt></li>
-<li>This is an OTU table that contains OTU IDs that match IDs in the reference tree.  This is usually done by picking OTUs against the <a class="reference external" href="http://greengenes.lbl.gov">Greengenes</a> reference package in <a class="reference external" href="http://www.qiime.org">QIIME</a>.</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>Functional trait (<a class="reference external" href="http://www.genome.jp/kegg/">KEGG</a> <a class="reference external" href="http://www.genome.jp/kegg/ko.html">KO</a>) copy number predictions (<a class="reference external" href="http://biom-format.org">biom</a> format <tt class="docutils literal"><span class="pre">.biom</span></tt>)</dt>
-<dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">trait_predictions_KEGG_wagner.biom</span></tt> is generated using <a class="reference internal" href="../scripts/predict_traits.html#predict-traits"><em>predict_traits.py</em></a></li>
-<li>Contains predictions for <a class="reference external" href="http://www.genome.jp/kegg/ko.html">KO</a> traits for each OTU that has a tip in the reference tree.</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-<ul>
-<li><dl class="first docutils">
-<dt>Marker gene (16S) copy number predictions (<a class="reference external" href="http://biom-format.org">biom</a> format <tt class="docutils literal"><span class="pre">.biom</span></tt>)</dt>
-<dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">trait_predictions_16S_wagner.biom</span></tt> is generated using <a class="reference internal" href="../scripts/predict_traits.html#predict-traits"><em>predict_traits.py</em></a></li>
-<li>Contains predictions for 16S copy number for each OTU that has a tip in the reference tree.</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </div>
 <div class="section" id="step-1-normalize-otu-table">
 <h2>Step 1: Normalize OTU Table<a class="headerlink" href="#step-1-normalize-otu-table" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.</p>
-<p>Input is the users OTU table (that has been referenced picked against green genes), and the PICRUST 16S copy number pre-calculated file (<strong>16S_acepic_predict_traits_97.biom.gz</strong>).</p>
+<p>Input is the users OTU table (that has been referenced picked against Greengenes).</p>
 <p>Input and output files are in <a class="reference external" href="http://biom-format.org">biom</a> format:</p>
 <div class="highlight-python"><pre>normalize_by_copy_number.py
         -i your_otu_table.biom
-        -c 16S_acepic_predict_traits_97.biom.gz
         -o your_normalized_otu_table.biom</pre>
 </div>
 <p>(Optional) Input format of OTU table can be changed to &#8220;classic&#8221; <a class="reference external" href="http://www.qiime.org">QIIME</a> OTU instead of <a class="reference external" href="http://biom-format.org">biom</a> format using the <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
 <div class="highlight-python"><pre>normalize_by_copy_number.py
        -f
        -i your_otu_table.tab
-       -c 16S_acepic_predict_traits_97.biom.gz
        -o your_normalized_otu_table.biom</pre>
 </div>
 </div>
 <div class="section" id="step-2-predict-functions-for-metagenome">
 <h2>Step 2: Predict Functions For Metagenome<a class="headerlink" href="#step-2-predict-functions-for-metagenome" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).</p>
-<p>Input is the normalized OTU table created by <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> and the PICRUST KEGG pre-calculated file (<strong>KEGG_acepic_predict_traits_97.biom.gz</strong>).</p>
+<p>Input is the normalized OTU table created by <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a>.</p>
 <p>(<strong>NOTE: This step currently requires approx 5GB RAM</strong>)</p>
 <p>Output is in <a class="reference external" href="http://biom-format.org">biom</a> format by default:</p>
 <div class="highlight-python"><pre>predict_metagenomes.py
         -i your_normalized_otu_table.biom
-        -c KEGG_acepic_predict_traits_97.biom.gz
         -o your_KEGG_predictions.biom</pre>
 </div>
 <p>(Optional) Output format can be changed to tab delimited using <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
 <div class="highlight-python"><pre>predict_metagenomes.py
         -f
         -i your_normalized_otu_table.biom
-        -c KEGG_acepic_predict_traits_97.biom.gz
         -o your_KEGG_predictions.tab</pre>
 </div>
 </div>
@@ -154,7 +114,6 @@ Given this input, the process additionally needs the <a class="reference externa
 <li><a class="reference internal" href="#">Metagenome Prediction</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#essential-files">Essential Files</a></li>
-<li><a class="reference internal" href="#tutorial-files-optional">Tutorial Files (optional)</a></li>
 <li><a class="reference internal" href="#step-1-normalize-otu-table">Step 1: Normalize OTU Table</a></li>
 <li><a class="reference internal" href="#step-2-predict-functions-for-metagenome">Step 2: Predict Functions For Metagenome</a></li>
 </ul>
@@ -162,7 +121,7 @@ Given this input, the process additionally needs the <a class="reference externa
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="000_otu_picking.html"
+  <p class="topless"><a href="001_otu_picking.html"
                         title="previous chapter">Picking OTUs for use in PICRUST</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="020_genome_prediction.html"
@@ -199,7 +158,7 @@ Given this input, the process additionally needs the <a class="reference externa
           <a href="020_genome_prediction.html" title="Inferring Individual Genomes"
              >next</a> |</li>
         <li class="right" >
-          <a href="000_otu_picking.html" title="Picking OTUs for use in PICRUST"
+          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
              >previous</a> |</li>
         <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
           <li><a href="index.html" >PICRUST Tutorials</a> &raquo;</li> 
@@ -207,7 +166,7 @@ Given this input, the process additionally needs the <a class="reference externa
     </div>
     <div class="footer">
         &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
     </div>
   </body>
 </html>

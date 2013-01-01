@@ -1,0 +1,179 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quickstart Tutorial &mdash; PI-CRUST 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
+    <link rel="up" title="PICRUST Tutorials" href="index.html" />
+    <link rel="next" title="Picking OTUs for use in PICRUST" href="001_otu_picking.html" />
+    <link rel="prev" title="PICRUST Tutorials" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PICRUST Tutorials"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PICRUST Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quickstart-tutorial">
+<span id="id1"></span><h1>Quickstart Tutorial<a class="headerlink" href="#quickstart-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This gives the basic commands needed to use PICRUST from start to finish.</p>
+<div class="section" id="download-install-picrust-software">
+<h2>1. Download &amp; Install PICRUST Software<a class="headerlink" href="#download-install-picrust-software" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Download the <a class="reference external" href="https://github.com/picrust/picrust">PICRUST development software</a> using git:</p>
+<div class="highlight-python"><pre>git clone git://github.com/picrust/picrust.git ~/picrust-dev</pre>
+</div>
+</li>
+<li><p class="first">Install PICRUST:</p>
+<div class="highlight-python"><pre>#For Bash shell
+echo 'export PYTHONPATH=~/picrust-dev/:$PYTHONPATH' &gt;&gt; ~/.bashrc
+echo 'export PATH=~/picrust-dev/scripts/:$PATH' &gt;&gt; ~/.bashrc
+
+OR
+
+#For tsch shell
+echo 'setenv PYTHONPATH ~/picrust-dev/:$PTYHONPATH' &gt;&gt; ~/.tschrc
+echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' &gt;&gt; ~/.tschrc</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="prepare-your-otu-table">
+<h2>2. Prepare your OTU table<a class="headerlink" href="#prepare-your-otu-table" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Download the <a class="reference external" href="https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz">PICRUST GG reference data</a>:</p>
+<div class="highlight-python"><pre>cd ~/picrust-dev &amp;&amp; wget -O - "http://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz" | tar -xzf -</pre>
+</div>
+</li>
+<li><p class="first">Pick reference based OTUs (assuming QIIME already installed and demultiplexed fasta file (seqs.fna)):</p>
+<div class="highlight-python"><pre>echo "pick_otus:enable_rev_strand_match True"  &gt;&gt; $PWD/otu_picking_params_97.txt
+echo "pick_otus:similarity 0.97" &gt;&gt; $PWD/otu_picking_params_97.txt
+pick_reference_otus_through_otu_table.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta</pre>
+</div>
+</li>
+<li><p class="first">For more information see <a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="run-picrust">
+<h2>3. Run PICRUST<a class="headerlink" href="#run-picrust" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Normalize your OTU table (<a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a>):</p>
+<div class="highlight-python"><pre>normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -o normalized_otus.biom</pre>
+</div>
+</li>
+<li><p class="first">Get KEGG predictions (<a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a>) (<strong>NOTE: This step currently requires approx 5GB RAM</strong>):</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -i normalized_otus.biom -o metagenome_predictions.biom</pre>
+</div>
+</li>
+<li><p class="first">For more information see <a class="reference internal" href="010_metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction</em></a></p>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart Tutorial</a><ul>
+<li><a class="reference internal" href="#download-install-picrust-software">1. Download &amp; Install PICRUST Software</a></li>
+<li><a class="reference internal" href="#prepare-your-otu-table">2. Prepare your OTU table</a></li>
+<li><a class="reference internal" href="#run-picrust">3. Run PICRUST</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PICRUST Tutorials</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="001_otu_picking.html"
+                        title="next chapter">Picking OTUs for use in PICRUST</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/000_quickstart.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PICRUST Tutorials"
+             >previous</a> |</li>
+        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PICRUST Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>
