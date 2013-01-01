@@ -21,7 +21,7 @@ than complete trait tables.
 """
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2011, The PICRUST Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "0.4"

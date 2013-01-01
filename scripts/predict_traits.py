@@ -4,7 +4,7 @@ from __future__ import division
 from warnings import warn
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2012, The PICRUST Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse RR Zaneveld", "Morgan Langille"]
 __license__ = "GPL"
 __version__ = "0.1dev"

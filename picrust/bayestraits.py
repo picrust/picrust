@@ -9,7 +9,7 @@ Application controlller for the BayesTraits ancestral state reconstruction progr
 
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2011 The PICRUST Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.6.0dev"
