@@ -3,7 +3,7 @@
 """A simple qsub based cluster submission script for SGE."""
 
 __author__ = "Jens Reeder"
-__copyright__ = "Copyright 2011, The QIIME Project" 
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project" 
 __credits__ = ["Jens Reeder",
                "Rob Knight",
                "Greg Caporaso",
