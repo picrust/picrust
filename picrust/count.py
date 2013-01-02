@@ -22,7 +22,7 @@ from os.path import join
 from cogent.parse.tree import DndParser
 
 __author__ = "Morgan Langille"
-__copyright__ = "Copyright 2011-2012, The PICRUST Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Morgan Langille"]
 __license__ = "GPL"
 __version__ = "0.1"

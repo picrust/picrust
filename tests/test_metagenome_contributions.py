@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2012, The PICRUST project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.4.0-dev"
@@ -15,7 +15,7 @@ __status__ = "Development"
 from cogent.util.unit_test import TestCase, main
 from biom.parse import parse_biom_table_str
 from biom.table import DenseTable
-from picrust.predict_metagenomes import partition_metagenome_contributions
+from picrust.metagenome_contributions import partition_metagenome_contributions
 from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids, extract_otu_and_genome_data
 
