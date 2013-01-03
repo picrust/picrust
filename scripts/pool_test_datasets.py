@@ -22,9 +22,6 @@ from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
 
 from biom.parse import parse_biom_table, convert_biom_to_table
 
-
-from picrust.parse import parse_trait_table, parse_marker_gene_copy_numbers
-
 script_info = {}
 script_info['brief_description'] = "Pool character predictions within a directory, given directories of expected vs. observed test results"
 script_info['script_description'] =\
