@@ -104,10 +104,10 @@ class TestMakeTestTrees(TestCase):
         #Test that the function works
 
         test_tree = self.SimpleTree.deepcopy()
-        print test_tree.asciiArt()
+        #print test_tree.asciiArt()
         tip = test_tree.getNodeMatchingName('C')
         obs = tip_randomizer(tip,test_tree).getNewick(with_distances=True) 
-        print "OBS:",obs.asciiArt()        
+        #print "OBS:",obs.asciiArt()        
         # TODO: finish this test!
 
 
