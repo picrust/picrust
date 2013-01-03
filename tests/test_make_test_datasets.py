@@ -37,7 +37,10 @@ class TestMakeTestTrees(TestCase):
         obs = exclude_tip(test_tree.getNodeMatchingName('B'),test_tree)
         obs_newick = obs.getNewick(with_distances=True)
         exp_newick = "((C:0.01,D:0.01)F:0.05,A:0.07)root;" 
-        self.assertEqual(obs_newick,exp_newick)
+        alt_newick = "(A:0.07,(C:0.01,D:0.01)F:0.05)root;"
+        #exp_newick and alt_newick represent 
+        #two ways of expressing the same tree
+        self.assertTrue(obs_newick in [exp_newick,alt_newick])
         
         #Make sure the holdout works with a polytomy
         test_tree = self.SimplePolytomyTree.deepcopy()
@@ -101,10 +104,10 @@ class TestMakeTestTrees(TestCase):
         #Test that the function works
 
         test_tree = self.SimpleTree.deepcopy()
-        print test_tree.asciiArt()
+        #print test_tree.asciiArt()
         tip = test_tree.getNodeMatchingName('C')
         obs = tip_randomizer(tip,test_tree).getNewick(with_distances=True) 
-        print "OBS:",obs.asciiArt()        
+        #print "OBS:",obs.asciiArt()        
         # TODO: finish this test!
 
 
@@ -133,8 +136,8 @@ class TestMakeTestTrees(TestCase):
             self.assertTrue(exp_tip.Name not in node_names)
             
         #Test that the topology is correct for an example tree 
-        self.assertEqual(test_trees[1].getNewick(with_distances=True),\
-            "((C:0.01,D:0.01)F:0.05,A:0.07)root;")
+        self.assertTrue(test_trees[1].getNewick(with_distances=True) in\
+                ["((C:0.01,D:0.01)F:0.05,A:0.07)root;","(A:0.07,(C:0.01,D:0.01)F:0.05)root;"])
         
         #Second, let's test a more realistic test function
         test_fn = make_distance_based_exclusion_fn(0.03)
