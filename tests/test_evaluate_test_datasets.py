@@ -31,11 +31,11 @@ class EvaluateTestDatasetTests(TestCase):
     
     def test_evaluate_test_datasets(self):
         """evalutate_test_datasets returns data points and correlations"""
-        print self.genome_table1.ObservationIds
-        print self.genome_table2.ObservationIds
+        #print self.genome_table1.ObservationIds
+        #print self.genome_table2.ObservationIds
         
         obs= evaluate_test_dataset(self.genome_table1,self.genome_table2)
-        print "Obs:",obs
+        #print "Obs:",obs
 
 
     def test_convert_vals_to_spearman_ranks(self):
@@ -293,7 +293,7 @@ class EvaluateTestDatasetTests(TestCase):
         self.assertFloatEqual(gini_obs,gini_exp,eps=1e-3)
         
         roc_obs = roc_auc(points, add_endpoints=True)
-        print "ROC AUC obs:",roc_obs
+        #print "ROC AUC obs:",roc_obs
         exp = gini_exp
         #Convert ROC to equivalent Gini index 
         obs = abs(2.0*roc_obs - 1.0)
