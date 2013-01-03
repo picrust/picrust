@@ -72,7 +72,7 @@ def exclude_tip(tip, tree):
     #tree.prune()
     
     #Newer subtree based method
-    print "Generating subtree"
+    #print "Generating subtree"
     tips_to_keep = [t for t in tips if t.Name != tip.Name]
     subtree = get_sub_tree(tree,tips_to_keep)
     
@@ -86,7 +86,7 @@ def make_distance_based_exclusion_fn(exclusion_distance):
     """
     
 
-    def exclude_tip_neighbors(tip,tree, verbose=True):
+    def exclude_tip_neighbors(tip,tree, verbose=False):
         # check that the exclusion distance won't exclude the entire tree
         max_dist = tree.maxTipTipDistance()[0]
         tips_to_delete = tip.tipsWithinDistance(exclusion_distance)
