@@ -73,7 +73,7 @@ def exclude_tip(tip, tree):
     
     #Newer subtree based method
     print "Generating subtree"
-    tips_to_keep = [t for t in tips if t.Name != tip.Name]
+    tips_to_keep = [t.Name for t in tree.tips() if t.Name != tip.Name]
     subtree = get_sub_tree(tree,tips_to_keep)
     
     
