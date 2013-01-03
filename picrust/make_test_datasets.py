@@ -45,7 +45,7 @@ from picrust.format_tree_and_trait_table import filter_table_by_presence_in_tree
 # Functions that modify the tree given a tip #
 ##############################################
 
-def exclude_tip(tip, tree):
+def exclude_tip(tip, tree,verbose=False):
     """Return pruned tree with tip excluded
     
     tip --  a PyCogent PhyloNode object from the tree
@@ -72,10 +72,10 @@ def exclude_tip(tip, tree):
     #tree.prune()
     
     #Newer subtree based method
-    print "Generating subtree"
     tips_to_keep = [t.Name for t in tree.tips() if t.Name != tip.Name]
+    if verbose:
+        print "Generating subtree with %i tips" %len(tips_to_keep)
     subtree = get_sub_tree(tree,tips_to_keep)
-    
     
     return subtree
 
@@ -86,7 +86,7 @@ def make_distance_based_exclusion_fn(exclusion_distance):
     """
     
 
-    def exclude_tip_neighbors(tip,tree, verbose=True):
+    def exclude_tip_neighbors(tip,tree, verbose=False):
         # check that the exclusion distance won't exclude the entire tree
         max_dist = tree.maxTipTipDistance()[0]
         tips_to_delete = tip.tipsWithinDistance(exclusion_distance)
