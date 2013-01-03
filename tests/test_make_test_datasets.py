@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from unittest import main, TestCase 
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
