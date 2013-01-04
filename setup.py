@@ -42,7 +42,7 @@ http://picrust.github.com
 Manuscript in preparation. Please cite PICRUSt as http://picrust.github.com until publication.
 """
 
-setup(name='picrust',
+setup(name='PICRUSt',
         version=__version__,
         description='PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States',
         author=__maintainer__,
@@ -52,8 +52,9 @@ setup(name='picrust',
         url='http://picrust.github.com',
         packages=['picrust'],
         scripts=glob('scripts/*py'),
-        package_dir={},
-        package_data={},
-        data_files={},
+        package_data={'picrust':
+                      ['data/*gz',
+                       'support_files/jar/Count.jar',
+                       'support_files/R/ace.R']},
         long_description=long_description)
 

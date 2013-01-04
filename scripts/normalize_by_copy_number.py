@@ -36,7 +36,7 @@ script_info['required_options'] = [
  make_option('-o','--output_otu_fp',type="new_filepath",help='the output otu table filepath in biom format'),
 ]
 script_info['optional_options'] = [
- make_option('-c','--input_count_fp',default=join(get_picrust_project_dir(),'data','16S_precalculated.biom.gz'),type="existing_filepath",help='the input marker gene counts on per otu basis in biom format (can be gzipped) [default: %default]'),
+ make_option('-c','--input_count_fp',default=join(get_picrust_project_dir(),'picrust','data','16S_precalculated.biom.gz'),type="existing_filepath",help='the input marker gene counts on per otu basis in biom format (can be gzipped) [default: %default]'),
  make_option('--metadata_identifer',
              default='CopyNumber',
              help='identifier for copy number entry as observation metadata [default: %default]'),
