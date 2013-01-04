@@ -52,6 +52,9 @@ setup(name='PICRUSt',
         url='http://picrust.github.com',
         packages=['picrust'],
         scripts=glob('scripts/*py'),
-        package_data={'picrust':['data/*gz']},
+        package_data={'picrust':
+                      ['data/*gz',
+                       'support_files/jar/Count.jar',
+                       'support_files/R/ace.R']},
         long_description=long_description)
 
