@@ -22,7 +22,7 @@ from os.path import join
 
 __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
-__credits__ = ["Morgan Langille"]
+__credits__ = ["Morgan Langille", "Greg Caporaso"]
 __license__ = "GPL"
 __version__ = "0.0.0-dev"
 __maintainer__ = "Morgan Langille"
@@ -39,6 +39,37 @@ class Ace(CommandLineApplication):
     _suppress_stdout = False
     _suppress_stderr = False
 
+    # Overridden to call script with R rather than directly - this is useful
+    # because permisssions on the script are set to 644 when PICRUSt is installed
+    # with setup.py. This is fine if we're executing it with R, but not if we're
+    # trying to execute it directly.
+    def _get_base_command(self):
+        """ Returns the full command string 
+
+            input_arg: the argument to the command which represents the input 
+                to the program, this will be a string, either 
+                representing input or a filename to get input from
+         """
+        command_parts = []
+        # Append a change directory to the beginning of the command to change 
+        # to self.WorkingDir before running the command
+        # WorkingDir should be in quotes -- filenames might contain spaces
+        cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
+        if self._command is None:
+            raise ApplicationError, '_command has not been set.'
+        command = self._command
+        parameters = self.Parameters
+        
+        command_parts.append(cd_command)
+        command_parts.append("R")
+        command_parts.append("-f")
+        command_parts.append(command)
+        command_parts.append("--args")
+        command_parts.append(self._command_delimiter.join(filter(\
+            None,(map(str,parameters.values())))))
+      
+        return self._command_delimiter.join(command_parts).strip()
+    BaseCommand = property(_get_base_command)
 
 def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     '''Runs the Ace application controller given path of tree and trait table and returns a Table'''
@@ -60,8 +91,9 @@ def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     try:
         asr_table=LoadTable(filename=tmp_output_count_path,header=True,sep='\t')
     except IOError:
-        print "R wrote this to stderr:"
-        print "\n".join(result["StdErr"].readlines())
+        raise RuntimeError,\
+         ("R reported an error on stderr:"
+          " %s" % "\n".join(result["StdErr"].readlines()))
     
     asr_prob_table=LoadTable(filename=tmp_output_prob_path,header=True,sep='\t')
 
