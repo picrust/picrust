@@ -8,7 +8,6 @@ File created on Feb 2012.
 
 """
 from __future__ import division
-import argparse
 from cogent.util.table import Table
 from os.path import split, splitext
 from os import remove, environ
