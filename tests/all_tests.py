@@ -7,7 +7,7 @@
 # https://github.com/biom-format/
 
 import sys, os
-from os.path import split, splitext
+from os.path import split, splitext, join
 from glob import glob
 import cogent.util.unit_test as unittest
 
@@ -36,7 +36,7 @@ def my_import(name):
 
 def suite():
     test_dir = split(__file__)[0]
-    modules_to_test = [splitext(split(e)[1])[0] for e in glob("%s/test_*.py" % test_dir)]
+    modules_to_test = [splitext(split(e)[1])[0] for e in glob(join(test_dir,"test_*.py"))]
 
     alltests = unittest.TestSuite()
     
