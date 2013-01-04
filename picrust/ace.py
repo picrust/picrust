@@ -39,6 +39,35 @@ class Ace(CommandLineApplication):
     _suppress_stdout = False
     _suppress_stderr = False
 
+    # Overridden to call script with R
+    def _get_base_command(self):
+        """ Returns the full command string 
+
+            input_arg: the argument to the command which represents the input 
+                to the program, this will be a string, either 
+                representing input or a filename to get input from
+         tI"""
+        command_parts = []
+        # Append a change directory to the beginning of the command to change 
+        # to self.WorkingDir before running the command
+        # WorkingDir should be in quotes -- filenames might contain spaces
+        cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
+        if self._command is None:
+            raise ApplicationError, '_command has not been set.'
+        command = self._command
+        parameters = self.Parameters
+        
+        command_parts.append(cd_command)
+        command_parts.append("R")
+        command_parts.append("-f")
+        command_parts.append(command)
+        command_parts.append("--args")
+        command_parts.append(self._command_delimiter.join(filter(\
+            None,(map(str,parameters.values())))))
+      
+        return self._command_delimiter.join(command_parts).strip()
+    
+    BaseCommand = property(_get_base_command)
 
 def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     '''Runs the Ace application controller given path of tree and trait table and returns a Table'''
