@@ -675,7 +675,6 @@ def gini_coefficient(points):
     #print indices_to_consider
     #print points
     X,Y = zip(*points)
-    #print X,Y
     gini = 1.0 - \
         sum([float((X[k]-X[k_minus_one])*(Y[k]+Y[k_minus_one])) for k,k_minus_one in indices_to_consider])
                 
