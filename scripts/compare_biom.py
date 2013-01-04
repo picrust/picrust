@@ -17,10 +17,9 @@ from os.path import join,basename
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
 from picrust.evaluate_test_datasets import calculate_accuracy_stats_from_observations
-from biom.parse import parse_biom_table, convert_biom_to_table
+from biom.parse import parse_biom_table
 from picrust.util import make_output_dir_for_file
 from biom.table import table_factory,DenseOTUTable,SparseOTUTable
-from picrust.parse import parse_trait_table, parse_marker_gene_copy_numbers
 from random import shuffle
 
 script_info = {}

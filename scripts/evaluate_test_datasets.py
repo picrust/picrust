@@ -20,10 +20,9 @@ from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
  update_pooled_data, run_accuracy_calculations_on_biom_table,run_accuracy_calculations_on_pooled_data,\
  format_scatter_data, format_correlation_data, run_and_format_roc_analysis
 
-from biom.parse import parse_biom_table, convert_biom_to_table
+from biom.parse import parse_biom_table
 from picrust.util import make_output_dir
 
-from picrust.parse import parse_trait_table, parse_marker_gene_copy_numbers
 
 script_info = {}
 script_info['brief_description'] = "Evaluate the accuracy of character predictions, given directories of expected vs. observed test results"
