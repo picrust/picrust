@@ -60,8 +60,9 @@ def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     try:
         asr_table=LoadTable(filename=tmp_output_count_path,header=True,sep='\t')
     except IOError:
-        print "R wrote this to stderr:"
-        print "\n".join(result["StdErr"].readlines())
+        raise RuntimeError,\
+         ("R reported an error on stderr:"
+          " %s" % "\n".join(result["StdErr"].readlines()))
     
     asr_prob_table=LoadTable(filename=tmp_output_prob_path,header=True,sep='\t')
 
