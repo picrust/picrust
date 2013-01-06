@@ -1,7 +1,7 @@
 .. _index_methods:
 
 ==================================
-PICRUST Methods
+PICRUSt Methods
 ==================================
 
 .. toctree::
