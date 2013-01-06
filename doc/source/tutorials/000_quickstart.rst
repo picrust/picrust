@@ -1,55 +1,41 @@
-.. _quickstart_tutorial:
-
-Quickstart Tutorial
-===================
-
-This gives the basic commands needed to use PICRUST from start to finish.
-
 .. include:: ../global.rst
+.. _quickstart_guide:
 
-1. Download & Install PICRUST Software
---------------------------------------
-* Download the `PICRUST development software`_ using git::
-	
-	git clone git://github.com/picrust/picrust.git ~/picrust-dev
+Quickstart Guide
+================
 
-* Install PICRUST::
+This guide gives a high-level overview of how to use PICRUSt. Before starting, you should have installed PICRUSt as described in :ref:`install`. 
 
-	#For Bash shell 
-	echo 'export PYTHONPATH=~/picrust-dev/:$PYTHONPATH' >> ~/.bashrc	
-	echo 'export PATH=~/picrust-dev/scripts/:$PATH' >> ~/.bashrc	
+PICRUSt primarily consists of two workflows: gene content inference (detailed in :ref:`genome_prediction_tutorial`) and metagenome inference (detailed in :ref:`metagenome_prediction_tutorial`). Users working with 16S data can use pre-computed gene content information, and as a result don't need to be concerned with the gene content inference workflow. The following sections describe these workflows. Each section links to detailed tutorials that illustrate the exact commands that can be applied as well as example data that you can use to test and learn PICRUSt.
 
-	OR
+Gene content inference (precomputed for 16S rRNA)
+-------------------------------------------------
 
-	#For tsch shell
-	echo 'setenv PYTHONPATH ~/picrust-dev/:$PTYHONPATH' >> ~/.tschrc
-	echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' >> ~/.tschrc
+This workflow infers gene content for OTUs with unknown gene content from OTUs with known content and a phylogenetic tree relating OTUs with known and unknown gene content.
 
-2. Prepare your OTU table
--------------------------
+Input:
 
-* Download the `PICRUST GG reference data`_::
-	
-	cd ~/picrust-dev && wget -O - "http://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz" | tar -xzf -
+	* A reference OTU tree (newick format)
+	* A gene table for OTUs with known gene composition (i.e., counts of functional genes on a per-OTU basis; biom format by default)
 
-* Pick reference based OTUs (assuming QIIME already installed and demultiplexed fasta file (seqs.fna))::
+Output:
 
-	echo "pick_otus:enable_rev_strand_match True"  >> $PWD/otu_picking_params_97.txt
-	echo "pick_otus:similarity 0.97" >> $PWD/otu_picking_params_97.txt
-	pick_reference_otus_through_otu_table.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta
+	* A gene table for OTUs with known and unknown gene composition (i.e., counts of functional genes on a per-OTU basis; biom format by default)
 
-* For more information see :ref:`otu_picking_tutorial`.
+Full details on this workflow, including example data and associated commands for running this workflow can be found in :ref:`genome_prediction_tutorial`.
 
 
-3. Run PICRUST
---------------
+Metagenome inference
+--------------------
 
-* Normalize your OTU table (:ref:`normalize_by_copy_number`)::
+This workflow infers gene content for samples from an OTU table and a table of gene contents on a per-OTU basis. The input OTU table must be a closed-reference OTU table, where OTU identifiers correspond to the tips in the reference OTU tree used in the *Gene content inference* workflow. For help with building this OTU table, you should see :ref:`otu_picking_tutorial` which makes use of the `PICRUSt GG reference data`_.
 
-	normalize_by_copy_number.py -i $PWD/ucrC97/uclust_ref_picked_otus/otu_table.biom -o normalized_otus.biom
+Input: 
 
-* Get KEGG predictions (:ref:`predict_metagenomes`) (**NOTE: This step currently requires approx 5GB RAM**)::
+	* An OTU table (i.e., counts of OTUs on a per-sample basis; default; biom format by default)
 
-	predict_metagenomes.py -i normalized_otus.biom -o metagenome_predictions.biom
+Output:
 
-* For more information see :ref:`metagenome_prediction_tutorial`
+	* A gene table (i.e., counts of functional genes on a per-sample basis; biom format by default)
+
+Full details on this workflow, including example data and associated commands for running this workflow can be found in :ref:`metagenome_prediction_tutorial`.

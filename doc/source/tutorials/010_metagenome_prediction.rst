@@ -10,15 +10,15 @@ Introduction
 ------------
 
 This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in :ref:`otu_picking_tutorial`.
-Given this input, the process additionally needs the `PICRUST software`_ package.
+Given this input, the process additionally needs the `PICRUSt software`_ package.
 
 Essential Files
 ---------------
 
 You should already have the following files before starting this tutorial:
 
-1. The `PICRUST software`_ package
-2. A PICRUST compatible OTU table (:ref:`otu_picking_tutorial`)
+1. The `PICRUSt software`_ package
+2. A PICRUSt compatible OTU table (:ref:`otu_picking_tutorial`)
 
 Step 1: Normalize OTU Table
 ---------------------------

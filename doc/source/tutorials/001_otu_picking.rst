@@ -1,6 +1,6 @@
 .. _otu_picking_tutorial:
 
-Picking OTUs for use in PICRUST
+Picking OTUs for use in PICRUSt
 ===============================
 
 Introduction
@@ -35,7 +35,7 @@ If your demultiplexed fna file is named ``seqs.fna`` and is in your current work
 	echo "pick_otus:similarity 0.97" >> $PWD/otu_picking_params_97.txt
 	pick_reference_otus_through_otu_table.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta
 
-This command picks OTUs and builds a `biom-formatted OTU table <http://www.biom-format.org>`_, with OTUs assigned at 97% identity. The primary file of interest will be ``ucrC97/uclust_ref_picked_otus/otu_table.biom``, which will be the OTU table that you pass to PICRUST. 
+This command picks OTUs and builds a `biom-formatted OTU table <http://www.biom-format.org>`_, with OTUs assigned at 97% identity. The primary file of interest will be ``ucrC97/uclust_ref_picked_otus/otu_table.biom``, which will be the OTU table that you pass to PICRUSt. 
 
 Alternatively, if you'd like to pick OTUs at a 90% percent identity, you could run the following command::
 

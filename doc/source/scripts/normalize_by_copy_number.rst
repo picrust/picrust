@@ -1,47 +1,54 @@
 .. _normalize_by_copy_number:
 
-===========================
-normalize_by_copy_number.py
-===========================
+.. index:: normalize_by_copy_number.py
 
-Description of code
-===================
+*normalize_by_copy_number.py* -- Normalize an OTU table by marker gene copy number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- * The ``normalize_by_copy_number.py`` script normalizes an OTU table by the predicted 16S copy number abundances for each OTU.
-
-Input Requirements
-==================
- * An OTU table (that has been properly reference picked against green genes) in biom format. This table should have SampleIds (columns) as some arbitrary sample id, and ObservationIds (rows) as green gene identifiers.
- * A table of pre-computed 16S copy number abundances for all green gene identifiers (in the gg ref package).  This file is generated using ``predict_traits.py``, but for most use-cases is precalculated ('data/16S_precalculated.biom.gz') and used by default.
-
-Output
-======
- * A normalized OTU table (biom format).
-
-Mandatory Options
-=================
- * ``-i``: the input OTU table
- * ``-o``: the normalized OTU table
-
-Optional Options
-================
- * ``-f``: input OTU table in tab-delimited format (instead of biom).
- * ``-c``: the input pre-computed 16S copy number abundances
+**Description:**
 
 
-Usage examples
-==============
 
-This section provides a description of how to run ``normalize_by_copy_number.py``:
 
-* Basic usage::
+**Usage:** :file:`normalize_by_copy_number.py [options]`
 
-    normalize_by_copy_number.py -i your_otu_table.biom -o normalized_otus.biom 
+**Input Arguments:**
 
-* Input format for OTU table can be set to plain tab-delimited format (instead of biom) using ``-f`` option::
+.. note::
 
-    normalize_by_copy_number.py -f -i your_otu_table.tab -o normalized_otus.biom 
+	
+	**[REQUIRED]**
+		
+	-i, `-`-input_otu_fp
+		The input otu table filepath in biom format
+	-o, `-`-output_otu_fp
+		The output otu table filepath in biom format
+	
+	**[OPTIONAL]**
+		
+	-c, `-`-input_count_fp
+		The input marker gene counts on per otu basis in biom format (can be gzipped) [default: /Users/caporaso/.virtualenvs/picrust/lib/python2.7/site-packages/picrust/data/16S_precalculated.biom.gz]
+	`-`-metadata_identifer
+		Identifier for copy number entry as observation metadata [default: CopyNumber]
+	-f, `-`-input_format_classic
+		Input otu table (--input_otu_fp) is in classic Qiime format [default: False]
 
-* A different set of marker gene copy numbers can be specified using ``-c`` and this file can be gzipped or uncompressed::
 
-    normalize_by_copy_number.py -i your_otu_table.biom -c your_marker_gene_copy_number.biom -o normalized_otus.biom 
+**Output:**
+
+A normalized OTU table
+
+
+Normalize the counts in raw_otus.biom. Write the resulting table to normalized_otus.biom.
+
+::
+
+	normalize_by_copy_number.py -i raw_otus.biom -o normalized_otus.biom
+
+Input tab-delimited OTU table:
+
+::
+
+	normalize_by_copy_number.py -f -i raw_otus.tab -o predicted_metagenomes.biom
+
+
