@@ -23,7 +23,7 @@ from os import remove
 from re import split
 
 script_info = {}
-script_info['brief_description'] = "Runs genome evaluations on PI-CRUST. "
+script_info['brief_description'] = "Runs genome evaluations on PICRUSt. "
 script_info['script_description'] = "\
 Using files created by make_test_datasets.py it runs each test dataset through the ASR (ancestral_state_reconstruction.py) and the genome prediction (predict_traits.py)"
 

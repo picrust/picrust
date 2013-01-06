@@ -28,7 +28,7 @@ from picrust.make_test_datasets import yield_test_trees,\
 
 
 script_info = {}
-script_info['brief_description'] = "Generates test datasets for cross-validation studies of PICRUST's accuracy"
+script_info['brief_description'] = "Generates test datasets for cross-validation studies of PICRUSt's accuracy"
 script_info['script_description'] = ""
 script_info['script_usage'] = [("","Generate holdout test trees from genome_tree.newick, and save results in the directory ./test_holdout_trees/.","%prog -t genome_tree.newick -o ./test_holdout_trees")]
 script_info['output_description']= ""
