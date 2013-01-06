@@ -1,34 +1,15 @@
+.. include:: ../global.rst
 .. _quickstart_tutorial:
 
-Quickstart Tutorial
+Quickstart Guide
 ===================
 
-This gives the basic commands needed to use PICRUST from start to finish.
+This gives a basic overview of how to use PICRUSt. Before starting, you should have installed PICRUSt as described in :ref:`install`.
 
-.. include:: ../global.rst
-
-1. Download & Install PICRUST Software
---------------------------------------
-* Download the `PICRUST development software`_ using git::
-	
-	git clone git://github.com/picrust/picrust.git ~/picrust-dev
-
-* Install PICRUST::
-
-	#For Bash shell 
-	echo 'export PYTHONPATH=~/picrust-dev/:$PYTHONPATH' >> ~/.bashrc	
-	echo 'export PATH=~/picrust-dev/scripts/:$PATH' >> ~/.bashrc	
-
-	OR
-
-	#For tsch shell
-	echo 'setenv PYTHONPATH ~/picrust-dev/:$PTYHONPATH' >> ~/.tschrc
-	echo 'setenv PATH ~/picrust-dev/scripts/:$PATH' >> ~/.tschrc
-
-2. Prepare your OTU table
+Prepare your OTU table
 -------------------------
 
-* Download the `PICRUST GG reference data`_::
+* Download the `PICRUSt GG reference data`_::
 	
 	cd ~/picrust-dev && wget -O - "http://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz" | tar -xzf -
 
@@ -41,7 +22,7 @@ This gives the basic commands needed to use PICRUST from start to finish.
 * For more information see :ref:`otu_picking_tutorial`.
 
 
-3. Run PICRUST
+Run PICRUSt
 --------------
 
 * Normalize your OTU table (:ref:`normalize_by_copy_number`)::

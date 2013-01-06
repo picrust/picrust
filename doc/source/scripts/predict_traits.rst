@@ -44,7 +44,7 @@ The prediction method works as follows:
 	-o, `-`-output_trait_table
 		The output filepath for trait predictions [default: predicted_states.tsv]
 	-a, `-`-output_accuracy_metrics
-		If specified, calculate accuracy metrics (i.e. how accurate does PICRUST expect its predictions to be?) and output them to this filepath [default: None]
+		If specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: None]
 	-m, `-`-prediction_method
 		Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:asr_and_weighting,nearest_neighbor,asr_only,weighting_only,random_neighbor.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information. "asr_only": predict the traits of the last reconstructed ancestor, without weighting. "weighting_only": weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: asr_and_weighting]
 	-w, `-`-weighting_method
