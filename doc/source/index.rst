@@ -14,7 +14,7 @@ Using PICRUSt
 If you're new to PICRUSt, you'll want to work through these documents in order:
 
 	#. :ref:`install`
-	#. :ref:`quickstart_tutorial`
+	#. :ref:`quickstart_guide`
 	#. :ref:`metagenome_prediction_tutorial`
 
 More advanced users may be interested in the following (in no particular order):

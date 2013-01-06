@@ -1,8 +1,8 @@
 .. include:: ../global.rst
-.. _quickstart_tutorial:
+.. _quickstart_guide:
 
 Quickstart Guide
-===================
+================
 
 This gives a basic overview of how to use PICRUSt. Before starting, you should have installed PICRUSt as described in :ref:`install`.
 
