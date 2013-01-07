@@ -6,7 +6,7 @@ Inferring Individual Genomes
 Introduction
 ------------
 
-This tutorial explains the initial steps in the **PICRUST** pipeline that looks after formatting input tree and trait tables, running ancestral state reconstruction, and extending predictions to all tips in the reference tree.  
+This tutorial explains the initial steps in the **PICRUSt** pipeline that looks after formatting input tree and trait tables, running ancestral state reconstruction, and extending predictions to all tips in the reference tree.  
 
 Essential Files
 ---------------

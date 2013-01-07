@@ -1,6 +1,6 @@
 .. _constructing_reference_otus:
 
-Constructing PICRUST reference OTU collection
+Constructing PICRUSt reference OTU collection
 ==============================================
 
 Introduction
