@@ -1,54 +1,64 @@
 .. _ancestral_state_reconstruction:
 
-==============================
-Ancestral State Reconstruction
-==============================
+.. index:: ancestral_state_reconstruction.py
 
-This document covers use of the ``picrust/ancestral_state_reconstruction.py`` script with some information about the various app controllers that it calls. Questions on usage should be directed to Morgan Langille (morgan.g.i.langille@gmail.com).
+*ancestral_state_reconstruction.py* -- Runs ancestral state reconstruction given a tree and trait table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Description of code
-===================
+**Description:**
 
- * The ``ancestral_state_reconstruction.py`` script is a wrapper script that interfaces with various third party programs of ancestral state recontruction (ASR).
- * Each of the third party ASR programs all have their own pycogent app controllers. 
- * Each of these app controllers have a method called ``XXXXX_for_picrust``, where ``XXXXX`` is the name of ASR method. This is called by ``ancestral_state_reconstruction.py`` and ensures that same input and output formats as agreed to by the PICRUST developers.
-
-Input Requirements
-==================
- * A tree in newick format with unique labels for the tips AND the internal nodes. The tree must be dichotomous (e.g. no polytomies), with no zero branch lengths. 
- * A tab-delimited table with the first row being a list of trait identifiers, the first column being a list of ALL tip labels from the tree, and the cell values being counts of data.
- * Note: These files will usually be the outputs produced by the ``format_tree_and_trait_table.py`` script. 
-
-Output
-======
- * A tab-delmited table with the first row being a list of trait identifiers, the second column being a list of all internal node labels from the tree, and the cell values being the predicted counts of data. 
- * If a the ASR method provides confidence information (posterior probabilities, confidence intervals, etc.), then an additional table will be output that provides the same columns and row headings, but the cell values will contain probability information for the predictions. 
-
-Mandatory Options
-=================
- * ``-i``: the input trait table described above
- * ``-t``: the input tree described above
-
-Optional Options
-================
- * ``-m``: the asr method to be used. Can be one of (``ace_ml``,``ace_reml``, ``ace_pic``, ``wagner``). Default is ``wagner``.
- * ``-o``: name for output table containing ASR predictions of just the counts [default:asr_counts.tab]
+Provides a common interface for running various ancenstral state reconstruction methods (e.g. ACE, BayesTraits, etc.).
 
 
-Usage examples
-==============
+**Usage:** :file:`ancestral_state_reconstruction.py [options]`
 
-This section provides a description of how to run ``ancestral_state_reconstruction.py``:
+**Input Arguments:**
 
-Basic Example::
+.. note::
 
-    ancestral_state_reconstruction.py -i your_trait_table.txt -t your_tree.newick
+	
+	**[REQUIRED]**
+		
+	-t, `-`-input_tree_fp
+		The tree to use for ASR
+	-i, `-`-input_trait_table_fp
+		The trait table to use for ASR
+	
+	**[OPTIONAL]**
+		
+	-m, `-`-asr_method
+		Method for ancestral state reconstruction. Valid choices are: ace_ml, ace_reml, ace_pic, wagner [default: wagner]
+	-o, `-`-output_fp
+		Output trait table [default:asr_counts.tab]
+	-c, `-`-output_ci_fp
+		Output table containing 95% confidence intervals, loglik, and brownian motion parameters for each asr prediction [default:asr_ci.tab]
+	-p, `-`-parallel
+		Allow parallelization of asr
+	-j, `-`-parallel_method
+		Method for parallelizaation. Valid choices are: sge, torque, multithreaded [default: sge]
+	-n, `-`-num_jobs
+		Number of jobs to be submitted (if --parallel). [default: 100]
+	-d, `-`-debug
+		To aid with debugging; get the command that the app controller is going to run
 
-Specify a different ASR method::
 
-    ancestral_state_reconstruction.py -i your_trait_table.txt -t your_tree.newick -m ace_pic
+**Output:**
 
-Specify a different a name for the output file(s)::
+A table containing trait information for internal nodes of the tree.
 
-    ancestral_state_reconstruction.py -i your_trait_table.txt -t your_tree.newick -o your_output_name
-    
+
+**Minimum Requirments:**
+
+Provide a tree file and trait table file
+
+::
+
+	ancestral_state_reconstruction.py -i trait_table_fp -t tree_fp
+
+**Specify output file:**
+
+::
+
+	ancestral_state_reconstruction.py -i trait_table_fp -t tree_fp -o output_file_fp
+
+
