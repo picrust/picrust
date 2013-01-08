@@ -67,28 +67,19 @@ def predict_metagenomes(otu_table,genome_table):
     #We need to preserve metadata about the samples from the OTU table, 
     #and metadata about the gene functions from the genome table
     
-    #TODO: abstract these into a transfer metadata function
-    if otu_table.SampleMetadata:
-        sample_metadata = {}
-        for sample_id in otu_table.SampleIds:
-            metadata_value = dict(otu_table.SampleMetadata[otu_table.getSampleIndex(sample_id)])
-            if not metadata_value:
-                metadata_value = None
-            sample_metadata[sample_id] = metadata_value
-        result_table.addSampleMetadata(sample_metadata)
+    #Transfer sample metadata from the OTU table
+    #to the metagenome table (samples are the same)
+    result_table = transfer_metadata(otu_table,result_table,\
+      donor_metadata_type='SampleMetadata',\
+      recipient_metadata_type='SampleMetadata')
     
-    if genome_table.ObservationMetadata:
-        obs_metadata = {}
-        for function_id in genome_table.ObservationIds:
-            #In the genome table, the observations are the genes, so we want the *observation* index
-            metadata_value = genome_table.ObservationMetadata[genome_table.getObservationIndex(function_id)]
-            if not metadata_value:
-                metadata_value = None
-            obs_metadata[str(function_id)] = metadata_value
-
-        result_table.addObservationMetadata(obs_metadata)
+    #Now transfer observation metadata (e.g. gene metadata) 
+    #from the genome table to the result table
+    result_table = transfer_metadata(genome_table,result_table,\
+      donor_metadata_type='ObservationMetadata',\
+      recipient_metadata_type='ObservationMetadata')
     
-    #END TODO
+    
 
     return result_table
 
@@ -106,8 +97,8 @@ def transfer_metadata(donor_table,recipient_table,\
         print "Transferring donor_table.%s to recipient_table.%s" %(donor_metadata_type,recipient_metadata_type)
     
     donor_metadata = getattr(donor_table,donor_metadata_type,None) 
-    if donor_metadata is None:
-        raise ValueError('donor_table has no %s property.  Is it a valid BIOM format table?' %metadata_type)
+    #if donor_metadata is None:
+    #    raise ValueError('donor_table has no %s property.  Is it a valid BIOM format table?' %metadata_type)
    
     if not donor_metadata:
         #Valid table, but no metadata to transfer, so nothing more needs to be done.
