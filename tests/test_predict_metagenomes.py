@@ -40,13 +40,41 @@ class PredictMetagenomeTests(TestCase):
         """ predict_metagenomes raises ValueError when no overlapping otu ids """
         self.assertRaises(ValueError,predict_metagenomes,self.otu_table1,self.genome_table2)
 
-    def test_predict_metagenomes_keeps_metadata(self):
-        """predict_metagenomes preserves metadata in genome and otu table"""
-        #Test basic case of sample and function metadata
-        actual = predict_metagenomes(self.otu_table1_with_metadata,self.genome_table1_with_metadata)
-        self.assertEqual(actual,self.predicted_metagenome_table1_with_metadata)
+    def test_predict_metagenomes_keeps_observation_metadata(self):
+        """predict_metagenomes preserves Observation metadata in genome and otu table"""
         
-      
+        actual = predict_metagenomes(self.otu_table1_with_metadata,self.genome_table1_with_metadata)
+        exp = self.predicted_metagenome_table1_with_metadata
+        
+        #Need to map to dicts, otherwise the memory location of the lambda function
+        #associated with the defaultdict causes (artifactual) inequality of results
+        
+        actual_md = map(dict,sorted([md for md in actual.ObservationMetadata]))
+        exp_md = map(dict,sorted([md for md in exp.ObservationMetadata]))
+        for i,md in enumerate(actual_md):
+            self.assertEqualItems(md,exp_md[i])
+        for i,md in enumerate(exp_md):
+            self.assertEqualItems(md,actual_md[i])
+
+    def test_predict_metagenomes_keeps_sample_metadata(self):
+        """predict_metagenomes preserves Sample metadata in genome and otu table"""
+        #NOTE: could be consolidated with "_keeps_observation_metadata above
+
+        actual = predict_metagenomes(self.otu_table1_with_metadata,self.genome_table1_with_metadata)
+        exp = self.predicted_metagenome_table1_with_metadata
+        
+        #Need to map to dicts, otherwise the memory location of the lambda function
+        #associated with the defaultdict causes (artifactual) inequality of results
+        
+        actual_md = map(dict,sorted([md for md in actual.SampleMetadata]))
+        exp_md = map(dict,sorted([md for md in exp.SampleMetadata]))
+        for i,md in enumerate(actual_md):
+            self.assertEqualItems(md,exp_md[i])
+        for i,md in enumerate(exp_md):
+            self.assertEqualItems(md,actual_md[i])
+
+   
+
 otu_table1 = """{"rows": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 otu_table1_with_metadata = """{"rows": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": {"pH":7.0}}, {"id": "Sample2", "metadata": {"pH":8.0}}, {"id": "Sample3", "metadata": {"pH":7.0}}, {"id": "Sample4", "metadata": null}],"generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
