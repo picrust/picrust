@@ -60,7 +60,37 @@ def predict_metagenomes(otu_table,genome_table):
     # return the result as a sparse biom table - the sample ids are now the 
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
-    return table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+
+
+    result_table =  table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+
+    #We need to preserve metadata about the samples from the OTU table, 
+    #and metadata about the gene functions from the genome table
+    
+    #TODO: abstract these into a transfer metadata function
+    if otu_table.SampleMetadata:
+        sample_metadata = {}
+        for sample_id in otu_table.SampleIds:
+            metadata_value = dict(otu_table.SampleMetadata[otu_table.getSampleIndex(sample_id)])
+            if not metadata_value:
+                metadata_value = None
+            sample_metadata[sample_id] = metadata_value
+        result_table.addSampleMetadata(sample_metadata)
+    
+    if genome_table.ObservationMetadata:
+        obs_metadata = {}
+        for function_id in genome_table.ObservationIds:
+            #In the genome table, the observations are the genes, so we want the *observation* index
+            metadata_value = genome_table.ObservationMetadata[genome_table.getObservationIndex(function_id)]
+            if not metadata_value:
+                metadata_value = None
+            obs_metadata[str(function_id)] = metadata_value
+
+        result_table.addObservationMetadata(obs_metadata)
+    
+    #END TODO
+
+    return result_table
 
 
 
