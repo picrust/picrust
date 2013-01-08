@@ -96,33 +96,6 @@ def transfer_metadata(donor_table,recipient_table,\
     if verbose: 
         print "Transferring donor_table.%s to recipient_table.%s" %(donor_metadata_type,recipient_metadata_type)
     
-    #donor_metadata = getattr(donor_table,donor_metadata_type,None) 
-    #if donor_metadata is None:
-    #    raise ValueError('donor_table has no %s property.  Is it a valid BIOM format table?' %metadata_type)
-    #
-    #if not donor_metadata:
-    #    #Valid table, but no metadata to transfer, so nothing more needs to be done.
-    #    return recipient_table
-    #
-    #metadata = {}
-    #if donor_metadata_type == "ObservationMetadata":
-    #    md_ids = donor_table.ObservationIds
-    #elif donor_metadata_type == "SampleMetadata":
-    #    md_ids = donor_table.SampleIds
-    #
-    #for md_id in md_ids:
-    #    #In the genome table, the observations are the genes, so we want the *observation* index
-    #    if donor_metadata_type == "ObservationMetadata":
-    #        metadata_value = donor_table.ObservationMetadata[donor_table.getObservationIndex(md_id)]
-    #    elif donor_metadata_type == "SampleMetadata":
-    #        metadata_value = donor_table.SampleMetadata[donor_table.getSampleIndex(md_id)]
-    #    metadata[md_id] = metadata_value
-    #
-    #
-    #if recipient_metadata_type == "ObservationMetadata":
-    #    recipient_table.addObservationMetadata(metadata)
-    #elif recipient_metadata_type == "SampleMetadata":
-    #    recipient_table.addSampleMetadata(metadata)
     if donor_metadata_type == "ObservationMetadata":
         transfer_fn = transfer_observation_metadata
     elif donor_metadata_type == "SampleMetadata":
