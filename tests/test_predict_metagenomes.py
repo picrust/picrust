@@ -4,7 +4,7 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
-__credits__ = ["Greg Caporaso"]
+__credits__ = ["Greg Caporaso","Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "0.0.0-dev"
 __maintainer__ = "Greg Caporaso"
