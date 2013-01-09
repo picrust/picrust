@@ -16,6 +16,8 @@ __status__ = "Development"
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
 from biom.table import table_factory,DenseOTUTable
+from picrust.predict_metagenomes import transfer_observation_metadata,\
+  transfer_sample_metadata
 from picrust.util import make_output_dir_for_file
 from os import path
 from os.path import join
@@ -99,6 +101,10 @@ def main():
             
 
     normalized_table = filtered_otu_table.normObservationByMetadata(opts.metadata_identifer)
+    
+    #move Observation Metadata from original to filtered OTU table
+    normalized_table = transfer_observation_metadata(otu_table,normalized_table,'ObservationMetadata')
+    normalized_otu_table = transfer_sample_metadata(otu_table,normalized_table,'SampleMetadata')
 
     make_output_dir_for_file(opts.output_otu_fp)
     open(opts.output_otu_fp,'w').write(\
