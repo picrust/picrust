@@ -46,7 +46,7 @@ def extract_otu_and_genome_data(otu_table,genome_table):
 
         
 
-def predict_metagenomes(otu_table,genome_table):
+def predict_metagenomes(otu_table,genome_table,verbose=False):
     """ predict metagenomes from otu table and genome table 
     """
     
@@ -60,9 +60,111 @@ def predict_metagenomes(otu_table,genome_table):
     # return the result as a sparse biom table - the sample ids are now the 
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
-    return table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
 
 
+    result_table =  table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+
+    #We need to preserve metadata about the samples from the OTU table, 
+    #and metadata about the gene functions from the genome table
+    
+    #Transfer sample metadata from the OTU table
+    #to the metagenome table (samples are the same)
+    result_table = transfer_metadata(otu_table,result_table,\
+      donor_metadata_type='SampleMetadata',\
+      recipient_metadata_type='SampleMetadata',verbose=verbose)
+    
+    #Now transfer observation metadata (e.g. gene metadata) 
+    #from the genome table to the result table
+    result_table = transfer_metadata(genome_table,result_table,\
+      donor_metadata_type='ObservationMetadata',\
+      recipient_metadata_type='ObservationMetadata',verbose=verbose)
+    
+
+    return result_table
+
+
+def transfer_metadata(donor_table,recipient_table,\
+        donor_metadata_type="ObservationMetadata",recipient_metadata_type="ObservationMetadata",\
+        verbose = True):
+    """Transfer particular metadata properties from donor table to recipient BIOM table"""
+    #Check that property label looks OK
+    for metadata_type in [donor_metadata_type,recipient_metadata_type]:
+        if metadata_type not in ['ObservationMetadata','SampleMetadata']:
+            raise ValueError("Donor and recipient metadata types passed to transfer_metadata must be either 'ObservationMetadata' or 'SampleMetadata'")
+   
+    if verbose: 
+        print "Transferring donor_table.%s to recipient_table.%s" %(donor_metadata_type,recipient_metadata_type)
+    
+    if donor_metadata_type == "ObservationMetadata":
+        transfer_fn = transfer_observation_metadata
+    elif donor_metadata_type == "SampleMetadata":
+        transfer_fn = transfer_sample_metadata
+    
+    recipient_table = transfer_fn(donor_table,recipient_table,recipient_metadata_type=recipient_metadata_type,verbose=verbose)
+    return recipient_table
+
+def transfer_observation_metadata(donor_table,recipient_table,\
+        recipient_metadata_type="ObservationMetadata",\
+        verbose = True):
+    """Transfer observation metadata properties from donor table to recipient BIOM table"""
+    #Check that property label looks OK
+    donor_metadata_type = "ObservationMetadata"
+    if recipient_metadata_type not in ['ObservationMetadata','SampleMetadata']:
+            raise ValueError("Recipient metadata type passed to transfer_metadata must be either 'ObservationMetadata' or 'SampleMetadata'")
+   
+    if verbose: 
+        print "Transferring donor_table.%s to recipient_table.%s" %(donor_metadata_type,recipient_metadata_type)
+    
+    donor_metadata = getattr(donor_table,donor_metadata_type,None) 
+   
+    if not donor_metadata:
+        #No metadata to transfer, so nothing more needs to be done.
+        return recipient_table
+
+    metadata = {}
+    md_ids = donor_table.ObservationIds
+
+    for md_id in md_ids:
+        metadata_value = donor_table.ObservationMetadata[donor_table.getObservationIndex(md_id)]
+        metadata[str(md_id)] = metadata_value
+    if recipient_metadata_type == "ObservationMetadata":
+        recipient_table.addObservationMetadata(metadata)
+    elif recipient_metadata_type == "SampleMetadata":
+        recipient_table.addSampleMetadata(metadata)
+   
+    return recipient_table
+
+def transfer_sample_metadata(donor_table,recipient_table,\
+        recipient_metadata_type="SampleMetadata",\
+        verbose = True):
+    """Transfer sample metadata properties from donor table to recipient BIOM table"""
+    #Check that property label looks OK
+    donor_metadata_type = "SampleMetadata"
+    if recipient_metadata_type not in ['ObservationMetadata','SampleMetadata']:
+            raise ValueError("Recipient metadata type passed to transfer_metadata must be either 'ObservationMetadata' or 'SampleMetadata'")
+   
+    if verbose: 
+        print "Transferring donor_table.%s to recipient_table.%s" %(donor_metadata_type,recipient_metadata_type)
+    
+    donor_metadata = getattr(donor_table,donor_metadata_type,None) 
+   
+    if not donor_metadata:
+        #No metadata to transfer, so nothing more needs to be done.
+        return recipient_table
+
+    metadata = {}
+    md_ids = donor_table.SampleIds
+
+    for md_id in md_ids:
+        metadata_value = donor_table.SampleMetadata[donor_table.getSampleIndex(md_id)]
+        metadata[str(md_id)] = metadata_value
+    
+    if recipient_metadata_type == "SampleMetadata":
+        recipient_table.addSampleMetadata(metadata)
+    elif recipient_metadata_type == "ObservationMetadata":
+        recipient_table.addObservationMetadata(metadata)
+   
+    return recipient_table
 
 
 def calc_nsti(otu_table,genome_table,weighted=True):
