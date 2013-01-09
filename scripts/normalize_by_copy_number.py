@@ -103,8 +103,8 @@ def main():
     normalized_table = filtered_otu_table.normObservationByMetadata(opts.metadata_identifer)
     
     #move Observation Metadata from original to filtered OTU table
-    filtered_otu_table = transfer_observation_metadata(otu_table,filtered_otu_table,'ObservationMetadata')
-    filtered_otu_table = transfer_sample_metadata(otu_table,filtered_otu_table,'SampleMetadata')
+    normalized_table = transfer_observation_metadata(otu_table,normalized_table,'ObservationMetadata')
+    normalized_otu_table = transfer_sample_metadata(otu_table,normalized_table,'SampleMetadata')
 
     make_output_dir_for_file(opts.output_otu_fp)
     open(opts.output_otu_fp,'w').write(\
