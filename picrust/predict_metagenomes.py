@@ -85,7 +85,7 @@ def predict_metagenomes(otu_table,genome_table,verbose=False):
 
 def transfer_metadata(donor_table,recipient_table,\
         donor_metadata_type="ObservationMetadata",recipient_metadata_type="ObservationMetadata",\
-        verbose = True):
+        verbose = False):
     """Transfer particular metadata properties from donor table to recipient BIOM table"""
     #Check that property label looks OK
     for metadata_type in [donor_metadata_type,recipient_metadata_type]:
@@ -105,7 +105,7 @@ def transfer_metadata(donor_table,recipient_table,\
 
 def transfer_observation_metadata(donor_table,recipient_table,\
         recipient_metadata_type="ObservationMetadata",\
-        verbose = True):
+        verbose = False):
     """Transfer observation metadata properties from donor table to recipient BIOM table"""
     #Check that property label looks OK
     donor_metadata_type = "ObservationMetadata"
@@ -136,7 +136,7 @@ def transfer_observation_metadata(donor_table,recipient_table,\
 
 def transfer_sample_metadata(donor_table,recipient_table,\
         recipient_metadata_type="SampleMetadata",\
-        verbose = True):
+        verbose = False):
     """Transfer sample metadata properties from donor table to recipient BIOM table"""
     #Check that property label looks OK
     donor_metadata_type = "SampleMetadata"
