@@ -13,6 +13,7 @@ __status__ = "Development"
 
 from numpy import dot, array, around
 from biom.table import table_factory
+from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
 
 def get_overlapping_ids(otu_table,genome_table):
     """Get the ids that overlap between the OTU and genome tables"""
@@ -44,6 +45,49 @@ def extract_otu_and_genome_data(otu_table,genome_table):
         genome_data.append(genome_table.sampleData(obs_id))
     return otu_data,genome_data,overlapping_otus 
 
+
+def load_subset_from_biom_str(biom_str,ids_to_load,axis="samples"):
+    """Load a biom table containing subset of samples or observations from a BIOM format JSON string"""
+    if axis not in ['samples','observations']:
+        raise InputError(\
+          'load_subset_from_biom_str axis parameter must be either "samples" or "observations"')
+
+    ids = map(str,[l.strip() for l in ids_to_load])
+
+    idxs, new_axis_md = get_axis_indices(biom_str, ids, axis)
+    new_data = direct_slice_data(biom_str, idxs, axis)
+
+
+    new_table_pieces = yield_subset_biom_str(biom_str,new_data,new_axis_md,axis)
+    subset_biom_str = ''.join(new_table_pieces)
+    return parse_biom_table(subset_biom_str)
+
+def yield_subset_biom_str(biom_str,new_data,new_axis_md,axis):
+    """Sequentially yield the components of a reduced biom string"""
+
+    if axis not in ['samples','observations']:
+        raise InputError(\
+          'yield_subset_biom_str axis parameter must be either "samples" or "observations"')
+
+    # Still has multiple walks over the file. bad form, but easy right now
+    yield "{"
+    keys = ["id","format","format_url","type",\
+      "generated_by","date","matrix_type",\
+      "matrix_element_type"]
+
+    for key in keys:
+        yield direct_parse_key(biom_str,key)
+        yield ","
+    
+    for entry in [new_data,new_axis_md]:
+        yield entry
+        yield ","
+
+    if axis == "observations":
+        yield direct_parse_key(biom_str, "columns")
+    else:
+        yield direct_parse_key(biom_str, "rows")
+    yield "}"
         
 
 def predict_metagenomes(otu_table,genome_table,verbose=False):
