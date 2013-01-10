@@ -12,10 +12,11 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
  
 
-
+from cStringIO import StringIO
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
-from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
+from picrust.predict_metagenomes import predict_metagenomes, calc_nsti,\
+  load_subset_from_biom_str
 from picrust.util import make_output_dir_for_file,format_biom_table
 from os import path
 from os.path import join
@@ -50,10 +51,33 @@ def main():
 
     if opts.verbose:
         print "Loading count table: ", opts.input_count_table
+    #if (ext == '.gz'):
+    #    genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+    #else:
+    #    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+
     if (ext == '.gz'):
-        genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+        genome_table_str = gzip.open(opts.input_count_table,'rb').read()
     else:
-        genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+        genome_table_str = open(opts.input_count_table,'U').read()
+    
+    #Now we want to reduce the JSON string down to contain
+    #only rows in the OTU table
+    ids_to_load = otu_table.ObservationIds
+
+    if opts.verbose:
+        print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
+        print "ids_to_load:",ids_to_load
+        print "genome_table_str:",genome_table_str
+    
+    #In the genome/trait table genomes are the samples and 
+    #genes are the observations
+    
+    genome_table = load_subset_from_biom_str(genome_table_str,ids_to_load,axis='samples')
+    #genome_table = parse_biom_table(genome_table_str)
+    
+    if opts.verbose:
+        print "Done loading trait table"
 
     make_output_dir_for_file(opts.output_metagenome_table)
 
