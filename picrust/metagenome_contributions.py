@@ -3,10 +3,10 @@
 from __future__ import division
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
+__copyright__ = "Copyright 2012, The PICRUST project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "1.4.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
@@ -15,16 +15,32 @@ from numpy import dot, array, around
 from biom.table import table_factory
 from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
-def partition_metagenome_contributions(otu_table,genome_table):
+def partition_metagenome_contributions(otu_table,genome_table, limit_to_functions=[], remove_zero_rows=True,verbose=True):
     """Return a list of the contribution of each organism to each function, per sample
-
+    (rewritten version using numpy)
     otu_table -- the BIOM Table object for the OTU table
     genome_table -- the BIOM Table object for the predicted genomes
-
+    limit_to_functions -- a list of function ids to include.  If empty, include all function ids
     Output table as a list of lists with header
     Function\tOrganism\tSample\tCounts\tpercent_of_sample
     """
     
+    if limit_to_functions:
+        if verbose:
+            print "Filtering the genome table to include only user-specified functions:",limit_to_functionss
+        ok_ids = frozenset(map(str,limit_to_functions))
+        
+        filter_by_set = lambda vals,gene_id,metadata: str(gene_id) in ok_ids
+        #filter_by_set = lambda vals,gene_id,metadata: gene_id in ok_ids
+        
+        #if verbose:
+            #print dir(genome_table)
+        #    print "Valid function ids:",genome_table.ObservationIds
+        genome_table = genome_table.filterObservations(filter_by_set)
+        
+        if genome_table.isEmpty():
+            raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
+
     otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(otu_table,genome_table)
     #We have a list of data with abundances and gene copy numbers
     lines=[]
@@ -36,7 +52,7 @@ def partition_metagenome_contributions(otu_table,genome_table):
 
     #Zero-valued total counts will be set to epsilon 
     epsilon = 1e-5
-    
+
     for j,gene_id in enumerate(genome_table.ObservationIds):
         all_gene_rows = []
         for k,sample_id in enumerate(otu_table.SampleIds):
@@ -46,6 +62,9 @@ def partition_metagenome_contributions(otu_table,genome_table):
                 otu_gene_count = genome_data[i][j]
                 otu_abundance = otu_data[i][k]
                 contribution =  otu_gene_count * otu_abundance
+                if remove_zero_rows and contribution == 0.0:
+                    #skip zero contributions
+                    continue
                 sample_gene_rows.append([gene_id,sample_id,otu_id,otu_gene_count,otu_abundance,contribution])
             #Now get the percentage of each genes contribution to the sample overall
             total_counts =max(epsilon,sum([float(row[-1]) for row in sample_gene_rows]))
