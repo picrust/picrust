@@ -36,6 +36,7 @@ script_info['required_options'] = [
 script_info['optional_options'] = [\
     make_option('-c','--input_count_table',default=join(get_picrust_project_dir(),'picrust','data','ko_precalculated.biom.gz'),type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: %default]'),
     make_option('-a','--accuracy_metrics',default=None,type="new_filepath",help='If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using predict_traits.py during genome prediction (e.g. there are "NSTI" values in the genome .biom file metadata)'),
+    make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
@@ -48,6 +49,16 @@ def main():
 
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
     ext=path.splitext(opts.input_count_table)[1]
+   
+    if not opts.suppress_subset_loading:
+        #Now we want to use the OTU table information
+        #to load only rows in the count table corresponding
+        #to relevant OTUs
+        ids_to_load = otu_table.ObservationIds
+
+        if opts.verbose:
+            print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
+    
 
     if opts.verbose:
         print "Loading count table: ", opts.input_count_table
@@ -61,23 +72,20 @@ def main():
     else:
         genome_table_str = open(opts.input_count_table,'U').read()
     
-    #Now we want to reduce the JSON string down to contain
-    #only rows in the OTU table
-    ids_to_load = otu_table.ObservationIds
-
-    if opts.verbose:
-        print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
-        print "ids_to_load:",ids_to_load
-        print "genome_table_str:",genome_table_str
-    
     #In the genome/trait table genomes are the samples and 
     #genes are the observations
     
-    genome_table = load_subset_from_biom_str(genome_table_str,ids_to_load,axis='samples')
-    #genome_table = parse_biom_table(genome_table_str)
+    if not opts.suppress_subset_loading:
+        if opts.verbose:
+            print "Building a biom Table object from relevant entries"
+        genome_table = load_subset_from_biom_str(genome_table_str,ids_to_load,axis='samples')
+    else:
+        if opts.verbose:
+            print "Loading *full* count table because --suppress_subset_loading was passed. This may result in high memory usage"
+        genome_table = parse_biom_table(genome_table_str)
     
     if opts.verbose:
-        print "Done loading trait table"
+        print "Done loading trait table with %i samples" %(len(genome_table.SampleIds))
 
     make_output_dir_for_file(opts.output_metagenome_table)
 
