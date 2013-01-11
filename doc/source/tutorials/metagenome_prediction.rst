@@ -1,7 +1,7 @@
 .. _metagenome_prediction_tutorial:
 
-Metagenome Prediction
-=====================
+Metagenome Prediction Tutorial
+==============================
 
 .. include:: ../global.rst
 
