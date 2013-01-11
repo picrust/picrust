@@ -3,10 +3,10 @@
 from __future__ import division
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
+__copyright__ = "Copyright 2012, The PICRUST project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "1.4.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
@@ -19,7 +19,7 @@ from picrust.metagenome_contributions import partition_metagenome_contributions
 from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids, extract_otu_and_genome_data
 
-class PredictMetagenomeTests(TestCase):
+class PartitionMetagenomeTests(TestCase):
     """ """
     
     def setUp(self):
@@ -50,20 +50,18 @@ class PredictMetagenomeTests(TestCase):
         #f3  5.0 1.0 0.0 2.0
 
         #First, sanity checks
+        
         #We expect to see the contributions broken down by OTU 
         metagenome_table = predict_metagenomes(self.otu_table1,self.genome_table1)
         obs = partition_metagenome_contributions(self.otu_table1,self.genome_table1)
-        #otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(self.otu_table1,self.genome_table1)
-        #obs = partition_metagenome_contributions(otu_data,genome_data,self.otu_table1,self.genome_table1,overlapping_ids)
+        
         obs_text = "\n".join(["\t".join(map(str,i)) for i in obs])
-        #print obs_text
         exp_text = "\n".join(["\t".join(map(str,r.split())) for r in self.predicted_gene_partition_table.split('\n')])
 
         #Test that the percent of all samples is always smaller than the percent of the current sample
         for l in obs[1:]:
             self.assertTrue(l[-1]<=l[-2])
         
-
         #Test that the summed contributions equal the metagenome table value
         sum_f1_sample1 = sum([i[5] for i in obs[1:] if (i[0]=="f1" and i[1]=="Sample1")])
         self.assertFloatEqual(sum_f1_sample1,16.0)
@@ -71,7 +69,6 @@ class PredictMetagenomeTests(TestCase):
         self.assertFloatEqual(sum_f2_sample1,0.0)
         sum_f3_sample1 = sum([i[5] for i in obs[1:] if (i[0]=="f3" and i[1]=="Sample1")])
         self.assertFloatEqual(sum_f3_sample1,5.0)
-        
 
         for l in obs[1:]:
             gene,sample,OTU,gene_count_per_genome,otu_abundance_in_sample,count,percent,percent_all = l    
@@ -92,8 +89,6 @@ class PredictMetagenomeTests(TestCase):
                 self.assertFloatEqual(count,0.0)
                 self.assertFloatEqual(percent,0.0)
                 self.assertFloatEqual(percent_all,0.0)
-            
-
         
         #Having validated that this looks OK, just compare to hand-checked result
         self.assertEqual(obs_text,exp_text)
@@ -110,40 +105,18 @@ predicted_gene_partition_table =\
  """Gene    Sample  OTU GeneCountPerGenome  OTUAbundanceInSample    CountContributedByOTU   ContributionPercentOfSample ContributionPercentOfAllSamples
 f1  Sample1 GG_OTU_1    1.0 1.0 1.0 0.0625  0.0222222222222
 f1  Sample1 GG_OTU_2    3.0 5.0 15.0    0.9375  0.333333333333
-f1  Sample1 GG_OTU_3    2.0 0.0 0.0 0.0 0.0
 f1  Sample2 GG_OTU_1    1.0 2.0 2.0 0.4 0.0444444444444
 f1  Sample2 GG_OTU_2    3.0 1.0 3.0 0.6 0.0666666666667
-f1  Sample2 GG_OTU_3    2.0 0.0 0.0 0.0 0.0
 f1  Sample3 GG_OTU_1    1.0 3.0 3.0 0.6 0.0666666666667
-f1  Sample3 GG_OTU_2    3.0 0.0 0.0 0.0 0.0
 f1  Sample3 GG_OTU_3    2.0 1.0 2.0 0.4 0.0444444444444
 f1  Sample4 GG_OTU_1    1.0 5.0 5.0 0.263157894737  0.111111111111
 f1  Sample4 GG_OTU_2    3.0 2.0 6.0 0.315789473684  0.133333333333
 f1  Sample4 GG_OTU_3    2.0 4.0 8.0 0.421052631579  0.177777777778
-f2  Sample1 GG_OTU_1    0.0 1.0 0.0 0.0 0.0
-f2  Sample1 GG_OTU_2    0.0 5.0 0.0 0.0 0.0
-f2  Sample1 GG_OTU_3    1.0 0.0 0.0 0.0 0.0
-f2  Sample2 GG_OTU_1    0.0 2.0 0.0 0.0 0.0
-f2  Sample2 GG_OTU_2    0.0 1.0 0.0 0.0 0.0
-f2  Sample2 GG_OTU_3    1.0 0.0 0.0 0.0 0.0
-f2  Sample3 GG_OTU_1    0.0 3.0 0.0 0.0 0.0
-f2  Sample3 GG_OTU_2    0.0 0.0 0.0 0.0 0.0
 f2  Sample3 GG_OTU_3    1.0 1.0 1.0 1.0 0.2
-f2  Sample4 GG_OTU_1    0.0 5.0 0.0 0.0 0.0
-f2  Sample4 GG_OTU_2    0.0 2.0 0.0 0.0 0.0
 f2  Sample4 GG_OTU_3    1.0 4.0 4.0 1.0 0.8
-f3  Sample1 GG_OTU_1    0.0 1.0 0.0 0.0 0.0
 f3  Sample1 GG_OTU_2    1.0 5.0 5.0 1.0 0.625
-f3  Sample1 GG_OTU_3    0.0 0.0 0.0 0.0 0.0
-f3  Sample2 GG_OTU_1    0.0 2.0 0.0 0.0 0.0
 f3  Sample2 GG_OTU_2    1.0 1.0 1.0 1.0 0.125
-f3  Sample2 GG_OTU_3    0.0 0.0 0.0 0.0 0.0
-f3  Sample3 GG_OTU_1    0.0 3.0 0.0 0.0 0.0
-f3  Sample3 GG_OTU_2    1.0 0.0 0.0 0.0 0.0
-f3  Sample3 GG_OTU_3    0.0 1.0 0.0 0.0 0.0
-f3  Sample4 GG_OTU_1    0.0 5.0 0.0 0.0 0.0
-f3  Sample4 GG_OTU_2    1.0 2.0 2.0 1.0 0.25
-f3  Sample4 GG_OTU_3    0.0 4.0 0.0 0.0 0.0"""
+f3  Sample4 GG_OTU_2    1.0 2.0 2.0 1.0 0.25"""
 
 if __name__ == "__main__":
     main()
