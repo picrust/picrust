@@ -58,8 +58,7 @@ def main():
         try:
             otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
         except ValueError:
-            print "Error loading OTU table! If not BIOM format consider using '-f' option.\n"
-            raise
+            raise ValueError("Error loading OTU table! If not in BIOM format use '-f' option.\n")
 
     ext=path.splitext(opts.input_count_fp)[1]
     if (ext == '.gz'):
