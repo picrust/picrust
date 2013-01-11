@@ -38,7 +38,7 @@ script_info['optional_options'] = [\
 make_option('-m','--asr_method',type='choice',
                 help='Method for ancestral state reconstruction. Valid choices are: '+\
                 ', '.join(asr_method_choices) + ' [default: %default]',\
-                choices=asr_method_choices,default='wagner'),\
+                choices=asr_method_choices,default='ace_pic'),\
 make_option('-o','--output_fp',type="new_filepath",help='output trait table [default:%default]',default='asr_counts.tab'),\
 make_option('-c','--output_ci_fp',type="new_filepath",help='output table containing 95% confidence intervals, loglik, and brownian motion parameters for each asr prediction [default:%default]',default='asr_ci.tab'),\
 make_option('-p','--parallel',action="store_true",help='allow parallelization of asr',default=False),\
