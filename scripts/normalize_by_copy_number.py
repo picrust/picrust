@@ -55,9 +55,10 @@ def main():
     if opts.input_format_classic:
         otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,None,DenseOTUTable)
     else:
-        if input_ext != '.biom':
-            sys.stderr.write("\nOTU table does not have '.biom' extension! If loading causes error consider using '-f' option to load tab-delimited OTU table!\n\n")
-        otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
+        try:
+            otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
+        except ValueError:
+            raise ValueError("Error loading OTU table! If not in BIOM format use '-f' option.\n")
 
     ext=path.splitext(opts.input_count_fp)[1]
     if (ext == '.gz'):
