@@ -180,7 +180,7 @@ def make_output_dir(dirpath, strict=False):
         
         return dirpath
     try:
-        mkdir(dirpath)
+        makedirs(dirpath)
     except IOError,e:
         err_str = "Could not create directory '%s'. Are permissions set correctly? Got error: '%s'" %e 
         raise IOError(err_str)
