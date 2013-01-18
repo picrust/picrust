@@ -1,5 +1,5 @@
 =================
-PICRUST Tutorials
+PICRUSt Tutorials
 =================
 
 .. toctree::

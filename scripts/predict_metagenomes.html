@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>predict_metagenomes.py &mdash; PI-CRUST 0.1 documentation</title>
+    <title>predict_metagenomes.py – This script produces the actual metagenome functional predictions for a given OTU table. &mdash; PICRUSt 0.0.0-dev documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1',
+        VERSION:     '0.0.0-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
-    <link rel="up" title="PICRUST Scripts" href="index.html" />
-    <link rel="next" title="predict_traits.py" href="predict_traits.html" />
-    <link rel="prev" title="normalize_by_copy_number.py" href="normalize_by_copy_number.html" /> 
+    <link rel="top" title="PICRUSt 0.0.0-dev documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="predict_traits.html" title="predict_traits.py"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="normalize_by_copy_number.html" title="normalize_by_copy_number.py"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">PICRUST Scripts</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,69 +43,37 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="predict-metagenomes-py">
-<span id="predict-metagenomes"></span><h1>predict_metagenomes.py<a class="headerlink" href="#predict-metagenomes-py" title="Permalink to this headline">¶</a></h1>
-<p>This document covers use of the <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt> script.</p>
-<div class="section" id="description-of-code">
-<h2>Description of code<a class="headerlink" href="#description-of-code" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li>The <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt> script produces the actual metagenome functional predictions for a given OTU table.</li>
-</ul>
-</div></blockquote>
+  <span class="target" id="predict-metagenomes"></span><div class="section" id="predict-metagenomes-py-this-script-produces-the-actual-metagenome-functional-predictions-for-a-given-otu-table">
+<span id="index-0"></span><h1><em>predict_metagenomes.py</em> &#8211; This script produces the actual metagenome functional predictions for a given OTU table.<a class="headerlink" href="#predict-metagenomes-py-this-script-produces-the-actual-metagenome-functional-predictions-for-a-given-otu-table" title="Permalink to this headline">¶</a></h1>
+<p><strong>Description:</strong></p>
+<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">predict_metagenomes.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Input Arguments:</strong></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>[REQUIRED]</strong></p>
+<dl class="docutils">
+<dt>-i, <cite>-</cite>-input_otu_table</dt>
+<dd>The input otu table in biom format</dd>
+<dt>-o, <cite>-</cite>-output_metagenome_table</dt>
+<dd>The output file for the predicted metagenome</dd>
+</dl>
+<p><strong>[OPTIONAL]</strong></p>
+<dl class="last docutils">
+<dt>-c, <cite>-</cite>-input_count_table</dt>
+<dd>Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: /Users/caporaso/.virtualenvs/picrust/lib/python2.7/site-packages/picrust/data/ko_precalculated.biom.gz]</dd>
+<dt>-a, <cite>-</cite>-accuracy_metrics</dt>
+<dd>If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using <a class="reference external" href="./predict_traits.html">predict_traits.py</a> during genome prediction (e.g. there are &#8220;NSTI&#8221; values in the genome .biom file metadata)</dd>
+<dt>-f, <cite>-</cite>-format_tab_delimited</dt>
+<dd>Output the predicted metagenome table in tab-delimited format [default: False]</dd>
+</dl>
 </div>
-<div class="section" id="input-requirements">
-<h2>Input Requirements<a class="headerlink" href="#input-requirements" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li>An OTU table (that has been properly reference picked against green genes) in biom format. This table should have SampleIds (columns) as some arbitrary sample id, and ObservationIds (rows) as green gene identifiers.</li>
-<li>A table of pre-computed genome contents for all green gene identifiers (in the gg ref package). This file is generated using <tt class="docutils literal"><span class="pre">predict_traits.py</span></tt>, but for most use-cases is precalculated (&#8216;data/ko_precalculated.biom.gz&#8217;) and used by default.</li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="output">
-<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li>A table of functional identifiers (e.g. KEGG KOs) by the users sample ids. (biom format).</li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="mandatory-options">
-<h2>Mandatory Options<a class="headerlink" href="#mandatory-options" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">-i</span></tt>: the input OTU table</li>
-<li><tt class="docutils literal"><span class="pre">-o</span></tt>: the output file</li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="optional-options">
-<h2>Optional Options<a class="headerlink" href="#optional-options" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">-f</span></tt>: output the predicted metagenome table in tab-delimited format (instead of biom).</li>
-<li><tt class="docutils literal"><span class="pre">-c</span></tt>: the input pre-computed genome contents (biom format and optionally gzipped).</li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="usage-examples">
-<h2>Usage examples<a class="headerlink" href="#usage-examples" title="Permalink to this headline">¶</a></h2>
-<p>This section provides a description of how to run <tt class="docutils literal"><span class="pre">predict_metagenomes.py</span></tt>:</p>
-<ul>
-<li><p class="first">Basic usage:</p>
+<p><strong>Output:</strong></p>
+<p>Output is a table of function counts (e.g. KEGG KOs) by sample ids.</p>
+<p>Predict metagenomes from genomes.biom and otus.biom.</p>
 <div class="highlight-python"><pre>predict_metagenomes.py -i normalized_otus.biom -o predicted_metagenomes.biom</pre>
 </div>
-</li>
-<li><p class="first">Output format can be set to plain tab-delimited format (instead of biom) using <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py -f -i normalized_otus.biom -o predicted_metagenomes.biom</pre>
-</div>
-</li>
-<li><p class="first">A different set of functions can be specified using <tt class="docutils literal"><span class="pre">-c</span></tt> and this file can be gzipped or uncompressed:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py -i normalized_otus.biom -c your_output_from_predict_traits.biom -o predicted_metagenomes.biom</pre>
-</div>
-</li>
-</ul>
+<p>Change output format to plain tab-delimited:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -f -i normalized_otus.biom -o predicted_metagenomes.tab</pre>
 </div>
 </div>
 
@@ -125,25 +83,6 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">predict_metagenomes.py</a><ul>
-<li><a class="reference internal" href="#description-of-code">Description of code</a></li>
-<li><a class="reference internal" href="#input-requirements">Input Requirements</a></li>
-<li><a class="reference internal" href="#output">Output</a></li>
-<li><a class="reference internal" href="#mandatory-options">Mandatory Options</a></li>
-<li><a class="reference internal" href="#optional-options">Optional Options</a></li>
-<li><a class="reference internal" href="#usage-examples">Usage examples</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="normalize_by_copy_number.html"
-                        title="previous chapter">normalize_by_copy_number.py</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="predict_traits.html"
-                        title="next chapter">predict_traits.py</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/scripts/predict_metagenomes.txt"
@@ -172,19 +111,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="predict_traits.html" title="predict_traits.py"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="normalize_by_copy_number.html" title="normalize_by_copy_number.py"
-             >previous</a> |</li>
-        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
-          <li><a href="index.html" >PICRUST Scripts</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

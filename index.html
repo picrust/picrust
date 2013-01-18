@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PICRUST: Phylogenetic Investigation of Communities by Reconstruction of Unobserved STates &mdash; PI-CRUST 0.1 documentation</title>
+    <title>PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States &mdash; PICRUSt 0.0.0-dev documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
+        VERSION:     '0.0.0-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PI-CRUST 0.1 documentation" href="#" />
-    <link rel="next" title="PICRUST Tutorials" href="tutorials/index.html" /> 
+    <link rel="top" title="PICRUSt 0.0.0-dev documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -35,10 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="tutorials/index.html" title="PICRUST Tutorials"
-             accesskey="N">next</a> |</li>
-        <li><a href="#">PI-CRUST 0.1 documentation</a> &raquo;</li> 
+        <li><a href="#">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,93 +44,46 @@
           <div class="body">
             
   <div class="section" id="picrust-phylogenetic-investigation-of-communities-by-reconstruction-of-unobserved-states">
-<h1>PICRUST: Phylogenetic Investigation of Communities by Reconstruction of Unobserved STates<a class="headerlink" href="#picrust-phylogenetic-investigation-of-communities-by-reconstruction-of-unobserved-states" title="Permalink to this headline">¶</a></h1>
-<p>PICRUST is a bioinformatics software package, <strong>currently still in development</strong>, designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.</p>
-<p>PICRUST is freely available here under the <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GPL</a>. However, the software and documentation are still under active development, so we discourage the use of PICRUST for general scientific research (for now).</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">PICRUST Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/000_quickstart.html">Quickstart Tutorial</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/001_otu_picking.html">Picking OTUs for use in PICRUST</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/010_metagenome_prediction.html">Metagenome Prediction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/020_genome_prediction.html">Inferring Individual Genomes</a></li>
+<h1>PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States<a class="headerlink" href="#picrust-phylogenetic-investigation-of-communities-by-reconstruction-of-unobserved-states" title="Permalink to this headline">¶</a></h1>
+<p>PICRUSt is a bioinformatics software package designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.</p>
+<p>PICRUSt is freely available under the <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GPL</a>.</p>
+<div class="section" id="using-picrust">
+<h2>Using PICRUSt<a class="headerlink" href="#using-picrust" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re new to PICRUSt, you&#8217;ll want to work through these documents in order:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><a class="reference internal" href="install.html#install"><em>Installing PICRUSt</em></a></li>
+<li><a class="reference internal" href="tutorials/quickstart.html#quickstart-guide"><em>Quickstart Guide</em></a></li>
+<li><a class="reference internal" href="tutorials/metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a></li>
+<li><a class="reference internal" href="tutorials/downstream_analysis.html#downstream-analysis-guide"><em>Analyzing PICRUSt predicted metagenomes</em></a></li>
+</ol>
+</div></blockquote>
+<p>More advanced users may be interested in the following (in no particular order):</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="tutorials/genome_prediction.html#genome-prediction-tutorial"><em>Genome Prediction Tutorial</em></a></li>
+<li><a class="reference internal" href="scripts/index.html#index-scripts"><em>PICRUSt Script Index</em></a></li>
+<li><a class="reference internal" href="methods/index.html#index-methods"><em>PICRUSt Methods</em></a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="methods/index.html">PICRUST Methods</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="methods/constructing_reference_otus.html">Constructing PICRUST reference OTU collection</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="scripts/index.html">PICRUST Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scripts/ancestral_state_reconstruction.html">Ancestral State Reconstruction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts/normalize_by_copy_number.html">normalize_by_copy_number.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts/predict_metagenomes.html">predict_metagenomes.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts/predict_traits.html">predict_traits.py</a></li>
-</ul>
-</li>
-</ul>
+</div></blockquote>
 </div>
+<div class="section" id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>For PICRUSt announcements and questions, including notification of new releases, you should subscribe to the <a class="reference external" href="https://groups.google.com/group/picrust-users/subscribe?note=1&amp;hl=en&amp;noredirect=true&amp;pli=1">PICRUSt users list</a>.</p>
 </div>
-<div class="section" id="requirements">
-<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
-<p><strong>Mandatory</strong></p>
-<ul class="simple">
-<li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a></li>
-<li><a class="reference external" href="http://biom-format.org">biom</a></li>
-</ul>
-<p><strong>Rebuilding PICRUST OR Genome Prediction (optional)</strong></p>
-<ul class="simple">
-<li><a class="reference external" href="http://www.r-project.org/">R</a> installed with <a class="reference external" href="http://ape.mpl.ird.fr/">APE</a> library</li>
-</ul>
-</div>
-<div class="section" id="download">
-<h1>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h1>
-<p><strong>PICRUST Software (All Users)</strong></p>
-<ul class="simple">
-<li>PICRUST software</li>
-</ul>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">An official release version is not yet available. Please instead download the <a class="reference external" href="https://github.com/picrust/picrust">PICRUST development software</a>.</p>
-</div>
-<p><strong>OTU table preperation (Most Users)</strong></p>
-<ul class="simple">
-<li>Before using PICRUST for metagenome prediction, you must ensure your OTU table is PICRUST-compatible (OTU identifiers are <a class="reference external" href="http://greengenes.lbl.gov">Greengenes</a> identifiers).</li>
-<li>To generate a PICRUST-compatible OTU table, you need the <a class="reference external" href="https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz">PICRUST GG reference data</a>.</li>
-<li>For use, see tutorial: <a class="reference internal" href="tutorials/001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a></li>
-</ul>
-<p><strong>Inferring Individual Genomes (Optional: For Advanced Users)</strong></p>
-<ul class="simple">
-<li>Additional files are available for those looking to <strong>develop for PICRUST</strong> or perform <strong>single-genome ancestral state reconstruction</strong>: <a class="reference external" href="https://dl.dropbox.com/s/yvymi52uiwgltqt/picrust_starting_files.zip?dl=1">PICRUST starting files</a>.</li>
-<li>For use, see tutorial: <a class="reference internal" href="tutorials/020_genome_prediction.html#genome-prediction-tutorial"><em>Inferring Individual Genomes</em></a></li>
-</ul>
-</div>
-<div class="section" id="install">
-<h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>Add the location of your &#8216;PICRUST&#8217; directory to your PYTHONPATH environment variable.</li>
-<li>Add the location of your &#8216;PICRUST/scripts&#8217; to your PATH environment variable for ease of use (optional).</li>
-</ul>
-</div>
-<div class="section" id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<p>Looking to get metagenome predictions for your 16S data? Follow the <a class="reference internal" href="tutorials/000_quickstart.html#quickstart-tutorial"><em>Quickstart Tutorial</em></a>.</p>
-</div>
-<div class="section" id="contact-us">
-<h1>Contact Us<a class="headerlink" href="#contact-us" title="Permalink to this headline">¶</a></h1>
-<p>For PICRUST announcements and questions, including notification of new releases, you can subscribe to the <a class="reference external" href="https://groups.google.com/group/picrust-users/subscribe?note=1&amp;hl=en&amp;noredirect=true&amp;pli=1">PICRUST users list</a>.</p>
-</div>
-<div class="section" id="citation">
-<h1>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h1>
-<p>Hopefully coming soon ;)</p>
+<div class="section" id="citing-picrust">
+<h2>Citing PICRUSt<a class="headerlink" href="#citing-picrust" title="Permalink to this headline">¶</a></h2>
+<p>If you use PICRUSt in any published work, please cite it. As PICRUSt is not yet published, please cite it with the URL <tt class="docutils literal"><span class="pre">http://picrust.github.com</span></tt>.</p>
 </div>
 <div class="section" id="news-announcements">
-<h1>News &amp; Announcements<a class="headerlink" href="#news-announcements" title="Permalink to this headline">¶</a></h1>
+<h2>News &amp; Announcements<a class="headerlink" href="#news-announcements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>09-16-12: PICRUST presented by Morgan Langille &amp; Curtis Huttenhower at <a class="reference external" href="http://www.mimg.ucla.edu/arrowhead2012/">Microbial Genomics 2012 conference</a>.</li>
-<li>07-10-12: PICRUST presented by Morgan Langille at the <a class="reference external" href="http://ievobio.org/">iEvoBio conference</a> (<a class="reference external" href="http://www.slideshare.net/mlangill/leveraging-ancestral-state-reconstruction-to-infer-community-function-from-a-single-marker-gene">Presentation on Slideshare</a>).</li>
-<li>07-10-12: PICRUST presented by Jesse Zaneveld at <a class="reference external" href="http://www.icrs2012.com/">ICRS</a>.</li>
+<li>09-16-12: PICRUSt presented by Morgan Langille &amp; Curtis Huttenhower at <a class="reference external" href="http://www.mimg.ucla.edu/arrowhead2012/">Microbial Genomics 2012 conference</a>.</li>
+<li>07-10-12: PICRUSt presented by Morgan Langille at the <a class="reference external" href="http://ievobio.org/">iEvoBio conference</a> (<a class="reference external" href="http://www.slideshare.net/mlangill/leveraging-ancestral-state-reconstruction-to-infer-community-function-from-a-single-marker-gene">Presentation on Slideshare</a>).</li>
+<li>07-10-12: PICRUSt presented by Jesse Zaneveld at <a class="reference external" href="http://www.icrs2012.com/">ICRS</a>.</li>
 <li>More <a class="reference internal" href="news.html#news"><em>News &amp; Announcements</em></a></li>
 </ul>
+</div>
 </div>
 
 
@@ -145,21 +94,15 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">PICRUST: Phylogenetic Investigation of Communities by Reconstruction of Unobserved STates</a><ul>
-</ul>
-</li>
-<li><a class="reference internal" href="#requirements">Requirements</a></li>
-<li><a class="reference internal" href="#download">Download</a></li>
-<li><a class="reference internal" href="#install">Install</a></li>
-<li><a class="reference internal" href="#quickstart">Quickstart</a></li>
-<li><a class="reference internal" href="#contact-us">Contact Us</a></li>
-<li><a class="reference internal" href="#citation">Citation</a></li>
+<li><a class="reference internal" href="#">PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States</a><ul>
+<li><a class="reference internal" href="#using-picrust">Using PICRUSt</a></li>
+<li><a class="reference internal" href="#contact">Contact</a></li>
+<li><a class="reference internal" href="#citing-picrust">Citing PICRUSt</a></li>
 <li><a class="reference internal" href="#news-announcements">News &amp; Announcements</a></li>
 </ul>
+</li>
+</ul>
 
-  <h4>Next topic</h4>
-  <p class="topless"><a href="tutorials/index.html"
-                        title="next chapter">PICRUST Tutorials</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -188,15 +131,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="tutorials/index.html" title="PICRUST Tutorials"
-             >next</a> |</li>
-        <li><a href="#">PI-CRUST 0.1 documentation</a> &raquo;</li> 
+        <li><a href="#">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

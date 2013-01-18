@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Metagenome Prediction &mdash; PI-CRUST 0.1 documentation</title>
+    <title>Metagenome Prediction &mdash; PICRUSt 0.0.0-dev documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1',
+        VERSION:     '0.0.0-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PI-CRUST 0.1 documentation" href="../index.html" />
-    <link rel="up" title="PICRUST Tutorials" href="index.html" />
-    <link rel="next" title="Inferring Individual Genomes" href="020_genome_prediction.html" />
-    <link rel="prev" title="Picking OTUs for use in PICRUST" href="001_otu_picking.html" /> 
+    <link rel="top" title="PICRUSt 0.0.0-dev documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,14 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="020_genome_prediction.html" title="Inferring Individual Genomes"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">PICRUST Tutorials</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,20 +47,20 @@
 <span id="metagenome-prediction-tutorial"></span><h1>Metagenome Prediction<a class="headerlink" href="#metagenome-prediction" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>.
-Given this input, the process additionally needs the <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUST software</a> package.</p>
+<p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>.
+Given this input, the process additionally needs the <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUSt software</a> package.</p>
 </div>
 <div class="section" id="essential-files">
 <h2>Essential Files<a class="headerlink" href="#essential-files" title="Permalink to this headline">¶</a></h2>
 <p>You should already have the following files before starting this tutorial:</p>
 <ol class="arabic simple">
-<li>The <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUST software</a> package</li>
-<li>A PICRUST compatible OTU table (<a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUST</em></a>)</li>
+<li>The <a class="reference external" href="https://github.com/picrust/picrust/tags">PICRUSt software</a> package</li>
+<li>A PICRUSt compatible OTU table (<a class="reference internal" href="001_otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>)</li>
 </ol>
 </div>
 <div class="section" id="step-1-normalize-otu-table">
 <h2>Step 1: Normalize OTU Table<a class="headerlink" href="#step-1-normalize-otu-table" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.</p>
+<p><em class="xref std std-ref">normalize_by_copy_number</em> normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.</p>
 <p>Input is the users OTU table (that has been referenced picked against Greengenes).</p>
 <p>Input and output files are in <a class="reference external" href="http://biom-format.org">biom</a> format:</p>
 <div class="highlight-python"><pre>normalize_by_copy_number.py
@@ -86,8 +76,8 @@ Given this input, the process additionally needs the <a class="reference externa
 </div>
 <div class="section" id="step-2-predict-functions-for-metagenome">
 <h2>Step 2: Predict Functions For Metagenome<a class="headerlink" href="#step-2-predict-functions-for-metagenome" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).</p>
-<p>Input is the normalized OTU table created by <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a>.</p>
+<p><em class="xref std std-ref">predict_metagenomes</em> creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).</p>
+<p>Input is the normalized OTU table created by <em class="xref std std-ref">normalize_by_copy_number</em>.</p>
 <p>(<strong>NOTE: This step currently requires approx 5GB RAM</strong>)</p>
 <p>Output is in <a class="reference external" href="http://biom-format.org">biom</a> format by default:</p>
 <div class="highlight-python"><pre>predict_metagenomes.py
@@ -120,12 +110,6 @@ Given this input, the process additionally needs the <a class="reference externa
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="001_otu_picking.html"
-                        title="previous chapter">Picking OTUs for use in PICRUST</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="020_genome_prediction.html"
-                        title="next chapter">Inferring Individual Genomes</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/tutorials/010_metagenome_prediction.txt"
@@ -154,19 +138,12 @@ Given this input, the process additionally needs the <a class="reference externa
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="020_genome_prediction.html" title="Inferring Individual Genomes"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="001_otu_picking.html" title="Picking OTUs for use in PICRUST"
-             >previous</a> |</li>
-        <li><a href="../index.html">PI-CRUST 0.1 documentation</a> &raquo;</li>
-          <li><a href="index.html" >PICRUST Tutorials</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Joshua Reyes, Greg Caporaso.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

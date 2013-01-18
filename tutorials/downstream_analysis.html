@@ -1,0 +1,136 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Analyzing PICRUSt predicted metagenomes &mdash; PICRUSt 0.0.0-dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.0-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 0.0.0-dev documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="analyzing-picrust-predicted-metagenomes">
+<span id="downstream-analysis-guide"></span><h1>Analyzing PICRUSt predicted metagenomes<a class="headerlink" href="#analyzing-picrust-predicted-metagenomes" title="Permalink to this headline">¶</a></h1>
+<p>The PICRUSt pipeline ends with metagenome prediction, as described in <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction</em></a>. From there, you can analyze your predicted metagenomes as you would analyze actual metagenomes, with the tool of your choice. Here we provide some recommendations for analyzing metagenomes with QIIME.</p>
+<div class="section" id="analyzing-metagenomes-with-qiime">
+<h2>Analyzing metagenomes with QIIME<a class="headerlink" href="#analyzing-metagenomes-with-qiime" title="Permalink to this headline">¶</a></h2>
+<p>Because the metagenomes are provided in BIOM format by default, these can be plugged into many of the downstream analysis tools available in <a class="reference external" href="www.qiime.org">QIIME</a>. QIIME&#8217;s <a class="reference external" href="http://qiime.org/tutorials/shotgun_analysis.html">Shotgun Metagenome Analysis tutorial</a> illustrates a couple of the steps that can be applied. The steps that will primarily be of interest in that tutorial are the ones that begin with a <tt class="docutils literal"><span class="pre">.biom</span></tt> file. For example, <a class="reference external" href="http://qiime.org/tutorials/shotgun_analysis.html#computing-beta-diversity-and-generating-pcoa-plots">computing beta diversity and PCoA plots</a> and <a class="reference external" href="http://qiime.org/tutorials/shotgun_analysis.html#generating-summaries-of-samples-by-ko-category">generating summaries of samples by KO categories</a>.</p>
+<p>Many of <a class="reference external" href="http://qiime.org/tutorials/index.html">QIIME&#8217;s tutorials that describe diversity analyses</a> are applicable to PICRUSt-predicted metagenome tables. Specific analysis tools that may be useful include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://qiime.org/scripts/alpha_diversity.html">alpha_diversity.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/beta_diversity.html">beta_diversity.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/compute_core_microbiome.html">compute_core_microbiome.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/jackknifed_beta_diversity.html">jackknifed_beta_diversity.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/make_distance_boxplots.html">make_distance_boxplots.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/alpha_rarefaction.html">alpha_rarefaction.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/beta_diversity_through_plots.html">beta_diversity_through_plots.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/otu_category_significance.html">otu_category_significance.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/shared_phylotypes.html">shared_phylotypes.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/summarize_taxa_through_plots.html">summarize_taxa_through_plots.py</a></li>
+</ul>
+</div></blockquote>
+<p>There are also a number of scripts in QIIME that may be useful for more general processing of your BIOM table. These include the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://qiime.org/scripts/single_rarefaction.html">single_rarefaction.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/filter_otus_from_otu_table.html">filter_otus_from_otu_table.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/filter_samples_from_otu_table.html">filter_samples_from_otu_table.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/per_library_stats.html">per_library_stats.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/filter_taxa_from_otu_table.html">filter_taxa_from_otu_table.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/merge_otu_tables.html">merge_otu_tables.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/sort_otu_table.html">sort_otu_table.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/split_otu_table.html">split_otu_table.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/split_otu_table_by_taxonomy.html">split_otu_table_by_taxonomy.py</a></li>
+</ul>
+</div></blockquote>
+<p>Note that while many of these refer to OTU table, it&#8217;s just a nomenclature issue. These are generally applicable to <tt class="docutils literal"><span class="pre">.biom</span></tt> tables.</p>
+<p>Finally, if you&#8217;re interested in comparing real to predicted metagenomes, or predicted metagenomes to 16S, you&#8217;ll be interested in the <a class="reference external" href="http://qiime.org/tutorials/procrustes_analysis.html">Procrustes Analysis tutorial</a> and the <a class="reference external" href="http://qiime.org/tutorials/distance_matrix_comparison.html">Comparing Distance Matrices tutorial</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Analyzing PICRUSt predicted metagenomes</a><ul>
+<li><a class="reference internal" href="#analyzing-metagenomes-with-qiime">Analyzing metagenomes with QIIME</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/downstream_analysis.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 0.0.0-dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

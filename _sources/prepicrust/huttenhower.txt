@@ -29,11 +29,11 @@ Additionally, I like to use:
  
 Installation
 ============
-PICRUST itself doesn't require an installation. Simply copy our code into a directory $PICRUST_HOME. To get things running, though, you need to install the packages PICRUST depends on.
+PICRUSt itself doesn't require an installation. Simply copy our code into a directory $PICRUST_HOME. To get things running, though, you need to install the packages PICRUSt depends on.
 
 Step 1: Create an isolated Python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Set up a Python environment specifically to run PICRUST. This keeps the packages you install for PICRUST separate from all of your other projects::
+Set up a Python environment specifically to run PICRUST. This keeps the packages you install for PICRUSt separate from all of your other projects::
 
    mkvirtualenv picrust
 
@@ -53,7 +53,7 @@ I've included a copy of SCons 2.1.0 and ETE2 2.0 rev 111 in the etc/ folder for 
   cd ../ete2-2.0rev111
   python setup.py install
   
-PICRUST doesn't use the database or visualization ETE toolkits. The ETE setup script will warn you that you won't be able to use them unless you install more packages. That's okay, though. Just answer yes to continue with its installation.
+PICRUSt doesn't use the database or visualization ETE toolkits. The ETE setup script will warn you that you won't be able to use them unless you install more packages. That's okay, though. Just answer yes to continue with its installation.
 ::
   Installing ETE (A python Environment for Tree Exploration).
 
@@ -68,13 +68,13 @@ PICRUST doesn't use the database or visualization ETE toolkits. The ETE setup sc
 
 Step 3: Make ANFunc path accessible
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-PICRUST relies on an a binary file called ANFunc. This executable isn't actually part of PIECRUST; it's part of another project in the lab. It was written in C++ to multiply matrices fast. It can probably be replaced with something in SciPy later on.
+PICRUSt relies on an a binary file called ANFunc. This executable isn't actually part of PIECRUST; it's part of another project in the lab. It was written in C++ to multiply matrices fast. It can probably be replaced with something in SciPy later on.
 
 For example::
 
   echo "export PATH=$PICRUST_HOME/bin/:$PATH" >> ~/.bashrc
 
-Running PICRUST
+Running PICRUSt
 ===============
 Input
 ^^^^^
