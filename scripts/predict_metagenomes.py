@@ -12,10 +12,11 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
  
 
-
+from cStringIO import StringIO
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
-from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
+from picrust.predict_metagenomes import predict_metagenomes, calc_nsti,\
+  load_subset_from_biom_str
 from picrust.util import make_output_dir_for_file,format_biom_table
 from os import path
 from os.path import join
@@ -35,6 +36,7 @@ script_info['required_options'] = [
 script_info['optional_options'] = [\
     make_option('-c','--input_count_table',default=join(get_picrust_project_dir(),'picrust','data','ko_precalculated.biom.gz'),type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: %default]'),
     make_option('-a','--accuracy_metrics',default=None,type="new_filepath",help='If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using predict_traits.py during genome prediction (e.g. there are "NSTI" values in the genome .biom file metadata)'),
+    make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
@@ -47,13 +49,43 @@ def main():
 
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
     ext=path.splitext(opts.input_count_table)[1]
+   
+    if not opts.suppress_subset_loading:
+        #Now we want to use the OTU table information
+        #to load only rows in the count table corresponding
+        #to relevant OTUs
+        ids_to_load = otu_table.ObservationIds
+
+        if opts.verbose:
+            print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
+    
 
     if opts.verbose:
         print "Loading count table: ", opts.input_count_table
+    #if (ext == '.gz'):
+    #    genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+    #else:
+    #    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+
     if (ext == '.gz'):
-        genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+        genome_table_str = gzip.open(opts.input_count_table,'rb').read()
     else:
-        genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+        genome_table_str = open(opts.input_count_table,'U').read()
+    
+    #In the genome/trait table genomes are the samples and 
+    #genes are the observations
+    
+    if not opts.suppress_subset_loading:
+        if opts.verbose:
+            print "Building a biom Table object from relevant entries"
+        genome_table = load_subset_from_biom_str(genome_table_str,ids_to_load,axis='samples')
+    else:
+        if opts.verbose:
+            print "Loading *full* count table because --suppress_subset_loading was passed. This may result in high memory usage"
+        genome_table = parse_biom_table(genome_table_str)
+    
+    if opts.verbose:
+        print "Done loading trait table with %i samples" %(len(genome_table.SampleIds))
 
     make_output_dir_for_file(opts.output_metagenome_table)
 
