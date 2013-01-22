@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jose Carlos Clemente Litran", "Daniel McDonald",
                "Greg Caporaso", "Jai Ram Rideout"]
 __license__ = "GPL"
-__version__ = "0.9.0"
+__version__ = "0.9.0-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 
