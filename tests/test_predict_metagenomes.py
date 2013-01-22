@@ -165,7 +165,8 @@ class PredictMetagenomeTests(TestCase):
                 '"format": "Biological Observation Matrix v0.9"', ',',\
                 '"format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html"', ',',\
                 '"type": "OTU table"', ',',\
-                '"generated_by": "QIIME 1.4.0-dev, svn revision 2753', ',',\
+#                '"generated_by": "QIIME 1.4.0-dev, svn revision 2753', ',',\
+                '"generated_by": "QIIME 1.4.0-dev', ',',\
                 '"date": "2012-02-22T20:50:05.024661"', ',',\
                 '"matrix_type": "sparse"', ',',\
                 '"matrix_element_type": "float"', ',',\
