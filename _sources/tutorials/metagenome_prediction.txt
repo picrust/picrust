@@ -40,11 +40,9 @@ Input and output files are in `biom`_ format::
 Step 2: Predict Functions For Metagenome
 ----------------------------------------
 
-:ref:`predict_metagenomes.py <predict_metagenomes>` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).
+:ref:`predict_metagenomes.py <predict_metagenomes>` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns). (Note: This step requires 2-3GB of RAM)
 
 Input is the normalized OTU table created by :ref:`normalize_by_copy_number.py <normalize_by_copy_number>`.
-
-(**NOTE: This step currently requires approx 5GB RAM**)
  
 Output is in `biom`_ format by default: ::
 
@@ -65,6 +63,14 @@ Output is in `biom`_ format by default: ::
 		-i normalized_otus.biom
 		-o metagenome_predictions.tab
 		-a nsti_per_sample.tab
+
+(Optional) Those with machines > 6GB of RAM can get faster run times (~50% less) using the ``--suppress_subset_loading`` option: ::
+
+        predict_metagenomes.py 
+	        --suppress_subset_loading
+		-i normalized_otus.biom
+		-o metagenome_predictions.biom
+
 
 Step 3: Analysing Predicted Metagenomes
 ---------------------------------------
