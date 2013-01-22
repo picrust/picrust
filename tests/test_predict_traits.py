@@ -436,6 +436,37 @@ class TestPredictTraits(TestCase):
             obs = node.Reconstruction 
             exp = traits.get(node.Name, None)
             self.assertEqual(obs,exp)
+    
+    def test_assign_traits_to_tree_quoted_node_name(self):
+        """Assign_traits_to_tree should remove quotes from node names"""
+        # Test that the function assigns traits from a dict to a tree node
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        #Make one node quoted
+        tree.getNodeMatchingName('A').Name="'A'"
+        tree.getNodeMatchingName('B').Name='"B"'
+
+        # Test on simple tree
+        result_tree = assign_traits_to_tree(traits,tree,fix_bad_labels=True)
+        #Setting fix_bad_labels to false produces NoneType predictions when
+        #labels are quoted
+        
+        # Test that each node is assigned correctly
+        for node in result_tree.preorder():
+            obs = node.Reconstruction 
+            exp = traits.get(node.Name.strip("'").strip('"'), None)
+            self.assertEqual(obs,exp)
+        
+        # Test on polytomy tree
+        
+        tree = self.SimplePolytomyTree
+        result_tree = assign_traits_to_tree(traits,tree)
+        
+        # Test that each node is assigned correctly
+        for node in result_tree.preorder():
+            obs = node.Reconstruction 
+            exp = traits.get(node.Name, None)
+            self.assertEqual(obs,exp)
 
     def test_update_trait_dict_from_file(self):
         """update_trait_dict_from_file should parse input trait tables (asr and genome) and match traits between them"""
