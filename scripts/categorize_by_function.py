@@ -31,7 +31,7 @@ script_info['version'] = __version__
 def make_collapse_f(category, level):
     def collapse(md):
         for path in md[category]:
-            yield path[level]
+            yield (path[:(level+1)],path[level])
     return collapse
 
 def main():
