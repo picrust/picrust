@@ -22,7 +22,6 @@ from os import path
 from os.path import join
 from picrust.util import get_picrust_project_dir
 import gzip
-import itertools
 
 script_info = {}
 script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
@@ -40,13 +39,6 @@ script_info['optional_options'] = [\
     make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
-
-def meta_formatter(meta):
-    
-    for a in meta:
-        "; ".join(a)
-            
-
 
 def main():
     option_parser, opts, args =\
