@@ -30,12 +30,17 @@ script_info['optional_options'] = [
 script_info['version'] = __version__
 
 def make_collapse_f(category, level, ignore):
+    """produce a collapsing function for one-to-many relationships"""
+    # adjust level such that, for instance, level 1 corresponds to index 0
+    if level > 0:
+        level -= 1
+
     def collapse(md):
         if ignore is not None:
             ignore_labels = set(ignore.split(','))
         else:
             ignore_lables = None
-
+        
         for path in md[category]:
             if ignore is not None and path[level].lower() in ignore_labels:
                 continue
