@@ -53,7 +53,7 @@ def main():
                                  opts.ignore)
     table = parse_biom_table(open(opts.input_fp))
     result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True, 
-                                                  norm=False)
+                          norm=False,one_to_many_md_key=opts.metadata_category)
     
     f = open(opts.output_fp,'w')
     f.write(result.getBiomFormatJsonString('picrust %s - categorize_by_function'\
