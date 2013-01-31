@@ -24,7 +24,24 @@ Many of `QIIME's tutorials that describe diversity analyses <http://qiime.org/tu
 	* `beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
 	* `otu_category_significance.py <http://qiime.org/scripts/otu_category_significance.html>`_
 	* `shared_phylotypes.py <http://qiime.org/scripts/shared_phylotypes.html>`_
-	* `summarize_taxa_through_plots.py <http://qiime.org/scripts/summarize_taxa_through_plots.html>`_
+
+
+Plots of functional categories at various levels can be created using `summarize_taxa_through_plots.py <http://qiime.org/scripts/summarize_taxa_through_plots.html>`_
+	
+	* Since KEGG Orthologs belong to several pathways you should collapse your PICRUSt predictions to the desired hierarchy level using :ref:`categorize_by_function.py <categorize_by_function>` ::
+
+	        categorize_by_function.py -i metagenome_predictions.biom -c "KEGG Pathways" -l 2 -o metagenome_at_level2.biom	
+	
+	* Then add the following lines to a qiime parameter (e.g. qiime_params.txt) ensuring that the level you collapsed at is the same in your config file ::
+	       
+	        summarize_taxa:md_identifier    "KEGG Pathways"
+		summarize_taxa:absolute_abundance
+		summarize_taxa:level    2
+
+	* Lastly, run `summarize_taxa_through_plots.py <http://qiime.org/scripts/summarize_taxa_through_plots.html>`_ ::
+
+	        summarize_taxa_through_plots.py -i metagenome_at_level2.biom -p qiime_params.txt -o plots_at_level2
+
 
 There are also a number of scripts in QIIME that may be useful for more general processing of your BIOM table. These include the following:
 
