@@ -40,7 +40,6 @@ script_info['optional_options'] = [\
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
-
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
@@ -124,7 +123,7 @@ def main():
         
     make_output_dir_for_file(opts.output_metagenome_table)
     if(opts.format_tab_delimited):
-        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key="KEGG Pathways",header_value="KEGG Pathways",metadata_formatter=lambda s: '; '.join(s)))
+        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key="KEGG Pathways",header_value="KEGG Pathways",metadata_formatter=lambda s: '|'.join(['; '.join(l) for l in s])))
     else:
         open(opts.output_metagenome_table,'w').write(format_biom_table(predicted_metagenomes))
 
