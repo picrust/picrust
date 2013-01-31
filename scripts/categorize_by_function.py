@@ -31,8 +31,8 @@ script_info['version'] = __version__
 
 def make_collapse_f(category, level, ignore):
     def collapse(md):
-        if ignore:
-            ignore_labels = set(ignore)
+        if ignore is not None:
+            ignore_labels = set(ignore.split(','))
         else:
             ignore_lables = None
 
@@ -50,7 +50,7 @@ def main():
         parser.error("level must be greater than zero!")
 
     collapse_f = make_collapse_f(opts.metadata_category, opts.level, 
-                                 opts.ignore.split(','))
+                                 opts.ignore)
     table = parse_biom_table(open(opts.input_fp))
     result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True, 
                                                   norm=False)
