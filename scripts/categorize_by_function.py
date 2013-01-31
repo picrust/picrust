@@ -35,6 +35,9 @@ def make_collapse_f(category, level, ignore):
             ignore_labels = set(ignore.split(','))
         else:
             ignore_lables = None
+        
+        if level > 0:
+            level -= 1
 
         for path in md[category]:
             if ignore is not None and path[level].lower() in ignore_labels:
