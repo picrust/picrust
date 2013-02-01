@@ -23,7 +23,7 @@ script_info['required_options'] = [\
  make_option('-i','--input_fp',type="existing_filepath",help='the predicted metagenome table'),\
  make_option('-o','--output_fp',type='new_filepath', help='the resulting table'),
  make_option('-c','--metadata_category',type='string',help='the metadata category that describes the hierarchy'),
- make_option('-l','--level',type='int',help='the level in the hierarchy to collapse to. A value of 0 is not allowed, a valuue of 1 is the highest level, and any higher value nears the leaves of the hierarchy. For instance, if the hierarchy contains 4 levels, specifying 3 would collapse at one level above being fully specified.')
+ make_option('-l','--level',type='int',help='the level in the hierarchy to collapse to. A value of 0 is not allowed, a value of 1 is the highest level, and any higher value nears the leaves of the hierarchy. For instance, if the hierarchy contains 4 levels, specifying 3 would collapse at one level above being fully specified.')
 ]
 script_info['optional_options'] = [
  make_option('--ignore',type='string',default=None, help="Ignore the comma separated list of names. For instance, specifying --ignore_unknown=unknown,unclassified will ignore those labels while collapsing. The default is to not ignore anything. [default: %default]")]

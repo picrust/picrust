@@ -2,12 +2,12 @@
 
 .. index:: start_parallel_jobs_torque.py
 
-*start_parallel_jobs_torque.py* -- Starts multiple jobs in parallel on Torque/qsub based multiprocessor systems.
+*start_parallel_jobs_torque.py* -- Starts multiple jobs in parallel on torque/qsub based multiprocessor systems.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
 
-This script is designed to start multiple jobs in parallel on cluster systems with a SGE/qsub based scheduling system.
+This script is designed to start multiple jobs in parallel on cluster systems with a torque/qsub based scheduling system.
 
 
 **Usage:** :file:`start_parallel_jobs_torque.py [options]`
@@ -24,11 +24,9 @@ This script is designed to start multiple jobs in parallel on cluster systems wi
 	-s, `-`-submit_jobs
 		Submit the job files [default: None]
 	-q, `-`-queue
-		Name of queue to submit to  [default: None]
+		Name of queue to submit to [default: friendlyq]
 	-j, `-`-job_dir
 		Directory to store the jobs [default: jobs/]
-	-n, `-`-num_jobs
-		Number of jobs to group commands into. [default: 100]
 
 
 **Output:**
@@ -36,12 +34,28 @@ This script is designed to start multiple jobs in parallel on cluster systems wi
 No output is created.
 
 
-**Example:**
+**Job submission example:**
 
-Start each command listed in test_jobs.txt in parallel. The run id for these jobs will be RUNID. 
+Start each command listed in test_jobs.txt in parallel. The run ID for these jobs will be RUNID.
 
 ::
 
 	start_parallel_jobs_torque.py -ms test_jobs.txt RUNID
+
+**Queue specification example:**
+
+Submit the commands listed in test_jobs.txt to the specified queue.
+
+::
+
+	start_parallel_jobs_torque.py -ms test_jobs.txt -q friendlyq RUNID
+
+**Jobs output directory specification example:**
+
+Submit the commands listed in test_jobs.txt, with the jobs put under the my_jobs/ directory.
+
+::
+
+	start_parallel_jobs_torque.py -ms test_jobs.txt -j my_jobs/ RUNID
 
 

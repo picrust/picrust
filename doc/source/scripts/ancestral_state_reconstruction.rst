@@ -27,7 +27,7 @@ Provides a common interface for running various ancenstral state reconstruction 
 	**[OPTIONAL]**
 		
 	-m, `-`-asr_method
-		Method for ancestral state reconstruction. Valid choices are: ace_ml, ace_reml, ace_pic, wagner [default: wagner]
+		Method for ancestral state reconstruction. Valid choices are: ace_ml, ace_reml, ace_pic, wagner [default: ace_pic]
 	-o, `-`-output_fp
 		Output trait table [default:asr_counts.tab]
 	-c, `-`-output_ci_fp
