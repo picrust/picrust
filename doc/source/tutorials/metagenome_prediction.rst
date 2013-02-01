@@ -11,10 +11,12 @@ Introduction
 
 This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in :ref:`otu_picking_tutorial`.
 
-Please note that PICRUSt by default uses the relatively new `biom`_ format for representing OTU tables and Gene tables (e.g. KOs by samples). 
-This `has several benefits <http://biom-format.org/documentation/biom_format.html#motivation-for-the-biom-format>`_ including easier integration with other software (e.g. QIIME and others in the future) and allows embedding of extra metadata about both the samples and observations (OTUs/KOs).
-**However, PICRUSt also allow users to input OTU tables and export PICRUSt predictions in tab-delimited format by using the ``-f`` option (see below).** 
-In addition, users can always convert to/from biom format to tab-delimited format using BIOM's built in `conversion script <http://biom-format.org/documentation/biom_conversion.html>`_.
+
+**BIOM Format**
+
+* Please note that PICRUSt by default uses the relatively new `biom`_ format for representing OTU tables and Gene tables (e.g. KOs by samples). This `has several benefits <http://biom-format.org/documentation/biom_format.html#motivation-for-the-biom-format>`_ including easier integration with other software (e.g. QIIME and others in the future) and allows embedding of extra metadata about both the samples and observations (OTUs/KOs).
+* **However, PICRUSt also allow users to input OTU tables and export PICRUSt predictions in tab-delimited format by using the '-f' option (see below).** 
+* In addition, users can always convert to/from biom format to tab-delimited format using BIOM's built in `conversion script <http://biom-format.org/documentation/biom_conversion.html>`_.
 
 Requirements
 ------------
@@ -35,7 +37,7 @@ Input and output files are in `biom`_ format::
 		-i hmp_mock_16S.biom
 		-o normalized_otus.biom
 
-**(Optional) Input format of OTU table can be changed to tab-delimited "classic" `QIIME`_ OTU instead of `biom`_ format using the ``-f`` option:** ::
+**(Optional) Input format of OTU table can be changed to tab-delimited "classic" OTU table instead of BIOM format using the '-f' option:** ::
 
 	 normalize_by_copy_number.py 
 		-f 
@@ -55,7 +57,7 @@ Output is in `biom`_ format by default: ::
 		-i normalized_otus.biom
 		-o metagenome_predictions.biom
 
-**(Optional) Output format can be changed to tab delimited using ``-f`` option:** ::
+**(Optional) Output format can be changed from BIOM to tab delimited using '-f' option:** ::
 
 	predict_metagenomes.py 
 		-f 

@@ -27,7 +27,7 @@
 	**[OPTIONAL]**
 		
 	-c, `-`-input_count_fp
-		The input marker gene counts on per otu basis in biom format (can be gzipped) [default: /Users/caporaso/.virtualenvs/picrust/lib/python2.7/site-packages/picrust/data/16S_precalculated.biom.gz]
+		The input marker gene counts on per otu basis in biom format (can be gzipped) [default: picrust/data/16S_precalculated.biom.gz]
 	`-`-metadata_identifer
 		Identifier for copy number entry as observation metadata [default: CopyNumber]
 	-f, `-`-input_format_classic

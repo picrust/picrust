@@ -68,7 +68,7 @@ script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
  make_option('-a','--output_accuracy_metrics',type="new_filepath",\
-   default=None,help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUST expect its predictions to be?) and output them to this filepath [default: %default]'),\
+   default=None,help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: %default]'),\
 
  make_option('-m','--prediction_method',default='asr_and_weighting',choices=METHOD_CHOICES,help='Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(METHOD_CHOICES)+'.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information. "asr_only": predict the traits of the last reconstructed ancestor, without weighting. "weighting_only": weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: %default]'),\
 
