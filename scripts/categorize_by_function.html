@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>start_parallel_jobs.py – Starts multiple jobs in parallel on multicore or multiprocessor systems. &mdash; PICRUSt 0.9.1 documentation</title>
+    <title>categorize_by_function.py – Collapse table data to a specified level in a hierarchy. &mdash; PICRUSt 0.9.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -43,27 +43,30 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <span class="target" id="start-parallel-jobs"></span><div class="section" id="start-parallel-jobs-py-starts-multiple-jobs-in-parallel-on-multicore-or-multiprocessor-systems">
-<span id="index-0"></span><h1><em>start_parallel_jobs.py</em> &#8211; Starts multiple jobs in parallel on multicore or multiprocessor systems.<a class="headerlink" href="#start-parallel-jobs-py-starts-multiple-jobs-in-parallel-on-multicore-or-multiprocessor-systems" title="Permalink to this headline">¶</a></h1>
+  <span class="target" id="categorize-by-function"></span><div class="section" id="categorize-by-function-py-collapse-table-data-to-a-specified-level-in-a-hierarchy">
+<span id="index-0"></span><h1><em>categorize_by_function.py</em> &#8211; Collapse table data to a specified level in a hierarchy.<a class="headerlink" href="#categorize-by-function-py-collapse-table-data-to-a-specified-level-in-a-hierarchy" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
-<p>This script is designed to start multiple jobs in parallel on systems with no queueing system, for example a multiple processor or multiple core laptop/desktop machine. This also serves as an example &#8216;cluster_jobs&#8217; which users can use as a template to define scripts to start parallel jobs in their environment.</p>
-<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">start_parallel_jobs.py</span> <span class="pre">[options]</span></tt></p>
+<p>This script collapses hierarchical data to a specified level. For instance, often it is useful to examine KEGG results from a higher level within the pathway hierarchy. Many genes are sometimes involved in multiple pathways, and in these circumstances (also know as a one-to-many relationship), the gene is counted for each pathway. This has a side effect of increasing the total count of genes in the table.</p>
+<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">categorize_by_function.py</span> <span class="pre">[options]</span></tt></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p><strong>[OPTIONAL]</strong></p>
+<p><strong>[REQUIRED]</strong></p>
 <dl class="last docutils">
-<dt>-m, <cite>-</cite>-make_jobs</dt>
-<dd>Make the job files [default: None]</dd>
-<dt>-s, <cite>-</cite>-submit_jobs</dt>
-<dd>Submit the job files [default: None]</dd>
+<dt>-i, <cite>-</cite>-input_fp</dt>
+<dd>The predicted metagenome table</dd>
+<dt>-o, <cite>-</cite>-output_fp</dt>
+<dd>The resulting table</dd>
+<dt>-c, <cite>-</cite>-metadata_category</dt>
+<dd>The metadata category that describes the hierarchy</dd>
+<dt>-l, <cite>-</cite>-level</dt>
+<dd>The level in the hierarchy to collapse to. A value of 0 is not allowed, a value of 1 is the highest level, and any higher value nears the leaves of the hierarchy. For instance, if the hierarchy contains 4 levels, specifying 3 would collapse at one level above being fully specified.</dd>
 </dl>
 </div>
 <p><strong>Output:</strong></p>
-<p>No output is created.</p>
-<p><strong>Example:</strong></p>
-<p>Start each command listed in test_jobs.txt in parallel. The run ID for these jobs will be RUNID.</p>
-<div class="highlight-python"><pre>start_parallel_jobs.py -ms test_jobs.txt RUNID</pre>
+<p>Output table is contains gene counts at a higher level within a hierarchy.</p>
+<p>Collapse predicted metagenome results.</p>
+<div class="highlight-python"><pre>categorize_by_function.py -i metagenome.biom -c "KEGG Pathways" -l 3 -o metagenome_at_level3.biom</pre>
 </div>
 </div>
 
@@ -75,7 +78,7 @@
         <div class="sphinxsidebarwrapper">
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/scripts/start_parallel_jobs.txt"
+    <li><a href="../_sources/scripts/categorize_by_function.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">

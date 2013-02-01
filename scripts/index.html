@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PICRUSt Script Index &mdash; PICRUSt 0.9.0 documentation</title>
+    <title>PICRUSt Script Index &mdash; PICRUSt 0.9.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.9.0',
+        VERSION:     '0.9.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 0.9.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 0.9.1 documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -49,10 +49,12 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ancestral_state_reconstruction.html"><em>ancestral_state_reconstruction.py</em> &#8211; Runs ancestral state reconstruction given a tree and trait table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="categorize_by_function.html"><em>categorize_by_function.py</em> &#8211; Collapse table data to a specified level in a hierarchy.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compare_biom.html"><em>compare_biom.py</em> &#8211; Compare the accuracy of biom files (expected and observed) either by observations (default) or by samples.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluate_test_datasets.html"><em>evaluate_test_datasets.py</em> &#8211; Evaluate the accuracy of character predictions, given directories of expected vs. observed test results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="format_tree_and_trait_table.html"><em>format_tree_and_trait_table.py</em> &#8211; Formatting script for filtering and reformatting trees and trait tables.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="make_test_datasets.html"><em>make_test_datasets.py</em> &#8211; Generates test datasets for cross-validation studies of PICRUSt&#8217;s accuracy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metagenome_contributions.html"><em>metagenome_contributions.py</em> &#8211; This script partitions metagenome functional contributions according to function, OTU, and sample, for a given OTU table.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="normalize_by_copy_number.html"><em>normalize_by_copy_number.py</em> &#8211; Normalize an OTU table by marker gene copy number</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pool_test_datasets.html"><em>pool_test_datasets.py</em> &#8211; Pool character predictions within a directory, given directories of expected vs. observed test results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="predict_metagenomes.html"><em>predict_metagenomes.py</em> &#8211; This script produces the actual metagenome functional predictions for a given OTU table.</a></li>
@@ -61,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="scale_metagenome.html"><em>scale_metagenome.py</em> &#8211; This script converts metagenomic relative abundance back to sequence counts, by scaling the relative abundnace of each gene in each sample in a biom file by a user-supplied sequencing depth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="start_parallel_jobs.html"><em>start_parallel_jobs.py</em> &#8211; Starts multiple jobs in parallel on multicore or multiprocessor systems.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="start_parallel_jobs_sge.html"><em>start_parallel_jobs_sge.py</em> &#8211; Starts multiple jobs in parallel on SGE/qsub based multiprocessor systems.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="start_parallel_jobs_torque.html"><em>start_parallel_jobs_torque.py</em> &#8211; Starts multiple jobs in parallel on Torque/qsub based multiprocessor systems.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="start_parallel_jobs_torque.html"><em>start_parallel_jobs_torque.py</em> &#8211; Starts multiple jobs in parallel on torque/qsub based multiprocessor systems.</a></li>
 </ul>
 </div>
 </div>
@@ -100,7 +102,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

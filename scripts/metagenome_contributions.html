@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>start_parallel_jobs.py – Starts multiple jobs in parallel on multicore or multiprocessor systems. &mdash; PICRUSt 0.9.1 documentation</title>
+    <title>metagenome_contributions.py – This script partitions metagenome functional contributions according to function, OTU, and sample, for a given OTU table. &mdash; PICRUSt 0.9.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -43,27 +43,39 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <span class="target" id="start-parallel-jobs"></span><div class="section" id="start-parallel-jobs-py-starts-multiple-jobs-in-parallel-on-multicore-or-multiprocessor-systems">
-<span id="index-0"></span><h1><em>start_parallel_jobs.py</em> &#8211; Starts multiple jobs in parallel on multicore or multiprocessor systems.<a class="headerlink" href="#start-parallel-jobs-py-starts-multiple-jobs-in-parallel-on-multicore-or-multiprocessor-systems" title="Permalink to this headline">¶</a></h1>
+  <span class="target" id="metagenome-contributions"></span><div class="section" id="metagenome-contributions-py-this-script-partitions-metagenome-functional-contributions-according-to-function-otu-and-sample-for-a-given-otu-table">
+<span id="index-0"></span><h1><em>metagenome_contributions.py</em> &#8211; This script partitions metagenome functional contributions according to function, OTU, and sample, for a given OTU table.<a class="headerlink" href="#metagenome-contributions-py-this-script-partitions-metagenome-functional-contributions-according-to-function-otu-and-sample-for-a-given-otu-table" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
-<p>This script is designed to start multiple jobs in parallel on systems with no queueing system, for example a multiple processor or multiple core laptop/desktop machine. This also serves as an example &#8216;cluster_jobs&#8217; which users can use as a template to define scripts to start parallel jobs in their environment.</p>
-<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">start_parallel_jobs.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">metagenome_contributions.py</span> <span class="pre">[options]</span></tt></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
+<p><strong>[REQUIRED]</strong></p>
+<dl class="docutils">
+<dt>-i, <cite>-</cite>-input_otu_table</dt>
+<dd>The input otu table in biom format</dd>
+<dt>-c, <cite>-</cite>-input_count_table</dt>
+<dd>The input trait counts on per otu basis in biom format (can be gzipped)</dd>
+<dt>-o, <cite>-</cite>-output_metagenome_table</dt>
+<dd>The output file for the predicted metagenome</dd>
+</dl>
 <p><strong>[OPTIONAL]</strong></p>
 <dl class="last docutils">
-<dt>-m, <cite>-</cite>-make_jobs</dt>
-<dd>Make the job files [default: None]</dd>
-<dt>-s, <cite>-</cite>-submit_jobs</dt>
-<dd>Submit the job files [default: None]</dd>
+<dt>-a, <cite>-</cite>-accuracy_metrics</dt>
+<dd>If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using <a class="reference external" href="./predict_traits.html">predict_traits.py</a> during genome prediction (e.g. there are &#8220;NSTI&#8221; values in the genome .biom file metadata)</dd>
+<dt><cite>-</cite>-limit_to_function</dt>
+<dd>If provided, only output predictions for the specified function ids.  Multiple function ids can be passed using comma delimiters.</dd>
+<dt>-f, <cite>-</cite>-format_tab_delimited</dt>
+<dd>Output the predicted metagenome table in tab-delimited format [default: False]</dd>
 </dl>
 </div>
 <p><strong>Output:</strong></p>
-<p>No output is created.</p>
-<p><strong>Example:</strong></p>
-<p>Start each command listed in test_jobs.txt in parallel. The run ID for these jobs will be RUNID.</p>
-<div class="highlight-python"><pre>start_parallel_jobs.py -ms test_jobs.txt RUNID</pre>
+<p>Output is a table of function counts (e.g. KEGG KOs) by sample ids.</p>
+<p>Partition the predicted contribution to the  metagenomes from each organism in otus.biom, using the predicted genes for each organism in genes.biom.</p>
+<div class="highlight-python"><pre>metagenome_contributions.py -i otus.biom -c KEGG_acepic__predict_traits_97.biom.gz -o predicted_metagenomes.biom</pre>
+</div>
+<p>Change output format to plain tab-delimited:</p>
+<div class="highlight-python"><pre>metagenome_contributions.py -f -i otus.biom -c KEGG_acepic_predict_traits_97.biom.gz -o predicted_metagenomes.tab</pre>
 </div>
 </div>
 
@@ -75,7 +87,7 @@
         <div class="sphinxsidebarwrapper">
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/scripts/start_parallel_jobs.txt"
+    <li><a href="../_sources/scripts/metagenome_contributions.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">

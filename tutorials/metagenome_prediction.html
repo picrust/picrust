@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Metagenome Prediction Tutorial &mdash; PICRUSt 0.9.0 documentation</title>
+    <title>Metagenome Prediction Tutorial &mdash; PICRUSt 0.9.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.9.0',
+        VERSION:     '0.9.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 0.9.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 0.9.1 documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,6 +48,12 @@
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>.</p>
+<p><strong>BIOM Format</strong></p>
+<ul class="simple">
+<li>Please note that PICRUSt by default uses the relatively new <a class="reference external" href="http://biom-format.org">biom</a> format for representing OTU tables and Gene tables (e.g. KOs by samples). This <a class="reference external" href="http://biom-format.org/documentation/biom_format.html#motivation-for-the-biom-format">has several benefits</a> including easier integration with other software (e.g. QIIME and others in the future) and allows embedding of extra metadata about both the samples and observations (OTUs/KOs).</li>
+<li><strong>However, PICRUSt also allow users to input OTU tables and export PICRUSt predictions in tab-delimited format by using the &#8216;-f&#8217; option (see below).</strong></li>
+<li>In addition, users can always convert to/from biom format to tab-delimited format using BIOM&#8217;s built in <a class="reference external" href="http://biom-format.org/documentation/biom_conversion.html">conversion script</a>.</li>
+</ul>
 </div>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
@@ -65,7 +71,7 @@
         -i hmp_mock_16S.biom
         -o normalized_otus.biom</pre>
 </div>
-<p>(Optional) Input format of OTU table can be changed to &#8220;classic&#8221; <a class="reference external" href="http://www.qiime.org">QIIME</a> OTU instead of <a class="reference external" href="http://biom-format.org">biom</a> format using the <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
+<p><strong>(Optional) Input format of OTU table can be changed to tab-delimited &#8220;classic&#8221; OTU table instead of BIOM format using the &#8216;-f&#8217; option:</strong></p>
 <div class="highlight-python"><pre>normalize_by_copy_number.py
        -f
        -i hmp_mock_16S.tab
@@ -81,7 +87,7 @@
         -i normalized_otus.biom
         -o metagenome_predictions.biom</pre>
 </div>
-<p>(Optional) Output format can be changed to tab delimited using <tt class="docutils literal"><span class="pre">-f</span></tt> option:</p>
+<p><strong>(Optional) Output format can be changed from BIOM to tab delimited using &#8216;-f&#8217; option:</strong></p>
 <div class="highlight-python"><pre>predict_metagenomes.py
         -f
         -i normalized_otus.biom
@@ -153,7 +159,7 @@ Some suggestions for downstream analysis are outlined in <a class="reference int
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

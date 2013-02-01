@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>predict_metagenomes.py – This script produces the actual metagenome functional predictions for a given OTU table. &mdash; PICRUSt 0.9.0 documentation</title>
+    <title>predict_metagenomes.py – This script produces the actual metagenome functional predictions for a given OTU table. &mdash; PICRUSt 0.9.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.9.0',
+        VERSION:     '0.9.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 0.9.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 0.9.1 documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,9 +60,11 @@
 <p><strong>[OPTIONAL]</strong></p>
 <dl class="last docutils">
 <dt>-c, <cite>-</cite>-input_count_table</dt>
-<dd>Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: /Users/caporaso/.virtualenvs/picrust/lib/python2.7/site-packages/picrust/data/ko_precalculated.biom.gz]</dd>
+<dd>Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: picrust/data/ko_precalculated.biom.gz]</dd>
 <dt>-a, <cite>-</cite>-accuracy_metrics</dt>
 <dd>If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using <a class="reference external" href="./predict_traits.html">predict_traits.py</a> during genome prediction (e.g. there are &#8220;NSTI&#8221; values in the genome .biom file metadata)</dd>
+<dt><cite>-</cite>-suppress_subset_loading</dt>
+<dd>Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)</dd>
 <dt>-f, <cite>-</cite>-format_tab_delimited</dt>
 <dd>Output the predicted metagenome table in tab-delimited format [default: False]</dd>
 </dl>
@@ -111,7 +113,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
