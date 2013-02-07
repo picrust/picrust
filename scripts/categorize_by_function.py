@@ -26,7 +26,8 @@ script_info['required_options'] = [\
  make_option('-l','--level',type='int',help='the level in the hierarchy to collapse to. A value of 0 is not allowed, a value of 1 is the highest level, and any higher value nears the leaves of the hierarchy. For instance, if the hierarchy contains 4 levels, specifying 3 would collapse at one level above being fully specified.')
 ]
 script_info['optional_options'] = [
- make_option('--ignore',type='string',default=None, help="Ignore the comma separated list of names. For instance, specifying --ignore_unknown=unknown,unclassified will ignore those labels while collapsing. The default is to not ignore anything. [default: %default]")]
+ make_option('--ignore',type='string',default=None, help="Ignore the comma separated list of names. For instance, specifying --ignore_unknown=unknown,unclassified will ignore those labels while collapsing. The default is to not ignore anything. [default: %default]"),
+ make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
 
 def make_collapse_f(category, level, ignore):
@@ -59,9 +60,13 @@ def main():
     table = parse_biom_table(open(opts.input_fp))
     result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True, 
                           norm=False,one_to_many_md_key=opts.metadata_category)
-    
+
     f = open(opts.output_fp,'w')
-    f.write(result.getBiomFormatJsonString('picrust %s - categorize_by_function'\
+
+    if(opts.format_tab_delimited):
+        f.write(result.delimitedSelf(header_key="KEGG Pathways",header_value="KEGG Pathways",metadata_formatter=lambda s: '; '.join(s)))
+    else:
+        f.write(result.getBiomFormatJsonString('picrust %s - categorize_by_function'\
                                            % __version__))
     f.close()
 
