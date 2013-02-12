@@ -6,7 +6,7 @@ __author__ = "Jesse RR Zaneveld"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "0.9.1-dev"
 __maintainer__ = "Jesse RR Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
@@ -39,7 +39,7 @@ def biom_table_from_predictions(predictions,trait_ids):
 
 
 
-def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
+def assign_traits_to_tree(traits, tree,fix_bad_labels=True, trait_label="Reconstruction"):
     """Assign a dict of traits to a PyCogent tree
     
     traits -- a dict of traits, keyed by node names
@@ -48,9 +48,26 @@ def assign_traits_to_tree(traits, tree, trait_label="Reconstruction"):
     traits will be recorded.  For example, if this is set to 'Reconstruction',
     the trait will be attached to node.Reconstruction
     """
+
+    if fix_bad_labels:
+         fixed_traits = {}
+         for t in traits.keys():
+             new_t=str(t)
+             fixed_traits[new_t.strip('"').strip("'")]=traits[t]
+         traits=fixed_traits
+ 
+     #print "Assigned %i trait values to tree: %i trait values could not be mapped" %(len(meaningful_assignments),len(nodes_without_traits))
+     
+
     for node in tree.preorder():
-        value_to_assign = traits.get(node.Name.strip(),None)
+        node_name = node.Name.strip()
+        if fix_bad_labels:
+            node_name = node_name.strip().strip("'").strip('"')
+        value_to_assign = traits.get(node_name,None)
         setattr(node,trait_label,value_to_assign)
+    
+    if 'root' in traits.keys():
+        setattr(tree.root(),trait_label,traits['root'])
     
     return tree
 

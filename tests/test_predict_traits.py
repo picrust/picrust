@@ -4,7 +4,7 @@ __author__ = "Jesse Zaneveld"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "0.9.1-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
@@ -424,6 +424,37 @@ class TestPredictTraits(TestCase):
         for node in result_tree.preorder():
             obs = node.Reconstruction 
             exp = traits.get(node.Name, None)
+            self.assertEqual(obs,exp)
+        
+        # Test on polytomy tree
+        
+        tree = self.SimplePolytomyTree
+        result_tree = assign_traits_to_tree(traits,tree)
+        
+        # Test that each node is assigned correctly
+        for node in result_tree.preorder():
+            obs = node.Reconstruction 
+            exp = traits.get(node.Name, None)
+            self.assertEqual(obs,exp)
+    
+    def test_assign_traits_to_tree_quoted_node_name(self):
+        """Assign_traits_to_tree should remove quotes from node names"""
+        # Test that the function assigns traits from a dict to a tree node
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        #Make one node quoted
+        tree.getNodeMatchingName('A').Name="'A'"
+        tree.getNodeMatchingName('B').Name='"B"'
+
+        # Test on simple tree
+        result_tree = assign_traits_to_tree(traits,tree,fix_bad_labels=True)
+        #Setting fix_bad_labels to false produces NoneType predictions when
+        #labels are quoted
+        
+        # Test that each node is assigned correctly
+        for node in result_tree.preorder():
+            obs = node.Reconstruction 
+            exp = traits.get(node.Name.strip("'").strip('"'), None)
             self.assertEqual(obs,exp)
         
         # Test on polytomy tree
