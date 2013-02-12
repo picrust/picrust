@@ -4,15 +4,15 @@ from __future__ import division
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
-__credits__ = ["Greg Caporaso","Jesse Zaneveld"]
+__credits__ = ["Greg Caporaso","Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "0.9.1-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
 from numpy import dot, array, around
-from biom.table import table_factory
+from biom.table import table_factory,SparseGeneTable
 from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
 
 def get_overlapping_ids(otu_table,genome_table):
@@ -106,7 +106,7 @@ def predict_metagenomes(otu_table,genome_table,verbose=False):
     # functions (i.e., observations) from the genome table
 
 
-    result_table =  table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds)
+    result_table =  table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds,constructor=SparseGeneTable)
 
     #We need to preserve metadata about the samples from the OTU table, 
     #and metadata about the gene functions from the genome table

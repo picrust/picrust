@@ -29,7 +29,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is 0.9.0. You can download this file from `this link <ftp://thebeast.colorado.edu/pub/picrust-releases/picrust-0.9.0.tar.gz>`_.
+The latest release of PICRUSt is 0.9.1. You can download this file from `this link <ftp://thebeast.colorado.edu/pub/picrust-releases/picrust-0.9.1.tar.gz>`_.
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -45,11 +45,11 @@ Step 3. Install PICRUSt
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 	
-	tar -xzf picrust-0.9.0.tar.gz
+	tar -xzf picrust-0.9.1.tar.gz
 
-You'll then change into the new ``picrust-0.9.0`` directory as follows::
+You'll then change into the new ``picrust-0.9.1`` directory as follows::
 	
-	cd picrust-0.9.0
+	cd picrust-0.9.1
 
 And finally, you'll install PICRUSt with the following command::
 	

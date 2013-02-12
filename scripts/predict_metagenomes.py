@@ -6,7 +6,7 @@ __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Greg Caporaso","Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.0.0-dev"
+__version__ = "0.9.1-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
@@ -39,7 +39,6 @@ script_info['optional_options'] = [\
     make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
 script_info['version'] = __version__
-
 
 def main():
     option_parser, opts, args =\
@@ -124,7 +123,7 @@ def main():
         
     make_output_dir_for_file(opts.output_metagenome_table)
     if(opts.format_tab_delimited):
-        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf())
+        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key="KEGG Pathways",header_value="KEGG Pathways",metadata_formatter=lambda s: '|'.join(['; '.join(l) for l in s])))
     else:
         open(opts.output_metagenome_table,'w').write(format_biom_table(predicted_metagenomes))
 
