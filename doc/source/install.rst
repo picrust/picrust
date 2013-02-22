@@ -4,6 +4,8 @@
 Installing PICRUSt
 ==================
 
+.. note:: Most users will not need to install PICRUSt, but can instead use the `online Galaxy version <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_.
+
 PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Finally, you'll install PICRUSt. Each of these steps are detailed below.
 
 Step 1. Install Requirements
