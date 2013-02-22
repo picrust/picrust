@@ -31,7 +31,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is 0.9.1. You can download this file from `this link <ftp://thebeast.colorado.edu/pub/picrust-releases/picrust-0.9.1.tar.gz>`_.
+The latest release of PICRUSt is 0.9.1. You can download this file from :download:`this link <releases/picrust-0.9.1.tar.gz>`. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
