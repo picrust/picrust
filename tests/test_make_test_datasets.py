@@ -4,8 +4,8 @@ from unittest import main, TestCase
 from cogent import LoadTree
 from cogent.parse.tree import DndParser
 from picrust.make_test_datasets import exclude_tip, yield_test_trees,\
-  make_distance_based_exclusion_fn
-
+  make_distance_based_exclusion_fn, make_distance_based_tip_label_randomizer
+from collections import defaultdict
 """
 Tests for make_test_datasets.py
 """
@@ -97,22 +97,49 @@ class TestMakeTestTrees(TestCase):
         self.assertRaises(ValueError,test_fn,tip,test_tree)
 
 
-    def make_distance_based_randomizer(self):
-        """make_distance_based_randomizer should randomize tip labels iwthin d"""
+    def test_make_distance_based_randomizer(self):
+        """make_distance_based_randomizer should randomize tip labels wthin d.  NOTE: results are tested by cumulative binomial distribution, so ~1/500 test runs may fail stochasitically."""
 
         tip_randomizer =\
-            make_distance_based_tip_label_randomizer(0.08)
+            make_distance_based_tip_label_randomizer(0.50)
 
         #Test that the function works
+        test_replicates = 5000
+        results = defaultdict(int)
+        total = 0
+        for i in range(test_replicates):
+            test_tree = self.SimpleTree.deepcopy()
+            #print test_tree.asciiArt()
+            tip = test_tree.getNodeMatchingName('C')
+            obs = tip_randomizer(tip,test_tree)
+            obs_newick = obs.getNewick(with_distances=True) 
+            #print obs.asciiArt()     
+        
+            results[obs_newick]+= 1
+            total += 1
+        n_unique_trees = len(results.keys())
 
-        test_tree = self.SimpleTree.deepcopy()
-        #print test_tree.asciiArt()
-        tip = test_tree.getNodeMatchingName('C')
-        obs = tip_randomizer(tip,test_tree).getNewick(with_distances=True) 
-        #print "OBS:",obs.asciiArt()        
-        # TODO: finish this test!
-
-
+        #Since only the 4 tips are scrambled
+        #the number of unique trees is just
+        #the number of permutations 4! = 4*3*2 = 24
+        #(but note that half of these are equivalent
+        #trees with a,b swapped with b,a)
+        self.assertEqual(n_unique_trees,24)
+         
+        for tree in sorted(results.keys()):
+            n_obs = results[tree]
+            # Treat the n trials as Bernoulli trials
+            # each has success change 1/24
+            # so we want the inverse cumulative
+            # binomial for 5000 trials with p ~ .041666666
+            # n_successes > 253 has p 0.001 (166 gives a p of 0.001
+            #on the other tail)
+               
+            if n_obs <= 166:
+                print "This tree is underrepresented: %s, %i:" %(tree,n_obs)
+            self.assertTrue(n_obs >= 166)
+            self.assertTrue(n_obs < 253)   
+    
     def test_yield_test_trees(self):
         """yield_test_trees should yield modified test trees"""
         
