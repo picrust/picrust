@@ -135,8 +135,6 @@ class TestMakeTestTrees(TestCase):
             # n_successes > 253 has p 0.001 (166 gives a p of 0.001
             #on the other tail)
                
-            if n_obs <= 166:
-                print "This tree is underrepresented: %s, %i:" %(tree,n_obs)
             self.assertTrue(n_obs >= 166)
             self.assertTrue(n_obs < 253)   
     
