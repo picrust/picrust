@@ -141,7 +141,10 @@ def make_distance_based_tip_label_randomizer(randomization_distance):
     def randomize_tip_and_neighbors(tip,tree):
         
         tips_to_randomize = tip.tipsWithinDistance(randomization_distance)
-        
+        #print "tips_to_randomize (from tipsWithinDistance):",[t.Name for t in tips_to_randomize]    
+        if tip not in tips_to_randomize:
+            tips_to_randomize.append(tip)
+        #print "tips_to_randomize:",[t.Name for t in tips_to_randomize]    
         # Resample tips without replacement to get random labels
         new_tip_labels = [tip.Name for tip in tips_to_randomize]
         shuffle(new_tip_labels)
