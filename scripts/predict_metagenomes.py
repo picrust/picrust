@@ -27,7 +27,7 @@ script_info = {}
 script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
 script_info['script_description'] = ""
 script_info['script_usage'] = [("","Predict metagenomes from genomes.biom and otus.biom.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
-                               ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.tab")]
+                               ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt")]
 script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
