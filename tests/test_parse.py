@@ -35,7 +35,7 @@ class ParseTests(TestCase):
         
     
     def test_parse_asr_confidence_output(self):
-        """parse_asr_confidence_output parses PICRUST per node confidence output"""
+        """parse_asr_confidence_output parses PICRUST per node confidence output in ML format (includes sigma and loglik values)"""
         
         asr_lines = asr_confidence_output
 
@@ -60,9 +60,6 @@ class ParseTests(TestCase):
         obs_loglik = params['loglik'][0]
         self.assertFloatEqual(obs_sigma,sigma)
         self.assertFloatEqual(obs_loglik, loglik)
-        obs_node1 = obs_min_vals['node1']
-        exp_node1 = min_vals['node1']
-        self.assertFloatEqual(obs_node1,exp_node1)
         
         #Test all min values
         for k in min_vals.keys():
@@ -72,6 +69,40 @@ class ParseTests(TestCase):
         for k in max_vals.keys():
             self.assertFloatEqual(obs_max_vals[k],max_vals[k])
 
+
+    def test_parse_asr_confidence_output_pic_format(self):
+        """parse_asr_confidence_output parses PICRUST per node confidence output in pic format (*no* sigma or loglik values)"""
+        
+        asr_lines = asr_confidence_output_pic_format
+
+        min_vals ={\
+          'node1': 0.7184,\
+          'node10': 1.371,\
+          "0.237":1.6493,\
+          "'p_Euryarchaeota'": 0.9584
+        }
+        max_vals ={\
+          'node1': 3.7092,\
+          'node10': 3.1288,\
+          "0.237":3.5431,\
+          "'p_Euryarchaeota'": 2.3388
+        }
+        # No sigma or loglik values, so params should be empty 
+        obs_min_vals,obs_max_vals, params,column_mapping =\
+         parse_asr_confidence_output(asr_lines)
+        #obs_sigma = params['sigma'][0]
+        #obs_loglik = params['loglik'][0]
+        #self.assertFloatEqual(obs_sigma,sigma)
+        #self.assertFloatEqual(obs_loglik, loglik)
+        self.assertEqual(params,{})
+        
+        #Test all min values
+        for k in min_vals.keys():
+            self.assertFloatEqual(obs_min_vals[k],min_vals[k])
+
+        #Test all min values
+        for k in max_vals.keys():
+            self.assertFloatEqual(obs_max_vals[k],max_vals[k])
 
 
 
@@ -84,7 +115,13 @@ asr_confidence_output=[\
 "sigma\t5986.9627|NaN",\
 "loglik\t-12353.4949"]
 
-        
+asr_confidence_output_pic_format=[\
+"nodes\t16S_rRNA_Count",\
+"node1\t0.7184|3.7092",\
+"node10\t1.371|3.1288",\
+"'p_Euryarchaeota'\t0.9584|2.3388",\
+"0.237\t1.6493|3.5431"]
+
 otu_table_lines =[\
 '# QIIME v1.3.0 OTU table',\
 '#OTU ID\tS1\tS2\tS3\tS4\tS5\tS6\tS7\tS8\tS9\tConsensus Lineage',\
