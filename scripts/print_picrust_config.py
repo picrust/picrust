@@ -38,6 +38,19 @@ try:
 except ImportError:
     picrust_lib_version = "ERROR: Can't find the PICRUSt library code - is it installed and in your $PYTHONPATH?"
 
+from cogent.util.option_parsing import parse_command_line_parameters, make_option
+
+script_info = {}
+script_info['brief_description'] = "Print out the PICRUSt config settings."
+script_info['script_description'] = "A simple script that prints out the PICRUSt config settings and does some sanity checks."
+script_info['script_usage'] = [\
+ ("Example","Print PICRUSt config settings:","%prog")]
+script_info['output_description']= "This prints the PICRUSt settings to the screen (STDOUT)"
+script_info['required_options'] = []
+script_info['optional_options'] = []
+script_info['version'] = __version__
+
+
 def get_script_version():
     return __version__
 
@@ -70,4 +83,6 @@ def print_picrust_config():
 
 
 if __name__ == '__main__':
+    option_parser, opts, args = parse_command_line_parameters(**script_info)
+
     print_picrust_config()
