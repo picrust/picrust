@@ -51,15 +51,18 @@ The prediction method works as follows:
     In general, this approach causes the prediction to be a weighted average of the closest reconstructed ancestor, and the either reconstructed or directly observed trait value of the organism of interest's sibling node(s).   
 """
 
+#Define valid choices for 'choice parameters
 METHOD_CHOICES = ['asr_and_weighting','nearest_neighbor','asr_only','weighting_only',\
   'random_neighbor']
-
 WEIGHTING_CHOICES = ['exponential','linear','equal']
+CONFIDENCE_FORMAT_CHOICES = ['sigma','confidence_interval']
 
+#Add script information
 script_info['script_usage'] = [\
 ("Example 1","Required options:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.biom"),\
 ("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.biom -l otu_table.tab")
 ]
+#Define commandline interface 
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
 script_info['required_options'] = [\
 make_option('-i','--observed_trait_table',type="existing_filepath",\
@@ -83,11 +86,17 @@ script_info['optional_options'] = [\
  make_option('-r','--reconstructed_trait_table',\
    type="existing_filepath",default=None,\
    help='the input trait table describing reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]'),\
-make_option('-c','--reconstruction_confidence',\
+
+ make_option('--confidence_format',\
+   choices=CONFIDENCE_FORMAT_CHOICES,default='sigma',\
+   help='the format for the confidence intervals from ancestral state reconstruction. Only needed if passing a reconstruction confidence file with -c or --reconstruction_confidence.  These are typically sigma values for maximum likelihood ASR  methods, but 95% confidence intervals for phylogenetic independent contrasts (e.g. from the ape R packages ace function with pic as the reconstruction method).  Valid choices are:'+",".join(CONFIDENCE_FORMAT_CHOICES)+'. [default: %default]'),\
+ make_option('-c','--reconstruction_confidence',\
    type="existing_filepath",default=None,\
    help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')
 ]
 script_info['version'] = __version__
+
+#Helper formatting functions
 
 def write_results_to_file(f_out,headers,predictions,sep="\t"):
     """Write a set of predictions to a file
@@ -113,6 +122,7 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
     f.writelines(lines)
     f.close()
 
+#Main script
 
 def main():
     option_parser, opts, args =\
@@ -138,10 +148,11 @@ def main():
             if opts.verbose:
                 print "Loading ASR confidence data from file:",\
                 opts.reconstruction_confidence
+                print "Assuming confidence data is of type:",opts.confidence_format
             
             asr_confidence_output = open(opts.reconstruction_confidence)
             asr_min_vals,asr_max_vals, params,column_mapping =\
-              parse_asr_confidence_output(asr_confidence_output)
+              parse_asr_confidence_output(asr_confidence_output,format=opts.confidence_format)
             brownian_motion_parameter = params['sigma'][0]
             brownian_motion_error = params['sigma'][1]
             if opts.verbose:
