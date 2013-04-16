@@ -153,8 +153,11 @@ def main():
             asr_confidence_output = open(opts.reconstruction_confidence)
             asr_min_vals,asr_max_vals, params,column_mapping =\
               parse_asr_confidence_output(asr_confidence_output,format=opts.confidence_format)
-            brownian_motion_parameter = params['sigma'][0]
-            brownian_motion_error = params['sigma'][1]
+            if 'sigma' in params:
+                brownian_motion_parameter = params['sigma'][0]
+                brownian_motion_error = params['sigma'][1]
+            else:
+                brownian_motion_parameter = None
             if opts.verbose:
                 print "Done. Loaded %i confidence interval values." %(len(asr_max_vals))
                 print "Brownian motion parameter:",brownian_motion_parameter
