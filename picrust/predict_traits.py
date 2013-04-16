@@ -897,6 +897,67 @@ def get_nn_by_tree_descent(tree,node_of_interest,filter_by_property = "Reconstru
     return nearest_neighbor,distance
 
 
+def get_brownian_motion_param_from_confidence_intervals(tree,\
+  upper_bound_trait_label,lower_bound_trait_label,trait_label="Reconstruction",confidence=0.95):
+    """Extract a Brownian motion parameter for a trait from confidence interval output
+    tree -- PhyloNode tree object, decorated with confidence interval data
+    upper_bound_trait_label -- the PhyloNode Property in which the upper bound for 95% CIs are stored
+    upper_bound_trait_label -- the PhyloNode Property in which the upper lower bound for 95% CIs are stored
+    
+    The function infers a brownian motion parameter (sigma) for pic ASR data where only
+    95% CIs are available using an approximate, quick and dirty method applicable to large trees with
+    many examples (e.g. all sequenced genomes).
+
+    Essentially, the decay in confidence from each tip with only one sequenced genome
+    to its parent is used to calibrate the decrease in confidence over branch length.
+    
+    Procedure:
+    - Iterate over all the tips in the tree
+    - If it has a trait value, it must be a sequenced genome/characterized organism
+        - Get its parent
+        - If the parent has multiple sequenced children, ignore it
+        - If the parent has only one sequenced child, calculate the brownian motion parameter
+
+    """
+    variances = []  # holds arrays of variances across traits for each sequenced tip
+    distances = []  # holds a single distnace for each sequenced tip to its parent
+    for tip in tree.itertips():
+        if getattr(tip,trait_label,None) is not None:
+            # In a characterized tip
+            tip_parent = tip.Parent
+            more_than_one_annotated_child = False
+            for c in tip_parent.Children:
+                if c.Name == tip.Name:
+                    continue
+                else:
+                   if getattr(c,trait_label,None):
+                       more_than_one_annotated_child = True
+                       break
+            if more_than_one_annotated_child:
+                continue
+
+            dist = tip.distance(tip_parent)
+            parent_variance = tip_parent.distance(tip)
+            upper_bounds = gettattr(tip_parent,upper_bound_trait_label)
+            lower_bounds = gettattr(tip_parent,lower_bound_trait_label)
+            traits = getattr(tip_parent,trait_label)
+            parent_variances = []
+            for i in range(len(traits)):
+                means, var = fit_normal_to_confidence_interval(upper_bounds[i],lower_bounds[i],\
+                    mean=trait[i], confidence = 0.95)
+                parent_variances.append(var)                   
+            variance.append(array(parent_variances))
+            distances.append(dist)
+    #now just average variances/d for all examples to get the brownian motion param
+    #TODO: can we check whether its possible to NOT average and just calc this from
+    # a single tip?  Technically should be...
+    brownian_motion_params = [v/distance[i] for i,v in enumerate(variances)]
+    average_brownian_motion_params = [sum(b)/len(b) for b in brownian_motion_params]
+    return average_brownian_motion_params
+
+
+
+
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait_label="Reconstruction",use_self_in_prediction=True,\
     weight_fn=linear_weight, verbose = False,\
@@ -987,11 +1048,17 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
                   "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(\
                    node_to_predict,len(traits),n_traits))
         
-                
+        if use_self_in_prediction and traits is not None:
+            # if we already know the traits (e.g. from a sequenced genome)
+            # just predict those traits
+            results[node_label] = traits
+            continue
+
+
         if not use_self_in_prediction:
             # ignore knowledge about self without modifying tree
             traits = None 
-        
+         
         if calc_confidence_intervals:
             ancestral_states,ancestral_variance =\
               get_most_recent_ancestral_states(node_to_predict,trait_label,\
