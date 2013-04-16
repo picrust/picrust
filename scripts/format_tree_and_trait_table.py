@@ -34,9 +34,8 @@ script_info['script_description'] =\
         -- Remove internal node names (required by BayesTraits)
         """
 
-script_info['script_usage'] = [("Reformat a tree and trait table with default options:",\
-    "Matches taxa in tree and trait table, reformats, and saves as NEXUS",\
-    "%prog -t ./example_tree.tree -i ./example_trait_table.txt")]
+script_info['script_usage'] = [\
+    ("Example 1","Reformat a tree and trait table with default options:","%prog -i traits.tab -t tree.nwk -o ./format_output/")]
 script_info['output_description']= "Outputs a reformatted tree and trait table."
 script_info['required_options'] = [\
           make_option('-t','--input_tree',type="existing_filepath",help='the input tree (Newick format)'),\
