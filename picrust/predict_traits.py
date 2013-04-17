@@ -921,12 +921,14 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
     """
     variances = []  # holds arrays of variances across traits for each sequenced tip
     distances = []  # holds a single distnace for each sequenced tip to its parent
-    for tip in tree.itertips():
+    for tip in tree.iterTips():
         if getattr(tip,trait_label,None) is not None:
             # In a characterized tip
             tip_parent = tip.Parent
             more_than_one_annotated_child = False
             for c in tip_parent.Children:
+                #TODO: Should this just be the weighted average variance of 
+                #children?
                 if c.Name == tip.Name:
                     continue
                 else:
@@ -937,22 +939,34 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
                 continue
 
             dist = tip.distance(tip_parent)
-            parent_variance = tip_parent.distance(tip)
-            upper_bounds = gettattr(tip_parent,upper_bound_trait_label)
-            lower_bounds = gettattr(tip_parent,lower_bound_trait_label)
+            #parent_variance = tip_parent.distance(tip)
+            upper_bounds = getattr(tip_parent,upper_bound_trait_label)
+            lower_bounds = getattr(tip_parent,lower_bound_trait_label)
             traits = getattr(tip_parent,trait_label)
-            parent_variances = []
+            if traits is None:
+                print "Skipping node...no ASR value for parent"
+                continue
+                #raise ValueError("No reconstructed trait values available for internal node.  Cannot infer brownian motion parameter from confidence intervals")
+            per_trait_variances = []
+            print "LEN TRAITS:",len(traits)
             for i in range(len(traits)):
+                print "Finding variance for trait %i of tip %s" %(i,tip.Name)
                 means, var = fit_normal_to_confidence_interval(upper_bounds[i],lower_bounds[i],\
-                    mean=trait[i], confidence = 0.95)
-                parent_variances.append(var)                   
-            variance.append(array(parent_variances))
+                    mean=traits[i], confidence = 0.95)
+                per_trait_variances.append(var)
+            print tip.Name,"\tPER TRAIT VARIANCES:\t",per_trait_variances
+            variances.append(array(per_trait_variances))
             distances.append(dist)
     #now just average variances/d for all examples to get the brownian motion param
-    #TODO: can we check whether its possible to NOT average and just calc this from
-    # a single tip?  Technically should be...
-    brownian_motion_params = [v/distance[i] for i,v in enumerate(variances)]
-    average_brownian_motion_params = [sum(b)/len(b) for b in brownian_motion_params]
+    #print "variances:", variances
+    #print "distances:", distances
+    #Length should be # of traits
+    brownian_motion_params = [v/distances[i] for i,v in enumerate(variances)]
+    #print "brownian motion parameters:",brownian_motion_params
+    #Length of each per tip brownian_motion_params entry should equal # of traits
+    # Now average the per-tip arrays to get the array for the traits overall
+    average_brownian_motion_params = sum(brownian_motion_params)/len(brownian_motion_params)  
+    #print "average:",average_brownian_motion_params
     return average_brownian_motion_params
 
 
