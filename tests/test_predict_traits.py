@@ -30,7 +30,7 @@ from picrust.predict_traits  import assign_traits_to_tree,\
   variance_of_weighted_mean,fit_normal_to_confidence_interval,\
   get_most_recent_reconstructed_ancestor,\
   normal_product_monte_carlo, get_bounds_from_histogram,\
-  get_nn_by_tree_descent
+  get_nn_by_tree_descent,get_brownian_motion_param_from_confidence_intervals
 
 
 """
@@ -846,6 +846,64 @@ class TestPredictTraits(TestCase):
         upper_estimate = mean1*mean2 + upper
         #self.assertFloatEqual(lower_estimate,-1.8801,eps=.1)
         #self.assertFloatEqual(upper_estimate,2.3774,eps=.1)
+    
+    def test_get_brownian_motion_param_from_confidence_intervals(self):
+        """Get brownian motion parameters from confidence intervals"""
+        
+        tree = self.SimpleTree
+        
+        #Test one-trait case
+        traits = {"A":[1.0],"C":[2.0],"E":[1.0],"F":[1.0]}
+        tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
+        tree.getNodeMatchingName('E').upper_bound = [2.0]  
+        tree.getNodeMatchingName('F').upper_bound = [1.0]
+        tree.getNodeMatchingName('E').lower_bound = [0.0]  
+        tree.getNodeMatchingName('F').lower_bound = [1.0]
+        
+        brownian_motion_parameter =\
+          get_brownian_motion_param_from_confidence_intervals(tree,\
+          upper_bound_trait_label="upper_bound",\
+          lower_bound_trait_label="lower_bound",\
+          trait_label="Reconstruction",\
+          confidence=0.95)
+
+
+        #self.assertFloatEqual(brownian_motion_parameter,[1.0])    
+        self.assertEqual(len(brownian_motion_parameter),1) 
+    
+
+        
+        #Test two-trait case
+        
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
+        
+        true_brownian_motion_param = 5.0
+        
+        #E_histogram = thresholded_brownian_probability(1.0,\
+        #     true_brownian_motion_param,d=0.01)
+        #E_true_lower,E_true_upper = get_bounds_from_histogram(E_histogram,test_bin_edges,confidence=0.95)
+         
+        #set up tree with confidence intervals
+        #{"A":[1.0,1.0],"E":[1.0,1.0],"F":[0.0,1.0],"D":[0.0,0.0]}
+        #DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
+        
+        tree.getNodeMatchingName('E').upper_bound = [1.0,1.0]  
+        tree.getNodeMatchingName('F').upper_bound = [1.0,2.0]
+        tree.getNodeMatchingName('E').lower_bound = [-2.0,-2.0]  
+        tree.getNodeMatchingName('F').lower_bound = [-1.0,0.0]
+        
+        brownian_motion_parameter =\
+          get_brownian_motion_param_from_confidence_intervals(tree,\
+          upper_bound_trait_label="upper_bound",\
+          lower_bound_trait_label="lower_bound",\
+          trait_label="Reconstruction",\
+          confidence=0.95)
+
+
+        #self.assertFloatEqual(brownian_motion_parameter,[1.0,1.0])    
+        self.assertEqual(len(brownian_motion_parameter),2) 
     
     def test_get_bounds_from_histogram(self):
         """Get bounds from histogram finds upper and lower tails of distribution at specified confidence levels"""
