@@ -26,7 +26,9 @@ script_info = {}
 script_info['brief_description'] = "Compare the accuracy of biom files (expected and observed) either by observations (default) or by samples."
 script_info['script_description'] =\
     """ """
-script_info['script_usage'] = [("","","%prog -e exp_otu_table.biom -o results.tab obs_otu_table.biom [obs_otu_table2.biom]")]
+script_info['script_usage'] = [\
+    ("Example 1","Compare an observed table to an expected table using relative abundance","%prog -e expected_ra.biom -o compare_results_ra.tab observed_ra.biom"),
+    ("Example 2","Compare an observed table to an expected table using real counts","%prog --not_relative_abundance -e expected.biom -o compare_results.tab observed.biom")]
 script_info['output_description']= "Outputs will be tab delimited file with various accuracy metrics."
 script_info['required_options'] = [
  make_option('-e','--exp_trait_table_fp',type="existing_filepath",help='the expected trait table (biom format)'),\

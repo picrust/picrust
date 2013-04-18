@@ -23,8 +23,7 @@ script_info['brief_description'] = "Runs ancestral state reconstruction given a 
 script_info['script_description'] = "\
 Provides a common interface for running various ancenstral state reconstruction methods (e.g. ACE, BayesTraits, etc.)."
 script_info['script_usage'] = [\
-("Minimum Requirments","Provide a tree file and trait table file","%prog -i trait_table_fp -t tree_fp"),\
-("Specify output file","","%prog -i trait_table_fp -t tree_fp -o output_file_fp")]
+("Example 1","Provide a tree file and trait table file:","%prog -i trait_table.tab -t pruned_tree.newick -o asr_counts.tab -c asr_ci.tab")]
 script_info['output_description']= "A table containing trait information for internal nodes of the tree."
 
 script_info['required_options'] = [\
