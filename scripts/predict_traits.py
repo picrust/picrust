@@ -56,7 +56,10 @@ METHOD_CHOICES = ['asr_and_weighting','nearest_neighbor','asr_only','weighting_o
 
 WEIGHTING_CHOICES = ['exponential','linear','equal']
 
-script_info['script_usage'] = [("","","")]
+script_info['script_usage'] = [\
+("Example 1","Required options:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.biom"),\
+("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.biom -l otu_table.tab")
+]
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
 script_info['required_options'] = [\
 make_option('-i','--observed_trait_table',type="existing_filepath",\
