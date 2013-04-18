@@ -83,7 +83,7 @@ def main():
                  % opts.job_dir)
 
     if (opts.make_jobs):
-        filenames = make_sge_jobs(commands, job_prefix, opts.queue, opts.job_dir,opts.num_jobs)
+        filenames = make_torque_jobs(commands, job_prefix, opts.queue, opts.job_dir,opts.num_jobs)
     else:
         exit("Should we ever get here???")
     if (opts.submit_jobs):
