@@ -25,7 +25,7 @@ from picrust.predict_traits import assign_traits_to_tree,\
   make_neg_exponential_weight_fn, biom_table_from_predictions,\
   predict_random_neighbor,predict_nearest_neighbor,\
   calc_nearest_sequenced_taxon_index,\
-  weighted_average_variance_prediction
+  weighted_average_variance_prediction, get_brownian_motion_param_from_confidence_intervals
 from biom.table import table_factory
 from cogent.util.table import Table
 from picrust.util import make_output_dir_for_file, format_biom_table
@@ -158,6 +158,7 @@ def main():
                 brownian_motion_error = params['sigma'][1]
             else:
                 brownian_motion_parameter = None
+                 
             if opts.verbose:
                 print "Done. Loaded %i confidence interval values." %(len(asr_max_vals))
                 print "Brownian motion parameter:",brownian_motion_parameter
@@ -191,7 +192,17 @@ def main():
         tree = assign_traits_to_tree(asr_max_vals,tree,\
             trait_label="upper_bound")
 
-
+        if brownian_motion_parameter is None:
+             
+             if opts.verbose: 
+                 print "No Brownian motion parameters loaded. Inferring these from 95% confidence intervals..."
+             brownian_motion_parameter = get_brownian_motion_param_from_confidence_intervals(tree,\
+                      upper_bound_trait_label="upper_bound",\
+                      lower_bound_trait_label="lower_bound",\
+                      trait_label=trait_label,\
+                      confidence=0.95)
+             if opts.verbose:
+                 print "Inferred the following rate parameters:",brownian_motion_parameter
     if opts.verbose:
         print "Collecting list of nodes to predict..."
 
@@ -304,9 +315,9 @@ def main():
     variances=None #Overwritten by methods that calc variance
 
     if opts.prediction_method == 'asr_and_weighting': 
+        # Perform predictions using reconstructed ancestral states
   
         if opts.reconstruction_confidence:
-        # Perform predictions using reconstructed ancestral states
             predictions,variances =\
               predict_traits_from_ancestors(tree,nodes_to_predict,\
               trait_label=trait_label,\
@@ -355,28 +366,53 @@ def main():
     if opts.verbose:
         print "Converting results to .biom format for output..."
     #convert to biom format (and transpose)
-    biom_predictions=biom_table_from_predictions(predictions,table_headers)
     #In the .biom table, organisms are 'samples' and traits are 'observations 
     #(by analogy with a metagenomic sample)
     
     #Therefore, we associate the trait variances with the per-observation metadata
+    print "predictions:",predictions
+    print "table_headers:",table_headers
+    print "variances:",variances
+    print "accuracy_metrics:",accuracy_metric_results
     
-    #print "variances:",variances
-    #print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
-    #print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
+    #merge accuracy_metrics and variances
+    sample_metadata = {}
+    for sample_id in variances.keys():
+        sample_metadata[sample_id] = variances[sample_id]
+        if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
+            sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
     
-    if variances is not None:
-        if opts.verbose:
-            print "Adding variance information to output .biom table, as per-observation metadata with key 'variance'..."
-        biom_predictions.addSampleMetadata(variances)
+
+
+    #if variances is None:
+    #    variances = {}
+    #if accuracy_metric_results is None:
+    #    accuracy_metrics_results = {}
     
-    if accuracy_metric_results is not None:
-        if opts.verbose:
-            print "Adding accuracy metrics (%s) to biom table as per-observation metadata..." %(",".join(accuracy_metrics))
-        biom_predictions.addSampleMetadata(accuracy_metric_results)
+    biom_predictions=biom_table_from_predictions(predictions,table_headers,\
+      observation_metadata=None,\
+      sample_metadata=sample_metadata)
+    
+    print "variances:",variances
+    print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
+    print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
+    print "Each observation:", biom_predictions.ObservationIds
+    print "dir(biom_predictions):", dir(biom_predictions)
+    print "Observation Metadata:",biom_predictions.ObservationMetadata
+    print "Sample Metadata:",biom_predictions.SampleMetadata
+    #if variances is not None:
+    #    if opts.verbose:
+    #        print "Adding variance information to output .biom table, as per-observation (i.e. per gene) metadata with key 'variance'..."
+    #    #md should be of the form {observation_id:{dict_of_metadata}}
+    #    biom_predictions.addObservationMetadata(variances)
+    #
+
+    #if accuracy_metric_results is not None:
+    #    if opts.verbose:
+    #        print "Adding accuracy metrics (%s) to biom table as per-sample (i.e. per genome) metadata..." %(",".join(accuracy_metrics))
+    #    biom_predictions.addSampleMetadata(accuracy_metric_results)
         
-    #Add variance information as per observation metadata
-    
+    print biom_predictions.delimitedSelf() 
     if opts.verbose:
         print "Writing biom format prediction results to file: ",opts.output_trait_table
     #write biom table to file
