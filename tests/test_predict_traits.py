@@ -61,7 +61,27 @@ class TestPredictTraits(TestCase):
     def setUp(self):
         self.SimpleTree = \
           DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
-    
+        
+        
+        #Set up a tree with obvious differences in the rate of gene content
+        #evolution to test confidence interval estimation
+        #Features:  
+        # --trait 1 is has ~ 10 fold higher confidence intervals than trait 0. 
+        # Trait 2 is 10 fold higher than trait 1
+        
+        # -- of predicted nodes B and D, D has a ~10 fold longer branch
+
+        self.SimpleUnequalVarianceTree =\
+          DndParser("((A:0.01,B:0.01)E:0.05,(C:0.01,D:0.10)F:0.05)root;")
+        traits = {"A":[1.0,1.0,1.0],"C":[1.0,1.0,1.0],"E":[1.0,1.0,1.0],"F":[1.0,1.0,1.0]}
+        self.SimpleUnequalVarianceTree = assign_traits_to_tree(traits,\
+          self.SimpleUnequalVarianceTree,trait_label="Reconstruction")
+        self.SimpleUnequalVarianceTree.getNodeMatchingName('E').upper_bound = [2.0,20.0,200.0]
+        self.SimpleUnequalVarianceTree.getNodeMatchingName('E').lower_bound = [-1.0,-19.0,-199.0]
+        self.SimpleUnequalVarianceTree.getNodeMatchingName('F').upper_bound = [2.0,20.0,200.0]
+        self.SimpleUnequalVarianceTree.getNodeMatchingName('F').lower_bound = [-1.0,-19.0,-199.0]
+        
+        #Set up a tree with a three-way polytomy
         self.SimplePolytomyTree = \
           DndParser("((A:0.02,B:0.01,B_prime:0.03)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
     
@@ -393,7 +413,7 @@ class TestPredictTraits(TestCase):
     
     def test_inverse_variance_weight(self):
         """inverse_variance_weight"""
-        
+        #TODO: test this works with arrays of variances 
         var = 1000.0
         for d in range(1,10):
             d = float(d)
@@ -489,7 +509,7 @@ class TestPredictTraits(TestCase):
 
     def test_predict_traits_from_ancestors(self):
         """predict_traits_from_ancestors should propagate ancestral states"""
-        
+        # Testing the point predictions first (since these are easiest) 
         # When the node is very close to I3, prediction should be approx. I3
 
         traits = self.PartialReconstructionTraits
@@ -504,8 +524,39 @@ class TestPredictTraits(TestCase):
         for node in nodes_to_predict:
             self.assertFloatEqual(around(prediction[node]),exp)
 
+        #TODO: need to add test case where a very hard to predict
+        # single value is present in a sequenced genome.  Then
+        # test that use_self_in_prediction controls whether this is used
+        
 
-
+    def test_predict_traits_from_ancestors_correctly_predicts_variance(self):
+        """predict_traits_from_ancestors should correctly report variance due to branch lengths and rates of gene copy number evolution """
+        tree = self.SimpleUnequalVarianceTree
+        #All values are 1, but variance in the prediction should vary
+        #due to vary unequal branch lengths (between taxa) and brownian
+        #motion parameters (between traits)
+        nodes_to_predict = ['B','D']
+        bm_fixed_10_fold = [1.0,10.0,100.0]
+        prediction,variances = predict_traits_from_ancestors(tree=tree,\
+          nodes_to_predict=nodes_to_predict,calc_confidence_intervals=True,\
+          lower_bound_trait_label='lower_bound',upper_bound_trait_label='upper_bound',
+          brownian_motion_parameter = bm_fixed_10_fold,trait_label="Reconstruction")
+        
+        #All traits are 1, so all predictions should be 1
+        exp_predictions = {'B':[1.0,1.0,1.0],'D':[1.0,1.0,1.0]}
+        self.assertEqualItems(prediction,exp_predictions)
+        #We don't expect variances to be exactly 10 fold increasing
+        #but do expect they should be in rank order
+        for tip in ['B','D']:
+            tip_vars = variances[tip]['variance']
+            self.assertTrue(tip_vars[0]<tip_vars[1]) 
+            self.assertTrue(tip_vars[1]<tip_vars[2])
+        
+        #Also note that trait D is on a much longer branch, so we expect
+        #it to have higher variance
+        self.assertTrue((array(variances['B']['variance'])<array(variances['D']['variance'])).all())
+            
+ 
         
     def test_fill_unknown_traits(self):
         """fill_unknown_traits should propagate only known characters"""
@@ -753,7 +804,10 @@ class TestPredictTraits(TestCase):
         
         #Just a hand calculated example using the formula from here:
         #http://en.wikipedia.org/wiki/Weighted_mean
-        
+       
+
+        #TODO: test if this works for arrays of variances
+
         #If all weights and standard deviations are equal, then
         #variance = stdev/sqrt(n)
         weights = array([0.5,0.5])
@@ -846,65 +900,8 @@ class TestPredictTraits(TestCase):
         upper_estimate = mean1*mean2 + upper
         #self.assertFloatEqual(lower_estimate,-1.8801,eps=.1)
         #self.assertFloatEqual(upper_estimate,2.3774,eps=.1)
-    
-    def test_get_brownian_motion_param_from_confidence_intervals(self):
-        """Get brownian motion parameters from confidence intervals"""
-        
-        tree = self.SimpleTree
-        
-        #Test one-trait case
-        traits = {"A":[1.0],"C":[2.0],"E":[1.0],"F":[1.0]}
-        tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
-        tree.getNodeMatchingName('E').upper_bound = [2.0]  
-        tree.getNodeMatchingName('F').upper_bound = [1.0]
-        tree.getNodeMatchingName('E').lower_bound = [0.0]  
-        tree.getNodeMatchingName('F').lower_bound = [1.0]
-        
-        brownian_motion_parameter =\
-          get_brownian_motion_param_from_confidence_intervals(tree,\
-          upper_bound_trait_label="upper_bound",\
-          lower_bound_trait_label="lower_bound",\
-          trait_label="Reconstruction",\
-          confidence=0.95)
 
 
-        #self.assertFloatEqual(brownian_motion_parameter,[1.0])    
-        self.assertEqual(len(brownian_motion_parameter),1) 
-    
-
-        
-        #Test two-trait case
-        
-        traits = self.SimpleTreeTraits
-        tree = self.SimpleTree
-        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
-        
-        true_brownian_motion_param = 5.0
-        
-        #E_histogram = thresholded_brownian_probability(1.0,\
-        #     true_brownian_motion_param,d=0.01)
-        #E_true_lower,E_true_upper = get_bounds_from_histogram(E_histogram,test_bin_edges,confidence=0.95)
-         
-        #set up tree with confidence intervals
-        #{"A":[1.0,1.0],"E":[1.0,1.0],"F":[0.0,1.0],"D":[0.0,0.0]}
-        #DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
-        
-        tree.getNodeMatchingName('E').upper_bound = [1.0,1.0]  
-        tree.getNodeMatchingName('F').upper_bound = [1.0,2.0]
-        tree.getNodeMatchingName('E').lower_bound = [-2.0,-2.0]  
-        tree.getNodeMatchingName('F').lower_bound = [-1.0,0.0]
-        
-        brownian_motion_parameter =\
-          get_brownian_motion_param_from_confidence_intervals(tree,\
-          upper_bound_trait_label="upper_bound",\
-          lower_bound_trait_label="lower_bound",\
-          trait_label="Reconstruction",\
-          confidence=0.95)
-
-
-        #self.assertFloatEqual(brownian_motion_parameter,[1.0,1.0])    
-        self.assertEqual(len(brownian_motion_parameter),2) 
-    
     def test_get_bounds_from_histogram(self):
         """Get bounds from histogram finds upper and lower tails of distribution at specified confidence levels"""
         
@@ -943,6 +940,65 @@ class TestPredictTraits(TestCase):
         obs_sum_upper = sum(test_hist[obs_upper:])
         self.assertTrue(obs_sum_upper <= 0.05*sum(test_hist))
 
+
+    
+    def test_get_brownian_motion_param_from_confidence_intervals(self):
+        """Get brownian motion parameters from confidence intervals"""
+        #TODO: Ensure this works with arrays of brownian motions
+
+        tree = self.SimpleTree
+        
+        #Test one-trait case
+        traits = {"A":[1.0],"C":[2.0],"E":[1.0],"F":[1.0]}
+        tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
+        tree.getNodeMatchingName('E').upper_bound = [2.0]  
+        tree.getNodeMatchingName('F').upper_bound = [1.0]
+        tree.getNodeMatchingName('E').lower_bound = [0.0]  
+        tree.getNodeMatchingName('F').lower_bound = [1.0]
+        
+        brownian_motion_parameter =\
+          get_brownian_motion_param_from_confidence_intervals(tree,\
+          upper_bound_trait_label="upper_bound",\
+          lower_bound_trait_label="lower_bound",\
+          trait_label="Reconstruction",\
+          confidence=0.95)
+
+
+        #self.assertFloatEqual(brownian_motion_parameter,[1.0])    
+        self.assertEqual(len(brownian_motion_parameter),1) 
+        
+        #Test two-trait case
+        
+        traits = self.SimpleTreeTraits
+        tree = self.SimpleTree
+        result_tree = assign_traits_to_tree(traits,tree,trait_label="Reconstruction") 
+        
+        true_brownian_motion_param = 5.0
+        
+        #E_histogram = thresholded_brownian_probability(1.0,\
+        #     true_brownian_motion_param,d=0.01)
+        #E_true_lower,E_true_upper = get_bounds_from_histogram(E_histogram,test_bin_edges,confidence=0.95)
+         
+        #set up tree with confidence intervals
+        #{"A":[1.0,1.0],"E":[1.0,1.0],"F":[0.0,1.0],"D":[0.0,0.0]}
+        #DndParser("((A:0.02,B:0.01)E:0.05,(C:0.01,D:0.01)F:0.05)root;")
+        
+        tree.getNodeMatchingName('E').upper_bound = [1.0,1.0]  
+        tree.getNodeMatchingName('F').upper_bound = [1.0,2.0]
+        tree.getNodeMatchingName('E').lower_bound = [-2.0,-2.0]  
+        tree.getNodeMatchingName('F').lower_bound = [-1.0,0.0]
+        
+        brownian_motion_parameter =\
+          get_brownian_motion_param_from_confidence_intervals(tree,\
+          upper_bound_trait_label="upper_bound",\
+          lower_bound_trait_label="lower_bound",\
+          trait_label="Reconstruction",\
+          confidence=0.95)
+
+
+        #self.assertFloatEqual(brownian_motion_parameter,[1.0,1.0])    
+        self.assertEqual(len(brownian_motion_parameter),2) 
+    
 
 if __name__ == "__main__":
     main()
