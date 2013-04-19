@@ -118,8 +118,11 @@ def extract_ids_from_table(table_lines,delimiter="\t",header_start_string="#",id
     return result
 
 
-def parse_asr_confidence_output(table_lines,param_names=['loglik','sigma']):
-    """Return reconstruction parameters from reconstruction table"""
+def parse_asr_confidence_output(table_lines,param_names=['loglik','sigma'],format='sigma'):
+    """Return reconstruction parameters from reconstruction table
+    
+    
+    """
     min_value_dict = {}
     max_value_dict = {}
     params = {}
