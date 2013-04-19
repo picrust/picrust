@@ -381,7 +381,7 @@ def main():
         sample_metadata[sample_id] = variances[sample_id]
         if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
             sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
-    
+   
 
 
     #if variances is None:
