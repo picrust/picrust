@@ -3,7 +3,7 @@
 PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States
 =========================================================================================
 
-PICRUSt is a bioinformatics software package designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.
+PICRUSt (pronounced "pie crust") is a bioinformatics software package designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.
 
 PICRUSt is freely available under the `GPL`_. 
 
