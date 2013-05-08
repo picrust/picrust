@@ -54,7 +54,9 @@ def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sa
     sample_metadata = [sample_md.get(sample_id,{}) for sample_id in organism_ids]
     #print "observation_metadata:",observation_metadata
     #print "sample_metadata:",sample_metadata
-    biom_table=table_factory(data,organism_ids,trait_ids, sample_metadata=sample_metadata,observation_metadata=observation_metadata,constructor=DenseOTUTable)
+    biom_table=table_factory(data,organism_ids,trait_ids, sample_metadata=\
+      sample_metadata,observation_metadata=observation_metadata,constructor=DenseOTUTable)
+    
     return biom_table
 
 
@@ -1175,8 +1177,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
             variance_result[node_label] = {"variance":variances.tolist()}
             #print "VARIANCES:",variances
             lower_95_CI,upper_95_CI = calc_confidence_interval_95(prediction,variances)
-            confidence_interval_results[node_label]['lower_95']=lower_95_CI
-            confidence_interval_results[node_label]['upper_95']=upper_95_CI
+            confidence_interval_results[node_label]['lower_CI']=lower_95_CI
+            confidence_interval_results[node_label]['upper_CI']=upper_95_CI
 
 
         if print_this_node:
