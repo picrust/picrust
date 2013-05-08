@@ -15,6 +15,7 @@ __status__ = "Development"
 
 from warnings import warn
 from math import e
+from os.path import splitext
 from numpy import array
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from cogent import LoadTree
@@ -24,7 +25,7 @@ from picrust.predict_traits import assign_traits_to_tree,\
   predict_traits_from_ancestors, update_trait_dict_from_file,\
   make_neg_exponential_weight_fn, biom_table_from_predictions,\
   predict_random_neighbor,predict_nearest_neighbor,\
-  calc_nearest_sequenced_taxon_index,\
+  calc_nearest_sequenced_taxon_index,calc_confidence_interval_95,\
   weighted_average_variance_prediction, get_brownian_motion_param_from_confidence_intervals
 from biom.table import table_factory
 from cogent.util.table import Table
@@ -313,26 +314,25 @@ def main():
         weight_fn = equal_weight
 
     variances=None #Overwritten by methods that calc variance
+    confidence_intervals=None #Overwritten by methods that calc variance
 
     if opts.prediction_method == 'asr_and_weighting': 
         # Perform predictions using reconstructed ancestral states
   
         if opts.reconstruction_confidence:
-            predictions,variances =\
+            predictions,variances,confidence_intervals =\
               predict_traits_from_ancestors(tree,nodes_to_predict,\
               trait_label=trait_label,\
               lower_bound_trait_label="lower_bound",\
               upper_bound_trait_label="upper_bound",\
               calc_confidence_intervals = True,\
               brownian_motion_parameter=brownian_motion_parameter,\
-              use_self_in_prediction = True,\
               weight_fn =weight_fn,verbose=opts.verbose)
     
         else:
              predictions =\
               predict_traits_from_ancestors(tree,nodes_to_predict,\
               trait_label=trait_label,\
-              use_self_in_prediction = True,\
               weight_fn =weight_fn,verbose=opts.verbose)
     
     elif opts.prediction_method == 'weighting_only':
@@ -340,7 +340,6 @@ def main():
         predictions =\
           weighted_average_tip_prediction(tree,nodes_to_predict,\
           trait_label=trait_label,\
-          use_self_in_prediction = True,\
           weight_fn =weight_fn,verbose=opts.verbose)
         
 
@@ -348,14 +347,12 @@ def main():
     elif opts.prediction_method == 'nearest_neighbor':
         
         predictions = predict_nearest_neighbor(tree,nodes_to_predict,\
-          trait_label=trait_label,\
-          use_self_in_prediction = True, tips_only = True)
+          trait_label=trait_label,tips_only = True)
 
     elif opts.prediction_method == 'random_neighbor':
         
         predictions = predict_random_neighbor(tree,\
-          nodes_to_predict,trait_label=trait_label,\
-          use_self_in_prediction = True)
+          nodes_to_predict,trait_label=trait_label)
     else:
         error_template =\
           "Prediction method '%s' is not supported.  Valid methods are: %s'"
@@ -370,41 +367,35 @@ def main():
     #(by analogy with a metagenomic sample)
     
     #Therefore, we associate the trait variances with the per-observation metadata
-    print "predictions:",predictions
-    print "table_headers:",table_headers
-    print "variances:",variances
-    print "accuracy_metrics:",accuracy_metric_results
     
     #merge accuracy_metrics and variances
-    sample_metadata = {}
-    for sample_id in variances.keys():
-        sample_metadata[sample_id] = variances[sample_id]
-        if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
-            sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
+    #sample_metadata = {}
+    #for sample_id in variances.keys():
+    #    sample_metadata[sample_id] = variances[sample_id]
+    #    if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
+    #        sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
    
 
 
-    #if variances is None:
-    #    variances = {}
-    #if accuracy_metric_results is None:
-    #    accuracy_metrics_results = {}
+    #Generate the table of biom predictions
     
     biom_predictions=biom_table_from_predictions(predictions,table_headers,\
       observation_metadata=None,\
-      sample_metadata=sample_metadata)
+      sample_metadata=accuracy_metric_results,convert_to_int=False)
+   
     
-    print "variances:",variances
-    print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
-    print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
-    print "Each observation:", biom_predictions.ObservationIds
-    print "dir(biom_predictions):", dir(biom_predictions)
-    print "Observation Metadata:",biom_predictions.ObservationMetadata
-    print "Sample Metadata:",biom_predictions.SampleMetadata
+    
+    #print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
+    #print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
+    #print "Each observation:", biom_predictions.ObservationIds
+    #print "dir(biom_predictions):", dir(biom_predictions)
+    #print "Observation Metadata:",biom_predictions.ObservationMetadata
+    #print "Sample Metadata:",biom_predictions.SampleMetadata
     #if variances is not None:
     #    if opts.verbose:
     #        print "Adding variance information to output .biom table, as per-observation (i.e. per gene) metadata with key 'variance'..."
     #    #md should be of the form {observation_id:{dict_of_metadata}}
-    #    biom_predictions.addObservationMetadata(variances)
+    #   biom_predictions.addObservationMetadata(variances)
     #
 
     #if accuracy_metric_results is not None:
@@ -412,13 +403,74 @@ def main():
     #        print "Adding accuracy metrics (%s) to biom table as per-sample (i.e. per genome) metadata..." %(",".join(accuracy_metrics))
     #    biom_predictions.addSampleMetadata(accuracy_metric_results)
         
-    print biom_predictions.delimitedSelf() 
+    #print biom_predictions.delimitedSelf() 
     if opts.verbose:
         print "Writing biom format prediction results to file: ",opts.output_trait_table
+    
     #write biom table to file
     make_output_dir_for_file(opts.output_trait_table)
     open(opts.output_trait_table,'w').write(\
      format_biom_table(biom_predictions))
+
+    #Write out variance information to file
+    if variances:
+        
+        if opts.verbose:
+            print "Converting variances to BIOM format"
+        
+        biom_prediction_variances=biom_table_from_predictions({k:v['variance'] for k,v in variances.iteritems()},table_headers,\
+        observation_metadata=None,\
+        sample_metadata=None,convert_to_int=False)
+        outfile_base,extension = splitext(opts.output_trait_table)
+        variance_outfile = outfile_base+"_variances.biom"
+        
+        if opts.verbose:
+            print "Outputting variance information to file:",variance_outfile
+        make_output_dir_for_file(variance_outfile)
+        open(variance_outfile,'w').write(\
+          format_biom_table(biom_prediction_variances))
+        
+        if opts.verbose:
+            print "Done writing variance table"
+    
+    if confidence_intervals:
+        
+        if opts.verbose:
+            print "Converting upper confidence interval values to BIOM format"
+        
+        biom_prediction_upper_CI=biom_table_from_predictions({k:v['upper_CI'] for k,v in confidence_intervals.iteritems()},table_headers,\
+          observation_metadata=None,\
+          sample_metadata=None,convert_to_int=False)
+        
+        outfile_base,extension = splitext(opts.output_trait_table)
+        upper_CI_outfile = outfile_base+"_upper_CI.biom"
+        
+        if opts.verbose:
+            print "Outputting upper confidence limit  information to file:",upper_CI_outfile
+        make_output_dir_for_file(upper_CI_outfile)
+        open(upper_CI_outfile,'w').write(\
+          format_biom_table(biom_prediction_upper_CI))
+        
+        if opts.verbose:
+            print "Done writing upper confidence limit table"
+        
+        
+        biom_prediction_lower_CI=biom_table_from_predictions({k:v['lower_CI'] for k,v in confidence_intervals.iteritems()},table_headers,\
+          observation_metadata=None,\
+          sample_metadata=None,convert_to_int=False)
+         
+        outfile_base,extension = splitext(opts.output_trait_table)
+        lower_CI_outfile = outfile_base+"_lower_CI.biom"
+        
+        if opts.verbose:
+            print "Outputting lower confidence limit information to file:",lower_CI_outfile
+        make_output_dir_for_file(lower_CI_outfile)
+        open(lower_CI_outfile,'w').write(\
+          format_biom_table(biom_prediction_lower_CI))
+        
+        if opts.verbose:
+            print "Done writing lower confidence limit table"
+
 
 if __name__ == "__main__":
     main()
