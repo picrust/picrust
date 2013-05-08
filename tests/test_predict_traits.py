@@ -556,8 +556,8 @@ class TestPredictTraits(TestCase):
         #it to have higher variance
         self.assertTrue((array(variances['B']['variance'])<array(variances['D']['variance'])).all())
             
- 
-        
+    
+    
     def test_fill_unknown_traits(self):
         """fill_unknown_traits should propagate only known characters"""
 
