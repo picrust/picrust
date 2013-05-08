@@ -27,7 +27,7 @@ from cogent import LoadTable
 from warnings import warn
 from biom.table import table_factory,DenseOTUTable,SparseOTUTable
 
-def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sample_metadata={}):
+def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sample_metadata={},convert_to_int=True):
     
     # Convert Nones to empty dicts to avoid problems with BIOM's parser
     if observation_metadata is None:
@@ -43,7 +43,8 @@ def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sa
     organism_ids=predictions.keys()
     #data is in values (this transposes the matrix)
     data=map(list,zip(*predictions.values()))
-    data=array(data,dtype=int)
+    if convert_to_int:
+        data=array(data,dtype=int)
     #import pdb; pdb.set_trace()
     #print "observation_ids:",trait_ids
     #print "sample_ids:",organism_ids
@@ -54,7 +55,6 @@ def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sa
     #print "observation_metadata:",observation_metadata
     #print "sample_metadata:",sample_metadata
     biom_table=table_factory(data,organism_ids,trait_ids, sample_metadata=sample_metadata,observation_metadata=observation_metadata,constructor=DenseOTUTable)
-    #biom_table=table_factory(data,organism_ids,trait_ids, constructor=SparseOTUTable)
     return biom_table
 
 
@@ -1027,7 +1027,7 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
 
 
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
-    trait_label="Reconstruction",use_self_in_prediction=True,\
+    trait_label="Reconstruction",\
     weight_fn=linear_weight, verbose = False,\
     calc_confidence_intervals=False,brownian_motion_parameter=None,\
     upper_bound_trait_label=None,lower_bound_trait_label=None):
@@ -1043,12 +1043,6 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait to be reconstructed is stored.  This attribute should
     contain a numpy array of trait values (which can be set to None if 
     not known)
-
-    use_self_in_prediction -- if set to True, nodes that already
-    have a trait value will be predicted using that trait value.
-    If set to False, each node will ignore it's own traits when performing
-    predictions, which can be useful for validation (otherwise a tree 
-    would need to be generated in which known nodes have their data removed)
 
     verbose -- output verbose debugging info 
 
@@ -1073,7 +1067,8 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     If False:
         Returns an array of predicted trait values 
     If True:
-        Returns predicted trait values and an array of variances for each trait
+        Returns predicted trait values, a dict  of  variances for each trait
+        and a dict with confidence interval information.
     """
     #if we're calculating confidence intervals, make sure we have the relevant information
     if calc_confidence_intervals:
@@ -1086,14 +1081,23 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     #result_tree = tree.deepcopy()
     results = {}
     variance_result = {}
-    n_traits = None    
+    confidence_interval_results = defaultdict(dict)
+    n_traits = None
+    #Set up a dict to hold alredy sequenced genomes/tips with known character values
+    tips_with_prior_info = {}
+    
+    #Calculate 1% progress so verbose output isn't too overwhelming.
     one_percent_progress = max(1,int((len(nodes_to_predict))*0.01))
-    print_this_node = False
     if verbose:
         print "Every %ith node prediction will be printed" % one_percent_progress
 
+    #Interate through nodes, calculating trait predictions,
+    #and (if requested) variances and confidence intervals 
+    
+    print_this_node = False
     for i,node_label in enumerate(nodes_to_predict):
         if verbose:
+            #Only prent every 1/100 tips predicted
             if i%one_percent_progress==0:
                 print_this_node = True
             else:
@@ -1122,49 +1126,40 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
                   "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(\
                    node_to_predict,len(traits),n_traits))
         
-        if use_self_in_prediction and traits is not None:
+        #If we already know the answer (because a genome is sequenced), skip 
+        #the prediction step, and use the known answer.
+        if traits is not None:
             # if we already know the traits (e.g. from a sequenced genome)
             # just predict those traits
-            results[node_label] = traits
-            continue
+            tips_with_prior_info[node_label]=traits
+            #These will overwrite predictions downstream
+            #predictions are still performed to roughly estimate variance
+            #which will still be non-zero due to within-OTU effects
 
-
-        if not use_self_in_prediction:
-            # ignore knowledge about self without modifying tree
-            traits = None 
-         
+        #Find ancestral states, possibly with variance values
         if calc_confidence_intervals:
             ancestral_states,ancestral_variance =\
               get_most_recent_ancestral_states(node_to_predict,trait_label,\
               upper_bound_trait_label=upper_bound_trait_label,\
               lower_bound_trait_label=lower_bound_trait_label)
-
+        
+        #Find most recent ancestral node with ASR values      
         most_recent_reconstructed_ancestor =\
-          get_most_recent_reconstructed_ancestor(node_to_predict,trait_label)  
-        #print "Nearest ancestral states for node:",\
-        #  node_to_predict.Name,"=",ancestral_states 
-       
-
-        #Weighted average prediction from last reconstructed ancestor
+            get_most_recent_reconstructed_ancestor(node_to_predict,trait_label)  
+        #print "Calc_confidence_intervals:",calc_confidence_intervals
+        #print "most_recent_reconstructed_ancestor",most_recent_reconstructed_ancestor
+        #Perform point estimate of trait values using weighted-average
+        #prediction from last reconstructed ancestor
         prediction =\
               weighted_average_tip_prediction(tree,node_to_predict.Name,\
               most_recent_reconstructed_ancestor =\
               most_recent_reconstructed_ancestor,\
               weight_fn = weight_fn)
-        
-        #print "Prediction:", prediction
-        
-        #import pdb; pdb.set_trace()
-
         #round all predictions to whole numbers
         prediction=around(prediction)
-        
         results[node_label] = prediction
         
-        
-        
         #Now calculate variance of the estimate if requested
-
         if calc_confidence_intervals:
             variances =\
               weighted_average_variance_prediction(tree,node_to_predict.Name,\
@@ -1179,7 +1174,9 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
             #print dir(variances)        
             variance_result[node_label] = {"variance":variances.tolist()}
             #print "VARIANCES:",variances
-        
+            lower_95_CI,upper_95_CI = calc_confidence_interval_95(prediction,variances)
+            confidence_interval_results[node_label]['lower_95']=lower_95_CI
+            confidence_interval_results[node_label]['upper_95']=upper_95_CI
 
 
         if print_this_node:
@@ -1190,14 +1187,14 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
             if calc_confidence_intervals:
                 print "First %i trait variances:%s" %(n_traits_to_print,\
                   ','.join(map(str,list(variances[:n_traits_to_print]))))
-                lower_95_CI,upper_95_CI =\
-                  calc_confidence_interval_95(prediction,variances)     
-                 
                 print "Lower 95% confidence interval:",lower_95_CI[:n_traits_to_print]
                 print "Upper 95% confidence interval:",upper_95_CI[:n_traits_to_print]
     
+    #Overwrite known results from the dict of known results
+    results.update(tips_with_prior_info)
+
     if calc_confidence_intervals:
-        return results,variance_result
+        return results,variance_result, confidence_interval_results
     else:
         return results
 
