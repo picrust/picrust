@@ -537,7 +537,7 @@ class TestPredictTraits(TestCase):
         #motion parameters (between traits)
         nodes_to_predict = ['B','D']
         bm_fixed_10_fold = [1.0,10.0,100.0]
-        prediction,variances = predict_traits_from_ancestors(tree=tree,\
+        prediction,variances,confidence_intervals = predict_traits_from_ancestors(tree=tree,\
           nodes_to_predict=nodes_to_predict,calc_confidence_intervals=True,\
           lower_bound_trait_label='lower_bound',upper_bound_trait_label='upper_bound',
           brownian_motion_parameter = bm_fixed_10_fold,trait_label="Reconstruction")
