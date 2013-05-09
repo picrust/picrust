@@ -18,8 +18,8 @@ from random import choice
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from numpy.ma import masked_object
 from numpy.ma import array as masked_array
-from numpy import array,around
-from numpy import sqrt,sum,amax,amin,where, logical_not, argmin, histogram, add
+from numpy import apply_along_axis,array,around,mean,maximum as numpy_max, minimum as numpy_min,\
+  sqrt,sum,amax,amin,where, logical_not, argmin, histogram, add
 from numpy.random import normal
 from cogent.maths.stats.distribution import z_high
 from cogent.maths.stats.special import ndtri
@@ -27,14 +27,36 @@ from cogent import LoadTable
 from warnings import warn
 from biom.table import table_factory,DenseOTUTable,SparseOTUTable
 
-def biom_table_from_predictions(predictions,trait_ids):
+def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sample_metadata={},convert_to_int=True):
+    
+    # Convert Nones to empty dicts to avoid problems with BIOM's parser
+    if observation_metadata is None:
+        obs_md = {}
+    else:
+        obs_md = observation_metadata
+    
+    if sample_metadata is None:
+        sample_md = {}
+    else:
+        sample_md = sample_metadata
+
     organism_ids=predictions.keys()
     #data is in values (this transposes the matrix)
     data=map(list,zip(*predictions.values()))
-    data=array(data,dtype=int)
+    if convert_to_int:
+        data=array(data,dtype=int)
     #import pdb; pdb.set_trace()
-    biom_table=table_factory(data,organism_ids,trait_ids, constructor=DenseOTUTable)
-    #biom_table=table_factory(data,organism_ids,trait_ids, constructor=SparseOTUTable)
+    #print "observation_ids:",trait_ids
+    #print "sample_ids:",organism_ids
+    #print "obs_md:",obs_md
+    #print "sample_md:",sample_md
+    observation_metadata = [obs_md.get(obs_id,{}) for obs_id in trait_ids]
+    sample_metadata = [sample_md.get(sample_id,{}) for sample_id in organism_ids]
+    #print "observation_metadata:",observation_metadata
+    #print "sample_metadata:",sample_metadata
+    biom_table=table_factory(data,organism_ids,trait_ids, sample_metadata=\
+      sample_metadata,observation_metadata=observation_metadata,constructor=DenseOTUTable)
+    
     return biom_table
 
 
@@ -177,7 +199,8 @@ def variance_of_weighted_mean(weights,variances,per_sample_axis=1):
     Variance is standard deviation squared, so we use that instead
 
     """
-
+    #print "variances:",variances
+    #print "weights:",weights
     if variances.shape != weights.shape:
         raise ValueError("Shape of variances (%s) doesn't match shape of weights (%s)" %(str(variances.shape),str(weights.shape)))
     if len(variances.shape) > 2:
@@ -187,15 +210,20 @@ def variance_of_weighted_mean(weights,variances,per_sample_axis=1):
     if len(variances.shape) == 1: 
         per_sample_axis = None
     #Ensure weights are normalized
+    
     #print "weight array:",weights
     #print "len(weight array):",len(weights)
-
-    normalized_weights = weights/sum(weights,axis=per_sample_axis)
-    
+    if per_sample_axis is not None:
+        normalized_weights = apply_along_axis(normalize_axis,per_sample_axis,weights)
+    else:
+        normalized_weights = normalize_axis(weights)
     squared_weights = weights**2
 
     return  sqrt(sum(squared_weights*variances,axis=per_sample_axis))
 
+def normalize_axis(a):
+    """Normalize a 1d numpy array by dividing each element by the total for the array"""
+    return a /sum(a)
 
 def thresholded_brownian_probability(start_state,var,d,min_val=0.0,increment=1.0,\
     trait_prob_cutoff = 0.01):
@@ -322,7 +350,12 @@ def brownian_motion_var(d,brownian_motion_parameter):
     brownian_motion_parameter -- variance for brownian_motion (must be calculated
     on the same tree as d).  Typically this comes from an ancestral
     state reconstruction method such as the ace function in the ape R package"""
-    return d*brownian_motion_parameter
+    #print "d:",d
+    #print "brownian_motion_parameter:",brownian_motion_parameter
+
+    result =  d*array(brownian_motion_parameter)
+    #print "result var:",result
+    return result
 
 def weighted_average_variance_prediction(tree, node_to_predict,\
   most_recent_reconstructed_ancestor=None, ancestral_variance=None,\
@@ -387,13 +420,18 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
    
     n_traits = len(ancestral_variance)
     #print "n_traits:",n_traits
+    
     all_weights = []
     all_variances = []
 
     ancestor_to_parent_variance =\
         brownian_motion_var(ancestor_distance,brownian_motion_parameter)
+    #print "anc_to_parent:",ancestor_to_parent_variance
+    #print len(ancestor_to_parent_variance)
+    #print "ancestral_variance:",ancestral_variance
+    #print len(ancestral_variance)
 
-    all_variances.append(ancestral_variance + ancestor_to_parent_variance)
+    all_variances.append(array(ancestral_variance) + ancestor_to_parent_variance)
     
     #Weight is per ancestor, but we need a 2D array, with the other
     #axis equal to the number of traits, so that we can weight each
@@ -439,8 +477,8 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
         #Generate an array of variances for the distance from the 
         #sibling node to the parent node, of length equal to the number
         #of traits
-        child_to_parent_var = array([brownian_motion_var(distance_to_parent,\
-          brownian_motion_parameter)]*n_traits)    
+        child_to_parent_var = brownian_motion_var(distance_to_parent,\
+          brownian_motion_parameter)    
         
         #if verbose:
         #    print "Sibling to parent variation:", child_to_parent_var
@@ -473,17 +511,22 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
 
 
     parent_variance_all_traits =\
-      variance_of_weighted_mean(all_weights,all_variances,per_sample_axis=1)
+      variance_of_weighted_mean(all_weights,all_variances,per_sample_axis=0)
+    #print "___________" 
+    #print "parent_variance_all_traits:",parent_variance_all_traits
     #This is the variance added due to evolution between the parent and the 
     #predicted node
     #print "parent_variance_all_traits",parent_variance_all_traits 
     d_node_to_parent = node.distance(parent_node)
-    parent_to_node_variance =\
-      array([brownian_motion_var(d_node_to_parent,brownian_motion_parameter)]*\
-      n_traits)
+    #print "about to calc parent to node variance. bm=",brownian_motion_parameter
+    #print "d_node_to_parent:",d_node_to_parent
     
+    parent_to_node_variance = brownian_motion_var(d_node_to_parent,brownian_motion_parameter)
+    #print "parent_to_node_variance:",parent_to_node_variance 
     #We assume variance from the parent to the node is independent of
     #variance from the variance in the parent itself.
+    #print "____________"
+    
     result = parent_variance_all_traits + parent_to_node_variance
     #print "Parent_to_node variance", parent_to_node_variance
     #print "total variances:",result
@@ -897,8 +940,96 @@ def get_nn_by_tree_descent(tree,node_of_interest,filter_by_property = "Reconstru
     return nearest_neighbor,distance
 
 
+def get_brownian_motion_param_from_confidence_intervals(tree,\
+  upper_bound_trait_label,lower_bound_trait_label,trait_label="Reconstruction",confidence=0.95):
+    """Extract a Brownian motion parameter for a trait from confidence interval output
+    tree -- PhyloNode tree object, decorated with confidence interval data
+    upper_bound_trait_label -- the PhyloNode Property in which the upper bound for 95% CIs are stored
+    upper_bound_trait_label -- the PhyloNode Property in which the upper lower bound for 95% CIs are stored
+    
+    The function infers a brownian motion parameter (sigma) for pic ASR data where only
+    95% CIs are available using an approximate, quick and dirty method applicable to large trees with
+    many examples (e.g. all sequenced genomes).
+
+    Essentially, the decay in confidence from each tip with only one sequenced genome
+    to its parent is used to calibrate the decrease in confidence over branch length.
+    
+    Procedure:
+    - Iterate over all the tips in the tree
+    - If it has a trait value, it must be a sequenced genome/characterized organism
+        - Get its parent
+        - If the parent has multiple sequenced children, ignore it
+        - If the parent has only one sequenced child, calculate the brownian motion parameter
+
+    """
+    #variances = []  # holds arrays of variances across traits for each sequenced tip
+    #distances = []  # holds a single distnace for each sequenced tip to its parent
+    tips_with_traits = 0
+    for tip in tree.iterTips():
+        if getattr(tip,trait_label,None) is not None:
+            tips_with_traits += 1
+            # In a characterized tip
+            tip_parent = tip.Parent
+            more_than_one_annotated_child = False
+            for c in tip_parent.Children:
+                #TODO: Should this just be the weighted average variance of 
+                #children?
+                if c.Name == tip.Name:
+                    continue
+                else:
+                   if getattr(c,trait_label,None):
+                       more_than_one_annotated_child = True
+                       break
+            if more_than_one_annotated_child:
+                #print "Skipping node...multiple annotated children"
+                continue
+
+            dist = tip.distance(tip_parent)
+            #parent_variance = tip_parent.distance(tip)
+            upper_bounds = getattr(tip_parent,upper_bound_trait_label)
+            lower_bounds = getattr(tip_parent,lower_bound_trait_label)
+            traits = getattr(tip_parent,trait_label)
+            if traits is None:
+                #print "Skipping node...no ASR value for parent"
+                continue
+                #raise ValueError("No reconstructed trait values available for internal node.  Cannot infer brownian motion parameter from confidence intervals")
+            per_trait_variances = []
+            #print "LEN TRAITS:",len(traits)
+            #print "upper_bounds:",upper_bounds
+            #print "lower_bounds:",lower_bounds
+            for i in range(len(traits)):
+                #print "Finding variance for trait %i of tip %s" %(i,tip.Name)
+                means, var = fit_normal_to_confidence_interval(upper_bounds[i],lower_bounds[i],\
+                    mean=traits[i], confidence = 0.95)
+                per_trait_variances.append(var)
+            #print tip.Name,"\tPER TRAIT VARIANCES:\t",per_trait_variances
+            #Empirically these are invariant by tip, so just take one example 
+            variances=array(per_trait_variances)
+            distances=dist
+            break
+    if tips_with_traits == 0:
+        raise ValueError("No tips have trait values annotated under label:"+trait_label)
+    #now just average variances/d for all examples to get the brownian motion param
+    #print "variances:", variances
+    #print "distances:", distances
+    #Length should be # of traits
+    #brownian_motion_params = array([v/(distances[i]+eps) for i,v in enumerate(variances)])
+    eps = 1e-10 # to avoid divide by zero errors
+    brownian_motion_params = array(variances/(dist+eps))
+    #print "brownian motion parameters:",brownian_motion_params
+    #Length of each per tip brownian_motion_params entry should equal # of traits
+    # Now average the per-tip arrays to get the array for the traits overall
+    
+    #average_brownian_motion_params = mean(brownian_motion_params,axis=1,keepdims=True) 
+    #print "average axis0:",average_brownian_motion_params
+    #print "average axis1:",mean(brownian_motion_params,axis=1) 
+    #return average_brownian_motion_params
+    return brownian_motion_params
+
+
+
 def predict_traits_from_ancestors(tree,nodes_to_predict,\
-    trait_label="Reconstruction",use_self_in_prediction=True,\
+    trait_label="Reconstruction",\
     weight_fn=linear_weight, verbose = False,\
     calc_confidence_intervals=False,brownian_motion_parameter=None,\
     upper_bound_trait_label=None,lower_bound_trait_label=None):
@@ -914,12 +1045,6 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     trait to be reconstructed is stored.  This attribute should
     contain a numpy array of trait values (which can be set to None if 
     not known)
-
-    use_self_in_prediction -- if set to True, nodes that already
-    have a trait value will be predicted using that trait value.
-    If set to False, each node will ignore it's own traits when performing
-    predictions, which can be useful for validation (otherwise a tree 
-    would need to be generated in which known nodes have their data removed)
 
     verbose -- output verbose debugging info 
 
@@ -939,6 +1064,13 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
     lower_bound_trait_label -- as upper_bound_trait_label, but for the lower 
     confidence limit
+    
+    Output depends on whether calculate_confidence_intervals is True.
+    If False:
+        Returns an array of predicted trait values 
+    If True:
+        Returns predicted trait values, a dict  of  variances for each trait
+        and a dict with confidence interval information.
     """
     #if we're calculating confidence intervals, make sure we have the relevant information
     if calc_confidence_intervals:
@@ -951,14 +1083,23 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
     #result_tree = tree.deepcopy()
     results = {}
     variance_result = {}
-    n_traits = None    
+    confidence_interval_results = defaultdict(dict)
+    n_traits = None
+    #Set up a dict to hold alredy sequenced genomes/tips with known character values
+    tips_with_prior_info = {}
+    
+    #Calculate 1% progress so verbose output isn't too overwhelming.
     one_percent_progress = max(1,int((len(nodes_to_predict))*0.01))
-    print_this_node = False
     if verbose:
         print "Every %ith node prediction will be printed" % one_percent_progress
 
+    #Interate through nodes, calculating trait predictions,
+    #and (if requested) variances and confidence intervals 
+    
+    print_this_node = False
     for i,node_label in enumerate(nodes_to_predict):
         if verbose:
+            #Only prent every 1/100 tips predicted
             if i%one_percent_progress==0:
                 print_this_node = True
             else:
@@ -987,43 +1128,40 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
                   "The number of traits in the array for node %s (%i) does not match other nodes (%i)" %(\
                    node_to_predict,len(traits),n_traits))
         
-                
-        if not use_self_in_prediction:
-            # ignore knowledge about self without modifying tree
-            traits = None 
-        
+        #If we already know the answer (because a genome is sequenced), skip 
+        #the prediction step, and use the known answer.
+        if traits is not None:
+            # if we already know the traits (e.g. from a sequenced genome)
+            # just predict those traits
+            tips_with_prior_info[node_label]=traits
+            #These will overwrite predictions downstream
+            #predictions are still performed to roughly estimate variance
+            #which will still be non-zero due to within-OTU effects
+
+        #Find ancestral states, possibly with variance values
         if calc_confidence_intervals:
             ancestral_states,ancestral_variance =\
               get_most_recent_ancestral_states(node_to_predict,trait_label,\
               upper_bound_trait_label=upper_bound_trait_label,\
               lower_bound_trait_label=lower_bound_trait_label)
-
+        
+        #Find most recent ancestral node with ASR values      
         most_recent_reconstructed_ancestor =\
-          get_most_recent_reconstructed_ancestor(node_to_predict,trait_label)  
-        #print "Nearest ancestral states for node:",\
-        #  node_to_predict.Name,"=",ancestral_states 
-       
-
-        #Weighted average prediction from last reconstructed ancestor
+            get_most_recent_reconstructed_ancestor(node_to_predict,trait_label)  
+        #print "Calc_confidence_intervals:",calc_confidence_intervals
+        #print "most_recent_reconstructed_ancestor",most_recent_reconstructed_ancestor
+        #Perform point estimate of trait values using weighted-average
+        #prediction from last reconstructed ancestor
         prediction =\
               weighted_average_tip_prediction(tree,node_to_predict.Name,\
               most_recent_reconstructed_ancestor =\
               most_recent_reconstructed_ancestor,\
               weight_fn = weight_fn)
-        
-        #print "Prediction:", prediction
-        
-        #import pdb; pdb.set_trace()
-
         #round all predictions to whole numbers
         prediction=around(prediction)
-        
         results[node_label] = prediction
         
-        
-        
         #Now calculate variance of the estimate if requested
-
         if calc_confidence_intervals:
             variances =\
               weighted_average_variance_prediction(tree,node_to_predict.Name,\
@@ -1032,10 +1170,15 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
               most_recent_reconstructed_ancestor,\
               ancestral_variance=ancestral_variance,\
               brownian_motion_parameter=brownian_motion_parameter)
+            
+            #lower_95_CI,upper_95_CI =\
+            #      calc_confidence_interval_95(prediction,variances)     
             #print dir(variances)        
-            variance_result[node_label] = {"variance:":variances.tolist()}
+            variance_result[node_label] = {"variance":variances.tolist()}
             #print "VARIANCES:",variances
-        
+            lower_95_CI,upper_95_CI = calc_confidence_interval_95(prediction,variances)
+            confidence_interval_results[node_label]['lower_CI']=lower_95_CI
+            confidence_interval_results[node_label]['upper_CI']=upper_95_CI
 
 
         if print_this_node:
@@ -1046,14 +1189,14 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
             if calc_confidence_intervals:
                 print "First %i trait variances:%s" %(n_traits_to_print,\
                   ','.join(map(str,list(variances[:n_traits_to_print]))))
-                lower_95_CI,upper_95_CI =\
-                  calc_confidence_interval_95(prediction,variances)     
-                 
                 print "Lower 95% confidence interval:",lower_95_CI[:n_traits_to_print]
                 print "Upper 95% confidence interval:",upper_95_CI[:n_traits_to_print]
     
+    #Overwrite known results from the dict of known results
+    results.update(tips_with_prior_info)
+
     if calc_confidence_intervals:
-        return results,variance_result
+        return results,variance_result, confidence_interval_results
     else:
         return results
 
@@ -1063,18 +1206,18 @@ def calc_confidence_interval_95(predictions,variances,round_CI=True,\
     stdev = sqrt(variances)
     pred = predictions
     CI_95 =  1.96*stdev
-    lower_95_CI = max([0.0]*len(pred),pred - CI_95)
+    lower_95_CI = numpy_max([0.0]*len(pred),pred - CI_95)
     upper_95_CI = around(pred + CI_95)
     if round_CI:
         lower_95_CI = around(lower_95_CI)
         upper_95_CI = around(upper_95_CI)
     if min_val is not None:
-        lower_95_CI = max(min_val,lower_95_CI)
-        upper_95_CI = max(min_val,upper_95_CI)
+        lower_95_CI = numpy_max(min_val,lower_95_CI)
+        upper_95_CI = numpy_max(min_val,upper_95_CI)
 
     if max_val is not None:
-        lower_95_CI = min(max_val,lower_95_CI)
-        upper_95_CI = min(max_val,upper_95_CI)
+        lower_95_CI = numpy_min(max_val,lower_95_CI)
+        upper_95_CI = numpy_min(max_val,upper_95_CI)
     
     return lower_95_CI,upper_95_CI
 
