@@ -22,6 +22,7 @@ from os import path
 from os.path import join
 from picrust.util import get_picrust_project_dir
 import gzip
+import re
 
 script_info = {}
 script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
@@ -123,7 +124,13 @@ def main():
         
     make_output_dir_for_file(opts.output_metagenome_table)
     if(opts.format_tab_delimited):
-        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key="KEGG Pathways",header_value="KEGG Pathways",metadata_formatter=lambda s: '|'.join(['; '.join(l) for l in s])))
+        #peak at first observation to decide on what observeration metadata to output in tab-delimited format
+        (obs_val,obs_id,obs_metadata)=predicted_metagenomes.iterObservations().next()
+        #we pick the metadata field that contains the description (e.g. KEGG_Description or COG_Description)
+        h = re.compile('.*Description')
+        metadata_name=filter(h.search,obs_metadata.keys())[0]
+
+        open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key=metadata_name,header_value=metadata_name))
     else:
         open(opts.output_metagenome_table,'w').write(format_biom_table(predicted_metagenomes))
 
