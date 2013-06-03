@@ -100,6 +100,7 @@ def main():
             from qiime.test import run_script_usage_tests
         except ImportError:
             print "QIIME not installed so not running script tests."
+            opts.suppress_script_usage_tests=True
         else:
             test_data_dir = join(get_picrust_project_dir(),'picrust_test_data')
             scripts_dir  = join(get_picrust_project_dir(),'scripts')
