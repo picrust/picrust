@@ -32,6 +32,8 @@ def system_call(cmd, shell=True):
 
     Please see Python's subprocess.Popen for a description of the shell
     parameter and how cmd is interpreted differently based on its value.
+    
+    This code was copied from QIIME's qiime_system_call() (util.py) function on June 3rd, 2013.
     """
     proc = Popen(cmd, shell=shell, universal_newlines=True, stdout=PIPE,
                  stderr=PIPE)
