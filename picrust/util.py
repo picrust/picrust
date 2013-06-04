@@ -22,6 +22,26 @@ from biom.table import SparseOTUTable, DenseOTUTable, SparsePathwayTable, \
   SparseTaxonTable, DenseTaxonTable, table_factory
 from biom.parse import parse_biom_table, convert_biom_to_table, \
   convert_table_to_biom
+from subprocess import Popen, PIPE, STDOUT
+
+def system_call(cmd, shell=True):
+    """Call cmd and return (stdout, stderr, return_value).
+
+    cmd can be either a string containing the command to be run, or a sequence
+    of strings that are the tokens of the command.
+
+    Please see Python's subprocess.Popen for a description of the shell
+    parameter and how cmd is interpreted differently based on its value.
+    
+    This code was copied from QIIME's qiime_system_call() (util.py) function on June 3rd, 2013.
+    """
+    proc = Popen(cmd, shell=shell, universal_newlines=True, stdout=PIPE,
+                 stderr=PIPE)
+    # communicate pulls all stdout/stderr from the PIPEs to 
+    # avoid blocking -- don't remove this line!
+    stdout, stderr = proc.communicate()
+    return_value = proc.returncode
+    return stdout, stderr, return_value
 
 def file_contains_nulls(file):
     """Checks given file for null characters. These are sometimes created on SGE clusters when system IO is overloaded."""
