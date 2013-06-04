@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 #
-# suite of biom format unit tests.
 # run suite by executing this file
-# addapted from PyCogent and biom-format alltests.py
+# adapted from PyCogent and QIIME alltests.py
 # https://github.com/pycogent
-# https://github.com/biom-format/
+# https://github.com/qiime
 
-#import sys, os
 from os import walk, environ
 from sys import exit
-#from os.path import split, splitext, join, exists, abspath
 from os.path import join, abspath, dirname, exists, split
 import re
 from glob import glob
@@ -18,7 +15,7 @@ from picrust.util import get_picrust_project_dir, system_call
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
-__credits__ = ["Jose Carlos Clemente Litran", "Daniel McDonald",
+__credits__ = ["Morgan Langille","Jose Carlos Clemente Litran", "Daniel McDonald",
                "Greg Caporaso", "Jai Ram Rideout"]
 __license__ = "GPL"
 __version__ = "0.9.1-dev"
