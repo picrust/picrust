@@ -49,6 +49,7 @@ script_info['output_description']= "This prints the PICRUSt settings to the scre
 script_info['required_options'] = []
 script_info['optional_options'] = []
 script_info['version'] = __version__
+script_info['help_on_no_arguments'] = False
 
 
 def get_script_version():
@@ -81,8 +82,11 @@ def print_picrust_config():
         print "%*s:\t%s" % (max_len,v[0],v[1])
     print ""
 
-
-if __name__ == '__main__':
+def main():
     option_parser, opts, args = parse_command_line_parameters(**script_info)
 
     print_picrust_config()
+
+
+if __name__ == '__main__':
+    main()
