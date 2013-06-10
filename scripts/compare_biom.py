@@ -46,63 +46,14 @@ script_info['optional_options'] = [
 script_info['disallow_positional_arguments'] = False
 script_info['version'] = __version__
 
+def transpose_biom(table):
+    #files must be in dense format 
+    if not table.__class__.__name__.startswith("Dense"):
+        raise ValueError, "Only 'Dense' biom type tables can be compared. Please convert and try again." 
+    return table_factory(table._data.T,table.ObservationIds,table.SampleIds, constructor=DenseOTUTable)
 
 
-
-def match_biom_tables_by_observation(observed_table,expected_table_keep,verbose=False):
-
-    expected_table = expected_table_keep.copy()
-    overlapping_obs_ids = list(set(observed_table.ObservationIds) &
-                            set(expected_table.ObservationIds))
-   
-    if len(overlapping_obs_ids) < 1:
-        print "obs ids:",observed_table.ObservationIds[0:10]
-        print "exp ids:",expected_table.ObservationIds[0:10]
-        
-        raise ValueError,\
-         "No observation ids are in common  between the observed and expected tables, so no evaluations can be performed."
-
-    overlapping_sample_ids = list(set(observed_table.SampleIds) &
-                            set(expected_table.SampleIds))
-
-
-    if len(overlapping_sample_ids) != len(observed_table.SampleIds) or len(overlapping_sample_ids) != len(expected_table.SampleIds):
-        print "obs ids:",observed_table.SampleIds
-        print "exp ids:",expected_table.SampleIds
-        
-        raise ValueError,\
-         "Tables do not have the same samples. Can't currently compare these types of tables."
-
-    #ensure samples are in same order
-    if verbose:
-        print "Sorting samples in predicted table..."
-    observed_table=observed_table.sortSampleOrder(overlapping_sample_ids)
-
-    if verbose:
-        print "Sorting samples in expected table..."
-    expected_table=expected_table.sortSampleOrder(overlapping_sample_ids)
-
-    # create lists to contain filtered data - we're going to need the data in 
-    # numpy arrays, so it makes sense to compute this way rather than filtering
-    # the tables
-    obs_data = {}
-    exp_data = {}
-    
-    #observed_table=observed_table.normObservationBySample()
-    
-    # build lists of filtered data
-    for obs_id in overlapping_obs_ids:
-        obs_data[obs_id]=observed_table.observationData(obs_id)
-        exp_data[obs_id]=expected_table.observationData(obs_id)
-
-    #print obs_data
-    #print exp_data
-#    flat_obs_data = ravel(array(obs_data))
-#    flat_exp_data = ravel(array(exp_data))
-  #  return flat_obs_data,flat_exp_data
-    return obs_data,exp_data
-
-def match_biom_tables_by_sample(observed_table,expected_table_keep,verbose=False,limit_to_expected_observations=False,limit_to_observed_observations=False,normalize=False,shuffle_samples=False):
+def match_biom_tables(observed_table,expected_table_keep,verbose=False,limit_to_expected_observations=False,limit_to_observed_observations=False,normalize=False,shuffle_samples=False):
    
     expected_table = expected_table_keep.copy()
 
@@ -184,8 +135,7 @@ def match_biom_tables_by_sample(observed_table,expected_table_keep,verbose=False
     for sample_id in overlapping_sample_ids:
         exp_data[sample_id]=expected_table.sampleData(sample_id)
 
-    #import pdb; pdb.set_trace()
-
+   
     if shuffle_samples:
         if verbose:
             print "Randomly shufflying sample ids..."
@@ -235,23 +185,26 @@ def main():
 
         obs_table =parse_biom_table(open(observed_file,'U'))
 
+        if opts.compare_observations:
+            if verbose:
+                print "Transposing tables to allow evaluation of observations (instead of samples)..."
+            obs_table=transpose_biom(obs_table)
+            exp_table=transpose_biom(exp_table)
+
         if verbose:
            print "Matching predicted and expected tables..."    
 
-        if opts.compare_observations:
-            obs,exp=match_biom_tables_by_observation(obs_table,exp_table,verbose=verbose)
-        else:
-            obs,exp=match_biom_tables_by_sample(obs_table,exp_table,verbose=verbose,limit_to_expected_observations=opts.limit_to_expected_observations,limit_to_observed_observations=opts.limit_to_observed_observations,normalize=opts.normalize,shuffle_samples=opts.shuffle_samples)
+        obs,exp=match_biom_tables(obs_table,exp_table,verbose=verbose,limit_to_expected_observations=opts.limit_to_expected_observations,limit_to_observed_observations=opts.limit_to_observed_observations,normalize=opts.normalize,shuffle_samples=opts.shuffle_samples)
            
         if verbose:
             print "Calculating accuracy stats for all observations..."
 
-
+        #import pdb; pdb.set_trace()
         for i in obs:
             if verbose:
                 print "Calculating stats for: ",i
             if opts.not_relative_abundance_scores:
-                results=calculate_accuracy_stats_from_observations(obs[i],exp[i],success_criterion='int_exact')
+                results=calculate_accuracy_stats_from_observations(obs[i],exp[i],success_criterion='binary')
             else:
                 results=calculate_accuracy_stats_from_observations(obs[i],exp[i],success_criterion='ra_exact')
 
@@ -262,7 +215,7 @@ def main():
                 out_fh.write(delimiter.join(['file','label']+header_keys)+"\n")
 
             #print results using same order as header
-            values=[observed_file_name,i]+[results[x] for x in header_keys]
+            values=[observed_file_name,i]+['{0:.3g}'.format(results[x]) for x in header_keys]
             out_str=delimiter.join(map(str,values))+"\n"
             out_fh.write(out_str)
 
