@@ -26,15 +26,23 @@ import gzip
 script_info = {}
 script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","Predict metagenomes from genomes.biom and otus.biom.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
-                               ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt")]
+script_info['script_usage'] = [("","Predict KO abundances for a given OTU table.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
+                               ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt"),
+                               ("","Predict COG abundances for a given OTU table.","%prog -i normalized_otus.biom -t COG -o predicted_metagenomes.biom")]
 script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
  make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome')
 ]
+type_of_prediction_choices=['KO','COG']
+
 script_info['optional_options'] = [\
-    make_option('-c','--input_count_table',default=join(get_picrust_project_dir(),'picrust','data','ko_precalculated.biom.gz'),type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped) [default: %default]'),
+    make_option('-t','--type_of_prediction',default='KO',type="choice",\
+                    choices=type_of_prediction_choices,\
+                    help='Type of functional predictions. Valid choices are: '+\
+                    ', '.join(type_of_prediction_choices)+\
+                    ' [default: %default]'),
+    make_option('-c','--input_count_table',default=None,type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped). Note: using this option overrides --type_of_prediction. [default: %default]'),
     make_option('-a','--accuracy_metrics',default=None,type="new_filepath",help='If provided, calculate accuracy metrics for the predicted metagenome.  NOTE: requires that per-genome accuracy metrics were calculated using predict_traits.py during genome prediction (e.g. there are "NSTI" values in the genome .biom file metadata)'),
     make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
   make_option('-f','--format_tab_delimited',action="store_true",default=False,help='output the predicted metagenome table in tab-delimited format [default: %default]')]
@@ -43,12 +51,36 @@ script_info['version'] = __version__
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
+
     if opts.verbose:
-        print "Loading otu table: ",opts.input_otu_table
+        print "Loading OTU table: ",opts.input_otu_table
 
     otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
-    ext=path.splitext(opts.input_count_table)[1]
-   
+
+    if opts.verbose:
+        print "Done loading OTU table containing %i samples and %i OTUs." %(len(otu_table.SampleIds),len(otu_table.ObservationIds))
+    if(opts.input_count_table is None):
+        if(opts.type_of_prediction == 'KO'):
+            input_count_table=join(get_picrust_project_dir(),'picrust','data','ko_precalculated.biom.gz')
+        elif(opts.type_of_prediction == 'COG'):
+            input_count_table=join(get_picrust_project_dir(),'picrust','data','cog_precalculated.biom.gz')
+    else:
+        input_count_table=opts.input_count_table
+
+    if opts.verbose:
+        print "Loading trait table: ", input_count_table
+
+    
+    ext=path.splitext(input_count_table)[1]
+    
+    if (ext == '.gz'):
+        genome_table_str = gzip.open(input_count_table,'rb').read()
+    else:
+        genome_table_str = open(input_count_table,'U').read()
+    
+    #In the genome/trait table genomes are the samples and 
+    #genes are the observations
+    
     if not opts.suppress_subset_loading:
         #Now we want to use the OTU table information
         #to load only rows in the count table corresponding
@@ -57,34 +89,15 @@ def main():
 
         if opts.verbose:
             print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
-    
 
-    if opts.verbose:
-        print "Loading count table: ", opts.input_count_table
-    #if (ext == '.gz'):
-    #    genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
-    #else:
-    #    genome_table = parse_biom_table(open(opts.input_count_table,'U'))
-
-    if (ext == '.gz'):
-        genome_table_str = gzip.open(opts.input_count_table,'rb').read()
-    else:
-        genome_table_str = open(opts.input_count_table,'U').read()
-    
-    #In the genome/trait table genomes are the samples and 
-    #genes are the observations
-    
-    if not opts.suppress_subset_loading:
-        if opts.verbose:
-            print "Building a biom Table object from relevant entries"
         genome_table = load_subset_from_biom_str(genome_table_str,ids_to_load,axis='samples')
     else:
         if opts.verbose:
-            print "Loading *full* count table because --suppress_subset_loading was passed. This may result in high memory usage"
+            print "Loading *full* trait table because --suppress_subset_loading was passed. This may result in high memory usage."
         genome_table = parse_biom_table(genome_table_str)
     
     if opts.verbose:
-        print "Done loading trait table with %i samples" %(len(genome_table.SampleIds))
+        print "Done loading trait table containing %i functions for %i organisms." %(len(genome_table.ObservationIds),len(genome_table.SampleIds))
 
     make_output_dir_for_file(opts.output_metagenome_table)
 
