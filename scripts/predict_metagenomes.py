@@ -126,12 +126,23 @@ def main():
     if(opts.format_tab_delimited):
         #peak at first observation to decide on what observeration metadata to output in tab-delimited format
         (obs_val,obs_id,obs_metadata)=predicted_metagenomes.iterObservations().next()
-        #we pick the metadata field that contains the description (e.g. KEGG_Description or COG_Description)
-        h = re.compile('.*Description')
-        metadata_name=filter(h.search,obs_metadata.keys())[0]
 
+        #see if there is a metadata field that contains the "Description" (e.g. KEGG_Description or COG_Description)
+        h = re.compile('.*Description')
+        metadata_names=filter(h.search,obs_metadata.keys())
+        if metadata_names:
+            #use the "Description" field we found
+            metadata_name=metadata_names[0]
+        elif(obs_metadata.keys()):
+            #if no "Description" metadata then just output the first observation metadata
+            metadata_name=(obs_metadata.keys())[0]
+        else:
+            #if no observation metadata then don't output any
+            metadata_name=None
+            
         open(opts.output_metagenome_table,'w').write(predicted_metagenomes.delimitedSelf(header_key=metadata_name,header_value=metadata_name))
     else:
+        #output in BIOM format
         open(opts.output_metagenome_table,'w').write(format_biom_table(predicted_metagenomes))
 
 if __name__ == "__main__":
