@@ -802,7 +802,6 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
             #Mask out self
             dist_to_curr_tip[i] = big_number
         
-        #min_dist = min(dist_to_curr_tip)
         min_dist = dist_to_curr_tip.min()
         if verbose:
             print t.Name," d(NN):",min_dist
