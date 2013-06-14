@@ -599,7 +599,7 @@ class TestPredictTraits(TestCase):
           get_most_recent_reconstructed_ancestor(node)
         
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,\
+          node=node,\
           most_recent_reconstructed_ancestor=\
           most_recent_reconstructed_ancestor)
             
@@ -620,7 +620,7 @@ class TestPredictTraits(TestCase):
         most_recent_reconstructed_ancestor =\
           get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,\
+          node=node,\
           most_recent_reconstructed_ancestor=\
           most_recent_reconstructed_ancestor)
         exp = traits["I1"]
@@ -643,7 +643,7 @@ class TestPredictTraits(TestCase):
         most_recent_reconstructed_ancestor =\
           get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,\
+          node=node,\
           most_recent_reconstructed_ancestor=\
           most_recent_reconstructed_ancestor)
 
@@ -664,7 +664,7 @@ class TestPredictTraits(TestCase):
         most_recent_reconstructed_ancestor =\
           get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,\
+          node=node,\
           most_recent_reconstructed_ancestor=\
           most_recent_reconstructed_ancestor)
 
@@ -687,7 +687,7 @@ class TestPredictTraits(TestCase):
         most_recent_reconstructed_ancestor =\
           get_most_recent_reconstructed_ancestor(node)
         prediction = weighted_average_tip_prediction(tree=tree,\
-          node_to_predict=node_to_predict,\
+          node=node,\
           most_recent_reconstructed_ancestor=\
           most_recent_reconstructed_ancestor)
 
