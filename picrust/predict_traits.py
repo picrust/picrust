@@ -802,29 +802,11 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
             #Mask out self
             dist_to_curr_tip[i] = big_number
         
-        min_dist = min(dist_to_curr_tip)
+        #min_dist = min(dist_to_curr_tip)
+        min_dist = dist_to_curr_tip.min()
         if verbose:
             print t.Name," d(NN):",min_dist
         min_distances[t.Name]=min_dist
-
-    
-    
-    
-    #for tip in tips_to_examine:
-    #    
-    #    nn = get_nearest_annotated_neighbor(tree, tip.Name, trait_label = trait_label,\
-    #        include_self=include_self)
-    #    
-    #    # NOTE: probably need to use the DM directly, as
-    #    # iterative approaches will be REALLY slow when there are 200k tips.
-    #    
-    #    dist = nn.distance(tip)
-    #    
-    #    if verbose:
-    #        print "Tip: %s --> NN: %s.  Dist = %f" %(tip.Name, nn.Name, dist) 
-    #    
-    #    distances.append(dist)
-        
 
     # Average the nearest sequenced neighbor in each case to get a composite score
     nsti =  sum(min_distances.values())/float(len(min_distances))
