@@ -799,11 +799,15 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         # limit to specified tips if this value is passed
         # this is both faster and allows customized metrics for each OTU table
         # rather than just generically for all sequenced genomes + greengenes
-        tips_to_examine = [tree.getNodeMatchingName(t) for t in limit_to_tips]
+        limit_to_tips = set(limit_to_tips)
+        tips_to_examine = [t for t in tree_tips if t.Name in limit_to_tips]
     else:
         # If no set is specficied, calculate for all tips
         tips_to_examine = tree_tips
-    
+
+    # tips_to_examine is used as a lookup downstream
+    tips_to_examine = set(tips_to_examine)
+
     if verbose:
         print "Calculating Nearest Sequenced Taxon Index (NTSI):"
         print "NOTE: this can be slow.  Run without -a to disable"
@@ -1095,7 +1099,12 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
     #Interate through nodes, calculating trait predictions,
     #and (if requested) variances and confidence intervals 
-    
+   
+    # cache nodes to avoid tree traversals
+    nodes_to_predict = set(nodes_to_predict)
+    node_lookup = dict([(n.Name,n) for n in tree.tips() \
+                         if n.Name in nodes_to_predict])
+
     print_this_node = False
     for i,node_label in enumerate(nodes_to_predict):
         if verbose:
@@ -1107,7 +1116,7 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
         if print_this_node:
             print "Predicting traits for node %i/%i:%s" %(i,len(nodes_to_predict),node_label)
-        node_to_predict = tree.getNodeMatchingName(node_label)
+        node_to_predict = node_lookup[node_label]
         
         traits = getattr(node_to_predict,trait_label)
         
