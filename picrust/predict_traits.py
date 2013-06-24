@@ -357,7 +357,7 @@ def brownian_motion_var(d,brownian_motion_parameter):
     #print "result var:",result
     return result
 
-def weighted_average_variance_prediction(tree, node_to_predict,\
+def weighted_average_variance_prediction(tree, node,\
   most_recent_reconstructed_ancestor=None, ancestral_variance=None,\
   brownian_motion_parameter=None,\
   trait_label="Reconstruction",\
@@ -386,32 +386,20 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
     variance in ancestral state estimates due to error in reconstruction,
     and is instead more analagous to a rate of evolution.
     """
-    
-    node = tree.getNodeMatchingName(node_to_predict) 
     parent_node =  node.Parent
-    #sibling_nodes = node.siblings()
-    #print "Node:",node
-    #print "Trait label:", trait_label 
-    #print "Trait label:", trait_label 
     most_rec_recon_anc = most_recent_reconstructed_ancestor
-    #  get_most_recent_reconstructed_ancestor(node,trait_label)
     
     #Preparation
     # To handle empty (None) values, we fill unknown values
     # in the ancestor with values in the tips, and vice versa
-
-
+    
     #STEP 1:  Infer traits, weight for most recently 
     #reconstructed ancestral node
     ancestor_distance =  parent_node.distance(most_rec_recon_anc)
     ancestor_weight = weight_fn(ancestor_distance)
-    #print "Ancestor name:",most_rec_recon_anc 
-    #print "Ancestor distance:",ancestor_distance 
-    #print "Ancestor traits:",anc_traits
 
     #STEP 2:  Infer Parent node traits
     
-
     #Note ancestral_variance is an array with length
     #equal to number of traits
 
@@ -419,17 +407,12 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
     #reconstructed ancestor and the parent of the node to predict
    
     n_traits = len(ancestral_variance)
-    #print "n_traits:",n_traits
     
     all_weights = []
     all_variances = []
 
     ancestor_to_parent_variance =\
         brownian_motion_var(ancestor_distance,brownian_motion_parameter)
-    #print "anc_to_parent:",ancestor_to_parent_variance
-    #print len(ancestor_to_parent_variance)
-    #print "ancestral_variance:",ancestral_variance
-    #print len(ancestral_variance)
 
     all_variances.append(array(ancestral_variance) + ancestor_to_parent_variance)
     
@@ -438,35 +421,21 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
     # trait x organism combination
     all_weights.append(array([ancestor_weight]*n_traits))
 
-    #if verbose:
-    #    print "ancestral variance:",ancestral_variance
-    #    print "ancestor_to_parent_distance:", ancestor_distance
-    #    print "ancestror to parent variance:",ancestor_to_parent_variance
-    #    print "ancestor weight:",ancestor_weight
-    #    print "all_variancesvariances(starting_total):",all_variances
-    #    print "Siblings_to_consider:",len(parent_node.Children)
-    
     total_weights = array([ancestor_weight]*len(ancestral_variance))
    
-
-
     #Need to end up with 2D arrays of weights and variances
     #where axis 1 is within-sample
     
-    #print "n_traits:",n_traits
     for child in parent_node.Children:
         child_traits = getattr(child,trait_label,None)
-        #print child.Name,child_traits
         if child_traits is None:
             #These nodes are skipped, so they 
             #don't contribute to variance in the estimate
             continue
-        #print "number_of_traits:",len(child_traits)
+        
         if len(child_traits) != n_traits:
             raise ValueError("length of ancestral traits [%i] is not equal to the length of traits [%] in node %s" %(n_traits,len(child_traits),child.Name))
         distance_to_parent = parent_node.distance(child)
-        #if verbose:
-        #    print "Child: %s.  Dist to parent: %f" %(child.Name,distance_to_parent)
         
         organism_weight = weight_fn(distance_to_parent)
         #We've calculated a weight for the *organism*
@@ -480,63 +449,36 @@ def weighted_average_variance_prediction(tree, node_to_predict,\
         child_to_parent_var = brownian_motion_var(distance_to_parent,\
           brownian_motion_parameter)    
         
-        #if verbose:
-        #    print "Sibling to parent variation:", child_to_parent_var
-        
         all_variances.append(child_to_parent_var)
         all_weights.append(weights_per_trait) 
         
         #Need to apply the variance effects of weighting using the set of 
         #weights for each trait
 
-    #print "about to normalize variances to weights"
-    #print "all_variances:",all_variances
-    #print "normalized_variances:",variances
     # STEP 3: Predict target node given parent
-    #print "dir(all_weights):",dir(all_weights) 
-    #print "dir(all_variances):",dir(all_variances) 
     
     if len(all_weights[0]) == 1:
             all_weights = [w[0] for w in all_weights]
-        #all_weights.tolist()
     if len(all_variances[0]) == 1:
             all_variances = [v[0] for v in all_variances]
-        #all_variances.tolist()
     all_weights = array(all_weights)
     all_variances = array(all_variances)
-    #print "all_weights:",all_weights
-    #print "all_variances:",all_variances
-    #print "all_weights.shape",all_weights.shape
-    #print "all_variances.shape",all_variances.shape
-
 
     parent_variance_all_traits =\
       variance_of_weighted_mean(all_weights,all_variances,per_sample_axis=0)
-    #print "___________" 
-    #print "parent_variance_all_traits:",parent_variance_all_traits
+    
     #This is the variance added due to evolution between the parent and the 
     #predicted node
-    #print "parent_variance_all_traits",parent_variance_all_traits 
     d_node_to_parent = node.distance(parent_node)
-    #print "about to calc parent to node variance. bm=",brownian_motion_parameter
-    #print "d_node_to_parent:",d_node_to_parent
     
     parent_to_node_variance = brownian_motion_var(d_node_to_parent,brownian_motion_parameter)
-    #print "parent_to_node_variance:",parent_to_node_variance 
     #We assume variance from the parent to the node is independent of
     #variance from the variance in the parent itself.
-    #print "____________"
     
     result = parent_variance_all_traits + parent_to_node_variance
-    #print "Parent_to_node variance", parent_to_node_variance
-    #print "total variances:",result
-    #if verbose:
-    #    print "total stdev:",sqrt(result)
     return result
 
-
-
-def weighted_average_tip_prediction(tree, node_to_predict,\
+def weighted_average_tip_prediction(tree, node,\
   most_recent_reconstructed_ancestor=None, trait_label="Reconstruction",\
   weight_fn=linear_weight, verbose=False):
     """Predict node traits, combining reconstructions with tip nodes
@@ -558,21 +500,13 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     disregards distance), or neg_exponential_weight (neg. exponential
     weighting by branch length)
     """
-    
-    node = tree.getNodeMatchingName(node_to_predict) 
     parent_node =  node.Parent
-    #sibling_nodes = node.siblings()
-    #print "Node:",node
-    #print "Trait label:", trait_label 
-    #print "Trait label:", trait_label 
+    
     most_rec_recon_anc = most_recent_reconstructed_ancestor
-    #print "most_rec_recon_anc:", most_rec_recon_anc
-    #  get_most_recent_reconstructed_ancestor(node,trait_label)
     
     #Preparation
     # To handle empty (None) values, we fill unknown values
     # in the ancestor with values in the tips, and vice versa
-
 
     #STEP 1:  Infer traits, weight for most recently 
     #reconstructed ancestral node
@@ -584,10 +518,6 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
     else:
         anc_traits = ancestor_distance = ancestor_weight = None
     
-    #print "Ancestor name:",most_rec_recon_anc 
-    #print "Ancestor distance:",ancestor_distance 
-    #print "Ancestor traits:",anc_traits
-
     #STEP 2:  Infer Parent node traits
     
     if anc_traits is not None:
@@ -611,7 +541,6 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
         distance_to_parent = parent_node.distance(child)
         weight = weight_fn(distance_to_parent)
         
-
         if prediction is None and total_weights is None:
             # No ancestral states available
             # Therefore, initialize weights and prediction
@@ -621,7 +550,6 @@ def weighted_average_tip_prediction(tree, node_to_predict,\
             prediction = array(child_traits)*weights
             continue
         
-            
         prediction += array(child_traits)*weight
         total_weights += weight
     
@@ -799,11 +727,15 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
         # limit to specified tips if this value is passed
         # this is both faster and allows customized metrics for each OTU table
         # rather than just generically for all sequenced genomes + greengenes
-        tips_to_examine = [tree.getNodeMatchingName(t) for t in limit_to_tips]
+        limit_to_tips = set(limit_to_tips)
+        tips_to_examine = [t for t in tree_tips if t.Name in limit_to_tips]
     else:
         # If no set is specficied, calculate for all tips
         tips_to_examine = tree_tips
-    
+
+    # tips_to_examine is used as a lookup downstream
+    tips_to_examine = set(tips_to_examine)
+
     if verbose:
         print "Calculating Nearest Sequenced Taxon Index (NTSI):"
         print "NOTE: this can be slow.  Run without -a to disable"
@@ -870,29 +802,10 @@ def calc_nearest_sequenced_taxon_index(tree,limit_to_tips = [],\
             #Mask out self
             dist_to_curr_tip[i] = big_number
         
-        min_dist = min(dist_to_curr_tip)
+        min_dist = dist_to_curr_tip.min()
         if verbose:
             print t.Name," d(NN):",min_dist
         min_distances[t.Name]=min_dist
-
-    
-    
-    
-    #for tip in tips_to_examine:
-    #    
-    #    nn = get_nearest_annotated_neighbor(tree, tip.Name, trait_label = trait_label,\
-    #        include_self=include_self)
-    #    
-    #    # NOTE: probably need to use the DM directly, as
-    #    # iterative approaches will be REALLY slow when there are 200k tips.
-    #    
-    #    dist = nn.distance(tip)
-    #    
-    #    if verbose:
-    #        print "Tip: %s --> NN: %s.  Dist = %f" %(tip.Name, nn.Name, dist) 
-    #    
-    #    distances.append(dist)
-        
 
     # Average the nearest sequenced neighbor in each case to get a composite score
     nsti =  sum(min_distances.values())/float(len(min_distances))
@@ -1095,7 +1008,12 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
     #Interate through nodes, calculating trait predictions,
     #and (if requested) variances and confidence intervals 
-    
+   
+    # cache nodes to avoid tree traversals
+    nodes_to_predict = set(nodes_to_predict)
+    node_lookup = dict([(n.Name,n) for n in tree.tips() \
+                         if n.Name in nodes_to_predict])
+
     print_this_node = False
     for i,node_label in enumerate(nodes_to_predict):
         if verbose:
@@ -1107,7 +1025,7 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
 
         if print_this_node:
             print "Predicting traits for node %i/%i:%s" %(i,len(nodes_to_predict),node_label)
-        node_to_predict = tree.getNodeMatchingName(node_label)
+        node_to_predict = node_lookup[node_label]
         
         traits = getattr(node_to_predict,trait_label)
         
@@ -1153,7 +1071,7 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         #Perform point estimate of trait values using weighted-average
         #prediction from last reconstructed ancestor
         prediction =\
-              weighted_average_tip_prediction(tree,node_to_predict.Name,\
+              weighted_average_tip_prediction(tree,node_to_predict,\
               most_recent_reconstructed_ancestor =\
               most_recent_reconstructed_ancestor,\
               weight_fn = weight_fn)
@@ -1164,7 +1082,7 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         #Now calculate variance of the estimate if requested
         if calc_confidence_intervals:
             variances =\
-              weighted_average_variance_prediction(tree,node_to_predict.Name,\
+              weighted_average_variance_prediction(tree,node_to_predict,\
               weight_fn = weight_fn,\
               most_recent_reconstructed_ancestor =\
               most_recent_reconstructed_ancestor,\
@@ -1259,7 +1177,6 @@ def get_most_recent_ancestral_states(node,trait_label,\
     
     
     """
-    ancestors = node.ancestors()
     for ancestor in node.ancestors():
         trait = getattr(ancestor,trait_label)
         if trait is not None:
@@ -1290,8 +1207,6 @@ def get_most_recent_reconstructed_ancestor(node,trait_label="Reconstruction"):
     
     
     """
-    
-    ancestors = node.ancestors()
     for ancestor in node.ancestors():
         trait = getattr(ancestor,trait_label)
         if trait is not None:
