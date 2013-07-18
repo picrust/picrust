@@ -11,8 +11,8 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from numpy import dot, array, around
-from biom.table import table_factory,SparseGeneTable
+from numpy import dot, array, around, asarray
+from biom.table import table_factory,SparseGeneTable, DenseGeneTable
 from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
 
 def get_overlapping_ids(otu_table,genome_table):
@@ -25,6 +25,68 @@ def get_overlapping_ids(otu_table,genome_table):
          "No common OTUs between the otu table and the genome table, so can't predict metagenome."
     return overlapping_otus
 
+def load_subset_from_precalc(fh, ids_to_load,md_prefix='metadata_'):
+    #first line has to be header
+    header_ids=fh.readline().strip().split('\t')
+    
+    col_meta_locs={}
+    for idx,col_id in enumerate(header_ids):
+        if col_id.startswith(md_prefix):
+            col_meta_locs[col_id[len(md_prefix):]]=idx
+    
+    end_of_data=len(header_ids)-len(col_meta_locs)
+    trait_ids = header_ids[1:end_of_data]
+   
+    col_meta=[]
+    row_meta=[{} for i in trait_ids]
+
+    ids=set(ids_to_load)
+    matching=[]
+    otu_ids=[]
+    for line in fh.readlines():
+        fields = line.strip().split('\t')
+        row_id=fields[0]
+        if row_id in ids:
+            otu_ids.append(row_id)
+            matching.append(map(float,fields[1:end_of_data]))
+
+            #add metadata
+            col_meta_dict={}
+            for meta_name in col_meta_locs:
+                col_meta_dict[meta_name]=fields[col_meta_locs[meta_name]]
+            col_meta.append(col_meta_dict)
+
+            #don't continue going through large file if we already found all the ids we need
+            #ids.remove(row_id)
+            #if not len(ids):
+            #    break
+        elif(row_id.startswith(md_prefix)):
+            #handle metadata
+            
+            #determine type of metadata (this may not be perfect)
+            metadata_type=determine_metadata_type(line)
+            for idx,trait_name in enumerate(trait_ids):
+                row_meta[idx][row_id[len(md_prefix):]]=parse_metadata_field(fields[idx],metadata_type)
+
+    #note that we transpose the data before making biom obj
+    return table_factory(asarray(matching).T,otu_ids,trait_ids,col_meta,row_meta,constructor=DenseGeneTable)
+
+def determine_metadata_type(line):
+    if ';' in line:
+        if '|' in line:
+            return 'list_of_lists'
+        else:
+            return 'list'
+    else:
+        return 'string'
+
+def parse_metadata_field(metadata_str,metadata_format='string'):
+    if metadata_format == 'string':
+        return metadata_str
+    elif metadata_format == 'list':
+        return [e.strip() for e in metadata_str.split(';')]
+    elif metadata_format == 'list_of_lists':
+        return [[e.strip() for e in y.split(';')] for y in metadata_str.split('|')]
              
 def extract_otu_and_genome_data(otu_table,genome_table):
     """Return lists of otu,genome data, and overlapping genome/otu ids
@@ -217,7 +279,7 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     genome_table -- the corresponding set of PICRUST per-OTU genome predictions
     weighted -- if True, normalize by OTU abundance
     """
-    
+
     # identify the overlapping otus that can be used to calculate the NSTI
     overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     total = 0.0 
@@ -227,7 +289,7 @@ def calc_nsti(otu_table,genome_table,weighted=True):
         #print "Curr observed id:",obs_id
         obs_id_idx = genome_table.getSampleIndex(obs_id)
         #observatin_ids.append(genome_table.ObservationIds[obs_id_idx])
-        curr_nsti =  genome_table.SampleMetadata[obs_id_idx]['NSTI']
+        curr_nsti =  float(genome_table.SampleMetadata[obs_id_idx]['NSTI'])
         #print "Current NSTI", curr_nsti
         if weighted:
             curr_counts = otu_table.observationData(obs_id)

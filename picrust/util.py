@@ -180,7 +180,7 @@ def make_output_dir_for_file(filepath):
 
 def format_biom_table(biom_table):
     """ Given a biom-format Table object, returns that Table as a BIOM string"""
-    generated_by_str = "PI-CRUST " + __version__
+    generated_by_str = "PICRUSt " + __version__
     return biom_table.getBiomFormatJsonString(generated_by_str)
 
 def make_output_dir(dirpath, strict=False):
