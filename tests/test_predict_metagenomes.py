@@ -20,7 +20,8 @@ from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids,\
   extract_otu_and_genome_data,transfer_sample_metadata,\
   transfer_observation_metadata,transfer_metadata,\
-  load_subset_from_biom_str,yield_subset_biom_str
+  load_subset_from_biom_str,yield_subset_biom_str,load_subset_from_precalc
+import StringIO
 
 class PredictMetagenomeTests(TestCase):
     """ """
@@ -33,11 +34,23 @@ class PredictMetagenomeTests(TestCase):
         self.genome_table2 = parse_biom_table_str(genome_table2)
         self.predicted_metagenome_table1 = parse_biom_table_str(predicted_metagenome_table1)
         self.predicted_metagenome_table1_with_metadata = parse_biom_table_str(predicted_metagenome_table1_with_metadata)
- 
+        self.precalc_fh = StringIO.StringIO(precalc_str)
+        self.precalc_in_biom = parse_biom_table_str(precalc_in_biom)
+
     def test_predict_metagenomes(self):
         """ predict_metagenomes functions as expected with valid input """
         actual = predict_metagenomes(self.otu_table1,self.genome_table1)
         self.assertEqual(actual,self.predicted_metagenome_table1)
+
+    def test_load_subset_from_precalc(self):
+        """ load_subset_from_precalc functions as expected with valid input """
+        ids_to_load = ['GG_OTU_1','GG_OTU_2']
+       
+        two_taxon_table = load_subset_from_precalc(self.precalc_fh,ids_to_load)
+        self.assertEqualItems(two_taxon_table.SampleIds,ids_to_load)
+
+        self.assertEqual(two_taxon_table,self.precalc_in_biom)
+        
 
     def test_predict_metagenomes_value_error(self):
         """ predict_metagenomes raises ValueError when no overlapping otu ids """
@@ -194,6 +207,17 @@ genome_table2 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metad
 predicted_metagenome_table1 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 5.0], [2, 1, 1.0], [2, 3, 2.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 predicted_metagenome_table1_with_metadata = """{"rows": [{"id": "f1", "metadata": {"KEGG_description":"ko00100    Steroid biosynthesis"}}, {"id": "f2", "metadata": {"KEGG_description":"ko00195   Photosynthesis"}}, {"id": "f3", "metadata": {"KEGG_description":"ko00232    Caffeine metabolism"}}], "format": "Biological Observation Matrix v0.9","data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 5.0], [2, 1, 1.0], [2, 3, 2.0]], "columns": [{"id": "Sample1", "metadata": {"pH":7.0}}, {"id": "Sample2", "metadata": {"pH":8.0}}, {"id": "Sample3", "metadata": {"pH":7.0}}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+
+precalc_str="""#GG_OTU_ID	f1	f2	f3	metadata_NSTI
+GG_OTU_1	1	2	3	1.2
+GG_OTU_2	0	0	0	2.3
+GG_OTU_3	4	4	4	0.5
+metadata_description	f1_desc	f2_desc	f3_desc
+metadata_pathway	f1;l1;l2	f2;l1;l2|f2;l1a;l2a	f3;l3;l2
+metadata_taxonomy	f1;l1;l2	f2;l1;l2	f3;l2;l3
+"""
+
+precalc_in_biom="""{"id": "None","format": "Biological Observation Matrix 1.0.0","format_url": "http://biom-format.org","type": "Gene table","generated_by": "blah","date": "2013-07-18T16:27:22.870919","matrix_type": "dense","matrix_element_type": "float","shape": [3, 2],"data": [[1.0,0.0],[2.0,0.0],[3.0,0.0]],"rows": [{"id": "f1", "metadata": {"taxonomy": ["metadata_taxonomy"], "description": "metadata_description", "pathway": [["metadata_pathway"]]}},{"id": "f2", "metadata": {"taxonomy": ["f1", "l1", "l2"], "description": "f1_desc", "pathway": [["f1", "l1", "l2"]]}},{"id": "f3", "metadata": {"taxonomy": ["f2", "l1", "l2"], "description": "f2_desc", "pathway": [["f2", "l1", "l2"], ["f2", "l1a", "l2a"]]}}],"columns": [{"id": "GG_OTU_1", "metadata": {"NSTI": "1.2"}},{"id": "GG_OTU_2", "metadata": {"NSTI": "2.3"}}]}"""
 
 if __name__ == "__main__":
     main()
