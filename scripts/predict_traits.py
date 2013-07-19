@@ -60,8 +60,8 @@ CONFIDENCE_FORMAT_CHOICES = ['sigma','confidence_interval']
 
 #Add script information
 script_info['script_usage'] = [\
-("Example 1","Required options:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.biom"),\
-("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.biom -l otu_table.tab")
+("Example 1","Required options with NSTI:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab -a nsti.tab"),\
+("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab")
 ]
 #Define commandline interface 
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
@@ -93,7 +93,8 @@ script_info['optional_options'] = [\
    help='the format for the confidence intervals from ancestral state reconstruction. Only needed if passing a reconstruction confidence file with -c or --reconstruction_confidence.  These are typically sigma values for maximum likelihood ASR  methods, but 95% confidence intervals for phylogenetic independent contrasts (e.g. from the ape R packages ace function with pic as the reconstruction method).  Valid choices are:'+",".join(CONFIDENCE_FORMAT_CHOICES)+'. [default: %default]'),\
  make_option('-c','--reconstruction_confidence',\
    type="existing_filepath",default=None,\
-   help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')
+   help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]'),
+   make_option('--output_precalc_file_in_biom',default=False,action="store_true",help='Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]')
 ]
 script_info['version'] = __version__
 
@@ -292,7 +293,8 @@ def main():
             print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
    
         f = open(opts.output_accuracy_metrics,'w+')
-        lines = ["metric\torganism\tvalue\n"]
+        f.write("metric\torganism\tvalue\n")
+        lines =[]
         for organism in accuracy_metric_results.keys():
             for metric in accuracy_metric_results[organism].keys():
                 lines.append('\t'.join([metric,organism,\
@@ -360,57 +362,43 @@ def main():
         error_text = error_template %(opts.prediction_method,\
           ", ".join(METHOD_CHOICES))
 
+
     if opts.verbose:
-        print "Converting results to .biom format for output..."
-    #convert to biom format (and transpose)
-    #In the .biom table, organisms are 'samples' and traits are 'observations 
-    #(by analogy with a metagenomic sample)
-    
-    #Therefore, we associate the trait variances with the per-observation metadata
-    
-    #merge accuracy_metrics and variances
-    #sample_metadata = {}
-    #for sample_id in variances.keys():
-    #    sample_metadata[sample_id] = variances[sample_id]
-    #    if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
-    #        sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
-   
+        print "Done making predictions."
 
-
-    #Generate the table of biom predictions
-    
-    biom_predictions=biom_table_from_predictions(predictions,table_headers,\
-      observation_metadata=None,\
-      sample_metadata=accuracy_metric_results,convert_to_int=False)
-   
-    
-    
-    #print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
-    #print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
-    #print "Each observation:", biom_predictions.ObservationIds
-    #print "dir(biom_predictions):", dir(biom_predictions)
-    #print "Observation Metadata:",biom_predictions.ObservationMetadata
-    #print "Sample Metadata:",biom_predictions.SampleMetadata
-    #if variances is not None:
-    #    if opts.verbose:
-    #        print "Adding variance information to output .biom table, as per-observation (i.e. per gene) metadata with key 'variance'..."
-    #    #md should be of the form {observation_id:{dict_of_metadata}}
-    #   biom_predictions.addObservationMetadata(variances)
-    #
-
-    #if accuracy_metric_results is not None:
-    #    if opts.verbose:
-    #        print "Adding accuracy metrics (%s) to biom table as per-sample (i.e. per genome) metadata..." %(",".join(accuracy_metrics))
-    #    biom_predictions.addSampleMetadata(accuracy_metric_results)
-        
-    #print biom_predictions.delimitedSelf() 
-    if opts.verbose:
-        print "Writing biom format prediction results to file: ",opts.output_trait_table
-    
-    #write biom table to file
     make_output_dir_for_file(opts.output_trait_table)
-    open(opts.output_trait_table,'w').write(\
-     format_biom_table(biom_predictions))
+
+    out_fh=open(opts.output_trait_table,'w')
+    #Generate the table of biom predictions
+    if opts.output_precalc_file_in_biom:
+        if opts.verbose:
+            print "Converting results to .biom format for output..."
+   
+        biom_predictions=biom_table_from_predictions(predictions,table_headers,\
+                                                         observation_metadata=None,\
+                                                         sample_metadata=accuracy_metric_results,convert_to_int=False)   
+        if opts.verbose:
+            print "Writing biom format prediction results to file: ",opts.output_trait_table
+    
+        #write biom table to file
+        out_fh.write(format_biom_table(biom_predictions))
+
+    else:
+        #import pdb; pdb.set_trace()
+        #output header
+        if accuracy_metric_results:
+            header_line ="\t".join(['#OTU_IDs']+table_headers+['metadata_NSTI'])+"\n"
+        else:
+            header_line ="\t".join(['#OTU_IDs']+table_headers)+"\n"
+
+        out_fh.write(header_line)
+        for otu_id in predictions.keys():
+            
+            if accuracy_metric_results:
+                line="\t".join([otu_id]+map(str,predictions[otu_id])+[str(accuracy_metric_results[otu_id]['NSTI'])])+"\n"
+            else:
+                line="\t".join([otu_id]+map(str,predictions[otu_id]))+"\n"
+            out_fh.write(line)
 
     #Write out variance information to file
     if variances:
