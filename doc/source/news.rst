@@ -2,6 +2,7 @@
 
 News & Announcements
 ====================
+* 07-10-13: PICRUSt presented by Morgan Langille at `Gordon Research Conference: Applied & Environmental Micobiology <http://www.grc.org/programs.aspx?year=2013&program=applied>`_ 
 * 02-22-13: PICRUSt now available in `Galaxy <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_!
 * 02-13-13: PICRUSt presented by Curtis Huttenhower at `Keystone Symposia: The Gut Microbiome <http://www.keystonesymposia.org/index.cfm?e=web.Meeting.Program&meetingid=1231>`_, `LANL <http://cnls.lanl.gov/External/showtalksummary.php?selection=5080>`_, and the `Symposium and Workshop on New Methods for Phylogenomics and Metagenomics <http://www.cs.utexas.edu/~tandy/utexas-feb16-17.html>`_.
 * 01-31-13: Official release of PICRUSt 0.9.1
