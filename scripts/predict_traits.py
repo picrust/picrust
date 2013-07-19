@@ -60,8 +60,8 @@ CONFIDENCE_FORMAT_CHOICES = ['sigma','confidence_interval']
 
 #Add script information
 script_info['script_usage'] = [\
-("Example 1","Required options with NSTI:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab -a nsti.tab"),\
-("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab")
+("Example 1","Required options with NSTI:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab"),\
+("Example 2","Limit predictions to particular tips in OTU table:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab")
 ]
 #Define commandline interface 
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
@@ -74,14 +74,14 @@ make_option('-t','--tree',type="existing_filepath",\
 script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
- make_option('-a','--output_accuracy_metrics',type="new_filepath",\
-   default=None,help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: %default]'),\
+ make_option('-a','--calculate_accuracy_metrics',default=False,action="store_true",\
+   help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and add to output file [default: %default]'),\
+ make_option('--output_accuracy_metrics_only',type="new_filepath",\
+   default=None,help='if specified, calculate accuracy metrics (e.g. NSTI), output them to this filepath, and do not do anything else. [default: %default]'),\
 
  make_option('-m','--prediction_method',default='asr_and_weighting',choices=METHOD_CHOICES,help='Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(METHOD_CHOICES)+'.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information. "asr_only": predict the traits of the last reconstructed ancestor, without weighting. "weighting_only": weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: %default]'),\
 
- make_option('-w','--weighting_method',default='exponential',choices=WEIGHTING_CHOICES,help='Specify prediction the weighting function to use.  This only applies to prediction methods that incorporate local weighting ("asr_and_weighting" or "weighting_only")  The recommended weighting  method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(WEIGHTING_CHOICES)+'.  "exponential"(recommended): weight genomes as a negative exponent of distance.  That is 2^-d, where d is the tip-to-tip distance from the genome to the tip.  "linear": weight tips as a linear function of weight, normalized to the maximum possible distance (max_d -d)/d. "equal_weights": set all weights to a constant (ignoring branch length).   [default: %default]'),\
- 
- 
+ make_option('-w','--weighting_method',default='exponential',choices=WEIGHTING_CHOICES,help='Specify prediction the weighting function to use.  This only applies to prediction methods that incorporate local weighting ("asr_and_weighting" or "weighting_only")  The recommended weighting  method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(WEIGHTING_CHOICES)+'.  "exponential"(recommended): weight genomes as a negative exponent of distance.  That is 2^-d, where d is the tip-to-tip distance from the genome to the tip.  "linear": weight tips as a linear function of weight, normalized to the maximum possible distance (max_d -d)/d. "equal_weights": set all weights to a constant (ignoring branch length).   [default: %default]'), 
  make_option('-l','--limit_predictions_by_otu_table',type="existing_filepath",help='Specify a valid path to a legacy QIIME OTU table to perform predictions only for tips that are listed in the OTU table (regardless of abundance)'),\
  make_option('-g','--limit_predictions_to_organisms',help='Limit predictions to specific, comma-separated organims ids. (Generally only useful for lists of < 10 organism ids, for example when performing leave-one-out cross-validation).'),\
  make_option('-r','--reconstructed_trait_table',\
@@ -129,6 +129,10 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
+
+    #if we specify we want NSTI only then we have to calculate it first
+    if opts.output_accuracy_metrics_only:
+        opts.calculate_accuracy_metrics=True
     
     if opts.verbose:
         print "Loading tree from file:", opts.tree
@@ -270,7 +274,7 @@ def main():
     # and set of ndoes to predict
     accuracy_metrics = ['NSTI']
     accuracy_metric_results = None
-    if opts.output_accuracy_metrics:
+    if opts.calculate_accuracy_metrics:
         if opts.verbose:
             print "Calculating accuracy metrics: %s" %([",".join(accuracy_metrics)])
         accuracy_metric_results = {}
@@ -288,19 +292,21 @@ def main():
             if opts.verbose:
                 print "NSTI:", nsti_result
    
-        #Write accuracy metrics to file
-        if opts.verbose:
-            print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
-   
-        f = open(opts.output_accuracy_metrics,'w+')
-        f.write("metric\torganism\tvalue\n")
-        lines =[]
-        for organism in accuracy_metric_results.keys():
-            for metric in accuracy_metric_results[organism].keys():
-                lines.append('\t'.join([metric,organism,\
-                  str(accuracy_metric_results[organism][metric])])+'\n')
-        f.writelines(sorted(lines))
-        f.close()
+        if opts.output_accuracy_metrics_only:
+            #Write accuracy metrics to file
+            if opts.verbose:
+                print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
+
+            f = open(opts.output_accuracy_metrics_only,'w+')
+            f.write("metric\torganism\tvalue\n")
+            lines =[]
+            for organism in accuracy_metric_results.keys():
+                for metric in accuracy_metric_results[organism].keys():
+                    lines.append('\t'.join([metric,organism,\
+                      str(accuracy_metric_results[organism][metric])])+'\n')
+            f.writelines(sorted(lines))
+            f.close()
+            exit()
 
 
     if opts.verbose:
@@ -386,7 +392,7 @@ def main():
     else:
         #import pdb; pdb.set_trace()
         #output header
-        if accuracy_metric_results:
+        if opts.calculate_accuracy_metrics:
             header_line ="\t".join(['#OTU_IDs']+table_headers+['metadata_NSTI'])+"\n"
         else:
             header_line ="\t".join(['#OTU_IDs']+table_headers)+"\n"
@@ -394,7 +400,7 @@ def main():
         out_fh.write(header_line)
         for otu_id in predictions.keys():
             
-            if accuracy_metric_results:
+            if opts.calculate_accuracy_metrics:
                 line="\t".join([otu_id]+map(str,predictions[otu_id])+[str(accuracy_metric_results[otu_id]['NSTI'])])+"\n"
             else:
                 line="\t".join([otu_id]+map(str,predictions[otu_id]))+"\n"
