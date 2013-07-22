@@ -29,7 +29,7 @@ from picrust.predict_traits import assign_traits_to_tree,\
   weighted_average_variance_prediction, get_brownian_motion_param_from_confidence_intervals
 from biom.table import table_factory
 from cogent.util.table import Table
-from picrust.util import make_output_dir_for_file, format_biom_table
+from picrust.util import make_output_dir_for_file, format_biom_table, convert_biom_to_precalc
 from picrust.format_tree_and_trait_table import load_picrust_tree, set_label_conversion_fns
 
 script_info = {}
@@ -60,8 +60,9 @@ CONFIDENCE_FORMAT_CHOICES = ['sigma','confidence_interval']
 
 #Add script information
 script_info['script_usage'] = [\
-("Example 1","Required options with NSTI:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab"),\
-("Example 2","Limit predictions to particular tips in OTU table:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab")
+("","Required options with NSTI:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab"),\
+("","Limit predictions to particular tips in OTU table:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab"),
+("","Reconstruct confidence","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -c asr_ci.tab -o predict_traits.tab")
 ]
 #Define commandline interface 
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
@@ -376,35 +377,23 @@ def main():
 
     out_fh=open(opts.output_trait_table,'w')
     #Generate the table of biom predictions
-    if opts.output_precalc_file_in_biom:
-        if opts.verbose:
-            print "Converting results to .biom format for output..."
+    if opts.verbose:
+        print "Converting results to .biom format for output..."
    
-        biom_predictions=biom_table_from_predictions(predictions,table_headers,\
+    biom_predictions=biom_table_from_predictions(predictions,table_headers,\
                                                          observation_metadata=None,\
                                                          sample_metadata=accuracy_metric_results,convert_to_int=False)   
-        if opts.verbose:
-            print "Writing biom format prediction results to file: ",opts.output_trait_table
+    if opts.verbose:
+        print "Writing prediction results to file: ",opts.output_trait_table
+
+    if opts.output_precalc_file_in_biom:
     
         #write biom table to file
         out_fh.write(format_biom_table(biom_predictions))
 
     else:
-        #import pdb; pdb.set_trace()
-        #output header
-        if opts.calculate_accuracy_metrics:
-            header_line ="\t".join(['#OTU_IDs']+table_headers+['metadata_NSTI'])+"\n"
-        else:
-            header_line ="\t".join(['#OTU_IDs']+table_headers)+"\n"
-
-        out_fh.write(header_line)
-        for otu_id in predictions.keys():
-            
-            if opts.calculate_accuracy_metrics:
-                line="\t".join([otu_id]+map(str,predictions[otu_id])+[str(accuracy_metric_results[otu_id]['NSTI'])])+"\n"
-            else:
-                line="\t".join([otu_id]+map(str,predictions[otu_id]))+"\n"
-            out_fh.write(line)
+        #convert to precalc (tab-delimited) format
+        out_fh.write(convert_biom_to_precalc(format_biom_table(biom_predictions)))
 
     #Write out variance information to file
     if variances:
@@ -412,21 +401,29 @@ def main():
         if opts.verbose:
             print "Converting variances to BIOM format"
         
+        if opts.output_precalc_file_in_biom:
+            suffix='.biom'
+        else:
+            suffix='.tab'
+
         biom_prediction_variances=biom_table_from_predictions({k:v['variance'] for k,v in variances.iteritems()},table_headers,\
         observation_metadata=None,\
         sample_metadata=None,convert_to_int=False)
         outfile_base,extension = splitext(opts.output_trait_table)
-        variance_outfile = outfile_base+"_variances.biom"
-        
-        if opts.verbose:
-            print "Outputting variance information to file:",variance_outfile
+        variance_outfile = outfile_base+"_variances"+suffix
         make_output_dir_for_file(variance_outfile)
-        open(variance_outfile,'w').write(\
-          format_biom_table(biom_prediction_variances))
-        
+
         if opts.verbose:
-            print "Done writing variance table"
-    
+            print "Writing variance information to file:",variance_outfile
+        
+        if opts.output_precalc_file_in_biom:
+            open(variance_outfile,'w').write(\
+                format_biom_table(biom_prediction_variances))
+        else:
+            open(variance_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_variances)))
+
+        
     if confidence_intervals:
         
         if opts.verbose:
@@ -437,16 +434,19 @@ def main():
           sample_metadata=None,convert_to_int=False)
         
         outfile_base,extension = splitext(opts.output_trait_table)
-        upper_CI_outfile = outfile_base+"_upper_CI.biom"
-        
-        if opts.verbose:
-            print "Outputting upper confidence limit  information to file:",upper_CI_outfile
+        upper_CI_outfile = outfile_base+"_upper_CI"+suffix
         make_output_dir_for_file(upper_CI_outfile)
-        open(upper_CI_outfile,'w').write(\
-          format_biom_table(biom_prediction_upper_CI))
-        
+
         if opts.verbose:
-            print "Done writing upper confidence limit table"
+            print "Writing upper confidence limit information to file:",upper_CI_outfile
+           
+        if opts.output_precalc_file_in_biom:
+            open(upper_CI_outfile,'w').write(\
+                format_biom_table(biom_prediction_upper_CI))
+        else:
+            open(upper_CI_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_upper_CI)))
+
         
         
         biom_prediction_lower_CI=biom_table_from_predictions({k:v['lower_CI'] for k,v in confidence_intervals.iteritems()},table_headers,\
@@ -454,16 +454,18 @@ def main():
           sample_metadata=None,convert_to_int=False)
          
         outfile_base,extension = splitext(opts.output_trait_table)
-        lower_CI_outfile = outfile_base+"_lower_CI.biom"
-        
-        if opts.verbose:
-            print "Outputting lower confidence limit information to file:",lower_CI_outfile
+        lower_CI_outfile = outfile_base+"_lower_CI"+suffix
         make_output_dir_for_file(lower_CI_outfile)
-        open(lower_CI_outfile,'w').write(\
-          format_biom_table(biom_prediction_lower_CI))
-        
+
         if opts.verbose:
-            print "Done writing lower confidence limit table"
+            print "Writing lower confidence limit information to file",lower_CI_outfile
+
+        if opts.output_precalc_file_in_biom:
+            open(lower_CI_outfile,'w').write(\
+                format_biom_table(biom_prediction_lower_CI))
+        else:
+            open(lower_CI_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_lower_CI)))
 
 
 if __name__ == "__main__":
