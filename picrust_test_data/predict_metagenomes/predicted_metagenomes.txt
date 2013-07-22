@@ -1886,8 +1886,8 @@ K02463	1392.0	7823.0	general secretion pathway protein N
 K02464	3411.0	431.0	general secretion pathway protein O [EC:3.4.23.43 2.1.1.-]
 K02465	19.0	1.0	general secretion pathway protein S
 K02466	4921.0	663.0	glucitol operon activator protein
-K02467	4915.0	592.0	GutQ protein
-K02468	4915.0	592.0	DeoR family transcriptional regulator, glucitol operon repressor
+K02467	4915.0	591.0	GutQ protein
+K02468	4915.0	591.0	DeoR family transcriptional regulator, glucitol operon repressor
 K02469	115256.0	164369.0	DNA gyrase subunit A [EC:5.99.1.3]
 K02470	114663.0	164613.0	DNA gyrase subunit B [EC:5.99.1.3]
 K02471	911.0	3221.0	putative ATP-binding cassette transporter
@@ -3094,7 +3094,7 @@ K04342	0.0	0.0	streptomycin-6-phosphatase [EC:3.1.3.39]
 K04343	0.0	0.0	streptomycin 6-kinase [EC:2.7.1.72]
 K04382	0.0	0.0	protein phosphatase 2 (formerly 2A), catalytic subunit [EC:3.1.3.16]
 K04477	81610.0	114784.0	putative hydrolase
-K04478	75843.0	61293.0	monofunctional glycosyltransferase [EC:2.4.1.-]
+K04478	75842.0	61293.0	monofunctional glycosyltransferase [EC:2.4.1.-]
 K04479	0.0	0.0	DNA polymerase IV (archaeal DinB-like DNA polymerase) [EC:2.7.7.7]
 K04480	170.0	16.0	methanol---5-hydroxybenzimidazolylcobamide Co-methyltransferase [EC:2.1.1.90]
 K04482	0.0	0.0	DNA repair protein RAD51
@@ -4533,13 +4533,13 @@ K07684	8378.0	13424.0	two-component system, NarL family, nitrate/nitrite respons
 K07685	5240.0	637.0	two-component system, NarL family, nitrate/nitrite response regulator NarP
 K07686	5919.0	671.0	two-component system, NarL family, uhpT operon response regulator UhpA
 K07687	6722.0	3326.0	two-component system, NarL family, captular synthesis response regulator RcsB
-K07688	2168.0	255.0	two-component system, NarL family, response regulator, fimbrial Z protein, FimZ
+K07688	2168.0	256.0	two-component system, NarL family, response regulator, fimbrial Z protein, FimZ
 K07689	5270.0	858.0	two-component system, NarL family, invasion response regulator UvrY
 K07690	5745.0	3186.0	two-component system, NarL family, response regulator EvgA
 K07691	87.0	106.0	two-component system, NarL family, competent response regulator ComA
 K07692	310.0	1279.0	two-component system, NarL family, response regulator DegU
 K07693	2680.0	52358.0	two-component system, NarL family, response regulator DesR
-K07694	75843.0	61293.0	two-component system, NarL family, vancomycin resistance associated response regulator VraR
+K07694	75842.0	61293.0	two-component system, NarL family, vancomycin resistance associated response regulator VraR
 K07695	0.0	0.0	two-component system, NarL family, response regulator DevR
 K07696	75922.0	61705.0	two-component system, NarL family, response regulator NreC
 K07697	379.0	667.0	two-component system, sporulation sensor kinase B [EC:2.7.13.3]
@@ -5088,7 +5088,7 @@ K09700	0.0	0.0	hypothetical protein
 K09701	9018.0	11161.0	hypothetical protein
 K09702	1327.0	3598.0	hypothetical protein
 K09703	145.0	756.0	hypothetical protein
-K09704	2924.0	16024.0	hypothetical protein
+K09704	2924.0	16025.0	hypothetical protein
 K09705	76881.0	64244.0	hypothetical protein
 K09706	803.0	1464.0	hypothetical protein
 K09707	17802.0	46180.0	hypothetical protein
@@ -5186,7 +5186,7 @@ K09810	21509.0	91623.0	lipoprotein-releasing system ATP-binding protein [EC:3.6.
 K09811	36710.0	85482.0	cell division transport system permease protein
 K09812	36717.0	85567.0	cell division transport system ATP-binding protein
 K09813	75856.0	61337.0	hemin transport system permease protein
-K09814	75843.0	61293.0	hemin transport system ATP-binding protein [EC:3.6.3.-]
+K09814	75842.0	61293.0	hemin transport system ATP-binding protein [EC:3.6.3.-]
 K09815	185445.0	151476.0	zinc transport system substrate-binding protein
 K09816	110293.0	98193.0	zinc transport system permease protein
 K09817	110266.0	98186.0	zinc transport system ATP-binding protein [EC:3.6.3.-]
@@ -5571,7 +5571,7 @@ K10837	0.0	0.0	O-phosphoseryl-tRNA(Sec) kinase [EC:2.7.1.164]
 K10843	1095.0	7861.0	DNA excision repair protein ERCC-3 [EC:3.6.4.12]
 K10844	762.0	1389.0	DNA excision repair protein ERCC-2 [EC:3.6.4.12]
 K10848	0.0	0.0	DNA excision repair protein ERCC-4 [EC:3.1.-.-]
-K10850	75843.0	61293.0	MFS transporter, NNP family, putative nitrate transporter
+K10850	75842.0	61293.0	MFS transporter, NNP family, putative nitrate transporter
 K10851	75920.0	61700.0	nitrogen regulatory protein A
 K10852	1055.0	10047.0	isopenicillin-N N-acyltransferase [EC:2.3.1.164]
 K10854	44.0	5.0	acetone carboxylase, alpha subunit [EC:6.4.1.6]
@@ -5825,7 +5825,7 @@ K11437	0.0	0.0	protein arginine N-methyltransferase 6 [EC:2.1.1.-]
 K11438	0.0	0.0	protein arginine N-methyltransferase 7 [EC:2.1.1.-]
 K11440	88.0	108.0	choline dehydrogenase [EC:1.1.1.1]
 K11441	2.0	2.0	dehydrogluconokinase [EC:2.7.1.13]
-K11442	75843.0	61293.0	putative uridylyltransferase [EC:2.7.7.-]
+K11442	75842.0	61293.0	putative uridylyltransferase [EC:2.7.7.-]
 K11443	10.0	5.0	two-component system, cell cycle response regulator DivK
 K11444	8.0	7.0	two-component system, chemotaxis family, response regulator WspR [EC:2.7.7.65]
 K11472	7914.0	3366.0	glycolate oxidase FAD binding subunit
@@ -5904,8 +5904,8 @@ K11688	10586.0	8808.0	C4-dicarboxylate-binding protein DctP
 K11689	7650.0	3345.0	C4-dicarboxylate transporter, DctQ subunit
 K11690	7657.0	3360.0	C4-dicarboxylate transporter, DctM subunit
 K11693	75843.0	61293.0	peptidoglycan pentaglycine glycine transferase (the first glycine) [EC:2.3.2.-]
-K11694	75843.0	61293.0	peptidoglycan pentaglycine glycine transferase (the second and third glycine) [EC:2.3.2.-]
-K11695	75843.0	61293.0	peptidoglycan pentaglycine glycine transferase (the fourth and fifth glycine) [EC:2.3.2.-]
+K11694	75842.0	61293.0	peptidoglycan pentaglycine glycine transferase (the second and third glycine) [EC:2.3.2.-]
+K11695	75842.0	61293.0	peptidoglycan pentaglycine glycine transferase (the fourth and fifth glycine) [EC:2.3.2.-]
 K11704	16778.0	3944.0	iron/zinc/copper transport system substrate-binding protein
 K11705	989.0	1870.0	iron/zinc/copper transport system permease protein
 K11706	16778.0	3944.0	iron/zinc/copper transport system ATP-binding protein
@@ -6294,8 +6294,8 @@ K12547	0.0	0.0	polysaccharidase protein
 K12548	0.0	0.0	autoaggregation protein RapA/B/C
 K12549	2.0	2.0	surface adhesion protein
 K12551	70953.0	51522.0	transglycosylase [EC:2.4.1.-]
-K12552	75843.0	61293.0	penicillin-binding protein 1 [EC:3.4.-.-]
-K12553	75843.0	61293.0	penicillin-binding protein 3 [EC:3.4.-.-]
+K12552	75842.0	61293.0	penicillin-binding protein 1 [EC:3.4.-.-]
+K12553	75842.0	61293.0	penicillin-binding protein 3 [EC:3.4.-.-]
 K12554	17978.0	7485.0	alanine adding enzyme [EC:2.3.2.-]
 K12555	35225.0	18466.0	penicillin-binding protein 2A [EC:2.4.1.129 2.3.2.-]
 K12556	17394.0	8111.0	penicillin-binding protein 2X [EC:2.3.2.-]
@@ -6856,7 +6856,7 @@ K14450	6214.0	664.0	L-malyl-CoA/beta-methylmalyl-CoA lyase
 K14451	6214.0	664.0	(3S)-malyl-CoA thioesterase
 K14465	0.0	0.0	succinate semialdehyde reductase (NADPH) [EC:1.1.1.-]
 K14466	0.0	0.0	4-hydroxybutyryl-CoA synthetase (4-hydroxybutyrate-CoA ligase, AMP-forming) [EC:6.2.1.-]
-K14467	0.0	0.0	4-hydroxybutyryl&#8211;CoA synthetase (4-hydroxybutyrate&#8211;CoA ligase, AMP-forming) [EC:6.2.1.-]
+K14467	0.0	0.0	4-hydroxybutyryl&#8211:CoA synthetase (4-hydroxybutyrate&#8211:CoA ligase, AMP-forming) [EC:6.2.1.-]
 K14468	0.0	0.0	malonyl-CoA reductase / 3-hydroxypropionate dehydrogenase (NADP+) [EC:1.2.1.75 1.1.1.298]
 K14469	0.0	0.0	acrylyl-CoA reductase (NADPH) / 3-hydroxypropionyl-CoA dehydratase / 3-hydroxypropionyl-CoA synthetase [EC:1.3.1.84 4.2.1.116 6.2.1.36]
 K14470	1.0	0.0	mesaconyl-CoA C1-C4 CoA transferase
