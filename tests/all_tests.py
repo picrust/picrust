@@ -115,8 +115,7 @@ def main():
                     verbose=True,
                     tests=script_usage_tests,
                     failure_log_fp=None,
-                    force_overwrite=True,
-                    timeout=240)
+                    force_overwrite=True)
 
     print "==============\nResult summary\n=============="
 
