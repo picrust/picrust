@@ -14,15 +14,156 @@ __status__ = "Development"
 from os.path import abspath, dirname, isdir
 from os import mkdir,makedirs
 from cogent.core.tree import PhyloNode, TreeError
-from numpy import array
+from numpy import array,asarray
 from biom.table import SparseOTUTable, DenseOTUTable, SparsePathwayTable, \
   DensePathwayTable, SparseFunctionTable, DenseFunctionTable, \
   SparseOrthologTable, DenseOrthologTable, SparseGeneTable, \
   DenseGeneTable, SparseMetaboliteTable, DenseMetaboliteTable,\
   SparseTaxonTable, DenseTaxonTable, table_factory
-from biom.parse import parse_biom_table, convert_biom_to_table, \
+from biom.parse import parse_biom_table,parse_biom_table_str, convert_biom_to_table, \
   convert_table_to_biom
 from subprocess import Popen, PIPE, STDOUT
+import StringIO
+
+def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefix='metadata_'):
+    """Loads PICRUSTs tab-delimited version of the precalc file and outputs a BIOM object"""
+    
+    #if given a string convert to a filehandle
+    if type(precalc_in) ==str or type(precalc_in) == unicode:
+        fh = StringIO.StringIO(precalc_in)
+    else:
+        fh=precalc_in
+
+    #first line has to be header
+    header_ids=fh.readline().strip().split('\t')
+    
+    col_meta_locs={}
+    for idx,col_id in enumerate(header_ids):
+        if col_id.startswith(md_prefix):
+            col_meta_locs[col_id[len(md_prefix):]]=idx
+    
+    end_of_data=len(header_ids)-len(col_meta_locs)
+    trait_ids = header_ids[1:end_of_data]
+   
+    col_meta=[]
+    row_meta=[{} for i in trait_ids]
+    
+    if ids_to_load:
+        ids_to_load=set(ids_to_load)
+    else:
+        ids_to_load=False
+
+    matching=[]
+    otu_ids=[]
+    for line in fh:
+        fields = line.strip().split('\t')
+        row_id=fields[0]
+        if(row_id.startswith(md_prefix)):
+            #handle metadata
+            
+            #determine type of metadata (this may not be perfect)
+            metadata_type=determine_metadata_type(line)
+            for idx,trait_name in enumerate(trait_ids):
+                row_meta[idx][row_id[len(md_prefix):]]=parse_metadata_field(fields[idx+1],metadata_type)
+
+        elif (not ids_to_load) or (row_id in set(ids_to_load)):
+            otu_ids.append(row_id)
+            matching.append(map(float,fields[1:end_of_data]))
+
+            #add metadata
+            col_meta_dict={}
+            for meta_name in col_meta_locs:
+                col_meta_dict[meta_name]=fields[col_meta_locs[meta_name]]
+            col_meta.append(col_meta_dict)
+
+        
+    #note that we transpose the data before making biom obj
+    if transpose:
+        return table_factory(asarray(matching).T,otu_ids,trait_ids,col_meta,row_meta,constructor=DenseGeneTable)
+    else:
+        return table_factory(asarray(matching),trait_ids,otu_ids,row_meta,col_meta,constructor=DenseGeneTable)
+
+
+def convert_biom_to_precalc(biom_in):
+    """Converts a biom file into a PICRUSt precalculated tab-delimited file """
+    if type(biom_in) == str or type(biom_in) == unicode:
+        biom_table=parse_biom_table_str(biom_in)
+    else:
+        biom_table=parse_biom_table(biom_in)
+
+    col_ids=biom_table.ObservationIds
+    row_ids=biom_table.SampleIds
+
+    lines=[]
+    header = ['#OTU_IDs']+list(col_ids) 
+
+    col_metadata_names=[]
+    #peak at metadata for Samples (e.g. NSTI) so we can set the header
+    if biom_table.SampleMetadata:
+        col_metadata_names=biom_table.SampleMetadata[0].keys()
+
+    #add the metadata names to the header
+    for col_metadata_name in col_metadata_names:
+        header.append('metadata_'+col_metadata_name)
+
+    lines.append(map(str,header))
+
+    row_metadata_names=[]
+    #peak at metadata for observations (e.g. KEGG_Pathways)
+    if biom_table.ObservationMetadata:
+        row_metadata_names=biom_table.ObservationMetadata[0].keys()
+    
+    for metadata_name in row_metadata_names:
+        metadata_line=['metadata_'+metadata_name]
+        
+    #do the observation metadata now             
+        for col_id in col_ids:
+            metadata = biom_table.ObservationMetadata[biom_table.getObservationIndex(col_id)]
+            metadata_line.append(biom_meta_to_string(metadata[metadata_name]))
+        lines.append(map(str,metadata_line))
+    
+    #transpose the actual count data
+    transposed_table=biom_table._data.T
+    for idx,count in enumerate(transposed_table):
+        line=[row_ids[idx]]+map(str,count)
+        
+        #add the metadata values to the end of the row now
+        for meta_name in col_metadata_names:
+            line.append(biom_table.SampleMetadata[idx][meta_name])
+        lines.append(line)
+
+    return "\n".join("\t".join(map(str,x)) for x in lines)
+     
+
+def determine_metadata_type(line):
+    if ';' in line:
+        if '|' in line:
+            return 'list_of_lists'
+        else:
+            return 'list'
+    else:
+        return 'string'
+
+def parse_metadata_field(metadata_str,metadata_format='string'):
+    if metadata_format == 'string':
+        return metadata_str
+    elif metadata_format == 'list':
+        return [e.strip() for e in metadata_str.split(';')]
+    elif metadata_format == 'list_of_lists':
+        return [[e.strip() for e in y.split(';')] for y in metadata_str.split('|')]
+
+def biom_meta_to_string(metadata):
+    """ Determine which format the metadata is and then convert to a string"""
+
+    #Note that since ';' and '|' are used as seperators we must replace them if they exist
+    if type(metadata) ==str or type(metadata)==unicode:
+        return metadata.replace(';',':')
+    elif type(metadata) == list:
+        if type(metadata[0]) == list:
+            return "|".join(";".join([y.replace(';',':').replace('|',':') for y in x]) for x in metadata)
+        else:
+            return ";".join(x.replace(';',':') for x in metadata)
+
 
 def system_call(cmd, shell=True):
     """Call cmd and return (stdout, stderr, return_value).
@@ -180,7 +321,7 @@ def make_output_dir_for_file(filepath):
 
 def format_biom_table(biom_table):
     """ Given a biom-format Table object, returns that Table as a BIOM string"""
-    generated_by_str = "PI-CRUST " + __version__
+    generated_by_str = "PICRUSt " + __version__
     return biom_table.getBiomFormatJsonString(generated_by_str)
 
 def make_output_dir(dirpath, strict=False):

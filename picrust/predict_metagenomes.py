@@ -11,8 +11,8 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from numpy import dot, array, around
-from biom.table import table_factory,SparseGeneTable
+from numpy import dot, array, around, asarray
+from biom.table import table_factory,SparseGeneTable, DenseGeneTable
 from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
 
 def get_overlapping_ids(otu_table,genome_table):
@@ -217,7 +217,7 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     genome_table -- the corresponding set of PICRUST per-OTU genome predictions
     weighted -- if True, normalize by OTU abundance
     """
-    
+
     # identify the overlapping otus that can be used to calculate the NSTI
     overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     total = 0.0 
@@ -227,7 +227,7 @@ def calc_nsti(otu_table,genome_table,weighted=True):
         #print "Curr observed id:",obs_id
         obs_id_idx = genome_table.getSampleIndex(obs_id)
         #observatin_ids.append(genome_table.ObservationIds[obs_id_idx])
-        curr_nsti =  genome_table.SampleMetadata[obs_id_idx]['NSTI']
+        curr_nsti =  float(genome_table.SampleMetadata[obs_id_idx]['NSTI'])
         #print "Current NSTI", curr_nsti
         if weighted:
             curr_counts = otu_table.observationData(obs_id)
