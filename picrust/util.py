@@ -55,7 +55,7 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
 
     matching=[]
     otu_ids=[]
-    for line in fh.readlines():
+    for line in fh:
         fields = line.strip().split('\t')
         row_id=fields[0]
         if(row_id.startswith(md_prefix)):
