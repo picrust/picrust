@@ -54,17 +54,17 @@ script_info['optional_options'] = [\
     make_option('-j','--parallel_method',type='choice',
                 help='Method for parallelizaation. Valid choices are: '+\
                     ', '.join(parallel_method_choices) + ' [default: %default]',\
-                    choices=parallel_method_choices,default='sge'),
+                    choices=parallel_method_choices,default='multithreaded'),
     make_option('-n','--num_jobs',action='store',type='int',
-                help='Number of jobs to be submitted (if --parallel). [default: %default]',
-                default=10)
+                help='Number of jobs to be submitted. [default: %default]',
+                default=2)
 ]
 
 
 script_info['version'] = __version__
        
 
-def combine_predict_trait_output(files, nsti=None):
+def combine_predict_trait_output(files):
     #add header
     combined=open(files[0]).readline()
     
@@ -101,11 +101,12 @@ def main():
 
     all_tips = [tip.Name for tip in tree.tips()]
     
-    created_tmp_files=[]    
-    output_files=[]
-    variance_files=[]
-    upper_CI_files=[]
-    lower_CI_files=[]
+    created_tmp_files=[]
+    output_files={}
+    output_files['counts']=[]
+    output_files['variances']=[]
+    output_files['upper_CI']=[]
+    output_files['lower_CI']=[]
 
     #create a tmp file to store the job commands (which we will pass to our parallel script to run)
     jobs_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='jobs_')
@@ -120,16 +121,16 @@ def main():
     #for tips_to_predict in grouper(all_tips,num_tips_per_job):
         
         #create tmp output files
-        tmp_output_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='out_asr_')
-        output_files.append(tmp_output_fp)
+        tmp_output_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='out_predict_traits_')
+        output_files['counts'].append(tmp_output_fp)
 
         tip_to_predict_str=','.join(list(tips_to_predict))
 
         if opts.reconstruction_confidence:
             outfile_base,extension = splitext(tmp_output_fp)
-            variance_files.append(outfile_base+"_variances.tab")
-            upper_CI_files.append(outfile_base+"_upper_CI.tab")
-            lower_CI_files.append(outfile_base+"_lower_CI.tab")
+            output_files['variances'].append(outfile_base+"_variances.tab")
+            output_files['upper_CI'].append(outfile_base+"_upper_CI.tab")
+            output_files['lower_CI'].append(outfile_base+"_lower_CI.tab")
             
             #create the job command
             cmd= "{0} -i {1} -t {2} -r {3} -c {4} -g {5} -o {6}".format(script_fp, opts.observed_trait_table, opts.tree, opts.reconstructed_trait_table, opts.reconstruction_confidence, tip_to_predict_str, tmp_output_fp)
@@ -138,7 +139,8 @@ def main():
             cmd= "{0} -i {1} -t {2} -r {3} -g {4} -o {5}".format(script_fp, opts.observed_trait_table, opts.tree, opts.reconstructed_trait_table, tip_to_predict_str, tmp_output_fp)
             
 
-        #NOTE: Calculating NSTI this way is convenient, but would probably be faster if we ran the NSTI calculation separate (using the --output_accuracy_metrics_only) and added it to the output file later on.
+        #NOTE: Calculating NSTI this way is convenient, 
+        #but would probably be faster if we ran the NSTI calculation separate (using the --output_accuracy_metrics_only) and added it to the output file later on.
         if opts.calculate_accuracy_metrics:
             cmd=cmd+" -a"
 
@@ -146,11 +148,10 @@ def main():
         jobs.write(cmd+"\n")
 
     jobs.close()
-    created_tmp_files.extend(output_files)
-    created_tmp_files.extend(variance_files)
-    created_tmp_files.extend(upper_CI_files)
-    created_tmp_files.extend(lower_CI_files)
-    
+
+    #add all output files to tmp list (used later for deletion)
+    for predict_type in output_files:
+        created_tmp_files.extend(output_files[predict_type])
     if(opts.verbose):
         print "Launching parallel jobs."
         
@@ -162,40 +163,33 @@ def main():
         print "Jobs are now running. Will wait until finished."
 
     #wait until all jobs finished (e.g. simple poller)
-    wait_for_output_files(output_files)
+    wait_for_output_files(output_files['counts'])
 
     if(opts.verbose):
-        print "Jobs are done running. Now combining all tmp files."
+        print "Jobs are done running."
 
     make_output_dir_for_file(opts.output_trait_table)
+    outfile_base,extension = splitext(opts.output_trait_table)
+    for predict_type in sorted(output_files):
+       #Combine output files
+        if opts.verbose:
+            print "Combining all output files for "+ predict_type
+        combined_predictions=combine_predict_trait_output(output_files[predict_type])
+        
+        if opts.verbose:
+            print "Writing combined file for "+predict_type
 
-    #Combine output files
-    combined_predictions=combine_predict_trait_output(output_files)
-
-    #Output in whatever format the user wants
-    
-    if opts.output_precalc_file_in_biom:
-        open(opts.output_trait_table,'w').write(format_biom_table(convert_precalc_to_biom(combined_predictions)))
-    else:
-        open(opts.output_trait_table,'w').write(combined_predictions)
-
-    
-    if opts.reconstruction_confidence:
-        combined_variances=combine_predict_trait_output(variance_files)
-        combined_upper_CI=combine_predict_trait_output(upper_CI_files)
-        combined_lower_CI=combine_predict_trait_output(lower_CI_files)
-
-        outfile_base,extension = splitext(opts.output_trait_table)
-
-        if opts.output_precalc_file_in_biom:
-            open(outfile_base+"_variances.biom",'w').write(format_biom_table(convert_precalc_to_biom(combined_variances)))
-            open(outfile_base+"_upper_CI.biom",'w').write(format_biom_table(convert_precalc_to_biom(combined_upper_CI)))
-            open(outfile_base+"_lower_CI.biom",'w').write(format_biom_table(convert_precalc_to_biom(combined_lower_CI)))
+        if predict_type == 'counts':
+        #Output in whatever format the user wants
+            if opts.output_precalc_file_in_biom:
+                open(opts.output_trait_table,'w').write(format_biom_table(convert_precalc_to_biom(combined_predictions)))
+            else:
+                open(opts.output_trait_table,'w').write(combined_predictions)
         else:
-            open(outfile_base+"_variances.tab",'w').write(combined_variances)
-            open(outfile_base+"_upper_CI.tab",'w').write(combined_upper_CI)
-            open(outfile_base+"_lower_CI.tab",'w').write(combined_lower_CI)
-    
+            if opts.output_precalc_file_in_biom:
+                open(outfile_base+"_"+predict_type+".biom",'w').write(format_biom_table(convert_precalc_to_biom(combined_predictions)))
+            else:
+                open(outfile_base+"_"+predict_type+".tab",'w').write(combined_predictions)    
         
     #clean up all tmp files
     for file in created_tmp_files:
