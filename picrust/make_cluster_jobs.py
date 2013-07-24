@@ -20,6 +20,7 @@ from cogent.app.util import ApplicationNotFoundError
 from cogent.app.util import get_tmp_filename
 from picrust.parallel import grouper
 from math import ceil
+from time import sleep
 
 # qsub template
 SGE_QSUB_TEXT = """#!/bin/bash
@@ -154,7 +155,7 @@ def make_torque_jobs(commands, job_prefix, queue, jobs_dir="jobs/",
         filenames.append(job_name)
     return filenames
 
-def submit_cluster_jobs(filenames, verbose=False):
+def submit_cluster_jobs(filenames, verbose=False, delay=0):
     """Submit jobs in filenames.
 
     filenames: list of prepared qsub job scripts, ready to be submitted
@@ -170,3 +171,4 @@ def submit_cluster_jobs(filenames, verbose=False):
                            stdout=PIPE, stderr=STDOUT).stdout.read()
         if verbose:
             print result
+        sleep(delay)

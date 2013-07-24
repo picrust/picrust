@@ -55,9 +55,11 @@ script_info['optional_options'] = [\
                 help='Method for parallelizaation. Valid choices are: '+\
                     ', '.join(parallel_method_choices) + ' [default: %default]',\
                     choices=parallel_method_choices,default='multithreaded'),
-    make_option('-n','--num_jobs',action='store',type='int',
-                help='Number of jobs to be submitted. [default: %default]',
-                default=2)
+    make_option('-n','--num_jobs',action='store',type='int', help='Number of jobs to be submitted. [default: %default]',
+                default=2),
+    make_option('-d','--delay',action='store',type='int',default=0,
+                    help='Number of seconds to pause between launching each job [default: %default]')
+
 ]
 
 
@@ -70,8 +72,10 @@ def combine_predict_trait_output(files):
     
     for file_name in files:
         fh=open(file_name)
+        #throw away header
         fh.readline()
-        combined=combined+fh.read()+"\n"
+        combined+=fh.read()
+        combined+="\n"
 
     return combined
 
@@ -157,7 +161,7 @@ def main():
         
     #run the job command
     job_prefix='picrust'
-    submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=opts.num_jobs)
+    submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=opts.num_jobs,delay=opts.delay)
 
     if(opts.verbose):
         print "Jobs are now running. Will wait until finished."
@@ -174,6 +178,7 @@ def main():
        #Combine output files
         if opts.verbose:
             print "Combining all output files for "+ predict_type
+
         combined_predictions=combine_predict_trait_output(output_files[predict_type])
         
         if opts.verbose:

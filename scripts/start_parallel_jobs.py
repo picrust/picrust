@@ -44,6 +44,8 @@ script_info['optional_options'] = [\
          help='make the job files [default: %default]'),\
  make_option('-s','--submit_jobs',action='store_true',\
          help='submit the job files [default: %default]'),\
+ make_option('-d','--delay',action='store',type='int',default=0,
+             help='Number of seconds to pause between launching each job [default: %default]'),
  make_option('-n','--num_jobs',action='store',type='int',\
              help='Number of jobs to group commands into. [default: %default]',\
                 default=4)\
