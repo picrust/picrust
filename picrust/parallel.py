@@ -29,10 +29,10 @@ def grouper(iterable, n, fillvalue=None):
         args = [iter(iterable)] * n
         return izip_longest(*args, fillvalue=fillvalue)
 
-def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix,num_jobs=100):
+def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix,num_jobs=100,delay=0):
     """ Submit the jobs to the queue using cluster_jobs.py
     """
-    cmd = '%s -n %s -ms %s %s' % (path_to_cluster_jobs, num_jobs, jobs_fp, job_prefix)
+    cmd = '%s -d %s -n %s -ms %s %s' % (path_to_cluster_jobs, delay, num_jobs, jobs_fp, job_prefix)
     stdout, stderr, return_value = system_call(cmd)
     if return_value != 0:
         msg = "\n\n*** Could not start parallel jobs. \n" +\
