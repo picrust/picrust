@@ -39,6 +39,9 @@ script_info['optional_options'] = [\
     make_option('-s','--submit_jobs',action='store_true',\
                     help='submit the job files [default: %default]'),
 
+    make_option('-d','--delay',action='store',type='int',default=0,
+                    help='Number of seconds to pause between launching each job [default: %default]'),
+
     make_option('-q','--queue',action='store',\
                     type='string',dest='queue', \
                     help='name of queue to submit to '+\
