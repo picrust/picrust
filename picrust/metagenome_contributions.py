@@ -27,7 +27,7 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
     
     if limit_to_functions:
         if verbose:
-            print "Filtering the genome table to include only user-specified functions:",limit_to_functionss
+            print "Filtering the genome table to include only user-specified functions:",limit_to_functions
         ok_ids = frozenset(map(str,limit_to_functions))
         
         filter_by_set = lambda vals,gene_id,metadata: str(gene_id) in ok_ids
