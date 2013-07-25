@@ -33,7 +33,7 @@ class PredictMetagenomeTests(TestCase):
         self.genome_table2 = parse_biom_table_str(genome_table2)
         self.predicted_metagenome_table1 = parse_biom_table_str(predicted_metagenome_table1)
         self.predicted_metagenome_table1_with_metadata = parse_biom_table_str(predicted_metagenome_table1_with_metadata)
- 
+
     def test_predict_metagenomes(self):
         """ predict_metagenomes functions as expected with valid input """
         actual = predict_metagenomes(self.otu_table1,self.genome_table1)

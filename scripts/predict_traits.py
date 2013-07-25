@@ -29,7 +29,7 @@ from picrust.predict_traits import assign_traits_to_tree,\
   weighted_average_variance_prediction, get_brownian_motion_param_from_confidence_intervals
 from biom.table import table_factory
 from cogent.util.table import Table
-from picrust.util import make_output_dir_for_file, format_biom_table
+from picrust.util import make_output_dir_for_file, format_biom_table, convert_biom_to_precalc
 from picrust.format_tree_and_trait_table import load_picrust_tree, set_label_conversion_fns
 
 script_info = {}
@@ -60,8 +60,9 @@ CONFIDENCE_FORMAT_CHOICES = ['sigma','confidence_interval']
 
 #Add script information
 script_info['script_usage'] = [\
-("Example 1","Required options:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.biom"),\
-("Example 2","Limit predictions to particular tips in OTU table:","%prog -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.biom -l otu_table.tab")
+("","Required options with NSTI:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab"),\
+("","Limit predictions to particular tips in OTU table:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab"),
+("","Reconstruct confidence","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -c asr_ci.tab -o predict_traits.tab")
 ]
 #Define commandline interface 
 script_info['output_description']= "Output is a table (tab-delimited or .biom) of predicted character states"
@@ -74,14 +75,14 @@ make_option('-t','--tree',type="existing_filepath",\
 script_info['optional_options'] = [\
  make_option('-o','--output_trait_table',type="new_filepath",\
    default='predicted_states.tsv',help='the output filepath for trait predictions [default: %default]'),\
- make_option('-a','--output_accuracy_metrics',type="new_filepath",\
-   default=None,help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: %default]'),\
+ make_option('-a','--calculate_accuracy_metrics',default=False,action="store_true",\
+   help='if specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and add to output file [default: %default]'),\
+ make_option('--output_accuracy_metrics_only',type="new_filepath",\
+   default=None,help='if specified, calculate accuracy metrics (e.g. NSTI), output them to this filepath, and do not do anything else. [default: %default]'),\
 
  make_option('-m','--prediction_method',default='asr_and_weighting',choices=METHOD_CHOICES,help='Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(METHOD_CHOICES)+'.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information. "asr_only": predict the traits of the last reconstructed ancestor, without weighting. "weighting_only": weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: %default]'),\
 
- make_option('-w','--weighting_method',default='exponential',choices=WEIGHTING_CHOICES,help='Specify prediction the weighting function to use.  This only applies to prediction methods that incorporate local weighting ("asr_and_weighting" or "weighting_only")  The recommended weighting  method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(WEIGHTING_CHOICES)+'.  "exponential"(recommended): weight genomes as a negative exponent of distance.  That is 2^-d, where d is the tip-to-tip distance from the genome to the tip.  "linear": weight tips as a linear function of weight, normalized to the maximum possible distance (max_d -d)/d. "equal_weights": set all weights to a constant (ignoring branch length).   [default: %default]'),\
- 
- 
+ make_option('-w','--weighting_method',default='exponential',choices=WEIGHTING_CHOICES,help='Specify prediction the weighting function to use.  This only applies to prediction methods that incorporate local weighting ("asr_and_weighting" or "weighting_only")  The recommended weighting  method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:'+",".join(WEIGHTING_CHOICES)+'.  "exponential"(recommended): weight genomes as a negative exponent of distance.  That is 2^-d, where d is the tip-to-tip distance from the genome to the tip.  "linear": weight tips as a linear function of weight, normalized to the maximum possible distance (max_d -d)/d. "equal_weights": set all weights to a constant (ignoring branch length).   [default: %default]'), 
  make_option('-l','--limit_predictions_by_otu_table',type="existing_filepath",help='Specify a valid path to a legacy QIIME OTU table to perform predictions only for tips that are listed in the OTU table (regardless of abundance)'),\
  make_option('-g','--limit_predictions_to_organisms',help='Limit predictions to specific, comma-separated organims ids. (Generally only useful for lists of < 10 organism ids, for example when performing leave-one-out cross-validation).'),\
  make_option('-r','--reconstructed_trait_table',\
@@ -93,7 +94,8 @@ script_info['optional_options'] = [\
    help='the format for the confidence intervals from ancestral state reconstruction. Only needed if passing a reconstruction confidence file with -c or --reconstruction_confidence.  These are typically sigma values for maximum likelihood ASR  methods, but 95% confidence intervals for phylogenetic independent contrasts (e.g. from the ape R packages ace function with pic as the reconstruction method).  Valid choices are:'+",".join(CONFIDENCE_FORMAT_CHOICES)+'. [default: %default]'),\
  make_option('-c','--reconstruction_confidence',\
    type="existing_filepath",default=None,\
-   help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]')
+   help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]'),
+   make_option('--output_precalc_file_in_biom',default=False,action="store_true",help='Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]')
 ]
 script_info['version'] = __version__
 
@@ -128,6 +130,10 @@ def write_results_to_file(f_out,headers,predictions,sep="\t"):
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
+
+    #if we specify we want NSTI only then we have to calculate it first
+    if opts.output_accuracy_metrics_only:
+        opts.calculate_accuracy_metrics=True
     
     if opts.verbose:
         print "Loading tree from file:", opts.tree
@@ -269,7 +275,7 @@ def main():
     # and set of ndoes to predict
     accuracy_metrics = ['NSTI']
     accuracy_metric_results = None
-    if opts.output_accuracy_metrics:
+    if opts.calculate_accuracy_metrics:
         if opts.verbose:
             print "Calculating accuracy metrics: %s" %([",".join(accuracy_metrics)])
         accuracy_metric_results = {}
@@ -287,18 +293,21 @@ def main():
             if opts.verbose:
                 print "NSTI:", nsti_result
    
-        #Write accuracy metrics to file
-        if opts.verbose:
-            print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
-   
-        f = open(opts.output_accuracy_metrics,'w+')
-        lines = ["metric\torganism\tvalue\n"]
-        for organism in accuracy_metric_results.keys():
-            for metric in accuracy_metric_results[organism].keys():
-                lines.append('\t'.join([metric,organism,\
-                  str(accuracy_metric_results[organism][metric])])+'\n')
-        f.writelines(sorted(lines))
-        f.close()
+        if opts.output_accuracy_metrics_only:
+            #Write accuracy metrics to file
+            if opts.verbose:
+                print "Writing accuracy metrics to file:",opts.output_accuracy_metrics
+
+            f = open(opts.output_accuracy_metrics_only,'w+')
+            f.write("metric\torganism\tvalue\n")
+            lines =[]
+            for organism in accuracy_metric_results.keys():
+                for metric in accuracy_metric_results[organism].keys():
+                    lines.append('\t'.join([metric,organism,\
+                      str(accuracy_metric_results[organism][metric])])+'\n')
+            f.writelines(sorted(lines))
+            f.close()
+            exit()
 
 
     if opts.verbose:
@@ -360,57 +369,31 @@ def main():
         error_text = error_template %(opts.prediction_method,\
           ", ".join(METHOD_CHOICES))
 
+
+    if opts.verbose:
+        print "Done making predictions."
+
+    make_output_dir_for_file(opts.output_trait_table)
+
+    out_fh=open(opts.output_trait_table,'w')
+    #Generate the table of biom predictions
     if opts.verbose:
         print "Converting results to .biom format for output..."
-    #convert to biom format (and transpose)
-    #In the .biom table, organisms are 'samples' and traits are 'observations 
-    #(by analogy with a metagenomic sample)
-    
-    #Therefore, we associate the trait variances with the per-observation metadata
-    
-    #merge accuracy_metrics and variances
-    #sample_metadata = {}
-    #for sample_id in variances.keys():
-    #    sample_metadata[sample_id] = variances[sample_id]
-    #    if accuracy_metric_results is not None and sample_id in accuracy_metric_results:
-    #        sample_metadata[sample_id].update(accuracy_metric_results[sample_id])
    
-
-
-    #Generate the table of biom predictions
-    
     biom_predictions=biom_table_from_predictions(predictions,table_headers,\
-      observation_metadata=None,\
-      sample_metadata=accuracy_metric_results,convert_to_int=False)
-   
-    
-    
-    #print "BIOM observations:", [o for o in biom_predictions.iterObservations()] 
-    #print "BIOM samples:", [s for s in biom_predictions.iterSamples()] 
-    #print "Each observation:", biom_predictions.ObservationIds
-    #print "dir(biom_predictions):", dir(biom_predictions)
-    #print "Observation Metadata:",biom_predictions.ObservationMetadata
-    #print "Sample Metadata:",biom_predictions.SampleMetadata
-    #if variances is not None:
-    #    if opts.verbose:
-    #        print "Adding variance information to output .biom table, as per-observation (i.e. per gene) metadata with key 'variance'..."
-    #    #md should be of the form {observation_id:{dict_of_metadata}}
-    #   biom_predictions.addObservationMetadata(variances)
-    #
-
-    #if accuracy_metric_results is not None:
-    #    if opts.verbose:
-    #        print "Adding accuracy metrics (%s) to biom table as per-sample (i.e. per genome) metadata..." %(",".join(accuracy_metrics))
-    #    biom_predictions.addSampleMetadata(accuracy_metric_results)
-        
-    #print biom_predictions.delimitedSelf() 
+                                                         observation_metadata=None,\
+                                                         sample_metadata=accuracy_metric_results,convert_to_int=False)   
     if opts.verbose:
-        print "Writing biom format prediction results to file: ",opts.output_trait_table
+        print "Writing prediction results to file: ",opts.output_trait_table
+
+    if opts.output_precalc_file_in_biom:
     
-    #write biom table to file
-    make_output_dir_for_file(opts.output_trait_table)
-    open(opts.output_trait_table,'w').write(\
-     format_biom_table(biom_predictions))
+        #write biom table to file
+        out_fh.write(format_biom_table(biom_predictions))
+
+    else:
+        #convert to precalc (tab-delimited) format
+        out_fh.write(convert_biom_to_precalc(format_biom_table(biom_predictions)))
 
     #Write out variance information to file
     if variances:
@@ -418,21 +401,29 @@ def main():
         if opts.verbose:
             print "Converting variances to BIOM format"
         
+        if opts.output_precalc_file_in_biom:
+            suffix='.biom'
+        else:
+            suffix='.tab'
+
         biom_prediction_variances=biom_table_from_predictions({k:v['variance'] for k,v in variances.iteritems()},table_headers,\
         observation_metadata=None,\
         sample_metadata=None,convert_to_int=False)
         outfile_base,extension = splitext(opts.output_trait_table)
-        variance_outfile = outfile_base+"_variances.biom"
-        
-        if opts.verbose:
-            print "Outputting variance information to file:",variance_outfile
+        variance_outfile = outfile_base+"_variances"+suffix
         make_output_dir_for_file(variance_outfile)
-        open(variance_outfile,'w').write(\
-          format_biom_table(biom_prediction_variances))
-        
+
         if opts.verbose:
-            print "Done writing variance table"
-    
+            print "Writing variance information to file:",variance_outfile
+        
+        if opts.output_precalc_file_in_biom:
+            open(variance_outfile,'w').write(\
+                format_biom_table(biom_prediction_variances))
+        else:
+            open(variance_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_variances)))
+
+        
     if confidence_intervals:
         
         if opts.verbose:
@@ -443,16 +434,19 @@ def main():
           sample_metadata=None,convert_to_int=False)
         
         outfile_base,extension = splitext(opts.output_trait_table)
-        upper_CI_outfile = outfile_base+"_upper_CI.biom"
-        
-        if opts.verbose:
-            print "Outputting upper confidence limit  information to file:",upper_CI_outfile
+        upper_CI_outfile = outfile_base+"_upper_CI"+suffix
         make_output_dir_for_file(upper_CI_outfile)
-        open(upper_CI_outfile,'w').write(\
-          format_biom_table(biom_prediction_upper_CI))
-        
+
         if opts.verbose:
-            print "Done writing upper confidence limit table"
+            print "Writing upper confidence limit information to file:",upper_CI_outfile
+           
+        if opts.output_precalc_file_in_biom:
+            open(upper_CI_outfile,'w').write(\
+                format_biom_table(biom_prediction_upper_CI))
+        else:
+            open(upper_CI_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_upper_CI)))
+
         
         
         biom_prediction_lower_CI=biom_table_from_predictions({k:v['lower_CI'] for k,v in confidence_intervals.iteritems()},table_headers,\
@@ -460,16 +454,18 @@ def main():
           sample_metadata=None,convert_to_int=False)
          
         outfile_base,extension = splitext(opts.output_trait_table)
-        lower_CI_outfile = outfile_base+"_lower_CI.biom"
-        
-        if opts.verbose:
-            print "Outputting lower confidence limit information to file:",lower_CI_outfile
+        lower_CI_outfile = outfile_base+"_lower_CI"+suffix
         make_output_dir_for_file(lower_CI_outfile)
-        open(lower_CI_outfile,'w').write(\
-          format_biom_table(biom_prediction_lower_CI))
-        
+
         if opts.verbose:
-            print "Done writing lower confidence limit table"
+            print "Writing lower confidence limit information to file",lower_CI_outfile
+
+        if opts.output_precalc_file_in_biom:
+            open(lower_CI_outfile,'w').write(\
+                format_biom_table(biom_prediction_lower_CI))
+        else:
+            open(lower_CI_outfile,'w').write(\
+                convert_biom_to_precalc(format_biom_table(biom_prediction_lower_CI)))
 
 
 if __name__ == "__main__":
