@@ -12,16 +12,15 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
  
 from os.path import exists, dirname, abspath
-# Won't require PyCogent for right now, just so everyone can
-# get this up and running easily. We will soon though.
-#from cogent.util.unit_test import TestCase, main
-from unittest import TestCase, main
+from cogent.util.unit_test import TestCase, main
 from picrust.util import (get_picrust_project_dir,)
+from biom.parse import parse_biom_table_str
 
 from cogent.core.tree import TreeError
 from cogent.parse.tree import DndParser
 from picrust.util import PicrustNode,\
-  transpose_trait_table_fields
+  transpose_trait_table_fields, convert_precalc_to_biom, convert_biom_to_precalc, biom_meta_to_string
+import StringIO
 
 class PicrustNodeTests(TestCase):
     def setUp(self):
@@ -84,11 +83,51 @@ class UtilTests(TestCase):
     
     def setUp(self):
         """ Initialize variables: run before each test """
-        pass
+        self.precalc_in_biom = parse_biom_table_str(precalc_in_biom)
+
     
     def tearDown(self):
         """ Clean up: run after each test """
         pass
+
+    def test_convert_precalc_to_biom(self):
+        """ convert_precalc_to_biom as expected with valid input """
+
+       
+        #test if table conversion works (and the ablity to handle a string as input)
+        result_table=convert_precalc_to_biom(precalc_in_tab)
+        self.assertEqual(result_table,self.precalc_in_biom)
+
+        #test partial loading (and the ability to handle a file handle as input)
+        ids_to_load = ['OTU_1','OTU_2']
+        two_taxon_table = convert_precalc_to_biom(StringIO.StringIO(precalc_in_tab),ids_to_load)
+        self.assertEqualItems(two_taxon_table.SampleIds,ids_to_load)
+
+    def test_convert_biom_to_precalc(self):
+        """ convert_biom_to_precalc as expected with valid input """
+       
+        result = convert_biom_to_precalc(precalc_in_biom)
+
+        self.assertEqual(result,precalc_in_tab)
+
+    def test_biom_meta_to_string(self):
+        """ biom_meta_to_string functions as expected """
+
+        meta_simple="foo;bar"
+        expect_simple="foo:bar"
+        result_simple=biom_meta_to_string(meta_simple)
+        self.assertEqual(result_simple,expect_simple)
+
+        meta_list=['foo;','bar']
+        expect_list="foo:;bar"
+        result_list=biom_meta_to_string(meta_list)
+        self.assertEqual(result_list,expect_list)
+
+        meta_list_of_list=[['foo;','bar'],['hello','world|']]
+        expect_list_of_list="foo:;bar|hello;world:"
+        result_list_of_list=biom_meta_to_string(meta_list_of_list)
+        self.assertEqual(result_list_of_list,expect_list_of_list)
+        
     
     def test_get_picrust_project_dir(self):
         """get_picrust_project_dir functions as expected"""
@@ -145,6 +184,15 @@ class UtilTests(TestCase):
         
         pass
 
+precalc_in_tab="""#OTU_IDs	f1	f2	f3	metadata_NSTI
+metadata_simple	f1_desc	f2_desc	f3_desc
+metadata_list	f1;l1;l2	f2;l1;l2	f3;l2;l3
+metadata_list_of_lists	f1;l1;l2	f2;l1;l2|f2;l1a;l2a	f3;l3;l2
+OTU_1	1.0	2.0	3.0	1.2
+OTU_2	0.0	0.0	0.0	2.3
+OTU_3	4.0	4.0	4.0	0.5"""
+
+precalc_in_biom="""{"id": "None","format": "Biological Observation Matrix 1.0.0","format_url": "http://biom-format.org","type": "Gene table","generated_by": "test","date": "2013-07-20T23:44:49.970541","matrix_type": "dense","matrix_element_type": "float","shape": [3, 3],"data": [[1.0,0.0,4.0],[2.0,0.0,4.0],[3.0,0.0,4.0]],"rows": [{"id": "f1", "metadata": {"simple": "f1_desc", "list": ["f1", "l1", "l2"], "list_of_lists": [["f1", "l1", "l2"]]}},{"id": "f2", "metadata": {"simple": "f2_desc", "list": ["f2", "l1", "l2"], "list_of_lists": [["f2", "l1", "l2"], ["f2", "l1a", "l2a"]]}},{"id": "f3", "metadata": {"simple": "f3_desc", "list": ["f3", "l2", "l3"], "list_of_lists": [["f3", "l3", "l2"]]}}],"columns": [{"id": "OTU_1", "metadata": {"NSTI": "1.2"}},{"id": "OTU_2", "metadata": {"NSTI": "2.3"}},{"id": "OTU_3", "metadata": {"NSTI": "0.5"}}]}"""
 
 if __name__ == "__main__":
     main()

@@ -12,16 +12,14 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
  
 
-
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
 from biom.table import table_factory,DenseOTUTable
 from picrust.predict_metagenomes import transfer_observation_metadata,\
   transfer_sample_metadata
-from picrust.util import make_output_dir_for_file
 from os import path
 from os.path import join
-from picrust.util import get_picrust_project_dir
+from picrust.util import get_picrust_project_dir, convert_precalc_to_biom,make_output_dir_for_file, format_biom_table
 import gzip
 import sys
 
@@ -37,12 +35,26 @@ script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
  make_option('-o','--output_otu_fp',type="new_filepath",help='the output otu table filepath in biom format'),
 ]
+gg_version_choices=['18may2012']
 script_info['optional_options'] = [
- make_option('-c','--input_count_fp',default=join(get_picrust_project_dir(),'picrust','data','16S_precalculated.biom.gz'),type="existing_filepath",help='the input marker gene counts on per otu basis in biom format (can be gzipped) [default: %default]'),
- make_option('--metadata_identifer',
+    make_option('-g','--gg_version',default='18may2012',type="choice",\
+                    choices=gg_version_choices,\
+                    help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
+                    ', '.join(gg_version_choices)+\
+                    ' [default: %default]'),
+    
+    make_option('-c','--input_count_fp',default=None,type="existing_filepath",\
+                    help='Precalculated input marker gene copy number predictions on per otu basis in biom format (can be gzipped).Note: using this option overrides --gg_version. [default: %default]'),
+    make_option('--metadata_identifer',
              default='CopyNumber',
              help='identifier for copy number entry as observation metadata [default: %default]'),
- make_option('-f','--input_format_classic', action="store_true", default=False, help='input otu table (--input_otu_fp) is in classic Qiime format [default: %default]'),
+    
+    make_option('-f','--input_format_classic', action="store_true", default=False,\
+                 help='input otu table (--input_otu_fp) is in classic Qiime format [default: %default]'),
+    
+    make_option('--load_precalc_file_in_biom',default=False,action="store_true",\
+                    help='Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]'),
+
 ]
 script_info['version'] = __version__
 
@@ -60,18 +72,37 @@ def main():
         except ValueError:
             raise ValueError("Error loading OTU table! If not in BIOM format use '-f' option.\n")
 
-    ext=path.splitext(opts.input_count_fp)[1]
-    if (ext == '.gz'):
-        count_table = parse_biom_table(gzip.open(opts.input_count_fp,'rb'))
+    ids_to_load = otu_table.ObservationIds
+    
+    if(opts.input_count_fp is None):
+        #precalc file has specific name (e.g. 16S_13_5_precalculated.tab.gz)
+        precalc_file_name='_'.join(['16S',opts.gg_version,'precalculated.tab.gz'])
+        input_count_table=join(get_picrust_project_dir(),'picrust','data',precalc_file_name)
     else:
-        count_table = parse_biom_table(open(opts.input_count_fp,'U'))
-        
+        input_count_table=opts.input_count_table
+
+    if opts.verbose:
+        print "Loading trait table: ", input_count_table
+
+    ext=path.splitext(input_count_table)[1]
+    
+    if (ext == '.gz'):
+        count_table_fh = gzip.open(input_count_table,'rb')
+    else:
+        count_table_fh = open(input_count_table,'U')
+       
+    if opts.load_precalc_file_in_biom:
+        count_table = parse_biom_table(count_table_fh.read())
+    else:
+        count_table = convert_precalc_to_biom(count_table_fh,ids_to_load)
+
     #Need to only keep data relevant to our otu list
     ids=[]
     for x in otu_table.iterObservations():
         ids.append(str(x[1]))
 
     ob_id=count_table.ObservationIds[0]
+
 
     filtered_otus=[]
     filtered_values=[]
@@ -108,8 +139,7 @@ def main():
     normalized_otu_table = transfer_sample_metadata(otu_table,normalized_table,'SampleMetadata')
 
     make_output_dir_for_file(opts.output_otu_fp)
-    open(opts.output_otu_fp,'w').write(\
-     normalized_table.getBiomFormatJsonString('PICRUST'))
+    open(opts.output_otu_fp,'w').write(format_biom_table(normalized_table))
 
 
 if __name__ == "__main__":
