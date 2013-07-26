@@ -79,7 +79,7 @@ def main():
         precalc_file_name='_'.join(['16S',opts.gg_version,'precalculated.tab.gz'])
         input_count_table=join(get_picrust_project_dir(),'picrust','data',precalc_file_name)
     else:
-        input_count_table=opts.input_count_table
+        input_count_table=opts.input_count_fp
 
     if opts.verbose:
         print "Loading trait table: ", input_count_table
