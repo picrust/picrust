@@ -108,9 +108,10 @@ def main():
     created_tmp_files=[]
     output_files={}
     output_files['counts']=[]
-    output_files['variances']=[]
-    output_files['upper_CI']=[]
-    output_files['lower_CI']=[]
+    if opts.reconstruction_confidence:
+        output_files['variances']=[]
+        output_files['upper_CI']=[]
+        output_files['lower_CI']=[]
 
     #create a tmp file to store the job commands (which we will pass to our parallel script to run)
     jobs_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='jobs_')
