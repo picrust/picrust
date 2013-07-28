@@ -23,6 +23,8 @@ This script is designed to start multiple jobs in parallel on cluster systems wi
 		Make the job files [default: None]
 	-s, `-`-submit_jobs
 		Submit the job files [default: None]
+	-d, `-`-delay
+		Number of seconds to pause between launching each job [default: 0]
 	-q, `-`-queue
 		Name of queue to submit to  [default: None]
 	-j, `-`-job_dir
