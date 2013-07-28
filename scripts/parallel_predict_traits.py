@@ -12,7 +12,6 @@ __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from picrust.ancestral_state_reconstruction import run_asr_in_parallel
 from picrust.util import make_output_dir_for_file,make_output_dir, get_picrust_project_dir, convert_precalc_to_biom
 from picrust.format_tree_and_trait_table import load_picrust_tree
 from picrust.parallel import submit_jobs, system_call,wait_for_output_files,grouper
