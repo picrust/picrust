@@ -19,15 +19,16 @@ The minimum set of files are:
 GreenGenes v13.5 (and IMG 4)
 ----------------------------
 
-* `16S <https://www.dropbox.com/s/tv4h63tit2tbygx/16S_13_5_precalculated.tab.gz>`_
-* `KO <>`_
-* `COG <>`_
+* `16S <https://github.com/picrust/picrust/releases/download/0.9.2/16S_13_5_precalculated.tab.gz>`_
+* `KO <https://github.com/picrust/picrust/releases/download/0.9.2/ko_13_5_precalculated.tab.gz>`_
+* `COG <https://github.com/picrust/picrust/releases/download/0.9.2/cog_13_5_precalculated.tab.gz>`_
+* `RFAM <https://github.com/picrust/picrust/releases/download/0.9.2/rfam_13_5_precalculated.tab.gz>`_
 
 GreenGenes 18may2012
 --------------------
 
-* `16S <https://www.dropbox.com/s/np658l8bz6ehq5l/16S_18may2012_precalculated.tab.gz>`_
-* `KO <https://www.dropbox.com/s/c3cnh7gozn2lte6/ko_18may2012_precalculated.tab.gz>`_
-* `COG <>`_
+* `16S <https://github.com/picrust/picrust/releases/download/0.9.2/16S_18may2012_precalculated.tab.gz>`_
+* `KO <https://github.com/picrust/picrust/releases/download/0.9.2/ko_18may2012_precalculated.tab.gz>`_
+* `COG <https://github.com/picrust/picrust/releases/download/0.9.2/cog_18may2012_precalculated.tab.gz>`_
 
 
