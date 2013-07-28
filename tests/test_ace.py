@@ -6,7 +6,7 @@ __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.9.2"
+__version__ = "0.9.2-dev"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 __status__ = "Development"
@@ -68,7 +68,7 @@ class AceTests(TestCase):
         self.assertEqual(actual.tostring(),expected.tostring())
         expected_ci=Table(['nodes','trait1','trait2'],\
                               [['14','1.4467|4.5007','2.1979|2.8894'],\
-                               ['12','0.9729|3.7674','2.3892|3.0219'],\
+                               ['12','0.9.2-dev9|3.7674','2.3892|3.0219'],\
                                ['11','0.147|1.527','2.8143|3.1268'],\
                                ['10','3.4227|5.5426','1.8988|2.3788'],\
                                ['sigma','1.9742|0.6981','0.1012|0.0359'],\
