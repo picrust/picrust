@@ -17,7 +17,7 @@ Follow the install instructions found on the website of each of the dependencies
 
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 1.1.1)
+* `biom`_ (version 1.1.2)
 * `numpy`_ (version 1.5.1)
 
 **Rebuilding PICRUSt OR Genome Prediction (optional)**
