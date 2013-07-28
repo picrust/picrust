@@ -20,8 +20,8 @@ GreenGenes v13.5 (and IMG 4)
 ----------------------------
 
 * `16S <https://github.com/picrust/picrust/releases/download/0.9.2/16S_13_5_precalculated.tab.gz>`_
-* `KO <https://github.com/picrust/picrust/releases/download/0.9.2/ko_13_5_precalculated.tab.gz>`_
-* `COG <https://github.com/picrust/picrust/releases/download/0.9.2/cog_13_5_precalculated.tab.gz>`_
+* `KO <https://dl.dropbox.com/s/c4yntzmdbnq7f9n/ko_13_5_precalculated.tab.gz>`_
+* `COG <https://dl.dropbox.com/s/h2zdovmlbcmsszt/cog_13_5_precalculated.tab.gz>`_
 * `RFAM <https://github.com/picrust/picrust/releases/download/0.9.2/rfam_13_5_precalculated.tab.gz>`_
 
 GreenGenes 18may2012
