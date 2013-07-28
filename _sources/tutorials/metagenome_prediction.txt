@@ -44,10 +44,25 @@ Input and output files are in `biom`_ format::
 		-i hmp_mock_16S.tab
 		-o normalized_otus.biom
 
+(Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
+
+          normalize_by_copy_number.py 
+	        --gg_version imgMay2012
+		-i normalized_otus.biom
+		-o metagenome_predictions.biom
+
+(Optional) Previous examples assume that KEGG Orthologs predictions are wanted. Other types of functions (e.g. COGs) can be specified using the ``--type_of_prediction`` option: ::
+
+          normalize_by_copy_number.py 
+	        --type_of_prediction cog
+		-i normalized_otus.biom
+		-o metagenome_predictions.biom
+
+
 Step 2: Predict Functions For Metagenome
 ----------------------------------------
 
-:ref:`predict_metagenomes.py <predict_metagenomes>` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns). (Note: This step requires 2-3GB of RAM)
+:ref:`predict_metagenomes.py <predict_metagenomes>` creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).
 
 Input is the normalized OTU table created by :ref:`normalize_by_copy_number.py <normalize_by_copy_number>`.
  
@@ -71,10 +86,10 @@ Output is in `biom`_ format by default: ::
 		-o metagenome_predictions.tab
 		-a nsti_per_sample.tab
 
-(Optional) Those with machines > 6GB of RAM can get faster run times (~50% less) using the ``--suppress_subset_loading`` option: ::
+(Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
 
         predict_metagenomes.py 
-	        --suppress_subset_loading
+	        --gg_version imgMay2012
 		-i normalized_otus.biom
 		-o metagenome_predictions.biom
 

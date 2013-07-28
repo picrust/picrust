@@ -6,7 +6,7 @@ Installing PICRUSt
 
 .. note:: Most users will not need to install PICRUSt, but can instead use the `online Galaxy version <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_.
 
-PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Finally, you'll install PICRUSt. Each of these steps are detailed below.
+PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you'll install PICRUSt. Each of these steps are detailed below.
 
 Step 1. Install Requirements
 ----------------------------
@@ -31,7 +31,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is 0.9.1. You can download this file from :download:`this link <releases/picrust-0.9.1.tar.gz>`. 
+The latest release of PICRUSt is 0.9.2. You can download this file from `this link <https://github.com/picrust/picrust/releases/download/0.9.2/picrust-0.9.2.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -42,16 +42,30 @@ Alternatively you can download the latest development version of PICRUSt. You ca
 
 	git clone git://github.com/picrust/picrust.git picrust
 
-Step 3. Install PICRUSt
+Step 3. Download PICRUSt's precalculated files
+----------------------------------------------
+
+PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see :ref:`otu_picking_tutorial`).
+
+Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of :ref:`picrust_precalculated_files`.
+
+**These files must be placed in your `picrust-0.9.2/picrust/data` directory before installing.**
+
+* Download for `16S copy number normalization <https://github.com/picrust/picrust/releases/download/0.9.2/16S_13_5_precalculated.tab.gz>`_
+
+* Download for `KEGG Ortholog predictions <https://github.com/picrust/picrust/releases/download/0.9.2/ko_13_5_precalculated.tab.gz>`_ 
+
+
+Step 4. Install PICRUSt
 -----------------------
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 	
-	tar -xzf picrust-0.9.1.tar.gz
+	tar -xzf picrust-0.9.2.tar.gz
 
-You'll then change into the new ``picrust-0.9.1`` directory as follows::
+You'll then change into the new ``picrust-0.9.2`` directory as follows::
 	
-	cd picrust-0.9.1
+	cd picrust-0.9.2
 
 And finally, you'll install PICRUSt with the following command::
 	

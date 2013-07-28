@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>predict_traits.py – Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states &mdash; PICRUSt 0.9.1-dev documentation</title>
+    <title>predict_traits.py – Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states &mdash; PICRUSt 0.9.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.9.1-dev',
+        VERSION:     '0.9.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 0.9.1-dev documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 0.9.2 documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.1-dev documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -73,8 +73,10 @@ In the most common usage, this script is used to predict which gene families are
 <dl class="last docutils">
 <dt>-o, <cite>-</cite>-output_trait_table</dt>
 <dd>The output filepath for trait predictions [default: predicted_states.tsv]</dd>
-<dt>-a, <cite>-</cite>-output_accuracy_metrics</dt>
-<dd>If specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: None]</dd>
+<dt>-a, <cite>-</cite>-calculate_accuracy_metrics</dt>
+<dd>If specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and add to output file [default: False]</dd>
+<dt><cite>-</cite>-output_accuracy_metrics_only</dt>
+<dd>If specified, calculate accuracy metrics (e.g. NSTI), output them to this filepath, and do not do anything else. [default: None]</dd>
 <dt>-m, <cite>-</cite>-prediction_method</dt>
 <dd>Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:asr_and_weighting,nearest_neighbor,asr_only,weighting_only,random_neighbor.  &#8220;asr_and_weighting&#8221;(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  &#8220;nearest_neighbor&#8221;: predict the closest tip on the tree with trait information.  &#8220;random_annotated_neighbor&#8221;: predict a random tip on the tree with trait information. &#8220;asr_only&#8221;: predict the traits of the last reconstructed ancestor, without weighting. &#8220;weighting_only&#8221;: weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: asr_and_weighting]</dd>
 <dt>-w, <cite>-</cite>-weighting_method</dt>
@@ -85,12 +87,25 @@ In the most common usage, this script is used to predict which gene families are
 <dd>Limit predictions to specific, comma-separated organims ids. (Generally only useful for lists of &lt; 10 organism ids, for example when performing leave-one-out cross-validation).</dd>
 <dt>-r, <cite>-</cite>-reconstructed_trait_table</dt>
 <dd>The input trait table describing reconstructed traits (from <a class="reference external" href="./ancestral_state_reconstruction.html">ancestral_state_reconstruction.py</a>) in tab-delimited format [default: None]</dd>
+<dt><cite>-</cite>-confidence_format</dt>
+<dd>The format for the confidence intervals from ancestral state reconstruction. Only needed if passing a reconstruction confidence file with -c or &#8211;reconstruction_confidence.  These are typically sigma values for maximum likelihood ASR  methods, but 95% confidence intervals for phylogenetic independent contrasts (e.g. from the ape R packages ace function with pic as the reconstruction method).  Valid choices are:sigma,confidence_interval. [default: sigma]</dd>
 <dt>-c, <cite>-</cite>-reconstruction_confidence</dt>
 <dd>The input trait table describing confidence intervals for reconstructed traits (from <a class="reference external" href="./ancestral_state_reconstruction.html">ancestral_state_reconstruction.py</a>) in tab-delimited format [default: None]</dd>
+<dt><cite>-</cite>-output_precalc_file_in_biom</dt>
+<dd>Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: False]</dd>
 </dl>
 </div>
 <p><strong>Output:</strong></p>
 <p>Output is a table (tab-delimited or .biom) of predicted character states</p>
+<p>Required options with NSTI:</p>
+<div class="highlight-python"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab</pre>
+</div>
+<p>Limit predictions to particular tips in OTU table:</p>
+<div class="highlight-python"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab</pre>
+</div>
+<p>Reconstruct confidence</p>
+<div class="highlight-python"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -c asr_ci.tab -o predict_traits.tab</pre>
+</div>
 </div>
 
 
@@ -127,12 +142,12 @@ In the most common usage, this script is used to predict which gene families are
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 0.9.1-dev documentation</a> &raquo;</li> 
+        <li><a href="../index.html">PICRUSt 0.9.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
