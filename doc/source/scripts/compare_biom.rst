@@ -45,8 +45,20 @@
 Outputs will be tab delimited file with various accuracy metrics.
 
 
+**Example 1:**
+
+Compare an observed table to an expected table using relative abundance
+
 ::
 
-	compare_biom.py -e exp_otu_table.biom -o results.tab obs_otu_table.biom [obs_otu_table2.biom]
+	compare_biom.py -e expected_ra.biom -o compare_results_ra.tab observed_ra.biom
+
+**Example 2:**
+
+Compare an observed table to an expected table using real counts
+
+::
+
+	compare_biom.py --not_relative_abundance -e expected.biom -o compare_results.tab observed.biom
 
 

@@ -47,18 +47,12 @@ Provides a common interface for running various ancenstral state reconstruction 
 A table containing trait information for internal nodes of the tree.
 
 
-**Minimum Requirments:**
+**Example 1:**
 
-Provide a tree file and trait table file
-
-::
-
-	ancestral_state_reconstruction.py -i trait_table_fp -t tree_fp
-
-**Specify output file:**
+Provide a tree file and trait table file:
 
 ::
 
-	ancestral_state_reconstruction.py -i trait_table_fp -t tree_fp -o output_file_fp
+	ancestral_state_reconstruction.py -i trait_table.tab -t pruned_tree.newick -o asr_counts.tab -c asr_ci.tab
 
 
