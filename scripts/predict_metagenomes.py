@@ -38,12 +38,12 @@ script_info['required_options'] = [
 type_of_prediction_choices=['ko','cog','rfam']
 gg_version_choices=['13_5','18may2012']
 script_info['optional_options'] = [\
-    make_option('-t','--type_of_prediction',default='ko',type="choice",\
+    make_option('-t','--type_of_prediction',default=type_of_prediction_choices[0],type="choice",\
                     choices=type_of_prediction_choices,\
                     help='Type of functional predictions. Valid choices are: '+\
                     ', '.join(type_of_prediction_choices)+\
                     ' [default: %default]'),
-    make_option('-g','--gg_version',default='13_5',type="choice",\
+    make_option('-g','--gg_version',default=gg_version_choices[0],type="choice",\
                     choices=gg_version_choices,\
                     help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
                     ', '.join(gg_version_choices)+\
