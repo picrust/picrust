@@ -27,7 +27,7 @@ script_info['brief_description'] = "This script partitions metagenome functional
 script_info['script_description'] = ""
 script_info['script_usage'] = [
 ("","Partition the predicted contribution to the  metagenomes from each organism in the given OTU table, limited to only K00001, K00002, and K00004.","%prog -i normalized_otus.biom -l K00001,K00002,K00004 -o ko_metagenome_contributions.tab"),
-("","Partition the predicted contribution to the  metagenomes from each organism in the given OTU table, limited to only COG0001 and COG0002.","%prog -i normalized_otus.biom -l COG0001,COG0002 -t COG -o cog_metagenome_contributions.tab")
+("","Partition the predicted contribution to the  metagenomes from each organism in the given OTU table, limited to only COG0001 and COG0002.","%prog -i normalized_otus.biom -l COG0001,COG0002 -t cog -o cog_metagenome_contributions.tab")
 ]
 script_info['output_description']= "Output is a tab-delimited column indicating OTU contribution to each function."
 script_info['required_options'] = [
@@ -37,12 +37,12 @@ script_info['required_options'] = [
 type_of_prediction_choices=['ko','cog','rfam']
 gg_version_choices=['13_5','18may2012']
 script_info['optional_options'] = [\
-    make_option('-t','--type_of_prediction',default='ko',type="choice",\
+    make_option('-t','--type_of_prediction',default=type_of_prediction_choices[0],type="choice",\
                     choices=type_of_prediction_choices,\
                     help='Type of functional predictions. Valid choices are: '+\
                     ', '.join(type_of_prediction_choices)+\
                     ' [default: %default]'),
-    make_option('-g','--gg_version',default='13_5',type="choice",\
+    make_option('-g','--gg_version',default=gg_version_choices[0],type="choice",\
                     choices=gg_version_choices,\
                     help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
                     ', '.join(gg_version_choices)+\
