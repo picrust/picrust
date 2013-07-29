@@ -77,7 +77,8 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
                 col_meta_dict[meta_name]=fields[col_meta_locs[meta_name]]
             col_meta.append(col_meta_dict)
 
-            ids_to_load.remove(row_id)
+            if not load_all_ids:
+                ids_to_load.remove(row_id)
 
     if ids_to_load:
        raise Exception("One or more OTU ids were not found in the precalculated file!\nAre you using the correct --gg_version?\nExample of (the {0}) unknown OTU ids: {1}".format(len(ids_to_load),', '.join(list(ids_to_load)[:5]))) 
