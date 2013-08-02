@@ -11,28 +11,44 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from numpy import dot, array, around, asarray
+from numpy import dot, array, around, asarray, sum as numpy_sum,sqrt
 from biom.table import table_factory,SparseGeneTable, DenseGeneTable
 from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
+from picrust.predict_traits import variance_of_weighted_mean,calc_confidence_interval_95
 
-def get_overlapping_ids(otu_table,genome_table):
-    """Get the ids that overlap between the OTU and genome tables"""
-    overlapping_otus = list(set(otu_table.ObservationIds) & 
-                            set(genome_table.SampleIds))
+def get_overlapping_ids(otu_table,genome_table,genome_table_ids="SampleIds",\
+  otu_table_ids="ObservationIds"):
+    """Get the ids that overlap between the OTU and genome tables
+    otu_table - a BIOM Table object representing the OTU table
+    genome_table - a BIOM Table object for the genomes
+    genome_table_ids - specifies whether the ids of interest are SampleIds or ObservationIds
+      in the genome table.  Useful because metagenome tables are often represented with genes
+      as observations.
+    """
+    for id_type in [genome_table_ids,otu_table_ids]:
+        if id_type not in ["SampleIds","ObservationIds"]:
+            raise ValueError(\
+              "%s is not a valid id type. Choices are 'SampleIds' or 'ObservationIds'"%id_type)
+    overlapping_otus = list(set(getattr(otu_table,otu_table_ids)) & 
+                            set(getattr(genome_table,genome_table_ids)))
     
     if len(overlapping_otus) < 1:
+        print "OTU Ids:",getattr(otu_table,otu_table_ids)
+        print "Genome Ids:",getattr(genome_table,genome_table_ids)
         raise ValueError,\
          "No common OTUs between the otu table and the genome table, so can't predict metagenome."
     return overlapping_otus
 
              
-def extract_otu_and_genome_data(otu_table,genome_table):
+def extract_otu_and_genome_data(otu_table,genome_table,genome_table_ids="SampleIds",\
+  otu_table_ids="ObservationIds"):
     """Return lists of otu,genome data, and overlapping genome/otu ids
     
     otu_table -- biom Table object for the OTUs
     genome_table -- biom Table object for the genomes
     """
-    overlapping_otus = get_overlapping_ids(otu_table,genome_table)
+    overlapping_otus = get_overlapping_ids(otu_table,genome_table,\
+      genome_table_ids=genome_table_ids,otu_table_ids=otu_table_ids)
     # create lists to contain filtered data - we're going to need the data in 
     # numpy arrays, so it makes sense to compute this way rather than filtering
     # the tables
@@ -41,8 +57,14 @@ def extract_otu_and_genome_data(otu_table,genome_table):
     
     # build lists of filtered data
     for obs_id in overlapping_otus:
-        otu_data.append(otu_table.observationData(obs_id))
-        genome_data.append(genome_table.sampleData(obs_id))
+        if otu_data == "SampleIds":
+           otu_data.append(otu_table.sampleData(obs_id))
+        else:
+            otu_data.append(otu_table.observationData(obs_id))
+        if genome_table_ids == "ObservationIds":
+           genome_data.append(genome_table.observationData(obs_id))
+        else:
+           genome_data.append(genome_table.sampleData(obs_id))
     return otu_data,genome_data,overlapping_otus 
 
 
@@ -88,7 +110,6 @@ def yield_subset_biom_str(biom_str,new_data,new_axis_md,axis):
     else:
         yield direct_parse_key(biom_str, "rows")
     yield "}"
-        
 
 def predict_metagenomes(otu_table,genome_table,verbose=False):
     """ predict metagenomes from otu table and genome table 
@@ -244,4 +265,46 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     #print "result:",result
     
     return observation_ids,result
+def variance_of_dot_product(variances_v1,variances_v2):
+    """Calculate the variance of a dot product
+    The dot product is the sum of products for each pair of items in vector1 and vector2
 
+    The variance of each product of v1[i] and v2[i] is approximated by:
+    variance_v1[i]/(v1[i]**2) + variance_v2[i]/(v2[i]**2) +2(sqrt(variance_v1[i])*sqrt(variance_v1[i]))*r(v1,v2)/(v1[i]*v2[i])
+    Where r(v1,v2) is the correlation coefficient for v1 and v2.  (If v1 and v2 are uncorrelated the final term can be omitted)
+
+    As described here: http://en.wikipedia.org/wiki/Propagation_of_uncertainty
+    
+    """
+
+def variance_of_product(A,B,varA,varB,r=0):
+    variance = (varA/A)**2 + (varB/B)**2 
+    if r !=0: #vectors are correlated
+        variance += 2*(sqrt(varA)*sqrt(varB))*r/(A*B)
+    return variance
+
+def variance_of_sum(varA,varB,r=0,sign_of_varB=1):
+
+    variance = varA + varB + 2*(sqrt(varA)*sqrt(varB))*r*sign_of_varB
+    return variance
+
+def predict_metagenome_variances(otu_table,metagenome_table,variances):
+    """Predict variances for metagenome predictions
+    otu_table -- BIOM Table object of OTUs
+    metagenome_table -- BIOM Table object of predicted gene counts per OTU and samples
+    variances -- BIOM Table object of predicted variance in each gene count
+    """
+
+    # Each predicted gene family will be assigned a weight in the final
+    # meatagenome based on the relative abundnace of the OTUs in which
+    # that gene family is found.  
+    metagenome_data,variance_data,overlapping_genes = extract_otu_and_genome_data(metagenome_table,\
+      variances,otu_table_ids="ObservationIds",genome_table_ids="ObservationIds")
+    print "OTU data:",otu_data
+    print "variance_data:",variance_data
+    weight_per_otu = numpy_sum(otu_data,axis=1)
+    print "weight_per_otu:",weight_per_otu
+    
+    gene_variances = variance_of_weighted_mean(numpy_sum(array(otu_data),axis=1),array(variance_data),per_sample_axis=1)
+    lower_95_CI,upper_95_CI = calc_confidence_interval_95(metagenome_table, gene_variances)
+    return gene_variances, lower_95_CI,upper_95_CI
