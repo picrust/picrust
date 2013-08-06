@@ -80,8 +80,11 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
             if not load_all_ids:
                 ids_to_load.remove(row_id)
 
+    if not otu_ids:
+        raise ValueError,"No OTUs match identifiers in precalculated file. PICRUSt requires an OTU table reference/closed picked against GreenGenes.\nExample of the first 5 OTU ids from your table: {0}".format(', '.join(list(ids_to_load)[:5]))
+
     if ids_to_load:
-       raise Exception("One or more OTU ids were not found in the precalculated file!\nAre you using the correct --gg_version?\nExample of (the {0}) unknown OTU ids: {1}".format(len(ids_to_load),', '.join(list(ids_to_load)[:5]))) 
+       raise ValueError,"One or more OTU ids were not found in the precalculated file!\nAre you using the correct --gg_version?\nExample of (the {0}) unknown OTU ids: {1}".format(len(ids_to_load),', '.join(list(ids_to_load)[:5]))
         
     #note that we transpose the data before making biom obj
     if transpose:

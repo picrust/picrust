@@ -103,6 +103,12 @@ class UtilTests(TestCase):
         two_taxon_table = convert_precalc_to_biom(StringIO.StringIO(precalc_in_tab),ids_to_load)
         self.assertEqualItems(two_taxon_table.SampleIds,ids_to_load)
 
+    def test_convert_precalc_to_biom_value_error(self):
+        """ convert_precalc_to_biom raises ValueError when no overlapping otu ids or additional ids """
+        self.assertRaises(ValueError,convert_precalc_to_biom,precalc_in_tab,['bogus_id1','bogus_id2'])
+        self.assertRaises(ValueError,convert_precalc_to_biom,precalc_in_tab,['OTU_1','bogus_id2'])
+
+
     def test_convert_biom_to_precalc(self):
         """ convert_biom_to_precalc as expected with valid input """
        
