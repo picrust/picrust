@@ -47,17 +47,9 @@ Input and output files are in `biom`_ format::
 (Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
 
           normalize_by_copy_number.py 
-	        --gg_version imgMay2012
-		-i normalized_otus.biom
-		-o metagenome_predictions.biom
-
-(Optional) Previous examples assume that KEGG Orthologs predictions are wanted. Other types of functions (e.g. COGs) can be specified using the ``--type_of_prediction`` option: ::
-
-          normalize_by_copy_number.py 
-	        --type_of_prediction cog
-		-i normalized_otus.biom
-		-o metagenome_predictions.biom
-
+	        --gg_version 18may2012
+		-i hmp_mock_16S.biom
+		-o normalized_otus.biom
 
 Step 2: Predict Functions For Metagenome
 ----------------------------------------
@@ -89,10 +81,16 @@ Output is in `biom`_ format by default: ::
 (Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
 
         predict_metagenomes.py 
-	        --gg_version imgMay2012
+	        --gg_version 18may2012
 		-i normalized_otus.biom
 		-o metagenome_predictions.biom
 
+(Optional) Previous examples assume that KEGG Orthologs predictions are wanted. Other types of functions (e.g. COGs) can be specified using the ``--type_of_prediction`` option: ::
+
+          predict_metagenomes.py 
+	        --type_of_prediction cog
+		-i normalized_otus.biom
+		-o metagenome_predictions.biom
 
 Step 3: Analysing Predicted Metagenomes
 ---------------------------------------
