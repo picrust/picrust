@@ -125,27 +125,118 @@ def predict_metagenomes(otu_table,genome_table,verbose=False):
     # return the result as a sparse biom table - the sample ids are now the 
     # sample ids from the otu table, and the observation ids are now the 
     # functions (i.e., observations) from the genome table
-
-
-    result_table =  table_factory(new_data,otu_table.SampleIds,genome_table.ObservationIds,constructor=SparseGeneTable)
-
-    #We need to preserve metadata about the samples from the OTU table, 
+    
+    # While constructing the new table, we need to  preserve metadata about the samples from the OTU table, 
     #and metadata about the gene functions from the genome table
+    result_table=table_from_template(new_data,otu_table.SampleIds,genome_table.ObservationIds,\
+      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
+      constructor=SparseGeneTable,verbose=verbose)
+
+    return result_table
+
+def predict_metagenome_variances(otu_table,genome_table,\
+    gene_variances,verbose=False):
+    """Predict variances for metagenome predictions
+    otu_table -- BIOM Table object of OTUs
+    gene_table -- BIOM Table object of predicted gene counts per OTU and samples
+    gene_variances -- BIOM Table object of predicted variance in each gene count
+   
+   Note that OTU counts are treated as constants (exactly known) rather than random variables
+   for now.   If a good method for getting variance for OTU counts becomes available, this should
+   be updated to treat them as random variables as well.
+   """
+    #Assume that OTUs are SampleIds in the genome table, but ObservationIds in the OTU table
+    genome_table_otu_ids="SampleIds"
+    otu_table_otu_ids="ObservationIds"
+    
+    #Find overlapping otus
+    overlapping_otus = get_overlapping_ids(otu_table,genome_table,\
+                  genome_table_ids=genome_table_otu_ids,otu_table_ids=otu_table_otu_ids)
+   
+    #Filter OTU and Genome Table to contain only overlapping IDs
+    #print "overlapping_otus:",overlapping_otus
+    otu_table.filterObservations(lambda val,otu_id,metadata: otu_id in overlapping_otus)
+    genome_table.filterSamples(lambda val,otu_id,metadata: otu_id in overlapping_otus)
+    
+    #Handle missing variance data
+    #if gene_variances is None:
+    #    gene_variances = genome_table.copy()
+    #    gene_variances.transformSamples(lambda val,otu_id,metadata: val*0.0) 
+    #    #TODO: test if this is faster or slower than filling numpy.zeros followed by table
+    #    #construction
+
+   
+    metagenome_data = None
+    metagenome_variance_data = None
+    for otu_id in overlapping_otus:
+        otu_across_samples = otu_table.observationData(otu_id)
+        #print "otu_across_samples:",otu_across_samples
+        otu_across_genes = genome_table.sampleData(otu_id)
+        #print "otu_across_genes:",otu_across_genes
+        
+        #otu_variance_across_samples = otu_variances.observationData(otu_id)
+        #print "var(otu_across_samples):",otu_variance_across_samples
+        otu_variance_across_genes = gene_variances.sampleData(otu_id)
+        #print "var(otu_across_genes):",otu_variance_across_genes
+        otu_contrib_to_metagenome=array([o*otu_across_genes for o in otu_across_samples])
+        #print "OTU contribution to metagenome:",otu_contrib_to_metagenome
+        
+        var_otu_contrib_to_metagenome=\
+          array([scaled_variance(otu_variance_across_genes,o) for o in otu_across_samples])
+        #print "var(OTU contribution to metagenome:)",var_otu_contrib_to_metagenome
+        
+        if metagenome_data is None:
+            metagenome_data = otu_contrib_to_metagenome
+            metagenome_variance_data = var_otu_contrib_to_metagenome
+        else:
+            metagenome_data += otu_contrib_to_metagenome
+            metagenome_variance_data = variance_of_sum(metagenome_variance_data,var_otu_contrib_to_metagenome)
+
+    #print metagenome_data.T
+    #print predict_metagenomes(otu_table,genome_table)
+    data_result = metagenome_data.T    
+    variance_result = metagenome_variance_data.T
+    #print variance_result
+
+    #Wrap results into BIOM Tables
+    result_data_table=\
+      table_from_template(data_result,otu_table.SampleIds,genome_table.ObservationIds,\
+      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
+      constructor=SparseGeneTable)
+
+    result_variance_table=\
+      table_from_template(variance_result,otu_table.SampleIds,genome_table.ObservationIds,\
+      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
+      constructor=SparseGeneTable,verbose=verbose)
+    
+    return result_data_table,result_variance_table
+
+
+def table_from_template(new_data,sample_ids,observation_ids,\
+    sample_metadata_source=None,observation_metadata_source=None,\
+    constructor=SparseGeneTable,verbose=False):
+    """Build a new BIOM table from new_data, and transfer metadata from 1-2 existing tables"""
+
+    #Build the BIOM table
+    result_table =  table_factory(new_data,sample_ids,observation_ids,constructor=SparseGeneTable)
+    
     
     #Transfer sample metadata from the OTU table
     #to the metagenome table (samples are the same)
-    result_table = transfer_metadata(otu_table,result_table,\
-      donor_metadata_type='SampleMetadata',\
-      recipient_metadata_type='SampleMetadata',verbose=verbose)
+    if sample_metadata_source:
+        result_table = transfer_metadata(sample_metadata_source,result_table,\
+          donor_metadata_type='SampleMetadata',\
+          recipient_metadata_type='SampleMetadata',verbose=verbose)
     
     #Now transfer observation metadata (e.g. gene metadata) 
     #from the genome table to the result table
-    result_table = transfer_metadata(genome_table,result_table,\
-      donor_metadata_type='ObservationMetadata',\
-      recipient_metadata_type='ObservationMetadata',verbose=verbose)
+    if observation_metadata_source:
+        result_table = transfer_metadata(observation_metadata_source,result_table,\
+          donor_metadata_type='ObservationMetadata',\
+          recipient_metadata_type='ObservationMetadata',verbose=verbose)
     
-
     return result_table
+
 
 
 def transfer_metadata(donor_table,recipient_table,\
@@ -266,219 +357,32 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     
     return observation_ids,result
 
-
-
-def dot_product_with_variance(v1,v2,variances_v1,variances_v2,epsilon=1e-20):
-    """Calculate the variance of a dot product
-    The dot product is the sum of products for each pair of items in vector1 and vector2
-    """
-    #For now assume 2D matrices!
-    if v1.ndim != 2 or v2.ndim !=2:
-        raise ValueError("Currently only multiplication of 2D matrices is supported")
-    #Ensure data matrices are the same shape
-    if v1.shape[0] != v2.shape[1]:
-        raise ValueError("Matrix multiplication requires an equal number of rows in matrix A as columns in matrix B. A:%s. B:%s"%(v1.shape,v2.shape))
-    #Ensure variance matrices have the same shape
-    #if  variances_v1.shape[0] != variances_v2.shape[1]:
-    #    raise ValueError("Matrix multiplication with variance requires an equal number of rows in variance matrix A as columns in variance matrix B. A:%s. B:%s"%(variances_v1.shape,variances_v2.shape))
-    #Ensure variance and data matrix have the same shape
-    #if variances_v1.shape[0] != v2.shape[1]:
-    #    raise ValueError("Matrix multiplication with variance requires an equal number of rows in variance matrix A as columns in data matrix B. A:%s. B:%s"%(variances_v1.shape,v2.shape))
-    
-    print "v1:",v1
-    print "v1.T:",v1.T
-    print "v2:",v2
-    #v1 = v1.T
-    data_result= v1.dot(v2)
-
-    #First get the dot product result.
-    #Each entry in the final dot product simply results from multiplication and summing of 
-    #elements in v1 and v2
-    
-    #X-axis contribution 
-    print "final shape:",data_result.shape
-    print "v1.ravel",v1.ravel()
-    print "v2.ravel",v2.ravel()
-    
-    result = sum([v1[i,:]*v2[:,i] for i in range(v1.shape[0])])
-    print "simple result:",result
-    variance_result = None
-    return data_result,variance_result
-
-
-
-
-def variance_of_vector_product(v1,v2,var_v1,var_v2,r=0):
-    """calculate the variance of the product of two 1D vectors"""
-    if v1.ndim != 1 or v2.ndim !=1:
-        raise ValueError("variance of vector product can only accept two 1D vectors")
-    if v1.shape != v2.shape or var_v1.shape != var_v2.shape or var_v1.shape != v1.shape:
-        raise ValueError("Vectors must be the same shape")
-    #multiply elements
-    return variance_of_product(v1,v2,var_v1,var_v2,r)
-
 def variance_of_product(A,B,varA,varB,r=0):
-    variance = (varA/A)**2 + (varB/B)**2 
+    """Return the variance of the product of two random variables A and B"""
+    print "variance of product inputs:",A,B,varA,varB
+    variance = (varA**2)/(A**2) 
+    print "variance due to A:",variance
+    variance += (varB**2)/(B**2) 
+    print "variance due to A+B:",variance
     #add variance due to correlation between vectors
     variance += 2*(sqrt(varA)*sqrt(varB))*r/(A*B)
+    print "variance:",variance
     return variance
+
+def scaled_variance(var_x,c):
+    """Return the variance of a random variable X scaled by a constant c 
+    
+    Formula:  Var(X*c) = var(X)*(c**2)
+    
+    """
+    return var_x*(c**2)
 
 def variance_of_sum(varA,varB,r=0,sign_of_varB=1):
 
     variance = varA + varB + 2*(sqrt(varA)*sqrt(varB))*r*sign_of_varB
     return variance
 
-
-def predict_metagenome_variances(otu_table,genome_table,\
-    gene_variances=None,otu_variances=None,epsilon=1e-20):
-    """Predict variances for metagenome predictions
-    otu_table -- BIOM Table object of OTUs
-    gene_table -- BIOM Table object of predicted gene counts per OTU and samples
-    gene_variances -- None or BIOM Table object of predicted variance in each gene count
-      If set to None, an empty array containing epsilon (very small) variance will be created 
-      in the same shape as the gene table data.
-    otu_variances -- None or BIOM Table object of predicted variance in each OTU count
-      If set to None, an empty array containing epsilon (very small) variance will be created 
-      in the same shape as the otu table data.
-   """
-    #Assume that OTUs are SampleIds in the genome table, but ObservationIds in the OTU table
-    genome_table_otu_ids="SampleIds"
-    otu_table_otu_ids="ObservationIds"
-    
-    #Find overlapping otus
-    overlapping_otus = get_overlapping_ids(otu_table,genome_table,\
-                  genome_table_ids=genome_table_otu_ids,otu_table_ids=otu_table_otu_ids)
    
-    #Filter OTU and Genome Table to contain only overlapping IDs
-    print "overlapping_otus:",overlapping_otus
-    otu_table.filterObservations(lambda val,otu_id,metadata: otu_id in overlapping_otus)
-    genome_table.filterSamples(lambda val,otu_id,metadata: otu_id in overlapping_otus)
-    
-    #Handle missing variance data
-    if gene_variances is None:
-        gene_variances = genome_table.copy()
-        gene_variances.transformSamples(lambda val,otu_id,metadata: val*0.0) 
-        #TODO: test if this is faster or slower than filling numpy.zeros followed by table
-        #construction
-
-    if otu_variances is None:
-        otu_variances = otu_table.copy()
-        otu_variances.transformObservations(lambda val,otu_id,metadata: val*0.0) #just setting to zero doesn't work! 
-        #TODO: test if this is faster or slower than filling numpy.zeros followed by table
-        #construction
-
-
-    metagenome_data = None
-    metagenome_variance_data = None
-    for otu_id in overlapping_otus:
-        otu_across_samples = otu_table.observationData(otu_id)
-        print "otu_across_samples:",otu_across_samples
-        otu_across_genes = genome_table.sampleData(otu_id)
-        print "otu_across_genes:",otu_across_genes
-        
-        otu_variance_across_samples = otu_variances.observationData(otu_id)
-        print "var(otu_across_samples):",otu_variance_across_samples
-        otu_variance_across_genes = gene_variances.sampleData(otu_id)
-        print "var(otu_across_genes):",otu_variance_across_genes
-        otu_contrib_to_metagenome=array([o*otu_across_genes for o in otu_across_samples])
-        print "OTU contribution to metagenome:",otu_contrib_to_metagenome
-        S = otu_across_samples+epsilon
-        G = otu_across_genes+epsilon
-        var_otu_contrib_to_metagenome=\
-          array([variance_of_product(o,G,otu_variance_across_samples[i],otu_variance_across_genes,r=0.0)\
-          for i,o in enumerate(S)])
-        print "var(OTU contribution to metagenome:)",var_otu_contrib_to_metagenome
-        if metagenome_data is None:
-            metagenome_data = otu_contrib_to_metagenome
-            metagenome_variance_data = var_otu_contrib_to_metagenome
-        else:
-            metagenome_data += otu_contrib_to_metagenome
-            metagenome_variance_data = variance_of_sum(metagenome_variance_data,var_otu_contrib_to_metagenome)
-
-    print metagenome_data.T
-    print predict_metagenomes(otu_table,genome_table)
-    data_result = metagenome_data.T    
-    variance_result = metagenome_variance_data.T
-    print variance_result
-    #TODO: wrap into BIOM Table
-    return data_result,variance_result
-
-def predict_metagenome_variances_backup(otu_table,genome_table,\
-    gene_variances=None,otu_variances=None,epsilon=1e-20):
-    """Predict variances for metagenome predictions
-    otu_table -- BIOM Table object of OTUs
-    gene_table -- BIOM Table object of predicted gene counts per OTU and samples
-    gene_variances -- None or BIOM Table object of predicted variance in each gene count
-      If set to None, an empty array containing epsilon (very small) variance will be created 
-      in the same shape as the gene table data.
-    otu_variances -- None or BIOM Table object of predicted variance in each OTU count
-      If set to None, an empty array containing epsilon (very small) variance will be created 
-      in the same shape as the otu table data.
-
-    Method description:
-
-    Metagenome prediction is calculated using the dot product
-    of the transposed OTU table and the genome table
-    
-    To calculate the effects of this operation on variance in the gene product,
-    we need to find the intermediate steps, and account for the variance steps of 
-    each.
-
-    From the  numpy 1.7 documentation(dot function, http://docs.scipy.org/doc/numpy/reference/generated/numpy.dot.html):
-    'For 2-D arrays it is equivalent to matrix multiplication, and for 1-D arrays to inner product of vectors (without complex conjugation). For N dimensions it is a sum product over the last axis of a and the second-to-last of b:
-
-    dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])'
-
-    Therefore, the strategy employed is to decompose the dot product step in predict_metagenomes.py into smaller steps
-    that each consist of only addition or matrix multiplication for 1D arrays.  Uncertainty is then propagated across
-    each of these smaller steps.
-    """
-     
-    #Restrict to informative  ids 
-    otu_data,genome_data,overlapping_otus =\
-      extract_otu_and_genome_data(otu_table,genome_table)
-    
-    otu_data = array(otu_data).T
-    #otu_data=array(otu_data)
-    genome_data = array(genome_data)
-    #genome_data = array(genome_data).T
-    #Create a default array with tiny variance if none is supplied
-    
-    if otu_variances is None:
-        otu_variance_data = zeros(otu_data.shape)
-        #otu_variance_data.fill(epsilon)
-    else:
-        otu_variance_data = array(otu_variances)
-    
-    if gene_variances is None:
-        gene_variance_data = zeros(genome_data.shape)
-        #gene_Variance_data.fill(epsilon)
-    else:
-        #We only care about the new variance data
-        redundant_otu_data,gene_variance_data,redundant_overlapping_otus =\
-          extract_otu_and_genome_data(otu_table,gene_variances)
-        gene_variance_data = array(gene_variance_data)
-   
-    print "otu_data.shape:",otu_data.shape
-    print "genome_data.shape:",genome_data.shape
-    results,variances = dot_product_with_variance(otu_data,\
-      genome_data,otu_variance_data,gene_variance_data,epsilon=epsilon)
-    
-    #print "varaince_result:",variance_result
-    #If we are rounding results, round them:
-    data_result=around(results.T)
-    variance_result = around(variances.T)
-    
-    #Convert to BIOM Table output
-    #print "Genome table, sampleIDs:",genome_table.SampleIds
-    #print "Genome table, obsIDs:",genome_table.ObservationIds
-    #print "gene result:",data_result.shape
-    #print "variance result:",variance_result.shape
-
-    data_result_table =  table_factory(data_result,otu_table.SampleIds,genome_table.SampleIds,constructor=SparseGeneTable)
-    variance_result_table =  table_factory(variance_result,otu_table.SampleIds,genome_table.SampleIds,constructor=SparseGeneTable)
-    return data_result_table, variance_result_table
-    
 def sum_rows_with_variance(data_array,variance_array):    
     """Sum the rows of an array, returning sum and variance arrays
         
