@@ -1119,12 +1119,12 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
         return results
 
 def calc_confidence_interval_95(predictions,variances,round_CI=True,\
-        min_val=None,max_val=None):
+        min_val=0.0,max_val=None):
     """Calc the 95% confidence interval given predictions and variances"""
     stdev = sqrt(variances)
     pred = predictions
     CI_95 =  1.96*stdev
-    lower_95_CI = numpy_max([0.0]*len(pred),pred - CI_95)
+    lower_95_CI = around(pred - CI_95)
     upper_95_CI = around(pred + CI_95)
     if round_CI:
         lower_95_CI = around(lower_95_CI)
