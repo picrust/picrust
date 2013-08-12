@@ -31,6 +31,8 @@ script_info['script_usage'] = [("","Predict KO abundances for a given OTU table 
                                     "%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
                                ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt"),
                                ("","Predict COG abundances for a given OTU table.","%prog -i normalized_otus.biom -t cog -o cog_predicted_metagenomes.biom"),\
+                               ("","Predict metagenomes using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom"),\
+                               ("","Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table_with_confidence.biom --with_confidence"),\
                                    ("","Change the version of GG used to pick OTUs","%prog -i normalized_otus.biom -g 18may2012 -o predicted_metagenomes.biom")]
 script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
@@ -78,7 +80,9 @@ def determine_data_table_fp(precalc_data_dir,type_of_prediction,gg_version,\
     
     if(user_specified_table is None):
         #We assume the precalc file has a specific name (e.g. ko_13_5_precalculated.tab.gz)
-        precalc_file_name='_'.join([type_of_prediction,gg_version,precalc_file_suffix])
+        precalc_file_name='_'.join([type_of_prediction,gg_version,\
+          precalc_file_suffix])
+        
         input_count_table=join(precalc_data_dir,precalc_file_name)
     else:
         input_count_table=user_specified_table
@@ -88,7 +92,8 @@ def determine_data_table_fp(precalc_data_dir,type_of_prediction,gg_version,\
     return input_count_table
 
 def load_data_table(data_table_fp,\
-  load_data_table_in_biom=False,suppress_subset_loading=False,ids_to_load=None,transpose=False,verbose=False):
+  load_data_table_in_biom=False,suppress_subset_loading=False,ids_to_load=None,\
+  transpose=False,verbose=False):
     """Load a data table, detecting gziiped files and subset loading
     data_table_fp -- path to the input data table
     
@@ -143,12 +148,15 @@ def main():
     ids_to_load = otu_table.ObservationIds
     
     if opts.verbose:
-        print "Done loading OTU table containing %i samples and %i OTUs." %(len(otu_table.SampleIds),len(otu_table.ObservationIds))
+        print "Done loading OTU table containing %i samples and %i OTUs." \
+          %(len(otu_table.SampleIds),len(otu_table.ObservationIds))
     
-    #Hardcoded loaction of the precalculated datasets for PICRUSt, relative to the project directory
+    #Hardcoded loaction of the precalculated datasets for PICRUSt,
+    #relative to the project directory
     precalc_data_dir=join(get_picrust_project_dir(),'picrust','data')
 
-    # Load a table of gene counts by OTUs.   This can be either user-specified or precalculated
+    # Load a table of gene counts by OTUs.
+    #This can be either user-specified or precalculated
     genome_table_fp = determine_data_table_fp(precalc_data_dir,\
       opts.type_of_prediction,opts.gg_version,\
       user_specified_table=opts.input_count_table,verbose=opts.verbose)
@@ -175,7 +183,9 @@ def main():
               user_specified_table=opts.input_count_table)
 
         if opts.verbose:
-            print "Loading variance information from table: %s" %variance_table_fp
+            print "Loading variance information from table: %s" \
+            %variance_table_fp
+        
         variance_table= load_data_table(variance_table_fp,\
           load_data_table_in_biom=opts.load_precalc_file_in_biom,\
           suppress_subset_loading=opts.suppress_subset_loading,\
@@ -208,9 +218,6 @@ def main():
 
     if opts.accuracy_metrics:
         # Calculate accuracy metrics
-        #unweighted_nsti = calc_nsti(otu_table,genome_table,weighted=False)
-        #print "Unweighted NSTI:", unweighted_nsti
-        
         weighted_nsti = calc_nsti(otu_table,genome_table,weighted=True)
         samples= weighted_nsti[0]
         nstis = list(weighted_nsti[1])
@@ -223,19 +230,19 @@ def main():
             line = "%s\tWeighted NSTI\t%s\n" %(sample,str(nsti))
             accuracy_output_fh.write(line)
 
-        
-    
-    #If we are calculating variance, we get the prediction as part of the process
     if opts.with_confidence:
+        #If we are calculating variance, we get the prediction as part
+        #of the process
+        
         if opts.verbose:
             print "Predicting the metagenome, metagenome variance and confidence intervals for the metagenome..."
+        
         predicted_metagenomes,predicted_metagenome_variances,\
         predicted_metagenomes_lower_CI_95,predicted_metagenomes_upper_CI_95=\
           predict_metagenome_variances(otu_table,genome_table,variance_table)
-    
-        print "Predicted upper CI 95:",predicted_metagenomes_upper_CI_95
     else:
         #If we don't need confidence intervals, we can do a faster pure numpy prediction
+        
         if opts.verbose:
             print "Predicting the metagenome..."
         predicted_metagenomes = predict_metagenomes(otu_table,genome_table)
@@ -246,21 +253,30 @@ def main():
     if opts.with_confidence:
         output_path,output_filename = split(opts.output_metagenome_table)
         base_output_filename,ext = splitext(output_filename)
-        variance_output_fp = join(output_path,"%s_variances%s" %(base_output_filename,ext))
-        upper_CI_95_output_fp = join(output_path,"%s_upper_CI_95%s" %(base_output_filename,ext))
-        lower_CI_95_output_fp = join(output_path,"%s_lower_CI_95%s" %(base_output_filename,ext))
+        variance_output_fp =\
+          join(output_path,"%s_variances%s" %(base_output_filename,ext))
+        upper_CI_95_output_fp =\
+          join(output_path,"%s_upper_CI_95%s" %(base_output_filename,ext))
+        lower_CI_95_output_fp =\
+          join(output_path,"%s_lower_CI_95%s" %(base_output_filename,ext))
 
-        write_metagenome_to_file(predicted_metagenome_variances,variance_output_fp,\
-          opts.format_tab_delimited,"metagenome prediction variance",verbose=opts.verbose)    
+        write_metagenome_to_file(predicted_metagenome_variances,\
+          variance_output_fp,opts.format_tab_delimited,\
+          "metagenome prediction variance",verbose=opts.verbose)    
 
-        write_metagenome_to_file(predicted_metagenomes_upper_CI_95,upper_CI_95_output_fp,\
-          opts.format_tab_delimited,"metagenome prediction upper 95% confidence interval",verbose=opts.verbose)    
+        write_metagenome_to_file(predicted_metagenomes_upper_CI_95,\
+          upper_CI_95_output_fp,opts.format_tab_delimited,\
+          "metagenome prediction upper 95% confidence interval",\
+          verbose=opts.verbose)    
 
-        write_metagenome_to_file(predicted_metagenomes_lower_CI_95,lower_CI_95_output_fp,\
-          opts.format_tab_delimited,"metagenome prediction lower 95% confidence interval",verbose=opts.verbose)    
+        write_metagenome_to_file(predicted_metagenomes_lower_CI_95,\
+          lower_CI_95_output_fp,opts.format_tab_delimited,\
+          "metagenome prediction lower 95% confidence interval",\
+          verbose=opts.verbose)    
 
-def write_metagenome_to_file(predicted_metagenome,output_fp,tab_delimited=False,\
-        verbose_filetype_message="metagenome prediction",verbose=False):
+def write_metagenome_to_file(predicted_metagenome,output_fp,\
+    tab_delimited=False,verbose_filetype_message="metagenome prediction",\
+    verbose=False):
     """Write a BIOM Table object to a file, creating the directory if needed
     predicted_metagenome -- a BIOM table object
     output_fp -- the filepath to write the output
@@ -269,27 +285,33 @@ def write_metagenome_to_file(predicted_metagenome,output_fp,tab_delimited=False,
     """
 
     if verbose:
-        print "Writing %s results to output file: %s"%(verbose_filetype_message,output_fp)
+        print "Writing %s results to output file: %s"\
+          %(verbose_filetype_message,output_fp)
 
     make_output_dir_for_file(output_fp)
     if tab_delimited:
-        #peek at first observation to decide on what observeration metadata to output in tab-delimited format
-        (obs_val,obs_id,obs_metadata)=predicted_metagenome.iterObservations().next()
+        #peek at first observation to decide on what observeration metadata
+        #to output in tab-delimited format
+        (obs_val,obs_id,obs_metadata)=\
+          predicted_metagenome.iterObservations().next()
 
-        #see if there is a metadata field that contains the "Description" (e.g. KEGG_Description or COG_Description)
+        #see if there is a metadata field that contains the "Description" 
+        #(e.g. KEGG_Description or COG_Description)
         h = re.compile('.*Description')
         metadata_names=filter(h.search,obs_metadata.keys())
         if metadata_names:
             #use the "Description" field we found
             metadata_name=metadata_names[0]
         elif(obs_metadata.keys()):
-            #if no "Description" metadata then just output the first observation metadata
+            #if no "Description" metadata then just output the first 
+            #observation metadata
             metadata_name=(obs_metadata.keys())[0]
         else:
             #if no observation metadata then don't output any
             metadata_name=None
             
-        open(output_fp,'w').write(predicted_metagenome.delimitedSelf(header_key=metadata_name,header_value=metadata_name))
+        open(output_fp,'w').write(predicted_metagenome.delimitedSelf(\
+          header_key=metadata_name,header_value=metadata_name))
     else:
         #output in BIOM format
         open(output_fp,'w').write(format_biom_table(predicted_metagenome))
