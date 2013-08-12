@@ -5,14 +5,13 @@ __author__ = "Morgan Langille"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.9.1-dev"
+__version__ = "0.9.2-dev"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 __status__ = "Development"
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from picrust.ancestral_state_reconstruction import run_asr_in_parallel
 from picrust.util import make_output_dir_for_file,make_output_dir, get_picrust_project_dir, convert_precalc_to_biom
 from picrust.format_tree_and_trait_table import load_picrust_tree
 from picrust.parallel import submit_jobs, system_call,wait_for_output_files,grouper
@@ -58,8 +57,10 @@ script_info['optional_options'] = [\
     make_option('-n','--num_jobs',action='store',type='int', help='Number of jobs to be submitted. [default: %default]',
                 default=2),
     make_option('-d','--delay',action='store',type='int',default=0,
-                    help='Number of seconds to pause between launching each job [default: %default]')
+                    help='Number of seconds to pause between launching each job [default: %default]'),
 
+    make_option('--already_calculated',type='existing_filepath',default=None,
+                    help='Precalculated file that is missing some otu predictions. Output will contain predictions from this file and the new predictions as well. [default: %default]')
 ]
 
 
@@ -78,6 +79,14 @@ def combine_predict_trait_output(files):
         combined+="\n"
 
     return combined
+
+def get_tips_not_in_precalc(ids,precalc):
+    ids_in_precalc=[]
+    for line in open(precalc):
+        ids_in_precalc.append(line.strip().split('\t')[0])
+
+    return list(set(ids) - set(ids_in_precalc))
+
 
 def main():
     option_parser, opts, args =\
@@ -105,6 +114,9 @@ def main():
 
     all_tips = [tip.Name for tip in tree.tips()]
     
+    if(opts.verbose):
+        print "Total number of possible tips to predict: {0}".format(len(all_tips))
+
     created_tmp_files=[]
     output_files={}
     output_files['counts']=[]
@@ -112,6 +124,11 @@ def main():
         output_files['variances']=[]
         output_files['upper_CI']=[]
         output_files['lower_CI']=[]
+
+    if opts.already_calculated:
+        all_tips=get_tips_not_in_precalc(all_tips,opts.already_calculated)
+        if opts.verbose:
+            print "After taking into account tips already predicted, the number of tips left to predict is: {0}".format(len(all_tips))
 
     #create a tmp file to store the job commands (which we will pass to our parallel script to run)
     jobs_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='jobs_')
@@ -123,7 +140,6 @@ def main():
     
     num_tips_per_job=1000
     for tips_to_predict in [all_tips[i:i+num_tips_per_job] for i in range(0, len(all_tips), num_tips_per_job)]:
-    #for tips_to_predict in grouper(all_tips,num_tips_per_job):
         
         #create tmp output files
         tmp_output_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='out_predict_traits_')
@@ -159,6 +175,9 @@ def main():
         created_tmp_files.extend(output_files[predict_type])
     if(opts.verbose):
         print "Launching parallel jobs."
+
+    if opts.already_calculated:
+        output_files['counts'].append(opts.already_calculated)
         
     #run the job command
     job_prefix='picrust'

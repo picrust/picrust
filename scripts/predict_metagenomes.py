@@ -6,7 +6,7 @@ __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Greg Caporaso","Jesse Zaneveld","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.9.1-dev"
+__version__ = "0.9.2-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
@@ -39,15 +39,15 @@ script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
  make_option('-o','--output_metagenome_table',type="new_filepath",help='the output file for the predicted metagenome')
 ]
-type_of_prediction_choices=['ko','cog']
+type_of_prediction_choices=['ko','cog','rfam']
 gg_version_choices=['13_5','18may2012']
 script_info['optional_options'] = [\
-    make_option('-t','--type_of_prediction',default='ko',type="choice",\
+    make_option('-t','--type_of_prediction',default=type_of_prediction_choices[0],type="choice",\
                     choices=type_of_prediction_choices,\
                     help='Type of functional predictions. Valid choices are: '+\
                     ', '.join(type_of_prediction_choices)+\
                     ' [default: %default]'),
-    make_option('-g','--gg_version',default='18may2012',type="choice",\
+    make_option('-g','--gg_version',default=gg_version_choices[0],type="choice",\
                     choices=gg_version_choices,\
                     help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
                     ', '.join(gg_version_choices)+\

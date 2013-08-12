@@ -6,7 +6,7 @@ __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.9.1-dev"
+__version__ = "0.9.2-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
@@ -102,6 +102,12 @@ class UtilTests(TestCase):
         ids_to_load = ['OTU_1','OTU_2']
         two_taxon_table = convert_precalc_to_biom(StringIO.StringIO(precalc_in_tab),ids_to_load)
         self.assertEqualItems(two_taxon_table.SampleIds,ids_to_load)
+
+    def test_convert_precalc_to_biom_value_error(self):
+        """ convert_precalc_to_biom raises ValueError when no overlapping otu ids or additional ids """
+        self.assertRaises(ValueError,convert_precalc_to_biom,precalc_in_tab,['bogus_id1','bogus_id2'])
+        self.assertRaises(ValueError,convert_precalc_to_biom,precalc_in_tab,['OTU_1','bogus_id2'])
+
 
     def test_convert_biom_to_precalc(self):
         """ convert_biom_to_precalc as expected with valid input """

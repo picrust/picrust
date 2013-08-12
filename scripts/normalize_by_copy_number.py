@@ -6,7 +6,7 @@ __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Greg Caporaso","Morgan Langille"]
 __license__ = "GPL"
-__version__ = "0.9.1-dev"
+__version__ = "0.9.2-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
@@ -27,17 +27,17 @@ script_info = {}
 script_info['brief_description'] = "Normalize an OTU table by marker gene copy number"
 script_info['script_description'] = ""
 script_info['script_usage'] = [
-("","Normalize the counts in raw_otus.biom. Write the resulting table to normalized_otus_from_biom.biom.","%prog -i hmp_mock_16S.biom -o normalized_otus_from_biom.biom"),
-("","Input tab-delimited OTU table:","%prog -f -i hmp_mock_16S.txt -o normalized_otus_from_txt.biom")
+("","Normalize the counts in raw_otus.biom. Write the resulting table to normalized_otus_from_biom.biom.","%prog -g 18may2012 -i hmp_mock_16S.biom -o normalized_otus_from_biom.biom"),
+("","Input tab-delimited OTU table:","%prog -f -g 18may2012 -i hmp_mock_16S.txt -o normalized_otus_from_txt.biom")
 ]
 script_info['output_description']= "A normalized OTU table"
 script_info['required_options'] = [
  make_option('-i','--input_otu_fp',type="existing_filepath",help='the input otu table filepath in biom format'),
  make_option('-o','--output_otu_fp',type="new_filepath",help='the output otu table filepath in biom format'),
 ]
-gg_version_choices=['18may2012']
+gg_version_choices=['13_5','18may2012']
 script_info['optional_options'] = [
-    make_option('-g','--gg_version',default='18may2012',type="choice",\
+    make_option('-g','--gg_version',default=gg_version_choices[0],type="choice",\
                     choices=gg_version_choices,\
                     help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
                     ', '.join(gg_version_choices)+\
@@ -102,7 +102,6 @@ def main():
         ids.append(str(x[1]))
 
     ob_id=count_table.ObservationIds[0]
-
 
     filtered_otus=[]
     filtered_values=[]

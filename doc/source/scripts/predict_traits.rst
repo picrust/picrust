@@ -43,8 +43,10 @@ The prediction method works as follows:
 		
 	-o, `-`-output_trait_table
 		The output filepath for trait predictions [default: predicted_states.tsv]
-	-a, `-`-output_accuracy_metrics
-		If specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and output them to this filepath [default: None]
+	-a, `-`-calculate_accuracy_metrics
+		If specified, calculate accuracy metrics (i.e. how accurate does PICRUSt expect its predictions to be?) and add to output file [default: False]
+	`-`-output_accuracy_metrics_only
+		If specified, calculate accuracy metrics (e.g. NSTI), output them to this filepath, and do not do anything else. [default: None]
 	-m, `-`-prediction_method
 		Specify prediction method to use.  The recommended prediction method is set as default, so other options are primarily useful for control experiments and methods validation, not typical use.  Valid choices are:asr_and_weighting,nearest_neighbor,asr_only,weighting_only,random_neighbor.  "asr_and_weighting"(recommended): use ancestral state reconstructions plus local weighting with known tip nodes.  "nearest_neighbor": predict the closest tip on the tree with trait information.  "random_annotated_neighbor": predict a random tip on the tree with trait information. "asr_only": predict the traits of the last reconstructed ancestor, without weighting. "weighting_only": weight all genomes by distance, to the organism of interest using the specified weighting function and predict the weighted average.   [default: asr_and_weighting]
 	-w, `-`-weighting_method
@@ -55,13 +57,35 @@ The prediction method works as follows:
 		Limit predictions to specific, comma-separated organims ids. (Generally only useful for lists of < 10 organism ids, for example when performing leave-one-out cross-validation).
 	-r, `-`-reconstructed_trait_table
 		The input trait table describing reconstructed traits (from `ancestral_state_reconstruction.py <./ancestral_state_reconstruction.html>`_) in tab-delimited format [default: None]
+	`-`-confidence_format
+		The format for the confidence intervals from ancestral state reconstruction. Only needed if passing a reconstruction confidence file with -c or --reconstruction_confidence.  These are typically sigma values for maximum likelihood ASR  methods, but 95% confidence intervals for phylogenetic independent contrasts (e.g. from the ape R packages ace function with pic as the reconstruction method).  Valid choices are:sigma,confidence_interval. [default: sigma]
 	-c, `-`-reconstruction_confidence
 		The input trait table describing confidence intervals for reconstructed traits (from `ancestral_state_reconstruction.py <./ancestral_state_reconstruction.html>`_) in tab-delimited format [default: None]
+	`-`-output_precalc_file_in_biom
+		Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: False]
 
 
 **Output:**
 
 Output is a table (tab-delimited or .biom) of predicted character states
 
+
+Required options with NSTI:
+
+::
+
+	predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab
+
+Limit predictions to particular tips in OTU table:
+
+::
+
+	predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab
+
+Reconstruct confidence
+
+::
+
+	predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -c asr_ci.tab -o predict_traits.tab
 
 
