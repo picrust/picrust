@@ -65,12 +65,12 @@ Reformats scripts and trait tables.  Optional fixes include:
 Outputs a reformatted tree and trait table.
 
 
-**Reformat a tree and trait table with default options:**
+**Example 1:**
 
-Matches taxa in tree and trait table, reformats, and saves as NEXUS
+Reformat a tree and trait table with default options:
 
 ::
 
-	format_tree_and_trait_table.py -t ./example_tree.tree -i ./example_trait_table.txt
+	format_tree_and_trait_table.py -i traits.tab -t tree.nwk -o ./format_output/
 
 

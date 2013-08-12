@@ -1,3 +1,4 @@
+picrust/data/*
 *.py[cod]
 
 # C extensions
