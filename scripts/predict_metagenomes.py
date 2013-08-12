@@ -230,8 +230,10 @@ def main():
         if opts.verbose:
             print "Predicting the metagenome, metagenome variance and confidence intervals for the metagenome..."
         predicted_metagenomes,predicted_metagenome_variances,\
-        predicted_metagenomes_upper_CI_95,predicted_metagenomes_lower_CI_95=\
+        predicted_metagenomes_lower_CI_95,predicted_metagenomes_upper_CI_95=\
           predict_metagenome_variances(otu_table,genome_table,variance_table)
+    
+        print "Predicted upper CI 95:",predicted_metagenomes_upper_CI_95
     else:
         #If we don't need confidence intervals, we can do a faster pure numpy prediction
         if opts.verbose:
