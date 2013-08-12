@@ -45,8 +45,14 @@ class PredictMetagenomeTests(TestCase):
         
         self.predicted_metagenome_table1_zero_variance = parse_biom_table_str(predicted_metagenome_table1_zero_variance)
         self.predicted_metagenome_variance_table1_one_gene_one_otu =\
-          parse_biom_table_str(predicted_metagenome_table1_one_gene_one_otu)
+          parse_biom_table_str(predicted_metagenome_variance_table1_one_gene_one_otu)
+        self.predicted_metagenome_table1_one_gene_one = parse_biom_table_str(predicted_metagenome_table1)
         
+        #Datasets for testing confidence intervals
+        self.predicted_metagenome_table1_one_gene_one_otu_upper_CI =\
+          parse_biom_table_str(predicted_metagenome_table1_one_gene_one_otu_upper_CI)
+        self.predicted_metagenome_table1_one_gene_one_otu_lower_CI =\
+          parse_biom_table_str(predicted_metagenome_table1_one_gene_one_otu_lower_CI)
     
     def test_predict_metagenomes(self):
         """ predict_metagenomes functions as expected with valid input """
@@ -58,22 +64,26 @@ class PredictMetagenomeTests(TestCase):
         self.assertRaises(ValueError,predict_metagenomes,self.otu_table1,self.genome_table2)
     
     def test_predict_metagenome_variances_returns_zero_variance_from_zero_variance(self):
-        """ predict_metagenomes outputs zero variance given zero variance input"""
-        #Check that with zero variance in, zero variance is output
+        """ predict_metagenomes outputs correct results given zero variance input"""
+        
         curr_otu_table = self.otu_table1
         curr_genome_table = self.genome_table1
         curr_variance_table = self.zero_variance_table1
         curr_exp_metagenome_table = self.predicted_metagenome_table1
         curr_exp_metagenome_variance_table = self.predicted_metagenome_table1_zero_variance
         
-        obs_prediction,obs_variances =\
+        obs_prediction,obs_variances,obs_lower_CI_95,obs_upper_CI_95 =\
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
         
         #Test that the prediction itself is as expected
         self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
-        #Test that the variance prediction is as expected
+        
+        #Test that the variance prediction is all zeros, as expected
         self.assertEqual(obs_variances.delimitedSelf(),curr_exp_metagenome_variance_table.delimitedSelf())
         
+        #Test that with zero variance, the upper and lower CIs are equal to the expected value (i.e. the prediction)
+        self.assertEqual(obs_lower_CI_95.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
+        self.assertEqual(obs_upper_CI_95.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
 
     def test_predict_metagenome_variances_propagates_variance_in_gene_categories(self):
         """ predict_metagenomes correctly propagates the rank order of gene family variance"""
@@ -81,12 +91,11 @@ class PredictMetagenomeTests(TestCase):
         curr_genome_table = self.genome_table1
         curr_variance_table = self.variance_table1_var_by_gene
         curr_exp_metagenome_table = self.predicted_metagenome_table1
-        obs_prediction,obs_variances =\
+        obs_prediction,obs_variances,obs_lower_CI_95,obs_upper_CI_95 =\
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
          
         #Check that the metagenome prediction hasn't changed 
         self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
-        
 
     def test_predict_metagenome_variances_propagates_variance(self):
         """ predict_metagenomes correctly propagates differences in gene family variance as expected in a simple example"""
@@ -96,8 +105,10 @@ class PredictMetagenomeTests(TestCase):
         curr_variance_table = self.variance_table1_one_gene_one_otu
         curr_exp_metagenome_table = self.predicted_metagenome_table1
         curr_exp_metagenome_varaiance_table = self.predicted_metagenome_variance_table1_one_gene_one_otu
+        curr_exp_upper_CI_95 = self.predicted_metagenome_table1_one_gene_one_otu_upper_CI
+        curr_exp_lower_CI_95 = self.predicted_metagenome_table1_one_gene_one_otu_lower_CI
         
-        obs_prediction,obs_variances =\
+        obs_prediction,obs_variances,obs_lower_CI_95,obs_upper_CI_95 =\
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
         
         self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
@@ -106,8 +117,11 @@ class PredictMetagenomeTests(TestCase):
         #have variance.   The exact values follow from variance of scaled random variables or
         #The sum of random variables
         self.assertEqual(obs_variances,self.predicted_metagenome_variance_table1_one_gene_one_otu) 
-
-
+        
+        #Check CIs against hand calculated CIs
+        self.assertEqual(obs_upper_CI_95.delimitedSelf(),curr_exp_upper_CI_95.delimitedSelf()) 
+        self.assertEqual(obs_lower_CI_95.delimitedSelf(),curr_exp_lower_CI_95.delimitedSelf()) 
+    
     def test_predict_metagenomes_keeps_observation_metadata(self):
         """predict_metagenomes preserves Observation metadata in genome and otu table"""
         
@@ -315,7 +329,7 @@ variance_table1_var_by_gene = """{"rows": [{"id": "f1", "metadata": null}, {"id"
 
 variance_table1_var_by_otu = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 10.0], [0, 2, 100.0], [1, 1, 10.0],[2, 1, 10.0],[1, 2, 100.0], [2, 2, 100.0]], "columns": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
-variance_table1_one_gene_one_otu = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 0.0], [0, 2, 0.0], [1, 1, 0.0],[2, 1, 0.0],[1, 2, 0.0], [2, 2, 10.0]], "columns": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+variance_table1_one_gene_one_otu = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 0.0], [0, 2, 0.0], [1, 1, 0.0],[2, 1, 0.0],[1, 2, 0.0], [2, 2, 1000.0]], "columns": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 genome_table1_with_metadata = """{"rows": [{"id": "f1", "metadata": {"KEGG_description":"ko00100    Steroid biosynthesis"}}, {"id": "f2", "metadata": {"KEGG_description":"ko00195   Photosynthesis"}}, {"id": "f3", "metadata": {"KEGG_description":"ko00232    Caffeine metabolism"}}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [1, 1, 1.0], [2, 2, 1.0]], "columns": [{"id": "GG_OTU_1", "metadata": {"confidence": 0.665,"taxonomy": ["Root", "k__Bacteria", "p__Firmicutes", "c__Clostridia", "o__Clostridiales", "f__Lachnospiraceae"]}}, {"id": "GG_OTU_3", "metadata": {"confidence": 1.0,"taxonomy": ["Root", "k__Bacteria", "p__Firmicutes", "c__Clostridia", "o__Clostridiales", "f__Lachnospiraceae"]}}, {"id": "GG_OTU_2", "metadata":{"confidence": 0.98,"taxonomy": ["Root", "k__Bacteria"]}}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
@@ -323,7 +337,12 @@ genome_table2 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metad
 
 predicted_metagenome_table1 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 5.0], [2, 1, 1.0], [2, 3, 2.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
-predicted_metagenome_table1_one_gene_one_otu = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 0.0], [0, 2, 0.0], [0, 3, 0.0], [1, 2, 0.0], [1, 3, 0.0], [2, 0, 250.0], [2, 1, 10.0], [2, 3, 40.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+predicted_metagenome_table1_one_gene_one_otu_upper_CI = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 315.0], [2, 1, 63.0], [2, 3, 126.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+
+predicted_metagenome_table1_one_gene_one_otu_lower_CI = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 0.0], [2, 1, 0.0], [2, 3, 0.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+
+predicted_metagenome_variance_table1_one_gene_one_otu = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 0.0], [0, 2, 0.0], [0, 3, 0.0], [1, 2, 0.0], [1, 3, 0.0], [2, 0, 25000.0], [2, 1, 1000.0], [2, 3, 4000.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+
 
 predicted_metagenome_table1_zero_variance = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 0.0], [0, 1, 0.0], [0, 2, 0.0], [0, 3, 0.0], [1, 2, 0.0], [1, 3, 0.0], [2, 0, 0.0], [2, 1, 0.0], [2, 3, 0.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
