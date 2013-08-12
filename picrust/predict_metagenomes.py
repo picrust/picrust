@@ -152,7 +152,9 @@ def predict_metagenome_variances(otu_table,genome_table,\
     #Find overlapping otus
     overlapping_otus = get_overlapping_ids(otu_table,genome_table,\
                   genome_table_ids=genome_table_otu_ids,otu_table_ids=otu_table_otu_ids)
-   
+    #Ensure they overlap fully with variance table 
+    overlapping_otus = get_overlapping_ids(otu_table,gene_variances,\
+                  genome_table_ids=genome_table_otu_ids,otu_table_ids=otu_table_otu_ids)
     #Filter OTU and Genome Table to contain only overlapping IDs
     #print "overlapping_otus:",overlapping_otus
     otu_table.filterObservations(lambda val,otu_id,metadata: otu_id in overlapping_otus)
@@ -168,22 +170,15 @@ def predict_metagenome_variances(otu_table,genome_table,\
    
     metagenome_data = None
     metagenome_variance_data = None
+    if verbose:
+        print "Calculating the variance of the estimated metagenome for %i OTUs." %len(overlapping_otus)
     for otu_id in overlapping_otus:
         otu_across_samples = otu_table.observationData(otu_id)
-        #print "otu_across_samples:",otu_across_samples
         otu_across_genes = genome_table.sampleData(otu_id)
-        #print "otu_across_genes:",otu_across_genes
-        
-        #otu_variance_across_samples = otu_variances.observationData(otu_id)
-        #print "var(otu_across_samples):",otu_variance_across_samples
         otu_variance_across_genes = gene_variances.sampleData(otu_id)
-        #print "var(otu_across_genes):",otu_variance_across_genes
         otu_contrib_to_metagenome=array([o*otu_across_genes for o in otu_across_samples])
-        #print "OTU contribution to metagenome:",otu_contrib_to_metagenome
-        
         var_otu_contrib_to_metagenome=\
           array([scaled_variance(otu_variance_across_genes,o) for o in otu_across_samples])
-        #print "var(OTU contribution to metagenome:)",var_otu_contrib_to_metagenome
         
         if metagenome_data is None:
             metagenome_data = otu_contrib_to_metagenome
@@ -192,24 +187,45 @@ def predict_metagenome_variances(otu_table,genome_table,\
             metagenome_data += otu_contrib_to_metagenome
             metagenome_variance_data = variance_of_sum(metagenome_variance_data,var_otu_contrib_to_metagenome)
 
-    #print metagenome_data.T
-    #print predict_metagenomes(otu_table,genome_table)
     data_result = metagenome_data.T    
     variance_result = metagenome_variance_data.T
-    #print variance_result
+    
+    if verbose:
+        print "Calculating metagenomic confidene intervals from variance."
 
+    lower_95_CI,upper_95_CI=calc_confidence_interval_95(data_result,variance_result,\
+      round_CI=True,min_val=0.0,max_val=None)
+
+    
+    if verbose:
+        print "Generating BIOM output tables for the prediction,variance,upper confidence interval and lower confidence interval."
+    
     #Wrap results into BIOM Tables
     result_data_table=\
-      table_from_template(data_result,otu_table.SampleIds,genome_table.ObservationIds,\
-      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
-      constructor=SparseGeneTable)
+      table_from_template(data_result,otu_table.SampleIds,\
+      genome_table.ObservationIds,sample_metadata_source=otu_table,\
+      observation_metadata_source=genome_table,constructor=SparseGeneTable)
 
     result_variance_table=\
-      table_from_template(variance_result,otu_table.SampleIds,genome_table.ObservationIds,\
-      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
-      constructor=SparseGeneTable,verbose=verbose)
+      table_from_template(variance_result,otu_table.SampleIds,\
+      genome_table.ObservationIds,sample_metadata_source=\
+      otu_table,observation_metadata_source=genome_table,constructor=\
+      SparseGeneTable,verbose=verbose)
     
-    return result_data_table,result_variance_table
+    result_lower_CI_table=\
+      table_from_template(lower_95_CI,otu_table.SampleIds,\
+      genome_table.ObservationIds,sample_metadata_source=otu_table,\
+      observation_metadata_source=genome_table,constructor=SparseGeneTable,\
+      verbose=verbose)
+    
+    result_upper_CI_table=\
+      table_from_template(upper_95_CI,otu_table.SampleIds,\
+      genome_table.ObservationIds,sample_metadata_source=\
+      otu_table,observation_metadata_source=genome_table,constructor=\
+      SparseGeneTable,verbose=verbose)
+    
+    return result_data_table,result_variance_table,result_lower_CI_table,\
+      result_upper_CI_table
 
 
 def table_from_template(new_data,sample_ids,observation_ids,\
@@ -218,7 +234,8 @@ def table_from_template(new_data,sample_ids,observation_ids,\
     """Build a new BIOM table from new_data, and transfer metadata from 1-2 existing tables"""
 
     #Build the BIOM table
-    result_table =  table_factory(new_data,sample_ids,observation_ids,constructor=SparseGeneTable)
+    result_table =  table_factory(new_data,sample_ids,observation_ids,\
+      constructor=SparseGeneTable)
     
     
     #Transfer sample metadata from the OTU table
@@ -231,8 +248,8 @@ def table_from_template(new_data,sample_ids,observation_ids,\
     #Now transfer observation metadata (e.g. gene metadata) 
     #from the genome table to the result table
     if observation_metadata_source:
-        result_table = transfer_metadata(observation_metadata_source,result_table,\
-          donor_metadata_type='ObservationMetadata',\
+        result_table = transfer_metadata(observation_metadata_source,\
+          result_table,donor_metadata_type='ObservationMetadata',\
           recipient_metadata_type='ObservationMetadata',verbose=verbose)
     
     return result_table
@@ -359,14 +376,10 @@ def calc_nsti(otu_table,genome_table,weighted=True):
 
 def variance_of_product(A,B,varA,varB,r=0):
     """Return the variance of the product of two random variables A and B"""
-    print "variance of product inputs:",A,B,varA,varB
     variance = (varA**2)/(A**2) 
-    print "variance due to A:",variance
     variance += (varB**2)/(B**2) 
-    print "variance due to A+B:",variance
     #add variance due to correlation between vectors
     variance += 2*(sqrt(varA)*sqrt(varB))*r/(A*B)
-    print "variance:",variance
     return variance
 
 def scaled_variance(var_x,c):
@@ -398,17 +411,12 @@ def sum_rows_with_variance(data_array,variance_array):
         else:
             result_by_rows += row
         last_row = row
-    print "result_by_rows:",result_by_rows 
     variance_by_rows = None
     for row in variance_array:
-        print "row in variance array:",row 
         if variance_by_rows is None:
             variance_by_rows = row
         else:
-            print "pre-sum variance_by_rows:",variance_by_rows
             new_variance = variance_of_sum(variance_by_rows,row)
-            print "new_variance:",new_variance
             variance_by_rows = new_variance
-            print "variance_by_rows:",variance_by_rows
     return result_by_rows,variance_by_rows
 
