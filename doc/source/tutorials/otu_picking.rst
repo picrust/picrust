@@ -14,7 +14,7 @@ This tutorial assumes that you have QIIME installed. See the `QIIME website <htt
 Picking closed reference OTUs with QIIME
 ----------------------------------------
 
-To pick 'closed reference' OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the IMG/GG reference collection.
+To pick 'closed reference' OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).
 
 The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form ``sampleID_seqID``. In these sequence identifiers, ``sampleID`` indicates the name of the sample, and ``seqID`` is a unique (with respect to the current file) sequence identifier. The ``seqID`` values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the ``split_libraries`` * scripts in QIIME, or using other software. This file might look like::
 
