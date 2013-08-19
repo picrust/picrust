@@ -19,7 +19,7 @@ try:
     import numpy
 except ImportError:
     raise ImportError, \
-     ("biom cannot be found. Can't continue. Please install "
+     ("numpy cannot be found. Can't continue. Please install "
       "the numpy package (see www.numpy.org)")
     
 try:
