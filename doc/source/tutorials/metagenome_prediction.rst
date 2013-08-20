@@ -34,17 +34,17 @@ Input is the users OTU table (that has been referenced picked against Greengenes
 Input and output files are in `biom`_ format::
 
 	normalize_by_copy_number.py 
-		-i hmp_mock_16S.biom
+		-i your_otu_table.biom
 		-o normalized_otus.biom
 
 **(Optional) Input format of OTU table can be changed to tab-delimited "classic" OTU table instead of BIOM format using the '-f' option:** ::
 
 	 normalize_by_copy_number.py 
 		-f 
-		-i hmp_mock_16S.tab
+		-i your_otu_table.tab
 		-o normalized_otus.biom
 
-(Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
+(Optional) Previous examples assume the most recent Greengenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
 
           normalize_by_copy_number.py 
 	        --gg_version 18may2012
