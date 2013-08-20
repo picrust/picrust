@@ -107,7 +107,7 @@ def main():
                 script_usage_tests = None
 
             # Run the script usage testing functionality
-                script_usage_result_summary, num_script_usage_example_failures = \
+            script_usage_result_summary, num_script_usage_example_failures = \
                     run_script_usage_tests(
                     qiime_test_data_dir=test_data_dir,
                     qiime_scripts_dir=scripts_dir,
@@ -115,7 +115,8 @@ def main():
                     verbose=True,
                     tests=script_usage_tests,
                     failure_log_fp=None,
-                    force_overwrite=True)
+                    force_overwrite=True,
+                    timeout=300)
 
     print "==============\nResult summary\n=============="
 
