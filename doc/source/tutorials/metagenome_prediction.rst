@@ -95,5 +95,6 @@ Output is in `biom`_ format by default: ::
 Step 3: Analysing Predicted Metagenomes
 ---------------------------------------
 
-Know that you have your predicted metagenome you can analyse it just the same as a real metagenome. 
+Now that you have your predicted metagenome you can analyse it just the same as a real metagenome.
+ 
 Some suggestions for downstream analysis are outlined in :ref:`downstream_analysis_guide`.
