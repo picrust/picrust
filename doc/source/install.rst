@@ -51,9 +51,9 @@ Assuming you will be picking OTUs against the newest version of GreenGenes and w
 
 **These files must be placed in your `picrust-0.9.2/picrust/data` directory before installing.**
 
-* Download for `16S copy number normalization <https://github.com/picrust/picrust/releases/download/0.9.2/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <https://dl.dropbox.com/s/c4yntzmdbnq7f9n/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/ko_13_5_precalculated.tab.gz>`_ 
 
 
 Step 4. Install PICRUSt

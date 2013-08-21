@@ -31,8 +31,9 @@ script_info['script_usage'] = [("","Predict KO abundances for a given OTU table 
                                     "%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
                                ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt"),
                                ("","Predict COG abundances for a given OTU table.","%prog -i normalized_otus.biom -t cog -o cog_predicted_metagenomes.biom"),\
+                               ("","Output confidence intervals for each prediction.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom --with_confidence"),\
                                ("","Predict metagenomes using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom"),\
-                               ("","Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table_with_confidence.biom --with_confidence"),\
+                               ("","Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom --with_confidence"),\
                                    ("","Change the version of GG used to pick OTUs","%prog -i normalized_otus.biom -g 18may2012 -o predicted_metagenomes.biom")]
 script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
@@ -171,7 +172,7 @@ def main():
   
     if opts.verbose:
         print "Loaded %i genes across %i OTUs from gene count table" \
-          %(len(genome_table.SampleIds),len(genome_table.ObservationIds))
+          %(len(genome_table.ObservationIds),len(genome_table.SampleIds))
     
     if opts.with_confidence:
         if opts.input_variance_table:
@@ -193,26 +194,30 @@ def main():
         
         if opts.verbose:
             print "Loaded %i genes across %i OTUs from variance table" \
-              %(len(variance_table.SampleIds),len(variance_table.ObservationIds))
+              %(len(variance_table.ObservationIds),len(variance_table.SampleIds))
         #Raise an error if the genome table and variance table differ
         #in the genomes they contain.
         #better to find out now than have something obscure happen latter on
         if opts.verbose:
             print "Checking that genome table and variance table are consistent"
         try:
-            assert variance_table.ObservationIds == genome_table.ObservationIds 
+            assert set(variance_table.ObservationIds) == set(genome_table.ObservationIds) 
         except AssertionError,e:
             for var_id in variance_table.ObservationIds:
                 if var_id not in genome_table.ObservationIds:
                     print "Variance table ObsId %s not in genome_table ObsIds" %var_id
-            raise AssertionError("Variance table and genome table contain different ObservationIds")
+            raise AssertionError("Variance table and genome table contain different gene ids")
         try:
-            assert variance_table.SampleIds == genome_table.SampleIds
+            assert set(variance_table.SampleIds) == set(genome_table.SampleIds)
         except AssertionError,e:
             for var_id in variance_table.SampleIds:
                 if var_id not in genome_table.SampleIds:
                     print "Variance table SampleId %s not in genome_table SampleIds" %var_id
-            raise AssertionError("Variance table and genome table contain different Sampleds")
+            raise AssertionError("Variance table and genome table contain different OTU ids")
+
+        #sort the ObservationIds and SampleIds to be in the same order
+        variance_table=variance_table.sortObservationOrder(genome_table.ObservationIds)
+        variance_table=variance_table.sortSampleOrder(genome_table.SampleIds)
 
     make_output_dir_for_file(opts.output_metagenome_table)
 
