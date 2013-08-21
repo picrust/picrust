@@ -7,14 +7,14 @@ Introduction
 ------------
 This document covers how to pick OTUs from marker gene data to use with PICRUSt. To do this, you'll use a 'closed-reference' OTU picking protocol where you search sequences against the GG reference OTUs at a specified percent identity, and discard any reads that don't hit that reference collection. The newest available reference collection can be found here:
 
- * gg_13_5_otus.tar.gz (`download <http://greengenes.secondgenome.com/downloads/database/13_5>`_ )
+ * gg_13_5_otus.tar.gz (`download <ftp://greengenes.microbio.me/greengenes_release/gg_13_5/gg_13_5_otus.tar.gz>`_ )
 
 This tutorial assumes that you have QIIME installed. See the `QIIME website <http://www.qiime.org>`_ for details on how to use QIIME. The quickest way to get started with QIIME is working on the Amazon Web Services cloud, and you can find instructions for `using QIIME on the cloud here <http://qiime.org/tutorials/working_with_aws.html>`_.
 
 Picking closed reference OTUs with QIIME
 ----------------------------------------
 
-To pick 'closed reference' OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the IMG/GG reference collection.
+To pick 'closed reference' OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).
 
 The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form ``sampleID_seqID``. In these sequence identifiers, ``sampleID`` indicates the name of the sample, and ``seqID`` is a unique (with respect to the current file) sequence identifier. The ``seqID`` values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the ``split_libraries`` * scripts in QIIME, or using other software. This file might look like::
 

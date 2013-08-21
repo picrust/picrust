@@ -18,6 +18,7 @@ from picrust.parallel import submit_jobs, system_call,wait_for_output_files,grou
 from os import makedirs, remove, popen
 from os.path import join,splitext
 from cogent.app.util import get_tmp_filename
+import gzip
 
 script_info = {}
 script_info['brief_description'] = "Runs predict_traits.py in parallel"
@@ -65,24 +66,35 @@ script_info['optional_options'] = [\
 
 
 script_info['version'] = __version__
+
+def open_even_gzip(file_name):
+    ext=splitext(file_name)[1]
+    if (ext == '.gz'):
+        return gzip.open(file_name,'rb')
+    else:
+        return open(file_name,'U')
+
        
 
 def combine_predict_trait_output(files):
+    file_list=[]
     #add header
-    combined=open(files[0]).readline()
+
+    file_list.append(open_even_gzip(files[0]).readline())
     
     for file_name in files:
-        fh=open(file_name)
+        fh=open_even_gzip(file_name)
         #throw away header
         fh.readline()
-        combined+=fh.read()
-        combined+="\n"
+        file_list.append(fh.read())
+    
+    combined="\n".join(file_list)
 
     return combined
 
 def get_tips_not_in_precalc(ids,precalc):
     ids_in_precalc=[]
-    for line in open(precalc):
+    for line in open_even_gzip(precalc):
         ids_in_precalc.append(line.strip().split('\t')[0])
 
     return list(set(ids) - set(ids_in_precalc))
@@ -175,9 +187,6 @@ def main():
         created_tmp_files.extend(output_files[predict_type])
     if(opts.verbose):
         print "Launching parallel jobs."
-
-    if opts.already_calculated:
-        output_files['counts'].append(opts.already_calculated)
         
     #run the job command
     job_prefix='picrust'
