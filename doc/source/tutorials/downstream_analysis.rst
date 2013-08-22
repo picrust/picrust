@@ -9,12 +9,22 @@ Once you have your PICRUSt metagenome predictions (see :ref:`metagenome_predicti
 
 Here are some recommendations using both PICRUSt commands and other external tools:
 
-1) Collapse the thousands of predicted functions into higher categories using PICRUSt's :ref:`categorize_by_function.py <categorize_by_function>`.
+Collapse predictions into pathways
+----------------------------------
+* Collapse the thousands of predicted functions into higher categories (e.g KOs into KEGG Pathways).
+* See PICRUSt's :ref:`categorize_by_function.py <categorize_by_function>`.
 
-2) Identify which OTUs are contributing which functions using PICRUSt's :ref:`metagenome_contributions.py <metagenome_contributions>`.
+Determine which OTUs are contributing to particular functions
+-------------------------------------------------------------
+* Identify which OTUs are contributing which functions .
+* See PICRUSt's :ref:`metagenome_contributions.py <metagenome_contributions>`.
 
-3) Analyze the metagenome predictions using `QIIME <http://www.qiime.org>`_ (see :ref:`qiime_tutorial`).
+Analyze with QIIME
+------------------
+* Compute alpha diversity, beta diversity, generate various plots, and much more using `QIIME <http://www.qiime.org>`_.
+* See :ref:`qiime_tutorial`.
 
-4) Browse results, create PCA and bar plots, and make statistical inferences between pairs of samples or multiple groups (defined by your sample metadata) using `STAMP <http://kiwi.cs.dal.ca/Software/STAMP>`_ (see :ref:`stamp_tutorial`). 
-
-
+Analyze with STAMP
+------------------
+* Browse results, create PCA and bar plots, and make statistical inferences between pairs of samples or multiple groups all within a graphical interface using `STAMP <http://kiwi.cs.dal.ca/Software/STAMP>`_.
+* See :ref:`stamp_tutorial`. 
