@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installing PICRUSt &mdash; PICRUSt 0.9.2 documentation</title>
+    <title>Installing PICRUSt &mdash; PICRUSt 0.9.2-dev documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.9.2',
+        VERSION:     '0.9.2-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 0.9.2 documentation" href="index.html" /> 
+    <link rel="top" title="PICRUSt 0.9.2-dev documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,80 +34,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">PICRUSt 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PICRUSt 0.9.2-dev documentation</a> &raquo;</li> 
       </ul>
-    </div>  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
-  <div class="section" id="installing-picrust">
-<span id="install"></span><h1>Installing PICRUSt<a class="headerlink" href="#installing-picrust" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize">online Galaxy version</a>.</p>
-</div>
-<p>PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you&#8217;ll install PICRUSt. Each of these steps are detailed below.</p>
-<div class="section" id="step-1-install-requirements">
-<h2>Step 1. Install Requirements<a class="headerlink" href="#step-1-install-requirements" title="Permalink to this headline">¶</a></h2>
-<p>Follow the install instructions found on the website of each of the dependencies below to install PICRUSt&#8217;s dependencies.</p>
-<p><strong>Mandatory</strong></p>
-<ul class="simple">
-<li><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</li>
-<li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</li>
-<li><a class="reference external" href="http://biom-format.org">biom</a> (version 1.1.2)</li>
-<li><a class="reference external" href="http://www.numpy.org/">numpy</a> (version 1.5.1)</li>
-</ul>
-<p><strong>Rebuilding PICRUSt OR Genome Prediction (optional)</strong></p>
-<ul class="simple">
-<li><a class="reference external" href="http://www.r-project.org/">R</a> installed with <a class="reference external" href="http://ape.mpl.ird.fr/">APE</a> library</li>
-</ul>
-</div>
-<div class="section" id="step-2-download-picrust">
-<h2>Step 2. Download PICRUSt<a class="headerlink" href="#step-2-download-picrust" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="release-software">
-<h3>Release software<a class="headerlink" href="#release-software" title="Permalink to this headline">¶</a></h3>
-<p>The latest release of PICRUSt is 0.9.2. You can download this file from <a class="reference external" href="https://github.com/picrust/picrust/releases/download/0.9.2/picrust-0.9.2.tar.gz">this link</a>.</p>
-<p>We recommend the release version of PICRUSt for most users. If you&#8217;re not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.</p>
-</div>
-<div class="section" id="development-software">
-<h3>Development software<a class="headerlink" href="#development-software" title="Permalink to this headline">¶</a></h3>
-<p>Alternatively you can download the latest development version of PICRUSt. You can download the development version of PICRUSt from <a class="reference external" href="https://github.com/picrust/picrust/archive/master.zip">this link</a>, or using the following command if you have <tt class="docutils literal"><span class="pre">git</span></tt> installed:</p>
-<div class="highlight-python"><pre>git clone git://github.com/picrust/picrust.git picrust</pre>
-</div>
-</div>
-</div>
-<div class="section" id="step-3-download-picrust-s-precalculated-files">
-<h2>Step 3. Download PICRUSt&#8217;s precalculated files<a class="headerlink" href="#step-3-download-picrust-s-precalculated-files" title="Permalink to this headline">¶</a></h2>
-<p>PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>).</p>
-<p>Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of <a class="reference internal" href="picrust_precalculated_files.html#id1"><em>PICRUSt&#8217;s Precalculated Files</em></a>.</p>
-<p><strong>These files must be placed in your `picrust-0.9.2/picrust/data` directory before installing.</strong></p>
-<ul class="simple">
-<li>Download for <a class="reference external" href="https://github.com/picrust/picrust/releases/download/0.9.2/16S_13_5_precalculated.tab.gz">16S copy number normalization</a></li>
-<li>Download for <a class="reference external" href="https://dl.dropbox.com/s/c4yntzmdbnq7f9n/ko_13_5_precalculated.tab.gz">KEGG Ortholog predictions</a></li>
-</ul>
-</div>
-<div class="section" id="step-4-install-picrust">
-<h2>Step 4. Install PICRUSt<a class="headerlink" href="#step-4-install-picrust" title="Permalink to this headline">¶</a></h2>
-<p>After downloading PICRUSt, you&#8217;ll need to unzip the file. If you&#8217;ve downloaded the release version, do this with the following command:</p>
-<div class="highlight-python"><pre>tar -xzf picrust-0.9.2.tar.gz</pre>
-</div>
-<p>You&#8217;ll then change into the new <tt class="docutils literal"><span class="pre">picrust-0.9.2</span></tt> directory as follows:</p>
-<div class="highlight-python"><pre>cd picrust-0.9.2</pre>
-</div>
-<p>And finally, you&#8217;ll install PICRUSt with the following command:</p>
-<div class="highlight-python"><pre>sudo python setup.py install</pre>
-</div>
-<p>If you don&#8217;t have <tt class="docutils literal"><span class="pre">sudo</span></tt> access on the system where you&#8217;re trying to install PICRUSt, there are several variations on this command that you can use to install only for the current user (as opposed to a system-wide installation, which the above command will perform). See <a class="reference external" href="http://docs.python.org/2/install/index.html#alternate-installation">this discussion</a>.</p>
-</div>
-</div>
-
-
-          </div>
-        </div>
-      </div>
+    </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
@@ -145,6 +74,77 @@
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installing-picrust">
+<span id="install"></span><h1>Installing PICRUSt<a class="headerlink" href="#installing-picrust" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize">online Galaxy version</a>.</p>
+</div>
+<p>PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you&#8217;ll install PICRUSt. Each of these steps are detailed below.</p>
+<div class="section" id="step-1-install-requirements">
+<h2>Step 1. Install Requirements<a class="headerlink" href="#step-1-install-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Follow the install instructions found on the website of each of the dependencies below to install PICRUSt&#8217;s dependencies.</p>
+<p><strong>Mandatory</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</li>
+<li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</li>
+<li><a class="reference external" href="http://biom-format.org">biom</a> (version 1.1.2)</li>
+<li><a class="reference external" href="http://www.numpy.org/">numpy</a> (version 1.5.1)</li>
+</ul>
+<p><strong>Rebuilding PICRUSt OR Genome Prediction (optional)</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.r-project.org/">R</a> installed with <a class="reference external" href="http://ape.mpl.ird.fr/">APE</a> library</li>
+</ul>
+</div>
+<div class="section" id="step-2-download-picrust">
+<h2>Step 2. Download PICRUSt<a class="headerlink" href="#step-2-download-picrust" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="release-software">
+<h3>Release software<a class="headerlink" href="#release-software" title="Permalink to this headline">¶</a></h3>
+<p>The latest release of PICRUSt is <a class="reference external" href="https://github.com/picrust/picrust/releases/download/0.9.2/picrust-0.9.2.tar.gz">picrust-0.9.2</a>.</p>
+<p>We recommend the release version of PICRUSt for most users. If you&#8217;re not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.</p>
+</div>
+<div class="section" id="development-software">
+<h3>Development software<a class="headerlink" href="#development-software" title="Permalink to this headline">¶</a></h3>
+<p>Alternatively you can download the latest development version of PICRUSt. You can download the development version of PICRUSt from <a class="reference external" href="https://github.com/picrust/picrust/archive/master.zip">this link</a>, or using the following command if you have <tt class="docutils literal"><span class="pre">git</span></tt> installed:</p>
+<div class="highlight-python"><pre>git clone git://github.com/picrust/picrust.git picrust</pre>
+</div>
+</div>
+</div>
+<div class="section" id="step-3-download-picrust-s-precalculated-files">
+<h2>Step 3. Download PICRUSt&#8217;s precalculated files<a class="headerlink" href="#step-3-download-picrust-s-precalculated-files" title="Permalink to this headline">¶</a></h2>
+<p>PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>).</p>
+<p>Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of <a class="reference internal" href="picrust_precalculated_files.html#id1"><em>PICRUSt&#8217;s Precalculated Files</em></a>.</p>
+<p><strong>These files must be placed in your `picrust-0.9.2/picrust/data` directory before installing.</strong></p>
+<ul class="simple">
+<li>Download for <a class="reference external" href="ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/16S_13_5_precalculated.tab.gz">16S copy number normalization</a></li>
+<li>Download for <a class="reference external" href="ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/ko_13_5_precalculated.tab.gz">KEGG Ortholog predictions</a></li>
+</ul>
+</div>
+<div class="section" id="step-4-install-picrust">
+<h2>Step 4. Install PICRUSt<a class="headerlink" href="#step-4-install-picrust" title="Permalink to this headline">¶</a></h2>
+<p>After downloading PICRUSt, you&#8217;ll need to unzip the file. If you&#8217;ve downloaded the release version, do this with the following command:</p>
+<div class="highlight-python"><pre>tar -xzf picrust-0.9.2.tar.gz</pre>
+</div>
+<p>You&#8217;ll then change into the new <tt class="docutils literal"><span class="pre">picrust-0.9.2</span></tt> directory as follows:</p>
+<div class="highlight-python"><pre>cd picrust-0.9.2</pre>
+</div>
+<p>And finally, you&#8217;ll install PICRUSt with the following command:</p>
+<div class="highlight-python"><pre>sudo python setup.py install</pre>
+</div>
+<p>If you don&#8217;t have <tt class="docutils literal"><span class="pre">sudo</span></tt> access on the system where you&#8217;re trying to install PICRUSt, there are several variations on this command that you can use to install only for the current user (as opposed to a system-wide installation, which the above command will perform). See <a class="reference external" href="http://docs.python.org/2/install/index.html#alternate-installation">this discussion</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -153,12 +153,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">PICRUSt 0.9.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PICRUSt 0.9.2-dev documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
     </div>
   </body>
 </html>
