@@ -24,11 +24,11 @@ Plots of functional categories at various levels can be created using `summarize
 	
 	* Since KEGG Orthologs belong to several pathways you should collapse your PICRUSt predictions to the desired hierarchy level using :ref:`categorize_by_function.py <categorize_by_function>` ::
 
-	        categorize_by_function.py -i metagenome_predictions.biom -c "KEGG Pathways" -l 2 -o metagenome_at_level2.biom	
+	        categorize_by_function.py -i metagenome_predictions.biom -c "KEGG_Pathways" -l 2 -o metagenome_at_level2.biom	
 	
 	* Then add the following lines to a `qiime parameter file <http://qiime.org/documentation/qiime_parameters_files.html>`_ (e.g. qiime_params.txt) ensuring that the level you collapsed at is the same in your config file ::
 	       
-	        summarize_taxa:md_identifier    "KEGG Pathways"
+	        summarize_taxa:md_identifier    "KEGG_Pathways"
 		summarize_taxa:absolute_abundance   True 
 		summarize_taxa:level    2
 
