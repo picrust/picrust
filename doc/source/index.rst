@@ -34,7 +34,11 @@ Citing PICRUSt
 --------------
 
 .. include:: citing_picrust.rst
+    :start-line: 4
+    :end-line: 12
 
+* Additional citation resources: :ref:`here <citing_picrust>`
+ 
 News & Announcements
 --------------------
 
