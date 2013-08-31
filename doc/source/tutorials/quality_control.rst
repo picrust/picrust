@@ -22,7 +22,7 @@ The :ref:`empirical quality control checklist <empirical_qc_checklist>` is inten
 
 Both the ‘basic’ and ‘advanced’ checklists assume you are doing the main PICRUSt workflow- predicting a ‘virtual metagenome’ from 16S rRNA data.  However, PICRUSt can in theory be used to predict any trait (continuous evolutionary character) across organisms.   Additional discussion of quality control steps you might take if you are using PICRUSt in a customized workflow will be discussed in a forthcoming ‘custom trait prediction with PICRUSt’ section.
 
-Finally, we discuss some ideas for reporting a PICRUSt analysis such that it can be reproduced by others.
+Finally, we discuss some ideas for :ref:`reporting a PICRUSt analysis <reporting_picrust_results>` such that it can be reproduced by others.
 
 We would like this page to be a resource for the community.  If you have additional suggestions for additional steps that will help the community with their PICRUSt analysis, we would love to hear them-  please e-mail picrust-users@googlegroups.com
 
@@ -42,6 +42,7 @@ General limitations of PICRUSt
 * PICRUSt is based on evolutionary modeling of the gene contents of known reference genomes.  Therefore, accuracy for any given sample type will depend heavily on the availability of appropriate references.  See the checklists below for some methods for quantifying whether this will be an issue for your samples, and for calculating 95% confidence intervals around gene content predictions.
 
 .. _basic_qc_checklist:
+
 Basic Quality Control steps for PICRUSt
 ---------------------------------------
 
@@ -73,6 +74,14 @@ When comparing NSTI scores to typical bacterial taxonomic cutoffs (e.g. 97% sequ
 4. Calculate metagenomic confidence intervals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
+A newer capability of PICRUSt is the ability to generate 95% confidence intervals for each gene prediction. These confidence intervals may be useful to examine for particular gene families of interest to determine the range of values that could be present in a community. 
+
+**NOTE:** Although the code for prediction of metagenomic confidence intervals is unit-tested (produces correct output on small example datasets), and confidence intervals during generation of the precalculated gene content prediction files were benchmarked for accuracy against real genomes in the PICRUSt manuscript, metagenomic confidence intervals have not yet been biologically validated on large datasets.  Therefore this capability should be treated as experminetal for now, but may provide a rough guide for the range of values that might be present for each gene family in the metagenome.  See the :ref:`algorithm_description` for further details.
+
+Metagenomic confidence intervals can be output using the --with_confidence option in the  predict_metagenomes.py script.
+
+
 .. _empirical_qc_checklist:
 
 Empirical Quality Control:  Sequencing
@@ -80,28 +89,41 @@ Empirical Quality Control:  Sequencing
 
 One direct method for testing PICRUSt metagenome prediction accuracy in a new environment is to sequence 16S rRNA and shotgun metagenomes from the same subset of  samples, and then directly compare the PICRUSt-predicted results against the empirical, sequenced results.  Of course this approach is only practical in cases where substantial collections of samples are slated for 16S rRNA sequencing.  But it can provide a great deal of empirical reassurance when sequencing many 16S samples, at the cost of perhaps a dozen metagenomes (which may be useful anyway for other purposes).  This approach was used to assess accuracy for the manuscript, and several PICRUSt scripts help to automate it.  
 
-The most important script to check out is compare_biom.py   This script allows you to compare how accurately one or more observed BIOM-format tables predict an expected table.  So you can run compare_biom.py using the BIOM table generated from your shotgun metagenome as the expected value, and your PICRUSt-predicted table as your observed result.   
+The most important script to check out is :ref:`compare_biom.py <compare_biom>`   This script allows you to compare how accurately one or more observed BIOM-format tables predict an expected table.  So you can run compare_biom.py using the BIOM table generated from your shotgun metagenome as the expected value, and your PICRUSt-predicted table as your observed result.   
 
 
 Considerations:
-     1.  Control metagenomes should be fairly deep:  Because taxa saturate more quickly than genes, you need substantial metagenomic sequencing depth to compare against PICRUSt predictions.  Based on rarefaction analysis of paired 16S rRNA/metagenome libraries from diverse soils, we find in the paper that for that environment roughly 72,000 raw or 15,000 annotated metagenomic sequences were needed before a subset of a deeply sequenced metagenome did better against the full metagenome than PICRUSt did.  That is, PICRUSt actually did better at predicting a deeply sequenced metagenome than did shallow subsets of the same metagenome. Therefore shallow metagenomes (although useful for assessing general functional changes in a community) make poor ‘gold standard’ positive controls for assessing PICRUSt accuracy.
-     2.  Even predicting random bacterial genomes produces substantial correlations:  Simply knowing that a metagenome has mostly bacteria in it goes a long way towards correctly predicting the full metagenome.  This is simply because there are many common patterns in which gene families are more or less abundant (on average) across bacteria and archaea.  Therefore it is very useful to compare the accuracy of your PICRUSt prediction against the accuracy found when just predicting a random set of bacterial/archaeal genomes.   You can scramble the abundances of OTUs in your sample using the --random option in compare_biom.py.
+     1.  **Control metagenomes should be fairly deep:**:  Because taxa saturate more quickly than genes, substantial metagenomic sequencing depth is needed to compare against PICRUSt predictions.  Based on rarefaction analysis of paired 16S rRNA/metagenome libraries from diverse soils, we find in the paper that roughly 72,000 raw or 15,000 annotated metagenomic sequences were needed before a subset of a deeply sequenced metagenome did better against the full metagenome than PICRUSt did (at least in soils).  That is, PICRUSt actually did better at predicting a deeply sequenced metagenome than did shallow subsets of the same metagenome. Therefore shallow metagenomes (although useful for assessing general functional changes in a community) make poor ‘gold standard’ positive controls for assessing PICRUSt accuracy.
+     2.  **Randomized controls are needed:**: Even predicting random bacterial genomes produces substantial correlations-  simply knowing that a metagenome has mostly bacteria in it goes a long way towards correctly predicting the full metagenome.  This is simply because there are many common patterns in which gene families are more or less abundant (on average) across bacteria and archaea.  Therefore it is very useful to compare the accuracy of your PICRUSt prediction against the accuracy found when just predicting a random set of bacterial/archaeal genomes.   You can scramble the abundances of OTUs in your sample using the --random option in compare_biom.py.
+
+.. _reporting_picrust_results:
 
 Suggestions for Reporting Results From PICRUSt
 ----------------------------------------------
 
-General
-^^^^^^^
-* Standard reporting on the methods used to sample, extract, amplify, and sequence your 16S rRNA data.
-* The steps used in processing your sequenced reads, and mapping them to a reference.
-    Per the discussion above, what proportion of reads mapped to reference?  What similarity threshold was used?
+Inputs to PICRUSt -- picking reference OTUs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In addition to standard methods reporting on the methods used to sample, extract, amplify, and sequence your 16S rRNA data, some details of the reference-based OTU-picking step may be useful to report in order to ensure reproducibility of the results.  These include: 
+
+    **The version of the Greengenes reference was used**:  You can run predict_metagenomes.py with the --help option to see a list of default parameters.  The Greengenes version is specified using the --gg_version option. If you didn't specifically request a particular version of Greengenes, the listed default value will be the version of greengenes used.
+        
+    **The proportion of reads that mapped to reference during OTU picking**: For some poorly explored environments, many or all sequences may fail to map to reference sequences.  Therefore it is a good idea to check the log files from QIIME's otu picking step to ensure that a reasonable number of sequences survived OTU picking.  Reporting these percentages may provide valuable information for other researchers trying to duplicate the analysis.
+
+    **The similarity threshold used during OTU-picking**: typically 97% OTUs are used, 
+
 
 PICRUSt-specific information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* What version of PICRUSt and greengenes was used?  You can access this information by running print_picrust_config.py [check]
-* What was the Nearest Sequenced Taxon Index (NSTI) for your samples?   NSTI scores reflect the availability of reference genomes that are closely related to the most abundant microorganisms in your sample.  High scores (~ >0.15) generally mean few related references are available and predictions will be of low quality.  Low scores (roughly <0.06) indicate availability of closely related reference genomes.  
-* If you discuss a particular gene/KO/cog, you may be interested in the confidence interval for that metagenome prediction.  You can generate this information during the metagenome prediction step (see the :ref:`predict_metagenomes.py <predict_metagenomes>` script).
-* Were predictions corrected for predicted 16S rRNA copy number?  If you ran normalize_by_copy_number.py, then your predictions were normalized, and it will be useful to report this
+* What version of PICRUSt was used?  You can access this information by running:
+
+  ``print_picrust_config.py``
+
+* Were predictions corrected for predicted 16S rRNA copy number?  If you ran normalize_by_copy_number.py, then your predictions were normalized, and it will be useful to report this.
+
+  * What was the Nearest Sequenced Taxon Index (NSTI) for the samples?   NSTI scores reflect the availability of reference genomes that are closely related to the most abundant microorganisms in your sample.  High scores (~ >0.15) generally mean few related references are available and predictions will be of low quality.  Low scores (roughly <0.06) indicate availability of closely related reference genomes.  NSTI scores can be calculated during metagenome prediction by passing the --with_accuracy option (see the :ref:`predict_metagenomes.py <predict_metagenomes>` script) 
+
+* If you discuss a particular gene/KO/COG, you may be interested in the confidence interval for that metagenome prediction.  You can generate this information during the metagenome prediction step (see the :ref:`predict_metagenomes.py <predict_metagenomes>` script).
+
 
 
 
