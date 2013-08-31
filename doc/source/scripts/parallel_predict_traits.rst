@@ -42,6 +42,8 @@
 		Number of jobs to be submitted. [default: 2]
 	-d, `-`-delay
 		Number of seconds to pause between launching each job [default: 0]
+	`-`-already_calculated
+		Precalculated file that is missing some otu predictions. Output will contain predictions from this file and the new predictions as well. [default: None]
 
 
 **Output:**

@@ -27,7 +27,7 @@
 	**[OPTIONAL]**
 		
 	-g, `-`-gg_version
-		Version of GreenGenes that was used for OTU picking. Valid choices are: 18may2012 [default: 18may2012]
+		Version of GreenGenes that was used for OTU picking. Valid choices are: 13_5, 18may2012 [default: 13_5]
 	-c, `-`-input_count_fp
 		Precalculated input marker gene copy number predictions on per otu basis in biom format (can be gzipped).Note: using this option overrides --gg_version. [default: None]
 	`-`-metadata_identifer
@@ -43,16 +43,22 @@
 A normalized OTU table
 
 
-Normalize the counts in raw_otus.biom. Write the resulting table to normalized_otus_from_biom.biom.
+Normalize the OTU abundances for a given OTU table picked against the newest version of Greengenes:
 
 ::
 
-	normalize_by_copy_number.py -i hmp_mock_16S.biom -o normalized_otus_from_biom.biom
+	normalize_by_copy_number.py -i closed_picked_otus.biom -o normalized_otus.biom
 
 Input tab-delimited OTU table:
 
 ::
 
-	normalize_by_copy_number.py -f -i hmp_mock_16S.txt -o normalized_otus_from_txt.biom
+	normalize_by_copy_number.py -f -i closed_picked_otus.tab -o normalized_otus.biom
+
+Change the version of Greengenes used for OTU picking:
+
+::
+
+	normalize_by_copy_number.py -g 18may2012 -i closed_picked_otus.biom -o normalized_otus.biom
 
 

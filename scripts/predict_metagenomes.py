@@ -316,10 +316,22 @@ def write_metagenome_to_file(predicted_metagenome,output_fp,\
             metadata_name=None
             
         open(output_fp,'w').write(predicted_metagenome.delimitedSelf(\
-          header_key=metadata_name,header_value=metadata_name))
+          header_key=metadata_name,header_value=metadata_name,metadata_formatter=biom_meta_to_string))
     else:
         #output in BIOM format
         open(output_fp,'w').write(format_biom_table(predicted_metagenome))
+
+def biom_meta_to_string(metadata, replace_str=':'):
+    """ Determine which format the metadata is (e.g. str, list, or list of lists) and then convert to a string"""
+
+    #Note that since ';' and '|' are used as seperators we must replace them if they exist
+    if type(metadata) ==str or type(metadata)==unicode:
+        return metadata.replace(';',replace_str)
+    elif type(metadata) == list:
+        if type(metadata[0]) == list:
+            return "|".join(";".join([y.replace(';',replace_str).replace('|',replace_str) for y in x]) for x in metadata)
+        else:
+            return ";".join(x.replace(';',replace_str) for x in metadata)
 
 if __name__ == "__main__":
     main()
