@@ -14,7 +14,7 @@ __credits__ = ["Morgan Langille","Daniel McDonald", "Jose Clemente", "Greg Capor
                "Sue Huse"]
 __url__ = "http://picrust.github.com"
 __license__ = "GPL"
-__version__ = "0.9.2-dev"
+__version__ = "1.0.0"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 
