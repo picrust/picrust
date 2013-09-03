@@ -1,0 +1,126 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>make_test_datasets.py – Generates test datasets for cross-validation studies of PICRUSt’s accuracy &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/scripts/make_test_datasets.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="make-test-datasets"></span><div class="section" id="make-test-datasets-py-generates-test-datasets-for-cross-validation-studies-of-picrust-s-accuracy">
+<span id="index-0"></span><h1><em>make_test_datasets.py</em> &#8211; Generates test datasets for cross-validation studies of PICRUSt&#8217;s accuracy<a class="headerlink" href="#make-test-datasets-py-generates-test-datasets-for-cross-validation-studies-of-picrust-s-accuracy" title="Permalink to this headline">¶</a></h1>
+<p><strong>Description:</strong></p>
+<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">make_test_datasets.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Input Arguments:</strong></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>[REQUIRED]</strong></p>
+<dl class="docutils">
+<dt>-i, <cite>-</cite>-input_trait_table</dt>
+<dd>The input trait table.</dd>
+<dt>-t, <cite>-</cite>-input_tree</dt>
+<dd>The input tree in Newick format</dd>
+</dl>
+<p><strong>[OPTIONAL]</strong></p>
+<dl class="last docutils">
+<dt>-o, <cite>-</cite>-output_dir</dt>
+<dd>The output directory.  Duplicate trees, trait tables, expected values and prediction files will be saved here.[default:./test_datasets/]</dd>
+<dt><cite>-</cite>-min_dist</dt>
+<dd>The minimum phylogenetic distance to use with the holdout method, if applicable.  Usually 0.0.[default:0.0]</dd>
+<dt><cite>-</cite>-suppress_tree_modification</dt>
+<dd>If passed, modify only the trait table, not the tree . [default: False]</dd>
+<dt><cite>-</cite>-dist_increment</dt>
+<dd>The phylogenetic distance increment to use with the holdout method, if applicable.[default:0.03]</dd>
+<dt><cite>-</cite>-max_dist</dt>
+<dd>The maximum phylogenetic distance to use with the holdout method, if applicable.[default:0.45]</dd>
+<dt><cite>-</cite>-limit_to_tips</dt>
+<dd>If specified, limit test dataset generation to specified tips (comma-separated).[default:]</dd>
+<dt>-m, <cite>-</cite>-method</dt>
+<dd>The test method to use in generating test data.  Valid choices are:exclude_tips_by_distance,randomize_tip_labels_by_distance,collapse_tree_by_distance [default: exclude_tips_by_distance]</dd>
+</dl>
+</div>
+<p><strong>Output:</strong></p>
+<p>Generate holdout test trees from genome_tree.newick, and save results in the directory ./test_holdout_trees/.</p>
+<div class="highlight-python"><pre>make_test_datasets.py -t genome_tree.newick -o ./test_holdout_trees</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

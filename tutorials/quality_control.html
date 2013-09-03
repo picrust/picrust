@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quality Control of PICRUST Predictions &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quality Control of PICRUST Predictions</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#general-limitations-of-picrust">General limitations of PICRUSt</a></li>
+<li><a class="reference internal" href="#basic-quality-control-steps-for-picrust">Basic Quality Control steps for PICRUSt</a><ul>
+<li><a class="reference internal" href="#resources-for-understanding-the-picrust-algorithm-and-its-performance">1. Resources for understanding the PICRUSt algorithm and its performance</a></li>
+<li><a class="reference internal" href="#check-input-otu-tables">2. Check input OTU tables</a></li>
+<li><a class="reference internal" href="#calculate-reference-genome-coverage-for-your-samples-using-nsti-scores">3. Calculate reference genome coverage for your samples using NSTI scores</a></li>
+<li><a class="reference internal" href="#calculate-metagenomic-confidence-intervals">4. Calculate metagenomic confidence intervals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#empirical-quality-control-sequencing">Empirical Quality Control:  Sequencing</a></li>
+<li><a class="reference internal" href="#suggestions-for-reporting-results-from-picrust">Suggestions for Reporting Results From PICRUSt</a><ul>
+<li><a class="reference internal" href="#inputs-to-picrust-picking-reference-otus">Inputs to PICRUSt &#8211; picking reference OTUs</a></li>
+<li><a class="reference internal" href="#picrust-specific-information">PICRUSt-specific information</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/quality_control.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quality-control-of-picrust-predictions">
+<span id="quality-control"></span><h1>Quality Control of PICRUST Predictions<a class="headerlink" href="#quality-control-of-picrust-predictions" title="Permalink to this headline">¶</a></h1>
+<p>This section covers steps that can be taken to ensure PICRUSt predictions will be as accurate as possible, and to characterize how well or poorly the gene content of a given set of 16S rRNA samples can be predicted.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>PICRUSt’s main use is in estimating the bacterial and archaeal genes present in a microbial community metagenome, using 16S rRNA data.   The output is a table of gene family abundances for each sample, with the exact scheme used to delineate gene families chosen by you (options include KEGG, COG, PFAM and RFAM).  The accuracy of PICRUSt’s predicted metagenomes can vary quite a bit depending on several factors including, most importantly, the extent to which sequenced genomes are available for the most abundant species in your community of interest.</p>
+<p>More detail about the types of tests we have done on the algorithm, and the detailed results are available in the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2676.html">PICRUSt manuscript in Nature Biotechnology</a></p>
+<p>Here, we will cover the most important conclusions from that research, and delve more into some extra steps you can take in order to predict how accurate PICRUSt will be for your samples of interest.  First we will discuss some <a class="reference internal" href="#general-limitations"><em>general limitations</em></a> of PICRUSt that may be worth considering when interpreting results.  Second, we present quality control steps that can be taken to quantify or predict PICRUSt&#8217;s accuracy and determine if it will be useful for your dataset:</p>
+<p>The <a class="reference internal" href="#basic-qc-checklist"><em>basic quality control checklist</em></a> include tests that you can run along with your PICRUSt analysis without doing any additional sequencing.</p>
+<p>The <a class="reference internal" href="#empirical-qc-checklist"><em>empirical quality control checklist</em></a> is intended for larger projects (with for example hundreds or thousands of 16S rRNA libraries and perhaps a dozen or more shotgun metagenomes available), and includes validations similar to those used in the PICRUSt manuscript.   At the bottom of the page, we include a checklist of items you may wish to include in your methods section when describing PICRUSt so that others can duplicate your findings.</p>
+<p>Both the ‘basic’ and ‘advanced’ checklists assume you are doing the main PICRUSt workflow- predicting a ‘virtual metagenome’ from 16S rRNA data.  However, PICRUSt can in theory be used to predict any trait (continuous evolutionary character) across organisms.   Additional discussion of quality control steps you might take if you are using PICRUSt in a customized workflow will be discussed in a forthcoming ‘custom trait prediction with PICRUSt’ section.</p>
+<p>Finally, we discuss some ideas for <a class="reference internal" href="#reporting-picrust-results"><em>reporting a PICRUSt analysis</em></a> such that it can be reproduced by others.</p>
+<p>We would like this page to be a resource for the community.  If you have additional suggestions for additional steps that will help the community with their PICRUSt analysis, we would love to hear them-  please e-mail <a class="reference external" href="mailto:picrust-users&#37;&#52;&#48;googlegroups&#46;com">picrust-users<span>&#64;</span>googlegroups<span>&#46;</span>com</a></p>
+</div>
+<div class="section" id="general-limitations-of-picrust">
+<span id="general-limitations"></span><h2>General limitations of PICRUSt<a class="headerlink" href="#general-limitations-of-picrust" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Since the input data for the standard PICRUSt workflow is 16S rRNA, any eukaryotic or viral contributions to the metagenome will not be predicted.  Therefore it is best to think of PICRUSt as predicting the <em>portion</em> of the full metagenome contributed by the organisms targeted by your primers.</li>
+<li>Biased primers may result in inaccurate predictions.  Only genes from organisms amplified by your primer will be included.  The main use for PICRUSt is in taking 16S rRNA data, and predicting a metagenome from that data using evolutionary modelling of how gene content has changed relative to sequenced genomes.   Therefore PICRUSt can only predict the portion of the metagenome that is contributed by the set of organisms picked up by your primers.   The PICRUSt validation datasets used universal 515f/806r V4 16S rRNA primers designed to minimize (though not eliminate) bias across bacterial/archaeal taxonomy [link Caporaso et al 2011, Walters et al 2011].   If the primers used don’t amplify an organism, then of course that organisms’ contribution to the metagenome is not predicted.   As an example, many popular 16S rRNA primers including 27F/338R did not work well for amplifying <em>Verrucomicrobia</em> (see <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22267877">Bergmann et al 2011</a>).   If your sample had a large proporition of <em>Verrucomicrobia</em> in it, and you used such a primer set, then of course the metagenome predicted by PICRUSt would also underestimate genes contributed by <em>Verrucomicrobia</em>.</li>
+<li>PICRUSt can only predict gene families that are already known and included in the orthology reference used (KEGG KOs by default).  Therefore, genes that do not fall within the orthology scheme used will not be predicted, despite the possibility that such &#8216;dark matter&#8217; could play an important role in the system at hand.</li>
+<li>PICRUSt output that maps gene families to putative functions or pathways  is purely based on the particular input reference used. Therefore, any gaps or inaccuracies in pathway annotation or assignments of gene function will still be present.  As an example, many KEGG Orthology groups are listed as participating in pathways not found in bacteria or otherwise not reflective of true function.  In many cases this is simply due to bacteria containing  (distant) homologs of enzymes with important roles in, for example,  mammalian pathways.  Therefore, it is worth carefully checking KEGG pathway annotations to ensure that they are reasonable for your system.</li>
+<li>PICRUSt is based on evolutionary modeling of the gene contents of known reference genomes.  Therefore, accuracy for any given sample type will depend heavily on the availability of appropriate references.  See the checklists below for some methods for quantifying whether this will be an issue for your samples, and for calculating 95% confidence intervals around gene content predictions.</li>
+</ul>
+</div>
+<div class="section" id="basic-quality-control-steps-for-picrust">
+<span id="basic-qc-checklist"></span><h2>Basic Quality Control steps for PICRUSt<a class="headerlink" href="#basic-quality-control-steps-for-picrust" title="Permalink to this headline">¶</a></h2>
+<p>These are some steps that can be taken to ensure that you get the most out of your PICRUSt analysis.</p>
+<div class="section" id="resources-for-understanding-the-picrust-algorithm-and-its-performance">
+<h3>1. Resources for understanding the PICRUSt algorithm and its performance<a class="headerlink" href="#resources-for-understanding-the-picrust-algorithm-and-its-performance" title="Permalink to this headline">¶</a></h3>
+<p>The PICRUSt algorithm and a number of accuracy tests are described in the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2676.html">PICRUSt paper</a>. An additional description of the algorithm is available on the PICRUSt webpage here: <a class="reference internal" href="algorithm_description.html#algorithm-description"><em>How PICRUSt Works</em></a>.  Importantly, testing indicates that while PICRUSt can work quite well when adequete reference genomes are available, results may be unreliable for underexplored communities such as the Guerrero Negro microbial mats where adequete genome coverage is not currently available.</p>
+</div>
+<div class="section" id="check-input-otu-tables">
+<h3>2. Check input OTU tables<a class="headerlink" href="#check-input-otu-tables" title="Permalink to this headline">¶</a></h3>
+<p>Appropriate quality control on the input 16S rRNA data is important for ensuring an accurate prediction when using PICRUSt.   For the standard metagenome prediction workflow, PICRUSt requires that input 16S rRNA data be in the form of a <a class="reference external" href="http://biom-format.org/index.html">BIOM format table</a>  table that was picked by mapping your reads to references in the greengenes tree.   The most straightforward way to do this is using QIIME’s reference-based OTU picking pipeline as described in the <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><em>OTU Picking Tutorial</em></a>.</p>
+<blockquote>
+<div>This has several implications:</div></blockquote>
+<ul class="simple">
+<li><strong>OTU IDs must be based on greengenes</strong>: If you input an OTU table generated some other way, but with some IDs that happen to match greengenes, PICRUSt could produce very wrong results.  You can use ids other than greengenes, but in that case you will be doing a custom analysis and will not be able to rely on our precalculated set of gene content predictions.</li>
+<li><strong>Sequences that fail to map to references will not be predicted</strong>: It is useful to check how well reference-based OTU picking worked.  Some samples, including for example many from marine environments, may not have representatives on the greengenes tree at a 97% OTU threshold.  So it is important to check what percentage of your reads were successfully mapped to greengenes.    If you use QIIME for your reference-based OTU picking step, this is available in the log file generated along with your OTU table.  If the most reads failed to map, you may wish to consider using a more generous similarity threshold (e.g. 94%).   It is important to be aware that this will have an effect on the accuracy of PICRUSt, since dissimilar organisms will be lumped together.  However, losing the vast majority of sequences may have an even greater effect.    The section on using the Nearest Sequenced Taxon Index to estimate overall PICRUSt accuracy will discuss how you can use that metric to estimate error rates.</li>
+</ul>
+</div>
+<div class="section" id="calculate-reference-genome-coverage-for-your-samples-using-nsti-scores">
+<h3>3. Calculate reference genome coverage for your samples using NSTI scores<a class="headerlink" href="#calculate-reference-genome-coverage-for-your-samples-using-nsti-scores" title="Permalink to this headline">¶</a></h3>
+<p>When characterizing PICRUSt’s accuracy, we found that the largest single factor contributing to metagenome prediction accuracy for a given sample was the extent to which organisms from that sample had their genomes sequenced.  We developed the weighted Nearest Sequenced Taxon Index (weighted NSTI) score to summarize the extent to which microorganisms in a given sample are related to sequenced genomes.  NSTI scores are simply the average branch length that separates each OTU in your sample from a reference bacterial genome, weighted by the abundance of that OTU in the sample.   So the unit for the NSTI score is the same as your reference tree (typically 16S rRNA substitutions/site).   Thus a NSTI score of 0.03 indicates that the average microbe in your sample can be predicted using a relative from the same (97%) species.</p>
+<p>When comparing NSTI scores to typical bacterial taxonomic cutoffs (e.g. 97% sequence identity), it is worth noting that substitutions/site is equivalent to 1.0 - % identity at <em>short</em> phylogenetic distances, but greater than that value at longer phylogenetic distances due to, for example, multiple mutations at the same site that return the nucleotide to a previous state (Supp. Fig. 2 in <a class="reference external" href="http://nar.oxfordjournals.org/content/suppl/2010/03/02/gkq066.DC1/nar-02618-s-2009-File002.pdf">Zaneveld et al 2010</a> has a figure relates these two for short distances)</p>
+</div>
+<div class="section" id="calculate-metagenomic-confidence-intervals">
+<h3>4. Calculate metagenomic confidence intervals<a class="headerlink" href="#calculate-metagenomic-confidence-intervals" title="Permalink to this headline">¶</a></h3>
+<p>A newer capability of PICRUSt is the ability to generate 95% confidence intervals for each gene prediction. These confidence intervals may be useful to examine for particular gene families of interest to determine the range of values that could be present in a community.</p>
+<p><strong>NOTE:</strong> Although the code for prediction of metagenomic confidence intervals is unit-tested (produces correct output on small example datasets), and confidence intervals during generation of the precalculated gene content prediction files were benchmarked for accuracy against real genomes in the PICRUSt manuscript, metagenomic confidence intervals have not yet been biologically validated on large datasets.  Therefore this capability should be treated as experminetal for now, but may provide a rough guide for the range of values that might be present for each gene family in the metagenome.  See the <a class="reference internal" href="algorithm_description.html#algorithm-description"><em>How PICRUSt Works</em></a> for further details.</p>
+<p>Metagenomic confidence intervals can be output using the &#8211;with_confidence option in the  predict_metagenomes.py script.</p>
+</div>
+</div>
+<div class="section" id="empirical-quality-control-sequencing">
+<span id="empirical-qc-checklist"></span><h2>Empirical Quality Control:  Sequencing<a class="headerlink" href="#empirical-quality-control-sequencing" title="Permalink to this headline">¶</a></h2>
+<p>One direct method for testing PICRUSt metagenome prediction accuracy in a new environment is to sequence 16S rRNA and shotgun metagenomes from the same subset of  samples, and then directly compare the PICRUSt-predicted results against the empirical, sequenced results.  Of course this approach is only practical in cases where substantial collections of samples are slated for 16S rRNA sequencing.  But it can provide a great deal of empirical reassurance when sequencing many 16S samples, at the cost of perhaps a dozen metagenomes (which may be useful anyway for other purposes).  This approach was used to assess accuracy for the manuscript, and several PICRUSt scripts help to automate it.</p>
+<p>The most important script to check out is <a class="reference internal" href="../scripts/compare_biom.html#compare-biom"><em>compare_biom.py</em></a>   This script allows you to compare how accurately one or more observed BIOM-format tables predict an expected table.  So you can run compare_biom.py using the BIOM table generated from your shotgun metagenome as the expected value, and your PICRUSt-predicted table as your observed result.</p>
+<dl class="docutils">
+<dt>Considerations:</dt>
+<dd><ol class="first last arabic simple">
+<li><strong>Control metagenomes should be fairly deep:</strong>:  Because taxa saturate more quickly than genes, substantial metagenomic sequencing depth is needed to compare against PICRUSt predictions.  Based on rarefaction analysis of paired 16S rRNA/metagenome libraries from diverse soils, we find in the paper that roughly 72,000 raw or 15,000 annotated metagenomic sequences were needed before a subset of a deeply sequenced metagenome did better against the full metagenome than PICRUSt did (at least in soils).  That is, PICRUSt actually did better at predicting a deeply sequenced metagenome than did shallow subsets of the same metagenome. Therefore shallow metagenomes (although useful for assessing general functional changes in a community) make poor ‘gold standard’ positive controls for assessing PICRUSt accuracy.</li>
+<li><strong>Randomized controls are needed:</strong>: Even predicting random bacterial genomes produces substantial correlations-  simply knowing that a metagenome has mostly bacteria in it goes a long way towards correctly predicting the full metagenome.  This is simply because there are many common patterns in which gene families are more or less abundant (on average) across bacteria and archaea.  Therefore it is very useful to compare the accuracy of your PICRUSt prediction against the accuracy found when just predicting a random set of bacterial/archaeal genomes.   You can scramble the abundances of OTUs in your sample using the &#8211;random option in compare_biom.py.</li>
+</ol>
+</dd>
+</dl>
+</div>
+<div class="section" id="suggestions-for-reporting-results-from-picrust">
+<span id="reporting-picrust-results"></span><h2>Suggestions for Reporting Results From PICRUSt<a class="headerlink" href="#suggestions-for-reporting-results-from-picrust" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="inputs-to-picrust-picking-reference-otus">
+<h3>Inputs to PICRUSt &#8211; picking reference OTUs<a class="headerlink" href="#inputs-to-picrust-picking-reference-otus" title="Permalink to this headline">¶</a></h3>
+<p>In addition to standard methods reporting on the methods used to sample, extract, amplify, and sequence your 16S rRNA data, some details of the reference-based OTU-picking step may be useful to report in order to ensure reproducibility of the results.  These include:</p>
+<blockquote>
+<div><p><strong>The version of the Greengenes reference was used</strong>:  You can run predict_metagenomes.py with the &#8211;help option to see a list of default parameters.  The Greengenes version is specified using the &#8211;gg_version option. If you didn&#8217;t specifically request a particular version of Greengenes, the listed default value will be the version of greengenes used.</p>
+<p><strong>The proportion of reads that mapped to reference during OTU picking</strong>: For some poorly explored environments, many or all sequences may fail to map to reference sequences.  Therefore it is a good idea to check the log files from QIIME&#8217;s otu picking step to ensure that a reasonable number of sequences survived OTU picking.  Reporting these percentages may provide valuable information for other researchers trying to duplicate the analysis.</p>
+<p><strong>The similarity threshold used during OTU-picking</strong>: typically 97% OTUs are used,</p>
+</div></blockquote>
+</div>
+<div class="section" id="picrust-specific-information">
+<h3>PICRUSt-specific information<a class="headerlink" href="#picrust-specific-information" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">What version of PICRUSt was used?  You can access this information by running:</p>
+<p><tt class="docutils literal"><span class="pre">print_picrust_config.py</span></tt></p>
+</li>
+<li><p class="first">Were predictions corrected for predicted 16S rRNA copy number?  If you ran normalize_by_copy_number.py, then your predictions were normalized, and it will be useful to report this.</p>
+<ul class="simple">
+<li>What was the Nearest Sequenced Taxon Index (NSTI) for the samples?   NSTI scores reflect the availability of reference genomes that are closely related to the most abundant microorganisms in your sample.  High scores (~ &gt;0.15) generally mean few related references are available and predictions will be of low quality.  Low scores (roughly &lt;0.06) indicate availability of closely related reference genomes.  NSTI scores can be calculated during metagenome prediction by passing the &#8211;with_accuracy option (see the <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> script)</li>
+</ul>
+</li>
+<li><p class="first">If you discuss a particular gene/KO/COG, you may be interested in the confidence interval for that metagenome prediction.  You can generate this information during the metagenome prediction step (see the <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> script).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

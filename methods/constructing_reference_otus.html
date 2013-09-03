@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Constructing PICRUSt reference OTU collection &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Constructing PICRUSt reference OTU collection</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#overall-workflow-design">Overall workflow design</a></li>
+<li><a class="reference internal" href="#notes-on-specific-versions-of-reference-otu-builds">Notes on specific versions of reference OTU builds</a><ul>
+<li><a class="reference internal" href="#img-gg-otus-18may2012">img_gg_otus_18may2012</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/methods/constructing_reference_otus.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="constructing-picrust-reference-otu-collection">
+<span id="constructing-reference-otus"></span><h1>Constructing PICRUSt reference OTU collection<a class="headerlink" href="#constructing-picrust-reference-otu-collection" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This document covers how the nested reference OTU collection was constructed for PICRUST. The script and associated test code are available in the <tt class="docutils literal"><span class="pre">qiime-dev/nested_reference_otus</span></tt> git repository located <a class="reference external" href="https://github.com/qiime-dev/nested_reference_otus">here</a>. Download links for these reference collections are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>img_gg_otus_18may2012.tgz (<a class="reference external" href="https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz">download</a> ; md5: 5f1de69a310dc0c261ea76b48ba5dbe2)</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="overall-workflow-design">
+<h2>Overall workflow design<a class="headerlink" href="#overall-workflow-design" title="Permalink to this headline">¶</a></h2>
+<p>Beginning with a collection of sequences of a single marker gene (16S in our case), a user-defined list of percent identities to cluster at, and an optional phylogenetic tree, the following steps are performed:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Pick OTUs (using <tt class="docutils literal"><span class="pre">pick_otus.py</span></tt> in <a class="reference external" href="http://www.qiime.org">QIIME</a>) on input sequences at first specified percent identity using <a class="reference external" href="http://www.drive5.com/uclust">uclust</a>, suppressing QIIME&#8217;s pre-sorting of sequences (by passing <tt class="docutils literal"><span class="pre">-DB</span></tt> to <tt class="docutils literal"><span class="pre">pick_otus.py</span></tt>). Suppressing of the pre-sorting is included so the user can pre-sort sequences as they prefer before OTU picking: sequences that are listed first in the users input will preferentially be cluster centroids. In the case of PICRUST, these are sequences for which we have full genomes.</li>
+<li>Pick a representative sequence for each OTU as the centroid of the OTU cluster.</li>
+<li>Filter the input tree (if any) to contain only tips that are representative sequences generated in the previous step. If no input tree was provided, do not create a tree.</li>
+<li>Using the representative sequence collection from the previous step, pick otus on input sequences at the next specified percent identity using the same parameters as applied in Step1.</li>
+<li>Pick a representative sequence for each OTU as the centroid of the OTU cluster.</li>
+<li>Filter the tree generated in the previous iteration (if any) to contain only tips that correspond to representative sequences in the previous step. If no input tree was generated in the previous step, do not create a tree.</li>
+<li>Return to step 4 until OTUs have been picked at all specified percent identities.</li>
+</ol>
+</div></blockquote>
+<p>The output of this workflow will be OTU representative sequences and corresponding phylogenetic trees (if applicable) at the user-specified percent identities. The OTUs will be nested such that sequences which are clustered in the same OTU at a given percent identity are guaranteed to be clustered in the same OTU at all higher percent identities.</p>
+</div>
+<div class="section" id="notes-on-specific-versions-of-reference-otu-builds">
+<h2>Notes on specific versions of reference OTU builds<a class="headerlink" href="#notes-on-specific-versions-of-reference-otu-builds" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="img-gg-otus-18may2012">
+<h3>img_gg_otus_18may2012<a class="headerlink" href="#img-gg-otus-18may2012" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul>
+<li><p class="first">Run with QIIME 1.5.0 on ami-e4bf1b8d</p>
+</li>
+<li><p class="first">Run by Greg Caporaso on 18 May 2012</p>
+</li>
+<li><p class="first">nested_reference_workflow.py commit 73799024fa4dc7d26d33743ddcb4c1c624520e23</p>
+</li>
+<li><dl class="first docutils">
+<dt>Input MD5 sums:</dt>
+<dd><ul class="first last simple">
+<li>IMG_v350_sel4cni.lanemask.min1250nt.rooted.t2tGGrelease.ntree : e988ef28ce22cfa2adab742b1bf0ad98</li>
+<li>IMG_v350_sel4cni_unaligned.fasta : d3ac90d3b6f24685cac056d1907daa7c</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">The full tree contained single quotes around the IMG sequence identifiers, so I had to commit a fix to QIIME to strip these from the tip names before filtering. I then re-ran filtering using QIIME 1.5.0-dev revision 3062 on my laptop:</p>
+<div class="highlight-python"><pre>filter_tree.py -i IMG_v350_sel4cni.lanemask.min1250nt.rooted.t2tGGrelease.ntree -f img_gg_otus_18may2012/rep_set/99_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/99_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/99_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/97_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/97_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/94_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/94_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/94_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/91_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/91_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/91_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/88_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/88_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/88_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/85_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/85_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/85_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/82_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/82_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/82_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/79_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/79_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/79_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/76_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/76_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/76_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/73_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/73_otus_img_gg_18may2012.tre
+filter_tree.py -i img_gg_otus_18may2012/trees/73_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/70_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/70_otus_img_gg_18may2012.tre</pre>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
+<p>We wish to thank Amazon Web Services for the AWS in Education researcher&#8217;s grant to the QIIME development group which supported to compute time used to develop this workflow and develop these reference collections.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

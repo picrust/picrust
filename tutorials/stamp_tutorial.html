@@ -1,0 +1,121 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Analyzing metagenomes with STAMP &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/stamp_tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="analyzing-metagenomes-with-stamp">
+<span id="stamp-tutorial"></span><h1>Analyzing metagenomes with STAMP<a class="headerlink" href="#analyzing-metagenomes-with-stamp" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://kiwi.cs.dal.ca/Software/STAMP">STAMP</a> (Statistical Analysis of Metagenomic Profiles) is a software package for analyzing metagenomic profiles. A user friendly, graphical interface permits easy exploration of statistical results and generation of publication quality plots for inferring the biological relevance of features in a metagenomic profile.</p>
+<p>The metagenome predictions from PICRUSt, can be used with slight altering of the tab-delimited output files (using the <tt class="docutils literal"><span class="pre">-f</span></tt> option in predict_metagenomes.py and categorize_by_function.py).</p>
+<p>STAMP takes as input two data files. The first is a <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> that contains the count data, and the second is an optional <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> that contains metadata about each of the samples to allow comparison of groups (e.g. sick vs healthy).</p>
+<p>The <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> will need to be created by yourself, but is a simple tab-delimited format that can be easily exported from a spreadsheet program. The first column must have sample ids that match the <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> with each of the other columns representing different metadata about the samples.</p>
+<p>An example <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> could look like this:</p>
+<div class="highlight-python"><pre>Sample Id    Location    Phenotype    Gender    Sample Size
+Sample 1     Canada        Obese      Female      4000
+Sample 2     Canada        Lean       Male        2000
+Sample 3     Italy         Lean       Female      3000</pre>
+</div>
+<p>To create the <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> you need to do a simple conversion of PICRUSt&#8217;s output. The first header line should be discarded and the last column containing metadata should be discarded. This can be done in a simple text editor and spreasheet program or you can use the unix command below.</p>
+<p>Assuming your output file was created with the following command:</p>
+<div class="highlight-python"><pre>predict_metagenomes.py -f -i normalized_otus.biom -o predicted_metagenomes.txt</pre>
+</div>
+<p>then this file can be converted to a STAMP <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt>:</p>
+<div class="highlight-python"><pre>sed '1d' predicted_metagenomes.txt | rev | cut -f 2- | rev &gt; predicted_metagenome.spf</pre>
+</div>
+<p>This will allow STAMP analysis on each of the ~7000 KOs. However, it may be beneficial to first collapse the counts into more general categories:</p>
+<div class="highlight-python"><pre>categorize_by_function.py -f -i predicted_metagenomes.biom -c KEGG_Pathways -l 3 -o predicted_metagenomes.L3.txt</pre>
+</div>
+<p>then convert this file to STAMP <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt>:</p>
+<div class="highlight-python"><pre>sed '1d' predicted_metagenomes.L3.txt | rev | cut -f 2- | rev &gt; predicted_metagenome.L3.spf</pre>
+</div>
+<p>Once you have your STAMP <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> and <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> generated, then install STAMP, load the files from the <strong>File-&gt;Load Data...</strong> menu and start browsing your data.</p>
+<p>The <a class="reference external" href="http://kiwi.cs.dal.ca/wow/images/0/02/STAMP_Users_Guide_v2.0.0.pdf">STAMP User&#8217;s Guide</a> is very clear and helpful.</p>
+<p>With only a few clicks you can generate figures like these:</p>
+<img alt="../_images/STAMP2_Windows7_Screenshot.png" src="../_images/STAMP2_Windows7_Screenshot.png" style="width: 600px;" />
+<img alt="../_images/ArumugamBoxPlot.png" src="../_images/ArumugamBoxPlot.png" style="width: 600px;" />
+<img alt="../_images/STAMP2_RumenErrorBarPlot.png" src="../_images/STAMP2_RumenErrorBarPlot.png" style="width: 600px;" />
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

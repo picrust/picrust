@@ -1,0 +1,138 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quickstart Guide &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart Guide</a><ul>
+<li><a class="reference internal" href="#gene-content-inference-precomputed-for-16s-rrna">Gene content inference (precomputed for 16S rRNA)</a></li>
+<li><a class="reference internal" href="#metagenome-inference">Metagenome inference</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/quickstart.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quickstart-guide">
+<span id="id1"></span><h1>Quickstart Guide<a class="headerlink" href="#quickstart-guide" title="Permalink to this headline">¶</a></h1>
+<p>This guide gives a high-level overview of how to use PICRUSt. Before starting, you should have installed PICRUSt as described in <a class="reference internal" href="../install.html#install"><em>Installing PICRUSt</em></a>.</p>
+<p>PICRUSt primarily consists of two workflows: gene content inference (detailed in <a class="reference internal" href="genome_prediction.html#genome-prediction-tutorial"><em>Genome Prediction Tutorial</em></a>) and metagenome inference (detailed in <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>). Users working with 16S data can use pre-computed gene content information, and as a result don&#8217;t need to be concerned with the gene content inference workflow. The following sections describe these workflows. Each section links to detailed tutorials that illustrate the exact commands that can be applied as well as example data that you can use to test and learn PICRUSt.</p>
+<div class="section" id="gene-content-inference-precomputed-for-16s-rrna">
+<h2>Gene content inference (precomputed for 16S rRNA)<a class="headerlink" href="#gene-content-inference-precomputed-for-16s-rrna" title="Permalink to this headline">¶</a></h2>
+<p>This workflow infers gene content for OTUs with unknown gene content from OTUs with known content and a phylogenetic tree relating OTUs with known and unknown gene content.</p>
+<p>Input:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A reference OTU tree (newick format)</li>
+<li>A gene table for OTUs with known gene composition (i.e., counts of functional genes on a per-OTU basis; biom format by default)</li>
+</ul>
+</div></blockquote>
+<p>Output:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A gene table for OTUs with known and unknown gene composition (i.e., counts of functional genes on a per-OTU basis; biom format by default)</li>
+</ul>
+</div></blockquote>
+<p>Full details on this workflow, including example data and associated commands for running this workflow can be found in <a class="reference internal" href="genome_prediction.html#genome-prediction-tutorial"><em>Genome Prediction Tutorial</em></a>.</p>
+</div>
+<div class="section" id="metagenome-inference">
+<h2>Metagenome inference<a class="headerlink" href="#metagenome-inference" title="Permalink to this headline">¶</a></h2>
+<p>This workflow infers gene content for samples from an OTU table and a table of gene contents on a per-OTU basis. The input OTU table must be a closed-reference OTU table, where OTU identifiers correspond to the tips in the reference OTU tree used in the <em>Gene content inference</em> workflow. For help with building this OTU table, you should see <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a> which makes use of the <a class="reference external" href="https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz">PICRUSt GG reference data</a>.</p>
+<p>Input:</p>
+<blockquote>
+<div><ul class="simple">
+<li>An OTU table (i.e., counts of OTUs on a per-sample basis; default; biom format by default)</li>
+</ul>
+</div></blockquote>
+<p>Output:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A gene table (i.e., counts of functional genes on a per-sample basis; biom format by default)</li>
+</ul>
+</div></blockquote>
+<p>Full details on this workflow, including example data and associated commands for running this workflow can be found in <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

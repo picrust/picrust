@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>How PICRUSt Works &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How PICRUSt Works</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#gene-content-prediction">Gene Content Prediction</a><ul>
+<li><a class="reference internal" href="#tree-pruning-and-formatting">1. Tree Pruning and Formatting</a></li>
+<li><a class="reference internal" href="#ancestral-state-reconstruction">2. Ancestral State Reconstruction</a></li>
+<li><a class="reference internal" href="#predict-traits">3. Predict Traits</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#s-rrna-copy-number-prediction">16S rRNA Copy Number Prediction</a></li>
+<li><a class="reference internal" href="#copy-number-normalization">Copy Number Normalization</a></li>
+<li><a class="reference internal" href="#metagenome-prediction">Metagenome Prediction</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/algorithm_description.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="how-picrust-works">
+<span id="algorithm-description"></span><h1>How PICRUSt Works<a class="headerlink" href="#how-picrust-works" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>PICRUSt is designed to estimate the gene families contributed to a metagenome by bacteria or archaea identified using 16S rRNA sequencing.  Intermediate steps in this pipeline may also be of independent interest, as they allow for phylogenetic prediction of organismal traits using reference examples (here applied to the problem of gene content prediction), and correction for variable marker gene copy number.</p>
+<p>For an alternative presentation of the same algorithm, along with controls please see the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.2676.html">PICRUSt paper</a></p>
+</div>
+<div class="section" id="gene-content-prediction">
+<h2>Gene Content Prediction<a class="headerlink" href="#gene-content-prediction" title="Permalink to this headline">¶</a></h2>
+<p>A common and heavily studied problem in phylogenetics involves estimating the properties of ancestral organisms from living relatives (ancestral state reconstruction or ASR).  PICRUSt extends these methods to predict traits of living organisms that are unknown not because they belong to ancestral organisms, but because they have simply not yet been studied.   The main application of this Hidden State Prediction (HSP) in the core PICRUSt workflow is to estimate the gene content of microorganisms for which no genome sequence is available, by using their sequenced relatives as a reference.</p>
+<p>The central idea is that despite various important forms of microbial genome plasticity (gene loss, duplication, or gene transfer), the genes present in microbial genomes are much more similar amongst related bacteria or archaea than distant relatives.  Therefore, when sufficient genome sequences are available, it is possible to predict which gene families are present  in a given microbial OTU from phylogeny alone.  The important caveat is the &#8216;when sufficient genome sequences are available&#8217;.   Because of the capability of microbial genomes to change rapidly over evolutionary time, there will always be uncertainty in these predictions.   OTUs lacking closely related genomes will be less easily predicted, as will gene families that undergo gene loss or duplication rapidly over evolutionary time (for example,  because they are prone to HGT).  Therefore, each prediction is optionally accompanied by a 95% confidence interval that reflects these sources of uncertainty.</p>
+<p><em>These gene content predictions are precalculated for protein-coding genes present in KEGG or COG gene families and 16S rRNA gene copy number.  Therefore users do not typically need to recalculate the gene content predictions to use PICRUSt</em></p>
+<p>Gene content prediction takes two input data files:  a table of traits to be predicted, and a phylogenetic tree (see the <a class="reference internal" href="genome_prediction.html#genome-prediction-tutorial"><em>Gene Content Prediction tutorial</em></a> for details on the file format).  Typically, the table of traits is a table of gene copy numbers for each gene family in each sequenced bacterial and archaeal genome in the IMG database, and the phylogenetic tree is the Greengenes phylogeny.   However, alternative trees and trait tables could be employed to e.g. attempt to predict the traits of an animal based on those of phylogenetic relatives.</p>
+<div class="section" id="tree-pruning-and-formatting">
+<h3>1. Tree Pruning and Formatting<a class="headerlink" href="#tree-pruning-and-formatting" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p><strong>Rationale</strong>: Ancestral state reconstruction (ASR) software generally requires that ids match exactly between the matrix of character states (i.e. organismal traits) and the phylogeny.   Therefore PICRUSt must generate a <cite>pruned</cite> version of the full tree before the input data can be provided to ASR methods.</p>
+<p><strong>Details</strong>: PICRUSt&#8217;s format_tree_and_trait_table.py script generates a pruned tree and reduced trait table that contain only organims shared between the tree and the trait table.   This step also formats trees for input into ASR programs.   This includes:  forcing trees to be fully bifurcating (polytomies are resolved arbitrarily with epsilon length branches), substituting any zero-length branches with a small epsilon branch length, and modifying some ids to avoid characters that would break ASR software.  See the format_tree_and_trait_table.py documentation for all available options.The phylogeny provided is currently assumed to be correct.  Therefore, additional investigations of the effects of error during phylogenetic reconstruction, if desired, must be conducted by using alternative inputs to PICRUST (e.g. of trees derived from bootstrapped versions of the phylogeny).</p>
+</div></blockquote>
+</div>
+<div class="section" id="ancestral-state-reconstruction">
+<h3>2. Ancestral State Reconstruction<a class="headerlink" href="#ancestral-state-reconstruction" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p><strong>Rationale</strong>: Because much gene content is conserved between closely related microorganisms, an accurate picture of the genes present in the common ancestor of an organism and a sequenced genome can provide a baseline prediction for the gene content in a modern organism that we have not yet studied.  Therefore, PICRUSt uses one of several ancestral state reconstruction algorithms to estimate ancestral gene content.</p>
+<p><strong>Details</strong>: PICRUSt&#8217;s ancestral_state_reconstruction.py script applies one of several external ancestral state reconstruction programs to generate ancestral states.   When maximum likelihood methods are employed, the count of each gene family is treated as a continuous evolutionary character evolving under a Brownian Motion model.  By default, a fast approximate ASR method (ace_pic from the ape R package) but a full maximum likelihood inference is available as a commandline option.   Treating gene copy number as a continuous character bears some explaination.  An alternative approaches might treat gene counts as discrete states.  This perhaps seems more natural, and has the potential benefit of allowing asymmetrical rate matrices.  However, gene copy numbers for some gene families can reach into the hundreds in certain genomes.  These high copy numbers produce extremely large rate matrices that may both render ancestral state reconstruction computationally intractable, and may also not be sufficiently contrained by available data.  Therefore the simpler continuous model of evolution is currently employed.</p>
+<p>Ancestral state reconstruction under a Brownian motion, continuous-trait model also produces an estimate of the uncertainty in each ancestral state. Finally, one rate (Brownian motion parameter, Sigma) is produced for each character (e.g. gene family).  This rate reflects how rapidly that gene family changes in copy number over evolutionary time. This rate therefore implicitly incorporates uncertainty due to a variety of mechanisms of microbial genome plasticity, including horizontal gene transfer.  These uncertainty estimates and rates of gene evolution are optionally used during trait prediction to propagate uncertainty in the ancestral state reconstruction forward to the gene prediction.</p>
+</div></blockquote>
+</div>
+<div class="section" id="predict-traits">
+<h3>3. Predict Traits<a class="headerlink" href="#predict-traits" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p><strong>Rationale</strong>:  Following ancestral state reconstruction, PICRUSt shoud have available three key pieces of information: the traits of studied organisms (e.g. gene counts in each sequenced genome), the traits of ancestral organisms, and  a reference tree containing both the reference organisms and the inferred ancestral organisms.  The estimate for the gene content of an organism lacking a genome sequence  will depend on its position in the phylogenetic tree relative to organims with sequenced genomes and/or inferred ancestral genomes.   PICRUST estimates the  value of these traits by weighting sequenced or ancestral genomes based on their distance.  This weighting can be linear, exponential, or based on variance.  Alternatively, trait prediction can optionally be accomplished without reference to ancestral states by simply predicting the traits of the most closely related genome on the supplied phylogeny.</p>
+<p><strong>Details</strong>: Optionally, trait prediction can output a confidence interval for each predicted trait. This confidence interval is based on the variance of the prediction.  This variance is based on two factors:  the uncertainty in <strong>(1)</strong> each ancestral state reconstruction itself, and <strong>(2)</strong> the additional uncertainty due to evolutionary distance separating the organism for which traits are being predicted from the reference organisms and/or reconstructed ancestors that drive the prediction.</p>
+<p>The first type of variance is accounted for during trait prediction by standard formulas for propagating variance across a weighted average (see the <cite>predict_traits.py &lt;predict_traits&gt;</cite> library itself for full details). Variance of the second type, owing to recent evolutionary changes, is accounted for by using the rate parameter inferred during ancestral state reconstruction. This has the effect that long branches (relative to the LCA with a sequenced genome or ancestror for which a reconstructed state is available) or highly variable genes can both in theory result in high variances.  In practice, however, it appears that effects due to the availability or unavailability of reference genomes have a much greater effect than fast- vs. slow- evolving gene families. These results and some benchmarks for the 95% confidence intervals are discussed in the Supplemental material to the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.2676.html">PICRUSt paper</a></p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="s-rrna-copy-number-prediction">
+<h2>16S rRNA Copy Number Prediction<a class="headerlink" href="#s-rrna-copy-number-prediction" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p><strong>Rationale</strong>:The 16S rRNA gene copy number is predicted in the same fashion as other genes.  However, because counts of 16S rRNA gene operons per genome are derived from different source data in IMG, prediction for 16S rRNA copy number is run separately.</p>
+<p><strong>Details</strong>: In order to account for variable 16S rRNA operon copy numbers between bacterial taxa, 16S rRNA copy numbers are predicted by predict_traits.py in exactly the same manner as other genes, but using the IMG counts of 16S rRNA copy number per genome as the input.  These predicted copy numbers are available as a precalculated file <a class="reference internal" href="../picrust_precalculated_files.html#id1"><em>PICRUSt&#8217;s Precalculated Files</em></a>.  Benchmarks for 16S operon copy number prediction accuracy can be found in the Supplemental materials to the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.2676.html">PICRUSt paper</a>.</p>
+</div></blockquote>
+</div>
+<div class="section" id="copy-number-normalization">
+<h2>Copy Number Normalization<a class="headerlink" href="#copy-number-normalization" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p><strong>Rationale</strong>: Because 16S rRNA gene operons can vary from 1 to 15 copies in bacteria, observed relative abundances in 16S rRNA sequencing studies may vary from true organismal abundances.  For example, the metagenomic contribution of a bacterium with 4 rRNA operon copies might be inflated by 4 fold if no copy number normalization was applied.  For further discussion of 16S copy number normalization, see <a class="reference external" href="http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002743">Kembel et al 2012</a></p>
+<p><strong>Details</strong>: <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> simply divides each OTU value in each sample by its predicted 16S rRNA copy number in the <a class="reference internal" href="../picrust_precalculated_files.html#id1"><em>PICRUSt&#8217;s Precalculated Files</em></a>.   Currently, variance in the metagenomic confidence interval is not adjusted due to uncertainty in 16S rRNA copy number estimation, but this is a straightforward addition for future development.  Benchmarks for 16S operon copy number prediction accuracy can be found in the Supplemental materials to the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.2676.html">PICRUSt paper</a>.  Although the accuracy of 16S rRNA predictions has has been tested, and there are clear reasons to think this might affect overall accuracy, the overall effect of copy number inference on beta-diversity clustering or PICRUSt metagenome prediction is an area that would benefit from further characterization.</p>
+</div></blockquote>
+</div>
+<div class="section" id="metagenome-prediction">
+<h2>Metagenome Prediction<a class="headerlink" href="#metagenome-prediction" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p><strong>Rationale</strong>:   Following copy number normalization, the OTU table should now correspond to the relative abundances of organisms rather than the relative abundance of the 16S rRNA itself.  Because the number of gene copies for each gene family per organism has already been estimated in the precalculated files produced by <a class="reference internal" href="../scripts/predict_traits.html#predict-traits"><em>predict_traits.py</em></a>, producing a metagenome prediction is handled by simply multiplying the vector of gene counts for each OTU by the abundance of that OTU in each each sample, and summing across all OTUs.</p>
+<p><strong>Details</strong>:  For computational efficiency, these sums are handled using numpy&#8217;s dot product. Optionally, uncertainty in trait prediction  (see above) can be propagated through trait prediction to produce a 95% confidence interval for the prediction. This is done by breaking down the individual steps involved in calculating the metagenome prediction, and propagating variance across each. Unlike the confidence intervals for specific per-genome predictions, PICRUSt&#8217;s capability for 95% confidence intervals on metagenome predictions, although unit-tested, has not yet been validated on biological datasets.  Therefore metagenomic confidence intervals should currently be considered experimental.   See <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> and associated library code for full details.</p>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

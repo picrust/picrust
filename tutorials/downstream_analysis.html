@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Analyzing PICRUSt predicted metagenomes &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Analyzing PICRUSt predicted metagenomes</a><ul>
+<li><a class="reference internal" href="#collapse-predictions-into-pathways">Collapse predictions into pathways</a></li>
+<li><a class="reference internal" href="#determine-which-otus-are-contributing-to-particular-functions">Determine which OTUs are contributing to particular functions</a></li>
+<li><a class="reference internal" href="#analyze-with-qiime">Analyze with QIIME</a></li>
+<li><a class="reference internal" href="#analyze-with-stamp">Analyze with STAMP</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/downstream_analysis.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="analyzing-picrust-predicted-metagenomes">
+<span id="downstream-analysis-guide"></span><h1>Analyzing PICRUSt predicted metagenomes<a class="headerlink" href="#analyzing-picrust-predicted-metagenomes" title="Permalink to this headline">¶</a></h1>
+<p>Once you have your PICRUSt metagenome predictions (see <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>), you can analyze your predicted metagenomes as you would analyze actual metagenomes.</p>
+<p>Here are some recommendations using both PICRUSt commands and other external tools:</p>
+<div class="section" id="collapse-predictions-into-pathways">
+<h2>Collapse predictions into pathways<a class="headerlink" href="#collapse-predictions-into-pathways" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Collapse the thousands of predicted functions into higher categories (e.g KOs into KEGG Pathways).</li>
+<li>See PICRUSt&#8217;s <a class="reference internal" href="../scripts/categorize_by_function.html#categorize-by-function"><em>categorize_by_function.py</em></a>.</li>
+</ul>
+</div>
+<div class="section" id="determine-which-otus-are-contributing-to-particular-functions">
+<h2>Determine which OTUs are contributing to particular functions<a class="headerlink" href="#determine-which-otus-are-contributing-to-particular-functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Identify which OTUs are contributing which functions .</li>
+<li>See PICRUSt&#8217;s <a class="reference internal" href="../scripts/metagenome_contributions.html#metagenome-contributions"><em>metagenome_contributions.py</em></a>.</li>
+</ul>
+</div>
+<div class="section" id="analyze-with-qiime">
+<h2>Analyze with QIIME<a class="headerlink" href="#analyze-with-qiime" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Compute alpha diversity, beta diversity, generate various plots, and much more using <a class="reference external" href="http://www.qiime.org">QIIME</a>.</li>
+<li>See <a class="reference internal" href="qiime_tutorial.html#qiime-tutorial"><em>Analyzing metagenomes with QIIME</em></a>.</li>
+</ul>
+</div>
+<div class="section" id="analyze-with-stamp">
+<h2>Analyze with STAMP<a class="headerlink" href="#analyze-with-stamp" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Browse results, create PCA and bar plots, and make statistical inferences between pairs of samples or multiple groups all within a graphical interface using <a class="reference external" href="http://kiwi.cs.dal.ca/Software/STAMP">STAMP</a>.</li>
+<li>See <a class="reference internal" href="stamp_tutorial.html#stamp-tutorial"><em>Analyzing metagenomes with STAMP</em></a>.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

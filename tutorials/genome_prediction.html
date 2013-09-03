@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Genome Prediction Tutorial &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Genome Prediction Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#essential-files">Essential Files</a></li>
+<li><a class="reference internal" href="#formatting-tree-and-trait-tables">Formatting tree and trait tables</a></li>
+<li><a class="reference internal" href="#ancestral-state-reconstruction">Ancestral State Reconstruction</a><ul>
+<li><a class="reference internal" href="#optional-running-other-asr-methods">(Optional) Running other ASR methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#genome-trait-prediction">Genome (trait) Prediction</a><ul>
+<li><a class="reference internal" href="#optional-limiting-predictions-to-those-in-otu-table">(Optional) Limiting predictions to those in OTU table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/genome_prediction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="genome-prediction-tutorial">
+<span id="id1"></span><h1>Genome Prediction Tutorial<a class="headerlink" href="#genome-prediction-tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial explains the initial steps in the PICRUSt pipeline that looks after formatting input tree and trait tables, running ancestral state reconstruction, and extending predictions to all tips in the reference tree.</p>
+<p><strong>Most users will not need to conduct these steps and can skip directly to the</strong> <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>.</p>
+</div>
+<div class="section" id="essential-files">
+<h2>Essential Files<a class="headerlink" href="#essential-files" title="Permalink to this headline">¶</a></h2>
+<p>All files required run this tutorial are in <strong>tutorials/picrust_starting_files.zip</strong>. Descriptions of these files are as follows:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>Reference Tree (.nwk)</dt>
+<dd><ul class="first last simple">
+<li>This is a phylogenetic tree constructed from a marker gene (typically 16S), that has tips representing both sequenced genomes and non-sequenced genomes.</li>
+<li>We will use the greengenes tree <strong>gg_tree.nwk</strong>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Marker gene copy number (tab-delimited .tab)</dt>
+<dd><ul class="first last simple">
+<li>This is a simple tab-delimited table with two columns. The first column contains the genome identfiers column ids (typically IMG), and the second column contains the number of copies of the marker gene (16S). The first row must contain header ids for the columns.</li>
+<li>We will use the file <strong>IMG_16S_counts.tab</strong>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Functional trait copy number (tab-delimited .tab)</dt>
+<dd><ul class="first last simple">
+<li>Same format as the marker gene copy number table above with genome identifiers being the first column, but contains an additional column for every functional trait with the column id representing that trait (e.g. K00001).</li>
+<li>We will use KEGG KO functions <strong>IMG_ko_counts.tab</strong>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Mapping file for tree tip ids to genome ids (tab-delimited .tab)</dt>
+<dd><ul class="first last simple">
+<li>Simple two column tab delimited file with first column containing ids of tips in the tree that have genome sequences. Second column contains genome identifiers from marker gene and functional trait copy number files.</li>
+<li>We will use the file <strong>GG_to_IMGv350.txt</strong>.</li>
+<li><em>(Note: This file is optional if the tips representing genomes in the reference tree exactly match genome identifiers in the trait tables)</em>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="formatting-tree-and-trait-tables">
+<h2>Formatting tree and trait tables<a class="headerlink" href="#formatting-tree-and-trait-tables" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="../scripts/format_tree_and_trait_table.html#format-tree-and-trait-table"><em>format_tree_and_trait_table.py</em></a> does numerous formatting and checks to the reference tree and the trait tables.
+The following steps are done for both the marker gene copy number table and functional trait copy number table.</p>
+<ol class="arabic simple">
+<li>All internal nodes in the reference tree are checked for problematic characters and unlabelled internal nodes are given labels.</li>
+<li>A pruned tree is created that contains only tips that have copy number predictions from sequenced genomes.</li>
+<li>Any traits in the trait table that are not in the reference tree are removed.</li>
+</ol>
+<p>Format the 16S marker gene copy number table:</p>
+<div class="highlight-python"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_16S_counts.tab -m GG_to_IMGv350.txt -o format/16S/</pre>
+</div>
+<p>Format the KO functional trait copy number table:</p>
+<div class="highlight-python"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_ko_counts.tab -m GG_to_IMGv350.txt -o format/KEGG/</pre>
+</div>
+<p>Each of the above two commands creates 3 output files in the directory specified by the &#8216;-o&#8217; option.</p>
+<ol class="arabic simple">
+<li><strong>reference_tree.newick</strong></li>
+<li><strong>pruned_tree.newick</strong></li>
+<li><strong>trait_table.tab</strong></li>
+</ol>
+<p><em>Note: that the reference_tree.newick files from the two commands will be identical.</em></p>
+</div>
+<div class="section" id="ancestral-state-reconstruction">
+<h2>Ancestral State Reconstruction<a class="headerlink" href="#ancestral-state-reconstruction" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="../scripts/ancestral_state_reconstruction.html#ancestral-state-reconstruction"><em>ancestral_state_reconstruction.py</em></a> runs ancestral state reconstruction (ASR) to make predictions for each trait for every internal node in the pruned tree.</p>
+<p>Various methods of ASR can be chosen including <tt class="docutils literal"><span class="pre">ace_pic</span></tt>, <tt class="docutils literal"><span class="pre">wagner</span></tt>, <tt class="docutils literal"><span class="pre">ace_ml</span></tt>, and <tt class="docutils literal"><span class="pre">ace_reml</span></tt>. The first two methods are very fast while the latter two ML methods require parallelization to be finished in a suitable timeframe.</p>
+<p>Input is a formatted trait table and a pruned tree.</p>
+<p>Output is a tab delimited file with first column containing internal node labels from the tree and other columns containing predicted ASR counts for each trait.</p>
+<p>First, we will use the default PICRUSt ASR method <tt class="docutils literal"><span class="pre">ace_pic</span></tt> on the 16S trait table and the pruned tree:</p>
+<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab</pre>
+</div>
+<p>Second, run the same method on the formatted KO trait table (with the pruned tree):</p>
+<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab</pre>
+</div>
+<div class="section" id="optional-running-other-asr-methods">
+<h3>(Optional) Running other ASR methods<a class="headerlink" href="#optional-running-other-asr-methods" title="Permalink to this headline">¶</a></h3>
+<p>Other ASR methods can be run using the <tt class="docutils literal"><span class="pre">-m</span></tt> option:</p>
+<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab -m wagner</pre>
+</div>
+<p>ML based ASR methods (<tt class="docutils literal"><span class="pre">ace_reml</span></tt> and <tt class="docutils literal"><span class="pre">ace_ml</span></tt>) require much longer computational times. Parallelization is supported for multiple platforms (e.g. SGE, Torque, etc.).</p>
+<p>For example use <tt class="docutils literal"><span class="pre">-p</span></tt> option to turn on parallelization, <tt class="docutils literal"><span class="pre">-j</span> <span class="pre">sge</span></tt> to specify a SGE based cluster, and <tt class="docutils literal"><span class="pre">-n</span> <span class="pre">200</span></tt> to group commands into 200 jobs:</p>
+<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab -m ace_ml -p -j sge -n 200</pre>
+</div>
+</div>
+</div>
+<div class="section" id="genome-trait-prediction">
+<h2>Genome (trait) Prediction<a class="headerlink" href="#genome-trait-prediction" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="../scripts/predict_traits.html#predict-traits"><em>predict_traits.py</em></a> extends ASR predictions from internal nodes and known genomes to unsequenced tips in the marker tree.</p>
+<p>Input is the formatted trait table, the formatted reference tree, and the ASR output file.</p>
+<p>Output is a <a class="reference external" href="http://biom-format.org">biom</a> formatted file with &#8216;Observations&#8217; (e.g rows) as tree tip ids (e.g. genomes/OTUs) and &#8216;Samples&#8217; (e.g columns) as functional traits.</p>
+<p>Make predictions for 16S:</p>
+<div class="highlight-python"><pre>predict_traits.py -i format/16S/trait_table.tab -t format/16S/reference_tree.newick -r asr/16S_asr_counts.tab -o predict_traits/16S_precalculated.biom</pre>
+</div>
+<p>Make predictions for KOs:</p>
+<div class="highlight-python"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -o predict_traits/ko_precalculated.biom</pre>
+</div>
+<p>The <strong>16S_precalculated.biom</strong> and <strong>ko_precalculated.biom</strong> can be used with the <tt class="docutils literal"><span class="pre">-c</span></tt> option of <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> and <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> described in the <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>.</p>
+<div class="section" id="optional-limiting-predictions-to-those-in-otu-table">
+<h3>(Optional) Limiting predictions to those in OTU table<a class="headerlink" href="#optional-limiting-predictions-to-those-in-otu-table" title="Permalink to this headline">¶</a></h3>
+<p><cite>predict_traits.py</cite> can take a long time to run if making predictions for all tips in the green genes reference tree (400k tips). Therefore, you can limit the number of predictions to only those in your metagenome OTU table (the ones you care about) using the <tt class="docutils literal"><span class="pre">-l</span></tt> option.</p>
+<p>Make predictions for KOs for a given OTU table using <tt class="docutils literal"><span class="pre">-l</span></tt> option:</p>
+<div class="highlight-python"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -l your_otu_table.tsv -o predict_traits/ko_precalculated.biom</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>

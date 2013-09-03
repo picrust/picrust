@@ -1,0 +1,129 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ancestral_state_reconstruction.py – Runs ancestral state reconstruction given a tree and trait table &mdash; PICRUSt 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/scripts/ancestral_state_reconstruction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="ancestral-state-reconstruction"></span><div class="section" id="ancestral-state-reconstruction-py-runs-ancestral-state-reconstruction-given-a-tree-and-trait-table">
+<span id="index-0"></span><h1><em>ancestral_state_reconstruction.py</em> &#8211; Runs ancestral state reconstruction given a tree and trait table<a class="headerlink" href="#ancestral-state-reconstruction-py-runs-ancestral-state-reconstruction-given-a-tree-and-trait-table" title="Permalink to this headline">¶</a></h1>
+<p><strong>Description:</strong></p>
+<p>Provides a common interface for running various ancenstral state reconstruction methods (e.g. ACE, BayesTraits, etc.).</p>
+<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">ancestral_state_reconstruction.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Input Arguments:</strong></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>[REQUIRED]</strong></p>
+<dl class="docutils">
+<dt>-t, <cite>-</cite>-input_tree_fp</dt>
+<dd>The tree to use for ASR</dd>
+<dt>-i, <cite>-</cite>-input_trait_table_fp</dt>
+<dd>The trait table to use for ASR</dd>
+</dl>
+<p><strong>[OPTIONAL]</strong></p>
+<dl class="last docutils">
+<dt>-m, <cite>-</cite>-asr_method</dt>
+<dd>Method for ancestral state reconstruction. Valid choices are: ace_ml, ace_reml, ace_pic, wagner [default: ace_pic]</dd>
+<dt>-o, <cite>-</cite>-output_fp</dt>
+<dd>Output trait table [default:asr_counts.tab]</dd>
+<dt>-c, <cite>-</cite>-output_ci_fp</dt>
+<dd>Output table containing 95% confidence intervals, loglik, and brownian motion parameters for each asr prediction [default:asr_ci.tab]</dd>
+<dt>-p, <cite>-</cite>-parallel</dt>
+<dd>Allow parallelization of asr</dd>
+<dt>-j, <cite>-</cite>-parallel_method</dt>
+<dd>Method for parallelizaation. Valid choices are: sge, torque, multithreaded [default: sge]</dd>
+<dt>-n, <cite>-</cite>-num_jobs</dt>
+<dd>Number of jobs to be submitted (if &#8211;parallel). [default: 100]</dd>
+<dt>-d, <cite>-</cite>-debug</dt>
+<dd>To aid with debugging; get the command that the app controller is going to run</dd>
+</dl>
+</div>
+<p><strong>Output:</strong></p>
+<p>A table containing trait information for internal nodes of the tree.</p>
+<p><strong>Example 1:</strong></p>
+<p>Provide a tree file and trait table file:</p>
+<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i trait_table.tab -t pruned_tree.newick -o asr_counts.tab -c asr_ci.tab</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>
