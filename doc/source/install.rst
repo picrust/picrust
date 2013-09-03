@@ -31,7 +31,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is `picrust-0.9.2 <https://github.com/picrust/picrust/releases/download/0.9.2/picrust-0.9.2.tar.gz>`_. 
+The latest release of PICRUSt is `picrust-1.0.0 <https://github.com/picrust/picrust/releases/download/1.0.0/picrust-1.0.0.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -49,11 +49,11 @@ PICRUSt precomputes most of the computationally intensive pipeline so each user 
 
 Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of :ref:`picrust_precalculated_files`.
 
-**These files must be placed in your `picrust-0.9.2/picrust/data` directory before installing.**
+**These files must be placed in your `picrust-1.0.0/picrust/data` directory before installing.**
 
-* Download for `16S copy number normalization <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-0.9.2/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
 
 
 Step 4. Install PICRUSt
@@ -61,11 +61,11 @@ Step 4. Install PICRUSt
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 	
-	tar -xzf picrust-0.9.2.tar.gz
+	tar -xzf picrust-1.0.0.tar.gz
 
-You'll then change into the new ``picrust-0.9.2`` directory as follows::
+You'll then change into the new ``picrust-1.0.0`` directory as follows::
 	
-	cd picrust-0.9.2
+	cd picrust-1.0.0
 
 And finally, you'll install PICRUSt with the following command::
 	
