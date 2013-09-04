@@ -9,7 +9,7 @@ __credits__ = ["Jens Reeder",
                "Greg Caporaso",
                "Morgan Langille"]
 __license__ = "GPL"
-__version__ = "1.0.0"
+__version__ = "1.0.0-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
