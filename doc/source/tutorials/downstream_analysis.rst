@@ -28,3 +28,7 @@ Analyze with STAMP
 ------------------
 * Browse results, create PCA and bar plots, and make statistical inferences between pairs of samples or multiple groups all within a graphical interface using `STAMP <http://kiwi.cs.dal.ca/Software/STAMP>`_.
 * See :ref:`stamp_tutorial`. 
+
+Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn
+------------------------------------------------------
+* See :ref:`HUManN_tutorial`
