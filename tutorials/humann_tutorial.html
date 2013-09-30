@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn &mdash; PICRUSt 1.0.0-dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0-dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn</a><ul>
+<li><a class="reference internal" href="#input-for-humann">Input for HUMAnN</a></li>
+<li><a class="reference internal" href="#running-humann">Running HUMAnN</a></li>
+<li><a class="reference internal" href="#differential-abundance-analysis-with-lefse">Differential abundance analysis with LEfSe</a></li>
+<li><a class="reference internal" href="#visualization-with-graphlan">Visualization with GraPhlAn</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/humann_tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="analyzing-metagenomes-with-humann-lefse-and-graphlan">
+<span id="humann-tutorial"></span><h1>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn<a class="headerlink" href="#analyzing-metagenomes-with-humann-lefse-and-graphlan" title="Permalink to this headline">¶</a></h1>
+<p>Metagenome files can be submitted for further analysis to <a class="reference external" href="http://huttenhower.sph.harvard.edu/humann">HUMAnN</a>. HUMAnN takes gene abundances as inputs and produces gene and pathway summaries as outputs.</p>
+<div class="section" id="input-for-humann">
+<h2>Input for HUMAnN<a class="headerlink" href="#input-for-humann" title="Permalink to this headline">¶</a></h2>
+<p>HUMAnN can be downloaded from the <a class="reference external" href="http://huttenhower.sph.harvard.edu/humann">website</a>. The input files need to be in the <a class="reference external" href="http://en.wikipedia.org/wiki/Tab-separated_values">Tab-Separated Values</a> (TSV: <tt class="docutils literal"><span class="pre">.tsv</span></tt>) format.</p>
+<p><strong>Converting QIIME tables to TSV format</strong></p>
+<p>QIIME tables can be converted to TSV using the script <a class="reference external" href="http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/src/qiimeToMaaslin.py?at=default">QiimeToMaaslin</a>. To run the script, execute the following command</p>
+<div class="highlight-python"><pre>python qiimeToMaaslin.py metadata.metadata &lt; inputfile.txt &gt; outputfile.tsv</pre>
+</div>
+<p>Providing the metadata is optional. For more information, please refer to the <a class="reference external" href="http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/doc/QiimeToMaaslin-ReadMe.txt?at=default">documentation</a>.</p>
+<p><strong>Converting BIOM files to TSV format</strong></p>
+<p>BIOM files can be converted to TSV format  using the tools provided by the <a class="reference external" href="http://biom-format.org/documentation/biom_conversion.html">biom format</a> package (Please refer to the <a class="reference external" href="http://biom-format.org/">website</a> for more information). Use the following command to convert biom files to TSV format</p>
+<div class="highlight-python"><pre>biom convert -i input_table.biom -o output_table.tsv -b</pre>
+</div>
+<p>Please make sure to remove the first line in the output file (output_table.tsv):<tt class="docutils literal"><span class="pre">#</span> <span class="pre">Constructed</span> <span class="pre">from</span> <span class="pre">biom</span> <span class="pre">file</span></tt>, and save the file in the current format.</p>
+</div>
+<div class="section" id="running-humann">
+<h2>Running HUMAnN<a class="headerlink" href="#running-humann" title="Permalink to this headline">¶</a></h2>
+<p>The TSV input files can then be copied to the input folder in the HUMAnN repository (i.e. ../humann/input/). To execute HUMAnN, run the following command from the main repository path (i.e. ../humann/)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">scons</span>
+</pre></div>
+</div>
+<p>This command will create an output directory in the main repository (i.e. ../humann/output), which will contain all the analysis results for each input file submitted.</p>
+</div>
+<div class="section" id="differential-abundance-analysis-with-lefse">
+<h2>Differential abundance analysis with LEfSe<a class="headerlink" href="#differential-abundance-analysis-with-lefse" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Any of the output HUMAnN files named as: <tt class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></tt> or <tt class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></tt> can then be used as input for further analysis with <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=lefse_upload">LEfSe</a> equivalently. Please follow the instructions below to make the input appropriate for LEfSe,</dt>
+<dd><ul class="first last">
+<li><p class="first">Select a file from the HUMAnN output folder (named <tt class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></tt> or <tt class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></tt>)</p>
+</li>
+<li><p class="first">Open the file in Microsoft Excel or a text editor.</p>
+</li>
+<li><p class="first">Remove the first column.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Remove every metadata row (anything including and above InverseSimpson) <em>except</em> the class (and optional subclass), and the top row: ID/NAME.</dt>
+<dd><ul class="first last simple">
+<li><cite>Please ensure only 1-2 metadata rows remain apart from the Name/ID row at the top</cite>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Save the modifications to the file, and use this version of the file as an input for LEfSe.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<ol class="arabic simple">
+<li>Load data with LEfSe by clicking on the <tt class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></tt> button. Select the <strong>modified output file</strong>, and click on the <tt class="docutils literal"><span class="pre">Execute</span></tt> button.</li>
+</ol>
+<img alt="../_images/load_lefse.png" src="../_images/load_lefse.png" style="width: 400pt;" />
+<ol class="arabic simple" start="2">
+<li>Once the data has been uploaded (the file will appear on the right-hand-side panel), proceed with formatting the data for LEfSe by clicking the link <tt class="docutils literal"><span class="pre">Format</span> <span class="pre">Data</span> <span class="pre">for</span> <span class="pre">LEfSe</span></tt> in the panel on the left, and selecting the data from the drop-down menu.</li>
+</ol>
+<img alt="../_images/format_lefse.png" src="../_images/format_lefse.png" style="width: 400pt;" />
+<ol class="arabic simple" start="3">
+<li>Follow the instructions to select the correct fields in the drop-down menus, and then click on the <tt class="docutils literal"><span class="pre">Execute</span></tt> button.</li>
+</ol>
+<img alt="../_images/execute_lefse.png" src="../_images/execute_lefse.png" style="width: 400pt;" />
+<ol class="arabic simple" start="5">
+<li>Once the data is formatted, click on the <tt class="docutils literal"><span class="pre">LDA</span> <span class="pre">Effect</span> <span class="pre">Size</span></tt> link in the panel on the left.  Select the <strong>formatted data</strong> from the <tt class="docutils literal"><span class="pre">Select</span> <span class="pre">Data</span></tt> drop-down menu and press <tt class="docutils literal"><span class="pre">Execute</span></tt>.</li>
+</ol>
+<img alt="../_images/lda_lefse.png" src="../_images/lda_lefse.png" style="width: 400pt;" />
+<ol class="arabic" start="6">
+<li><dl class="first docutils">
+<dt>The output generated from the step above can be used as input for the following.</dt>
+<dd><ul class="first last simple">
+<li>Plot the LEfSe results using the <tt class="docutils literal"><span class="pre">Plot</span> <span class="pre">LEfSe</span> <span class="pre">Results</span></tt> link in the panel on the left.</li>
+<li>Plot a Cladogram using the <tt class="docutils literal"><span class="pre">Plot</span> <span class="pre">Cladogram</span></tt> link in the panel on the left.</li>
+<li>Plot Differential Features using the <tt class="docutils literal"><span class="pre">Plot</span> <span class="pre">Differential</span> <span class="pre">Features</span></tt> link in the panel on the left.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<img alt="../_images/plots_lefse.png" src="../_images/plots_lefse.png" style="width: 400pt;" />
+</div>
+<div class="section" id="visualization-with-graphlan">
+<h2>Visualization with GraPhlAn<a class="headerlink" href="#visualization-with-graphlan" title="Permalink to this headline">¶</a></h2>
+<p>Either of the  output files <tt class="docutils literal"><span class="pre">04b-*-mpt-*-graphlan_tree.txt</span></tt> or <tt class="docutils literal"><span class="pre">04b-*-mpm-*-graphlan_tree.txt</span></tt>  can be used as input for further analysis with <a class="reference external" href="http://huttenhower.sph.harvard.edu/graphlan">GraPhlAn</a> equivalently.</p>
+<ol class="arabic simple">
+<li>Click the link <tt class="docutils literal"><span class="pre">Load</span> <span class="pre">input</span> <span class="pre">tree</span></tt> in the panel on the left, and select the output file from HUMAnN by clicking on the <tt class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></tt> button. Press the <tt class="docutils literal"><span class="pre">Execute</span></tt> button to upload the file.</li>
+</ol>
+<img alt="../_images/load_graphlan.png" src="../_images/load_graphlan.png" style="width: 400pt;" />
+<ol class="arabic" start="2">
+<li><dl class="first docutils">
+<dt>After the data has been uploaded, click on the <tt class="docutils literal"><span class="pre">Annotate</span> <span class="pre">tree</span></tt> link to add all the graphical features. Then, select the input file from the <tt class="docutils literal"><span class="pre">Input</span> <span class="pre">File</span></tt> drop-down menu. Specify the data fields according to the desired output, and press the <tt class="docutils literal"><span class="pre">Execute</span></tt> button when done. For example, the fields specified for a figure with leaf node names would be as follows:</dt>
+<dd><ul class="first last simple">
+<li>Select the clades of interest from the list <tt class="docutils literal"><span class="pre">Select</span> <span class="pre">clade(s)</span></tt>.</li>
+<li>Enter <tt class="docutils literal"><span class="pre">*</span></tt> for the field <tt class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span></tt>.</li>
+<li>Specify <tt class="docutils literal"><span class="pre">Clade</span> <span class="pre">leaf</span> <span class="pre">nodes</span></tt> from the drop-down menu <tt class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span> <span class="pre">Clade</span> <span class="pre">Selector</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<img alt="../_images/annotate_graphlan.png" src="../_images/annotate_graphlan.png" style="width: 400pt;" />
+<ol class="arabic simple" start="3">
+<li>Click on the <tt class="docutils literal"><span class="pre">Add</span> <span class="pre">rings</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">tree</span></tt> link, and select the annotated data from the above step (instead of your raw input in Step 1) from the <tt class="docutils literal"><span class="pre">Input</span> <span class="pre">Tree</span></tt> drop-down menu. Upload the <tt class="docutils literal"><span class="pre">04b-*-graphlan_rings.txt</span></tt> file (can be found under /humann/output/) through the <tt class="docutils literal"><span class="pre">Get</span> <span class="pre">Data</span></tt> link (located in the <tt class="docutils literal"><span class="pre">LOAD</span> <span class="pre">DATA</span> <span class="pre">MODULE</span></tt> in the panel on the left). Select the <tt class="docutils literal"><span class="pre">04b-*-graphlan_rings.txt</span></tt> file from the <tt class="docutils literal"><span class="pre">Ring</span> <span class="pre">input</span> <span class="pre">File</span></tt> drop-down menu, and press <tt class="docutils literal"><span class="pre">Execute</span></tt>.</li>
+</ol>
+<img alt="../_images/rings_graphlan.png" src="../_images/rings_graphlan.png" style="width: 400pt;" />
+<ol class="arabic simple" start="4">
+<li>To plot the final tree, click on the <tt class="docutils literal"><span class="pre">Plot</span> <span class="pre">tree</span></tt> link in the panel on the left, and select the output from the step above. Press <tt class="docutils literal"><span class="pre">Execute</span></tt>. To visualize the results, click on the <strong>Eye</strong> symbol next to the output file generated in the panel on the right.</li>
+</ol>
+<img alt="../_images/plot_graphlan.png" src="../_images/plot_graphlan.png" style="width: 400pt;" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2pre.
+    </div>
+  </body>
+</html>
