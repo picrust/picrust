@@ -20,6 +20,7 @@ script_info['script_description'] = "This script collapses hierarchical data to 
 script_info['script_usage'] = [\
 ("","Collapse predicted metagenome using KEGG Pathway metadata.","""%prog -i predicted_metagenomes.biom -c KEGG_Pathways -l 3 -o predicted_metagenomes.L3.biom"""),\
 ("","Change output to tab-delimited format (instead of BIOM).","""%prog -f -i predicted_metagenomes.biom -c KEGG_Pathways -l 3 -o predicted_metagenomes.L3.txt"""),\
+("","Collapse COG Categories.","""%prog -i cog_predicted_metagenomes.biom -c COG_Category -l 2 -o cog_predicted_metagenomes.L2.biom"""),\
 ("","Collapse predicted metagenome using taxonomy metadata (not one-to-many).","""%prog -i observation_table.biom -c taxonomy -l 1 -o observation_table.L1.biom"""),\
 
 
@@ -28,7 +29,7 @@ script_info['output_description']= "Output table is contains gene counts at a hi
 script_info['required_options'] = [\
  make_option('-i','--input_fp',type="existing_filepath",help='the predicted metagenome table'),\
  make_option('-o','--output_fp',type='new_filepath', help='the resulting table'),
- make_option('-c','--metadata_category',type='string',help='the metadata category that describes the hierarchy'),
+ make_option('-c','--metadata_category',type='string',help='the metadata category that describes the hierarchy (e.g. KEGG_Pathways, COG_Category, etc.). Note: RFAM predictions can not be collapsed because there are no categories to group them into.'),
  make_option('-l','--level',type='int',help='the level in the hierarchy to collapse to. A value of 0 is not allowed, a value of 1 is the highest level, and any higher value nears the leaves of the hierarchy. For instance, if the hierarchy contains 4 levels, specifying 3 would collapse at one level above being fully specified.')
 ]
 script_info['optional_options'] = [
