@@ -31,6 +31,7 @@ script_info['script_usage'] = [("","Predict KO abundances for a given OTU table 
                                     "%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
                                ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt"),
                                ("","Predict COG abundances for a given OTU table.","%prog -i normalized_otus.biom -t cog -o cog_predicted_metagenomes.biom"),\
+                               ("","Predict RFAM abundances for a given OTU table.","%prog -i normalized_otus.biom -t rfam -o rfam_predicted_metagenomes.biom"),\
                                ("","Output confidence intervals for each prediction.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom --with_confidence"),\
                                ("","Predict metagenomes using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom"),\
                                ("","Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom --with_confidence"),\
