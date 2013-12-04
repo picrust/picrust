@@ -24,9 +24,8 @@ import gzip
 script_info = {}
 script_info['brief_description'] = "This script converts metagenomic relative abundance back to sequence counts, by scaling the relative abundnace of each gene in each sample in a biom file by a user-supplied sequencing depth"
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","Predict metagenomes from genomes.biom and otus.biom.","%prog -i otus.biom -c KEGG_acepic__predict_traits_97.biom.gz -o predicted_metagenomes.biom"),
-                               ("","Change output format to plain tab-delimited:","%prog -f -i otus.biom -c KEGG_acepic_predict_traits_97.biom.gz -o predicted_metagenomes.tab")]
-script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
+script_info['script_usage'] = [("","Predict metagenomes from genomes.biom and otus.biom.","%prog -i otus.biom -s sample_scaling.tsv -o scaled_otus.biom")]
+script_info['output_description']= "A new biom file where each sample has been scaled accordingly."
 script_info['required_options'] = [
  make_option('-s','--input_seq_depth_file',type='existing_filepath',help='an input tab-delimited table, with samples as the first column and an integer sequencing depth as the second'),
  make_option('-i','--input_count_table',type="existing_filepath",help='the input trait counts on per otu basis in biom format (can be gzipped)'),
