@@ -109,6 +109,9 @@ def load_data_table(data_table_fp,\
 
     gzipped files are detected based on the '.gz' suffix.
     """
+    if not path.exists(data_table_fp):
+        raise IOError("File "+data_table_fp+" doesn't exist! Did you forget to download it?")
+
     ext=path.splitext(data_table_fp)[1]
     if (ext == '.gz'):
         genome_table_fh = gzip.open(data_table_fp,'rb')
