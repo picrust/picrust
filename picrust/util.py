@@ -25,6 +25,20 @@ from biom.parse import parse_biom_table,parse_biom_table_str, convert_biom_to_ta
 from subprocess import Popen, PIPE, STDOUT
 import StringIO
 
+def make_sample_transformer(scaling_factors):
+    def transform_sample(sample_value,sample_id,sample_metadata):
+        scaling_factor = scaling_factors[sample_id]
+        new_val = sample_value * scaling_factor
+        return new_val
+    return transform_sample
+
+def scale_metagenomes(metagenome_table,scaling_factors):
+    """ scale metagenomes from metagenome table and scaling factors 
+    """
+    transform_sample_f = make_sample_transformer(scaling_factors)
+    new_metagenome_table = metagenome_table.transformSamples(transform_sample_f)
+    return new_metagenome_table
+
 def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefix='metadata_'):
     """Loads PICRUSTs tab-delimited version of the precalc file and outputs a BIOM object"""
     
