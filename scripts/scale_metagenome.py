@@ -16,7 +16,7 @@ __status__ = "Development"
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
-from picrust.util import make_output_dir_for_file,format_biom_table
+from picrust.util import make_output_dir_for_file,format_biom_table, scale_metagenomes
 from os import path
 from numpy import around
 import gzip
@@ -64,24 +64,6 @@ def main():
 
 
 
-
-def make_sample_transformer(scaling_factors):
-    def transform_sample(sample_value,sample_id,sample_metadata):
-        #print "Sample ",sample_id," value:",sample_value
-        scaling_factor = scaling_factors[sample_id]
-        #print "Scaling factor:",scaling_factor
-        new_val = around(sample_value * scaling_factor)
-        #print "New value:",new_val
-        return new_val
-    return transform_sample
-
-def scale_metagenomes(metagenome_table,scaling_factors):
-    """ scale metagenomes from metagenome table and scaling factors 
-    """
-    #print metagenome_table.SampleIds
-    transform_sample_f = make_sample_transformer(scaling_factors)
-    new_metagenome_table = metagenome_table.transformSamples(transform_sample_f)
-    return new_metagenome_table
 
 def parse_seq_count_file(lines):
     """Extract sample name, counts from seq count file"""
