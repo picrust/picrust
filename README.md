@@ -1,7 +1,7 @@
 PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States
 =========================================================================================
 
-[![Build Status](http://ci.qiime.org/job/PICRUSt/badge/icon)](http://ci.qiime.org/job/PICRUSt/)
+[![Build Status](https://travis-ci.org/picrust/picrust.png?branch=master)](https://travis-ci.org/picrust/picrust)
 
 The official PICRUSt source code repository. For details on PICRUSt, see http://picrust.github.com/.
 

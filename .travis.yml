@@ -1,0 +1,18 @@
+# Check on http://lint.travis-ci.org/ after modifying!
+language: python
+python:
+  - "2.7"
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install r-base
+  - wget http://cran.r-project.org/src/contrib/gee_4.13-18.tar.gz -O gee.tar.gz
+  - wget http://cran.r-project.org/src/contrib/Archive/ape/ape_3.0.tar.gz -O ape.tar.gz
+  - sudo R CMD INSTALL gee.tar.gz
+  - sudo R CMD INSTALL ape.tar.gz
+install:
+  - pip install numpy==1.5.1 Cython==0.17
+  - pip install cogent==1.5.3
+  - pip install https://github.com/biocore/biom-format/archive/1.1.2.tar.gz
+  - pip install .
+script:
+  - python tests/all_tests.py
