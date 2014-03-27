@@ -58,7 +58,7 @@ class CountTests(TestCase):
         """ test_wagner_for_picrust functions as expected with valid input
         """
         actual= wagner_for_picrust(self.in_tree1_fp,self.in_trait1_fp)
-        expected=Table(['nodes','trait1','trait2'],[['11','1','3'],['12','2','3'],['10','5','2'],['14','5','3']])
+        expected=Table(['node','trait1','trait2'],[['11','1','3'],['12','2','3'],['10','5','2'],['14','5','3']])
         self.assertEqual(actual,expected)
 
     def test_wagner_for_picrust_with_funky_tip_labels(self):
