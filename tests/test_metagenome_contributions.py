@@ -102,7 +102,7 @@ genome_table2 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metad
 predicted_metagenome_table1 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 16.0], [0, 1, 5.0], [0, 2, 5.0], [0, 3, 19.0], [1, 2, 1.0], [1, 3, 4.0], [2, 0, 5.0], [2, 1, 1.0], [2, 3, 2.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T16:01:30.837052", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 predicted_gene_partition_table =\
- """Gene    Sample  OTU GeneCountPerGenome  OTUAbundanceInSample    CountContributedByOTU   ContributionPercentOfSample ContributionPercentOfAllSamples
+ """Gene    Sample  OTU GeneCountPerGenome  OTUAbundanceInSample    CountContributedByOTU   ContributionPercentOfSample ContributionPercentOfAllSamples    Kingdom    Phylum    Class    Order    Family    Genus    Species
 f1  Sample1 GG_OTU_1    1.0 1.0 1.0 0.0625  0.0222222222222
 f1  Sample1 GG_OTU_2    3.0 5.0 15.0    0.9375  0.333333333333
 f1  Sample2 GG_OTU_1    1.0 2.0 2.0 0.4 0.0444444444444
