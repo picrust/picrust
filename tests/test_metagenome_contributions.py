@@ -24,11 +24,34 @@ class PartitionMetagenomeTests(TestCase):
     
     def setUp(self):
         self.otu_table1 = parse_biom_table_str(otu_table1)
+        self.otu_table_with_taxonomy = parse_biom_table_str(otu_table_with_taxonomy)
         self.genome_table1 = parse_biom_table_str(genome_table1)
         self.genome_table2 = parse_biom_table_str(genome_table2)
         self.predicted_metagenome_table1 = parse_biom_table_str(predicted_metagenome_table1)
         self.predicted_gene_partition_table = predicted_gene_partition_table
- 
+        self.predicted_gene_partition_table_with_taxonomy = predicted_gene_partition_table_with_taxonomy
+
+
+    def test_partition_metagenome_contributions_with_taxonomy(self):
+        obs = partition_metagenome_contributions(self.otu_table_with_taxonomy,self.genome_table1)
+        
+        obs_text = "\n".join(["\t".join(map(str,i)) for i in obs])
+        exp_text_list = [map(str,r.split()) for r in self.predicted_gene_partition_table_with_taxonomy.split('\n')]
+        
+        #BIOM adds spaces to metadata fields (not sure why), so add them here just for the taxonomy fields
+        for row in exp_text_list[1:]:
+            row[9]=' '+row[9]
+            row[10]=' '+row[10]
+            row[11]=' '+row[11]
+            row[12]=' '+row[12]
+            row[13]=' '+row[13]
+            row[14]=' '+row[14]
+           
+        exp_text="\n".join(["\t".join(i) for i in exp_text_list])
+
+        self.assertEqual(obs_text,exp_text)
+       
+
     def test_partition_metagenome_contributions(self):
         """partition_metagenome_contributions functions as expected with valid input"""
         #For reference, the OTU table should look like this:
@@ -95,6 +118,8 @@ class PartitionMetagenomeTests(TestCase):
        
 otu_table1 = """{"rows": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
+otu_table_with_taxonomy = """{"rows": [{"id": "GG_OTU_1", "metadata": {"taxonomy": ["k__1", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_2", "metadata": {"taxonomy": ["k__2", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_3", "metadata": {"taxonomy": ["k__3", " p__", " c__", " o__", " f__", " g__", " s__"]}}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
+
 genome_table1 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [1, 1, 1.0], [2, 2, 1.0]], "columns": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 genome_table2 = """{"rows": [{"id": "f1", "metadata": null}, {"id": "f2", "metadata": null}, {"id": "f3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [1, 1, 1.0], [2, 2, 1.0]], "columns": [{"id": "GG_OTU_21", "metadata": null}, {"id": "GG_OTU_23", "metadata": null}, {"id": "GG_OTU_22", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 3], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:49:58.258296", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
@@ -117,6 +142,23 @@ f2  Sample4 GG_OTU_3    1.0 4.0 4.0 1.0 0.8
 f3  Sample1 GG_OTU_2    1.0 5.0 5.0 1.0 0.625
 f3  Sample2 GG_OTU_2    1.0 1.0 1.0 1.0 0.125
 f3  Sample4 GG_OTU_2    1.0 2.0 2.0 1.0 0.25"""
+
+predicted_gene_partition_table_with_taxonomy =\
+    """Gene    Sample  OTU GeneCountPerGenome  OTUAbundanceInSample    CountContributedByOTU   ContributionPercentOfSample ContributionPercentOfAllSamples    Kingdom    Phylum    Class    Order    Family    Genus    Species
+f1  Sample1 GG_OTU_1    1.0 1.0 1.0 0.0625 0.0222222222222 k__1 p__ c__ o__ f__ g__ s__
+f1  Sample1 GG_OTU_2    3.0 5.0 15.0    0.9375  0.333333333333    k__2      p__     c__     o__     f__     g__     s__
+f1  Sample2 GG_OTU_1    1.0 2.0 2.0 0.4 0.0444444444444    k__1      p__     c__     o__     f__     g__     s__
+f1  Sample2 GG_OTU_2    3.0 1.0 3.0 0.6 0.0666666666667    k__2      p__     c__     o__     f__     g__     s__
+f1  Sample3 GG_OTU_1    1.0 3.0 3.0 0.6 0.0666666666667    k__1      p__     c__     o__     f__     g__     s__
+f1  Sample3 GG_OTU_3    2.0 1.0 2.0 0.4 0.0444444444444    k__3      p__     c__     o__     f__     g__     s__
+f1  Sample4 GG_OTU_1    1.0 5.0 5.0 0.263157894737  0.111111111111    k__1      p__     c__     o__     f__     g__     s__
+f1  Sample4 GG_OTU_2    3.0 2.0 6.0 0.315789473684  0.133333333333    k__2      p__     c__     o__     f__     g__     s__
+f1  Sample4 GG_OTU_3    2.0 4.0 8.0 0.421052631579  0.177777777778    k__3      p__     c__     o__     f__     g__     s__
+f2  Sample3 GG_OTU_3    1.0 1.0 1.0 1.0 0.2    k__3      p__     c__     o__     f__     g__     s__
+f2  Sample4 GG_OTU_3    1.0 4.0 4.0 1.0 0.8    k__3      p__     c__     o__     f__     g__     s__
+f3  Sample1 GG_OTU_2    1.0 5.0 5.0 1.0 0.625    k__2      p__     c__     o__     f__     g__     s__
+f3  Sample2 GG_OTU_2    1.0 1.0 1.0 1.0 0.125    k__2      p__     c__     o__     f__     g__     s__
+f3  Sample4 GG_OTU_2    1.0 2.0 2.0 1.0 0.25    k__2      p__     c__     o__     f__     g__     s__"""
 
 if __name__ == "__main__":
     main()
