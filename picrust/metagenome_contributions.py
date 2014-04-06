@@ -24,7 +24,7 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
     Output table as a list of lists with header
     Function\tOrganism\tSample\tCounts\tpercent_of_sample
     """
-    
+
     if limit_to_functions:
         if verbose:
             print "Filtering the genome table to include only user-specified functions:",limit_to_functions
@@ -46,7 +46,8 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
     lines=[]
     result = [["Gene","Sample","OTU","GeneCountPerGenome",\
             "OTUAbundanceInSample","CountContributedByOTU",\
-            "ContributionPercentOfSample","ContributionPercentOfAllSamples"]]
+            "ContributionPercentOfSample","ContributionPercentOfAllSamples",
+                   "Kingdom","Phylum","Class","Order","Family","Genus","Species"]]
 
     #TODO refactor as array operations for speed
 
@@ -76,10 +77,17 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         
         count_idx = -2 #Counts are now in the next to last position in each row
         total_counts =max(epsilon,sum([float(row[count_idx]) for row in all_gene_rows]))
+        otu_index=2 #position of otu ids in the table
 
         for row in all_gene_rows:
             percent_of_sample = float(row[count_idx])/total_counts
             row.append(percent_of_sample)
+
+            #add taxonomy information for each OTU
+            obs_index=otu_table.getObservationIndex(row[otu_index])
+            if otu_table.ObservationMetadata and 'taxonomy' in otu_table.ObservationMetadata[obs_index]:
+                row.extend(otu_table.ObservationMetadata[obs_index]['taxonomy'])
+
         lines.extend(all_gene_rows)
     result.extend(lines)
 
