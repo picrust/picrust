@@ -38,12 +38,12 @@ setup(name='PICRUSt',
         packages=['picrust'],
         scripts=glob('scripts/*py'),
         dependency_links = [
-          'https://github.com/biocore/biom-format/archive/1.1.2.tar.gz#egg=biom-format-1.2.1'
+          'https://github.com/biocore/biom-format/archive/1.1.2.tar.gz#egg=biom-format-1.1.2'
         ],
         install_requires= [
           'numpy == 1.5.1',
           'cogent == 1.5.3',
-          'biom-format == 1.2.1',
+          'biom-format == 1.1.2',
           'Cython == 0.17',
         ],
         package_data={'picrust':
