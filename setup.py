@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup
 from os.path import join, split
 from os import getcwd
 from glob import glob
@@ -21,20 +20,6 @@ except ImportError:
     raise ImportError, \
      ("numpy cannot be found. Can't continue. Please install "
       "the numpy package (see www.numpy.org)")
-    
-try:
-    import biom
-except ImportError:
-    raise ImportError, \
-     ("biom cannot be found. Can't continue. Please install "
-      "the biom package (see www.biom-format.org)")
-
-try:
-    import cogent
-except ImportError:
-    raise ImportError, \
-     ("PyCogent cannot be found. Can't continue. Please install "
-      "the PyCogent package (see www.pycogent.org).")
 
 long_description = """PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States
 http://picrust.github.com
@@ -52,9 +37,12 @@ setup(name='PICRUSt',
         url='http://picrust.github.com',
         packages=['picrust'],
         scripts=glob('scripts/*py'),
+        install_requires= [
+          'cogent == 1.5.3',
+          'biom-format == 1.3.1'
+        ],
         package_data={'picrust':
                       ['data/*gz',
                        'support_files/jar/Count.jar',
                        'support_files/R/ace.R']},
         long_description=long_description)
-
