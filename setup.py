@@ -39,7 +39,8 @@ setup(name='PICRUSt',
         scripts=glob('scripts/*py'),
         install_requires= [
           'cogent == 1.5.3',
-          'biom-format == 1.3.1'
+          'biom-format == 1.3.1',
+          'Cython == 0.17'
         ],
         package_data={'picrust':
                       ['data/*gz',
