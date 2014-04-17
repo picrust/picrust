@@ -15,9 +15,12 @@ Follow the install instructions found on the website of each of the dependencies
 
 **Mandatory**
 
+These dependencies are automatically installed with `python setup.py install`
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
 * `biom`_ (version 1.1.2)
+
+Numpy has to be installed manually
 * `numpy`_ (version 1.5.1)
 
 **Rebuilding PICRUSt OR Genome Prediction (optional)**
