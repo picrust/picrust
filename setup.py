@@ -43,7 +43,7 @@ setup(name='PICRUSt',
         install_requires= [
           'numpy == 1.5.1',
           'cogent == 1.5.3',
-          'biom-format == 1.2.1'
+          'biom-format == 1.2.1',
           'Cython == 0.17',
         ],
         package_data={'picrust':
