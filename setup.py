@@ -38,6 +38,7 @@ setup(name='PICRUSt',
         packages=['picrust'],
         scripts=glob('scripts/*py'),
         install_requires= [
+          'numpy == 1.5.1',
           'cogent == 1.5.3',
           'biom-format == 1.3.1',
           'Cython == 0.17'

@@ -23,6 +23,10 @@ These dependencies are automatically installed with `python setup.py install`
 Numpy has to be installed manually
 * `numpy`_ (version 1.5.1)
 
+You can install it with the command:
+
+`pip install numpy==1.5.1`
+
 **Rebuilding PICRUSt OR Genome Prediction (optional)**
 
 * `R`_ installed with `APE`_ library
