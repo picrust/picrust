@@ -10,9 +10,7 @@ before_install:
   - sudo R CMD INSTALL gee.tar.gz
   - sudo R CMD INSTALL ape.tar.gz
 install:
-  - pip install numpy==1.5.1 Cython==0.17
-  - pip install cogent==1.5.3
-  - pip install https://github.com/biocore/biom-format/archive/1.1.2.tar.gz
+  - pip install numpy==1.5.1
   - pip install .
 script:
   - python tests/all_tests.py
