@@ -18,7 +18,7 @@ Follow the install instructions found on the website of each of the dependencies
 These dependencies are automatically installed with `python setup.py install`
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 1.1.2)
+* `biom`_ (version 1.3.1)
 
 Numpy has to be installed manually
 * `numpy`_ (version 1.5.1)
