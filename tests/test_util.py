@@ -14,7 +14,7 @@ __status__ = "Development"
 from os.path import exists, dirname, abspath
 from cogent.util.unit_test import TestCase, main
 from picrust.util import (get_picrust_project_dir,)
-from biom.parse import parse_biom_table_str
+from biom.parse import parse_biom_table
 
 from cogent.core.tree import TreeError
 from cogent.parse.tree import DndParser
@@ -83,7 +83,7 @@ class UtilTests(TestCase):
     
     def setUp(self):
         """ Initialize variables: run before each test """
-        self.precalc_in_biom = parse_biom_table_str(precalc_in_biom)
+        self.precalc_in_biom = parse_biom_table(precalc_in_biom)
 
     
     def tearDown(self):

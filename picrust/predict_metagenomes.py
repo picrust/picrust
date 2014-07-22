@@ -12,23 +12,23 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
 from numpy import abs,compress, dot, array, around, asarray,empty,zeros, sum as numpy_sum,sqrt,apply_along_axis
-from biom.table import table_factory,SparseGeneTable, DenseGeneTable
+from biom.table import Table
 from biom.parse import parse_biom_table, get_axis_indices, direct_slice_data, direct_parse_key
 from picrust.predict_traits import variance_of_weighted_mean,calc_confidence_interval_95
 
-def get_overlapping_ids(otu_table,genome_table,genome_table_ids="SampleIds",\
-  otu_table_ids="ObservationIds"):
+def get_overlapping_ids(otu_table,genome_table,genome_table_ids="sample_ids",\
+  otu_table_ids="observation_ids"):
     """Get the ids that overlap between the OTU and genome tables
     otu_table - a BIOM Table object representing the OTU table
     genome_table - a BIOM Table object for the genomes
-    genome_table_ids - specifies whether the ids of interest are SampleIds or ObservationIds
+    genome_table_ids - specifies whether the ids of interest are sample_ids or observation_ids
       in the genome table.  Useful because metagenome tables are often represented with genes
       as observations.
     """
     for id_type in [genome_table_ids,otu_table_ids]:
-        if id_type not in ["SampleIds","ObservationIds"]:
+        if id_type not in ["sample_ids","observation_ids"]:
             raise ValueError(\
-              "%s is not a valid id type. Choices are 'SampleIds' or 'ObservationIds'"%id_type)
+              "%s is not a valid id type. Choices are 'sample_ids' or 'observation_ids'"%id_type)
     overlapping_otus = list(set(getattr(otu_table,otu_table_ids)) & 
                             set(getattr(genome_table,genome_table_ids)))
     
@@ -40,8 +40,8 @@ def get_overlapping_ids(otu_table,genome_table,genome_table_ids="SampleIds",\
     return overlapping_otus
 
              
-def extract_otu_and_genome_data(otu_table,genome_table,genome_table_ids="SampleIds",\
-  otu_table_ids="ObservationIds"):
+def extract_otu_and_genome_data(otu_table,genome_table,genome_table_ids="sample_ids",\
+  otu_table_ids="observation_ids"):
     """Return lists of otu,genome data, and overlapping genome/otu ids
     
     otu_table -- biom Table object for the OTUs
@@ -57,14 +57,14 @@ def extract_otu_and_genome_data(otu_table,genome_table,genome_table_ids="SampleI
     
     # build lists of filtered data
     for obs_id in overlapping_otus:
-        if otu_data == "SampleIds":
-           otu_data.append(otu_table.sampleData(obs_id))
+        if otu_data == "sample_ids":
+           otu_data.append(otu_table.data(obs_id,axis='sample'))
         else:
-            otu_data.append(otu_table.observationData(obs_id))
-        if genome_table_ids == "ObservationIds":
-           genome_data.append(genome_table.observationData(obs_id))
+            otu_data.append(otu_table.data(obs_id,axis='observation'))
+        if genome_table_ids == "observation_ids":
+           genome_data.append(genome_table.data(obs_id,axis='observation'))
         else:
-           genome_data.append(genome_table.sampleData(obs_id))
+           genome_data.append(genome_table.data(obs_id,axis='sample'))
     return otu_data,genome_data,overlapping_otus 
 
 
@@ -128,9 +128,8 @@ def predict_metagenomes(otu_table,genome_table,verbose=False):
     
     # While constructing the new table, we need to  preserve metadata about the samples from the OTU table, 
     #and metadata about the gene functions from the genome table
-    result_table=table_from_template(new_data,otu_table.SampleIds,genome_table.ObservationIds,\
-      sample_metadata_source=otu_table,observation_metadata_source=genome_table,\
-      constructor=SparseGeneTable,verbose=verbose)
+    result_table=table_from_template(new_data,otu_table.sample_ids,genome_table.observation_ids,\
+      sample_metadata_source=otu_table,observation_metadata_source=genome_table,verbose=verbose)
 
     return result_table
 
@@ -145,9 +144,9 @@ def predict_metagenome_variances(otu_table,genome_table,\
    for now.   If a good method for getting variance for OTU counts becomes available, this should
    be updated to treat them as random variables as well.
    """
-    #Assume that OTUs are SampleIds in the genome table, but ObservationIds in the OTU table
-    genome_table_otu_ids="SampleIds"
-    otu_table_otu_ids="ObservationIds"
+    #Assume that OTUs are sample_ids in the genome table, but observation_ids in the OTU table
+    genome_table_otu_ids="sample_ids"
+    otu_table_otu_ids="observation_ids"
     
     #Find overlapping otus
     overlapping_otus = get_overlapping_ids(otu_table,genome_table,\
@@ -202,40 +201,36 @@ def predict_metagenome_variances(otu_table,genome_table,\
     
     #Wrap results into BIOM Tables
     result_data_table=\
-      table_from_template(data_result,otu_table.SampleIds,\
-      genome_table.ObservationIds,sample_metadata_source=otu_table,\
-      observation_metadata_source=genome_table,constructor=SparseGeneTable)
+      table_from_template(data_result,otu_table.sample_ids,\
+      genome_table.observation_ids,sample_metadata_source=otu_table,\
+      observation_metadata_source=genome_table)
 
     result_variance_table=\
-      table_from_template(variance_result,otu_table.SampleIds,\
-      genome_table.ObservationIds,sample_metadata_source=\
-      otu_table,observation_metadata_source=genome_table,constructor=\
-      SparseGeneTable,verbose=verbose)
+      table_from_template(variance_result,otu_table.sample_ids,\
+      genome_table.observation_ids,sample_metadata_source=\
+      otu_table,observation_metadata_source=genome_table,verbose=verbose)
     
     result_lower_CI_table=\
-      table_from_template(lower_95_CI,otu_table.SampleIds,\
-      genome_table.ObservationIds,sample_metadata_source=otu_table,\
-      observation_metadata_source=genome_table,constructor=SparseGeneTable,\
+      table_from_template(lower_95_CI,otu_table.sample_ids,\
+      genome_table.observation_ids,sample_metadata_source=otu_table,\
+      observation_metadata_source=genome_table,\
       verbose=verbose)
     
     result_upper_CI_table=\
-      table_from_template(upper_95_CI,otu_table.SampleIds,\
-      genome_table.ObservationIds,sample_metadata_source=\
-      otu_table,observation_metadata_source=genome_table,constructor=\
-      SparseGeneTable,verbose=verbose)
+      table_from_template(upper_95_CI,otu_table.sample_ids,\
+      genome_table.observation_ids,sample_metadata_source=\
+      otu_table,observation_metadata_source=genome_table,verbose=verbose)
     
     return result_data_table,result_variance_table,result_lower_CI_table,\
       result_upper_CI_table
 
 
 def table_from_template(new_data,sample_ids,observation_ids,\
-    sample_metadata_source=None,observation_metadata_source=None,\
-    constructor=SparseGeneTable,verbose=False):
+    sample_metadata_source=None,observation_metadata_source=None,verbose=False):
     """Build a new BIOM table from new_data, and transfer metadata from 1-2 existing tables"""
 
     #Build the BIOM table
-    result_table =  table_factory(new_data,sample_ids,observation_ids,\
-      constructor=SparseGeneTable)
+    result_table =  Table(new_data,observation_ids,sample_ids)
     
     
     #Transfer sample metadata from the OTU table
@@ -295,7 +290,7 @@ def transfer_observation_metadata(donor_table,recipient_table,\
         return recipient_table
 
     metadata = {}
-    md_ids = donor_table.ObservationIds
+    md_ids = donor_table.observation_ids
 
     for md_id in md_ids:
         metadata_value = donor_table.ObservationMetadata[donor_table.getObservationIndex(md_id)]
@@ -326,7 +321,7 @@ def transfer_sample_metadata(donor_table,recipient_table,\
         return recipient_table
 
     metadata = {}
-    md_ids = donor_table.SampleIds
+    md_ids = donor_table.sample_ids
 
     for md_id in md_ids:
         metadata_value = donor_table.SampleMetadata[donor_table.getSampleIndex(md_id)]
@@ -351,11 +346,11 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     overlapping_otus = get_overlapping_ids(otu_table,genome_table)
     total = 0.0 
     n = 0.0
-    observation_ids = otu_table.SampleIds
+    observation_ids = otu_table.sample_ids
     for obs_id in overlapping_otus:
         #print "Curr observed id:",obs_id
         obs_id_idx = genome_table.getSampleIndex(obs_id)
-        #observatin_ids.append(genome_table.ObservationIds[obs_id_idx])
+        #observatin_ids.append(genome_table.observation_ids[obs_id_idx])
         curr_nsti =  float(genome_table.SampleMetadata[obs_id_idx]['NSTI'])
         #print "Current NSTI", curr_nsti
         if weighted:

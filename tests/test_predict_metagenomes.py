@@ -13,9 +13,8 @@ __status__ = "Development"
  
 from numpy import array
 from cogent.util.unit_test import TestCase, main
-from biom.parse import parse_biom_table_str, get_axis_indices,\
+from biom.parse import parse_biom_table, get_axis_indices,\
   direct_slice_data
-from biom.table import DenseTable
 from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids,\
   extract_otu_and_genome_data,transfer_sample_metadata,\
@@ -29,35 +28,35 @@ class PredictMetagenomeTests(TestCase):
     
     def setUp(self):
         #Datasets for metagenome prediction
-        self.otu_table1 = parse_biom_table_str(otu_table1)
-        self.otu_table1_with_metadata = parse_biom_table_str(otu_table1_with_metadata)
-        self.genome_table1 = parse_biom_table_str(genome_table1)
-        self.genome_table1_with_metadata = parse_biom_table_str(genome_table1_with_metadata)
-        self.genome_table2 = parse_biom_table_str(genome_table2)
-        self.predicted_metagenome_table1 = parse_biom_table_str(predicted_metagenome_table1)
-        self.predicted_metagenome_table1_with_metadata = parse_biom_table_str(predicted_metagenome_table1_with_metadata)
+        self.otu_table1 = parse_biom_table(otu_table1)
+        self.otu_table1_with_metadata = parse_biom_table(otu_table1_with_metadata)
+        self.genome_table1 = parse_biom_table(genome_table1)
+        self.genome_table1_with_metadata = parse_biom_table(genome_table1_with_metadata)
+        self.genome_table2 = parse_biom_table(genome_table2)
+        self.predicted_metagenome_table1 = parse_biom_table(predicted_metagenome_table1)
+        self.predicted_metagenome_table1_with_metadata = parse_biom_table(predicted_metagenome_table1_with_metadata)
         
         #Datasets for variance estimation during metagenome prediction
-        self.zero_variance_table1 = parse_biom_table_str(zero_variance_table1)
-        self.variance_table1_var_by_otu = parse_biom_table_str(variance_table1_var_by_otu)
-        self.variance_table1_var_by_gene = parse_biom_table_str(variance_table1_var_by_gene)
-        self.variance_table1_one_gene_one_otu = parse_biom_table_str(variance_table1_one_gene_one_otu)
+        self.zero_variance_table1 = parse_biom_table(zero_variance_table1)
+        self.variance_table1_var_by_otu = parse_biom_table(variance_table1_var_by_otu)
+        self.variance_table1_var_by_gene = parse_biom_table(variance_table1_var_by_gene)
+        self.variance_table1_one_gene_one_otu = parse_biom_table(variance_table1_one_gene_one_otu)
         
-        self.predicted_metagenome_table1_zero_variance = parse_biom_table_str(predicted_metagenome_table1_zero_variance)
+        self.predicted_metagenome_table1_zero_variance = parse_biom_table(predicted_metagenome_table1_zero_variance)
         self.predicted_metagenome_variance_table1_one_gene_one_otu =\
-          parse_biom_table_str(predicted_metagenome_variance_table1_one_gene_one_otu)
-        self.predicted_metagenome_table1_one_gene_one = parse_biom_table_str(predicted_metagenome_table1)
+          parse_biom_table(predicted_metagenome_variance_table1_one_gene_one_otu)
+        self.predicted_metagenome_table1_one_gene_one = parse_biom_table(predicted_metagenome_table1)
         
         #Datasets for testing confidence intervals
         self.predicted_metagenome_table1_one_gene_one_otu_upper_CI =\
-          parse_biom_table_str(predicted_metagenome_table1_one_gene_one_otu_upper_CI)
+          parse_biom_table(predicted_metagenome_table1_one_gene_one_otu_upper_CI)
         self.predicted_metagenome_table1_one_gene_one_otu_lower_CI =\
-          parse_biom_table_str(predicted_metagenome_table1_one_gene_one_otu_lower_CI)
+          parse_biom_table(predicted_metagenome_table1_one_gene_one_otu_lower_CI)
     
     def test_predict_metagenomes(self):
         """ predict_metagenomes functions as expected with valid input """
         actual = predict_metagenomes(self.otu_table1,self.genome_table1)
-        self.assertEqual(actual.delimitedSelf(),self.predicted_metagenome_table1.delimitedSelf())
+        self.assertEqual(actual.to_tsv(),self.predicted_metagenome_table1.to_tsv())
 
     def test_predict_metagenomes_value_error(self):
         """ predict_metagenomes raises ValueError when no overlapping otu ids """
@@ -76,14 +75,14 @@ class PredictMetagenomeTests(TestCase):
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
         
         #Test that the prediction itself is as expected
-        self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
+        self.assertEqual(obs_prediction.to_tsv(),curr_exp_metagenome_table.to_tsv())
         
         #Test that the variance prediction is all zeros, as expected
-        self.assertEqual(obs_variances.delimitedSelf(),curr_exp_metagenome_variance_table.delimitedSelf())
+        self.assertEqual(obs_variances.to_tsv(),curr_exp_metagenome_variance_table.to_tsv())
         
         #Test that with zero variance, the upper and lower CIs are equal to the expected value (i.e. the prediction)
-        self.assertEqual(obs_lower_CI_95.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
-        self.assertEqual(obs_upper_CI_95.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
+        self.assertEqual(obs_lower_CI_95.to_tsv(),curr_exp_metagenome_table.to_tsv())
+        self.assertEqual(obs_upper_CI_95.to_tsv(),curr_exp_metagenome_table.to_tsv())
 
     def test_predict_metagenome_variances_propagates_variance_in_gene_categories(self):
         """ predict_metagenomes correctly propagates the rank order of gene family variance"""
@@ -95,7 +94,7 @@ class PredictMetagenomeTests(TestCase):
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
          
         #Check that the metagenome prediction hasn't changed 
-        self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
+        self.assertEqual(obs_prediction.to_tsv(),curr_exp_metagenome_table.to_tsv())
 
     def test_predict_metagenome_variances_propagates_variance(self):
         """ predict_metagenomes correctly propagates differences in gene family variance as expected in a simple example"""
@@ -111,7 +110,7 @@ class PredictMetagenomeTests(TestCase):
         obs_prediction,obs_variances,obs_lower_CI_95,obs_upper_CI_95 =\
           predict_metagenome_variances(curr_otu_table,curr_genome_table,gene_variances=curr_variance_table)
         
-        self.assertEqual(obs_prediction.delimitedSelf(),curr_exp_metagenome_table.delimitedSelf())
+        self.assertEqual(obs_prediction.to_tsv(),curr_exp_metagenome_table.to_tsv())
         #Expect no variance in f1 or f2 in any sample, and no variance in OTU 1 or 3.
         #Otu 2 occurs in all samples except sample 3, so all samples except 3 should
         #have variance.   The exact values follow from variance of scaled random variables or
@@ -119,21 +118,21 @@ class PredictMetagenomeTests(TestCase):
         self.assertEqual(obs_variances,self.predicted_metagenome_variance_table1_one_gene_one_otu) 
         
         #Check CIs against hand calculated CIs
-        self.assertEqual(obs_upper_CI_95.delimitedSelf(),curr_exp_upper_CI_95.delimitedSelf()) 
-        self.assertEqual(obs_lower_CI_95.delimitedSelf(),curr_exp_lower_CI_95.delimitedSelf()) 
+        self.assertEqual(obs_upper_CI_95.to_tsv(),curr_exp_upper_CI_95.to_tsv()) 
+        self.assertEqual(obs_lower_CI_95.to_tsv(),curr_exp_lower_CI_95.to_tsv()) 
     
     def test_predict_metagenomes_keeps_observation_metadata(self):
         """predict_metagenomes preserves Observation metadata in genome and otu table"""
-        
+
         actual = predict_metagenomes(self.otu_table1_with_metadata,self.genome_table1_with_metadata)
         exp = self.predicted_metagenome_table1_with_metadata
         
         #NOTE: the expected data is  mapped to dicts below because otherwise the memory
         #location of the lambda function associated with the defaultdict 
         #causes (artifactual) inequality of results
-        
-        actual_md = map(dict,sorted([md for md in actual.ObservationMetadata]))
-        exp_md = map(dict,sorted([md for md in exp.ObservationMetadata]))
+
+        actual_md = map(dict,sorted([md for md in actual.observation_metadata]))
+        exp_md = map(dict,sorted([md for md in exp.observation_metadata]))
         for i,md in enumerate(actual_md):
             self.assertEqualItems(md,exp_md[i])
         for i,md in enumerate(exp_md):
