@@ -15,12 +15,8 @@ from os.path import abspath, dirname, isdir
 from os import mkdir,makedirs
 from cogent.core.tree import PhyloNode, TreeError
 from numpy import array,asarray
-from biom.table import SparseOTUTable, DenseOTUTable, SparsePathwayTable, \
-  DensePathwayTable, SparseFunctionTable, DenseFunctionTable, \
-  SparseOrthologTable, DenseOrthologTable, SparseGeneTable, \
-  DenseGeneTable, SparseMetaboliteTable, DenseMetaboliteTable,\
-  SparseTaxonTable, DenseTaxonTable, table_factory
-from biom.parse import parse_biom_table,parse_biom_table_str, convert_biom_to_table, \
+from biom.table import Table
+from biom.parse import parse_biom_table, convert_biom_to_table, \
   convert_table_to_biom
 from subprocess import Popen, PIPE, STDOUT
 import StringIO
@@ -39,7 +35,7 @@ def scale_metagenomes(metagenome_table,scaling_factors):
     new_metagenome_table = metagenome_table.transformSamples(transform_sample_f)
     return new_metagenome_table
 
-def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefix='metadata_'):
+def convert_precalc_to_biom(precalc_in, ids_to_load=[],transpose=True,md_prefix='metadata_'):
     """Loads PICRUSTs tab-delimited version of the precalc file and outputs a BIOM object"""
     
     #if given a string convert to a filehandle
@@ -62,7 +58,7 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
     col_meta=[]
     row_meta=[{} for i in trait_ids]
 
-    if ids_to_load:
+    if len(ids_to_load):
         ids_to_load=set(ids_to_load)
         load_all_ids=False
     else:
@@ -102,20 +98,17 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
         
     #note that we transpose the data before making biom obj
     if transpose:
-        return table_factory(asarray(matching).T,otu_ids,trait_ids,col_meta,row_meta,constructor=DenseGeneTable)
+        return Table(asarray(matching).T,trait_ids,otu_ids,row_meta,col_meta)
     else:
-        return table_factory(asarray(matching),trait_ids,otu_ids,row_meta,col_meta,constructor=DenseGeneTable)
+        return Table(asarray(matching),otu_ids,trait_ids,col_meta,row_meta)
+
 
 
 def convert_biom_to_precalc(biom_in):
     """Converts a biom file into a PICRUSt precalculated tab-delimited file """
-    if type(biom_in) == str or type(biom_in) == unicode:
-        biom_table=parse_biom_table_str(biom_in)
-    else:
-        biom_table=parse_biom_table(biom_in)
 
-    col_ids=biom_table.ObservationIds
-    row_ids=biom_table.SampleIds
+    col_ids=biom_table.observation_ids
+    row_ids=biom_table.sample_ids
 
     lines=[]
     header = ['#OTU_IDs']+list(col_ids) 
@@ -345,7 +338,7 @@ def make_output_dir_for_file(filepath):
 def format_biom_table(biom_table):
     """ Given a biom-format Table object, returns that Table as a BIOM string"""
     generated_by_str = "PICRUSt " + __version__
-    return biom_table.getBiomFormatJsonString(generated_by_str)
+    return biom_table.to_json(generated_by_str)
 
 def make_output_dir(dirpath, strict=False):
     """Make an output directory if it doesn't exist

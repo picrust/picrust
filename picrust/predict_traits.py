@@ -25,7 +25,7 @@ from cogent.maths.stats.distribution import z_high
 from cogent.maths.stats.special import ndtri
 from cogent import LoadTable
 from warnings import warn
-from biom.table import table_factory,DenseOTUTable,SparseOTUTable
+from biom.table import Table
 
 def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sample_metadata={},convert_to_int=True):
     
@@ -54,8 +54,8 @@ def biom_table_from_predictions(predictions,trait_ids,observation_metadata={},sa
     sample_metadata = [sample_md.get(sample_id,{}) for sample_id in organism_ids]
     #print "observation_metadata:",observation_metadata
     #print "sample_metadata:",sample_metadata
-    biom_table=table_factory(data,organism_ids,trait_ids, sample_metadata=\
-      sample_metadata,observation_metadata=observation_metadata,constructor=DenseOTUTable)
+    biom_table=Table(data,trait_ids,organism_ids, sample_metadata=\
+      sample_metadata,observation_metadata=observation_metadata)
     
     return biom_table
 
