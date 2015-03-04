@@ -10,7 +10,7 @@ before_install:
   - sudo R CMD INSTALL gee.tar.gz
   - sudo R CMD INSTALL ape.tar.gz
 install:
-  - pip install numpy==1.5.1
+  - pip install numpy
   - pip install .
 script:
   - python tests/all_tests.py

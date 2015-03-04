@@ -44,7 +44,7 @@ setup(name='PICRUSt',
       url='http://picrust.github.com',
       packages=['picrust'],
       scripts=glob('scripts/*py'),
-      install_requires=['numpy >= 1.9.0',
+      install_requires=['numpy >= 1.5.1',
                         'cogent == 1.5.3',
                         'biom-format >= 2.1.2, 2.2.0'],
       package_data={'picrust':
