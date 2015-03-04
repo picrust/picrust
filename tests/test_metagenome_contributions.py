@@ -10,34 +10,33 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
- 
+
 
 from cogent.util.unit_test import TestCase, main
-from biom.parse import parse_biom_table_str
-from biom.table import DenseTable
+from biom.parse import parse_biom_table
 from picrust.metagenome_contributions import partition_metagenome_contributions
 from picrust.predict_metagenomes import predict_metagenomes,\
   calc_nsti,get_overlapping_ids, extract_otu_and_genome_data
 
 class PartitionMetagenomeTests(TestCase):
     """ """
-    
+
     def setUp(self):
-        self.otu_table1 = parse_biom_table_str(otu_table1)
-        self.otu_table_with_taxonomy = parse_biom_table_str(otu_table_with_taxonomy)
-        self.genome_table1 = parse_biom_table_str(genome_table1)
-        self.genome_table2 = parse_biom_table_str(genome_table2)
-        self.predicted_metagenome_table1 = parse_biom_table_str(predicted_metagenome_table1)
+        self.otu_table1 = parse_biom_table(otu_table1)
+        self.otu_table_with_taxonomy = parse_biom_table(otu_table_with_taxonomy)
+        self.genome_table1 = parse_biom_table(genome_table1)
+        self.genome_table2 = parse_biom_table(genome_table2)
+        self.predicted_metagenome_table1 = parse_biom_table(predicted_metagenome_table1)
         self.predicted_gene_partition_table = predicted_gene_partition_table
         self.predicted_gene_partition_table_with_taxonomy = predicted_gene_partition_table_with_taxonomy
 
 
     def test_partition_metagenome_contributions_with_taxonomy(self):
         obs = partition_metagenome_contributions(self.otu_table_with_taxonomy,self.genome_table1)
-        
+
         obs_text = "\n".join(["\t".join(map(str,i)) for i in obs])
         exp_text_list = [map(str,r.split()) for r in self.predicted_gene_partition_table_with_taxonomy.split('\n')]
-        
+
         #BIOM adds spaces to metadata fields (not sure why), so add them here just for the taxonomy fields
         for row in exp_text_list[1:]:
             row[9]=' '+row[9]
@@ -46,11 +45,11 @@ class PartitionMetagenomeTests(TestCase):
             row[12]=' '+row[12]
             row[13]=' '+row[13]
             row[14]=' '+row[14]
-           
+
         exp_text="\n".join(["\t".join(i) for i in exp_text_list])
 
         self.assertEqual(obs_text,exp_text)
-       
+
 
     def test_partition_metagenome_contributions(self):
         """partition_metagenome_contributions functions as expected with valid input"""
@@ -65,7 +64,7 @@ class PartitionMetagenomeTests(TestCase):
         #f1  1.0 2.0 3.0
         #f2  0.0 1.0 0.0
         #f3  0.0 0.0 1.0
-      
+
         #For which predict metagenomes should produce a table like this:
         ##OTU ID    Sample1 Sample2 Sample3 Sample4
         #f1  16.0    5.0 5.0 19.0
@@ -73,18 +72,18 @@ class PartitionMetagenomeTests(TestCase):
         #f3  5.0 1.0 0.0 2.0
 
         #First, sanity checks
-        
-        #We expect to see the contributions broken down by OTU 
+
+        #We expect to see the contributions broken down by OTU
         metagenome_table = predict_metagenomes(self.otu_table1,self.genome_table1)
         obs = partition_metagenome_contributions(self.otu_table1,self.genome_table1)
-        
+
         obs_text = "\n".join(["\t".join(map(str,i)) for i in obs])
         exp_text = "\n".join(["\t".join(map(str,r.split())) for r in self.predicted_gene_partition_table.split('\n')])
 
         #Test that the percent of all samples is always smaller than the percent of the current sample
         for l in obs[1:]:
             self.assertTrue(l[-1]<=l[-2])
-        
+
         #Test that the summed contributions equal the metagenome table value
         sum_f1_sample1 = sum([i[5] for i in obs[1:] if (i[0]=="f1" and i[1]=="Sample1")])
         self.assertFloatEqual(sum_f1_sample1,16.0)
@@ -94,7 +93,7 @@ class PartitionMetagenomeTests(TestCase):
         self.assertFloatEqual(sum_f3_sample1,5.0)
 
         for l in obs[1:]:
-            gene,sample,OTU,gene_count_per_genome,otu_abundance_in_sample,count,percent,percent_all = l    
+            gene,sample,OTU,gene_count_per_genome,otu_abundance_in_sample,count,percent,percent_all = l
             #Test that genomes without genes don't contribute
             #Only GG_OTU_3 has f2, so for all others the gene contribution should be 0,0
             if gene == "f2" and OTU != "GG_OTU_3":
@@ -106,16 +105,16 @@ class PartitionMetagenomeTests(TestCase):
                 self.assertFloatEqual(count,0.0)
                 self.assertFloatEqual(percent,0.0)
                 self.assertFloatEqual(percent_all,0.0)
-            
+
             #Test that OTUs absent from a sample don't contribute
             if sample == "Sample1" and OTU == "GG_OTU_3":
                 self.assertFloatEqual(count,0.0)
                 self.assertFloatEqual(percent,0.0)
                 self.assertFloatEqual(percent_all,0.0)
-        
+
         #Having validated that this looks OK, just compare to hand-checked result
         self.assertEqual(obs_text,exp_text)
-       
+
 otu_table1 = """{"rows": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 otu_table_with_taxonomy = """{"rows": [{"id": "GG_OTU_1", "metadata": {"taxonomy": ["k__1", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_2", "metadata": {"taxonomy": ["k__2", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_3", "metadata": {"taxonomy": ["k__3", " p__", " c__", " o__", " f__", " g__", " s__"]}}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""

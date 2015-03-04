@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Jesse Zaneveld"
-__copyright__ = "Copyright 2012, The PICRUST project"
+__copyright__ = "Copyright 2015, The PICRUST project"
 __credits__ = ["Jesse Zaneveld"]
 __license__ = "GPL"
 __version__ = "1.0.0-dev"
@@ -11,11 +11,15 @@ __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
+
 from numpy import dot, array, around
-from biom.table import table_factory
+from biom.table import Table
 from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
-def partition_metagenome_contributions(otu_table,genome_table, limit_to_functions=[], remove_zero_rows=True,verbose=True):
+
+def partition_metagenome_contributions(otu_table, genome_table,
+                                       limit_to_functions=[],
+                                       remove_zero_rows=True,verbose=True):
     """Return a list of the contribution of each organism to each function, per sample
     (rewritten version using numpy)
     otu_table -- the BIOM Table object for the OTU table
@@ -29,15 +33,10 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         if verbose:
             print "Filtering the genome table to include only user-specified functions:",limit_to_functions
         ok_ids = frozenset(map(str,limit_to_functions))
-        
+
         filter_by_set = lambda vals,gene_id,metadata: str(gene_id) in ok_ids
-        #filter_by_set = lambda vals,gene_id,metadata: gene_id in ok_ids
-        
-        #if verbose:
-            #print dir(genome_table)
-        #    print "Valid function ids:",genome_table.ObservationIds
-        genome_table = genome_table.filterObservations(filter_by_set)
-        
+        genome_table = genome_table.filter(filter_by_set, axis='observation')
+
         if genome_table.isEmpty():
             raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
 
@@ -51,12 +50,12 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
 
     #TODO refactor as array operations for speed
 
-    #Zero-valued total counts will be set to epsilon 
+    #Zero-valued total counts will be set to epsilon
     epsilon = 1e-5
 
-    for j,gene_id in enumerate(genome_table.ObservationIds):
+    for j,gene_id in enumerate(genome_table.ids(axis='observation')):
         all_gene_rows = []
-        for k,sample_id in enumerate(otu_table.SampleIds):
+        for k,sample_id in enumerate(otu_table.ids()):
             #Add raw counts for the gene in this sample to a list
             sample_gene_rows = []
             for i,otu_id in enumerate(overlapping_ids):
@@ -74,19 +73,20 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
                 percent_of_sample = float(row[-1])/total_counts
                 row.append(percent_of_sample)
             all_gene_rows.extend(sample_gene_rows)
-        
+
         count_idx = -2 #Counts are now in the next to last position in each row
         total_counts =max(epsilon,sum([float(row[count_idx]) for row in all_gene_rows]))
         otu_index=2 #position of otu ids in the table
 
+        o_md = otu_table.metadata(axis='observation')
         for row in all_gene_rows:
             percent_of_sample = float(row[count_idx])/total_counts
             row.append(percent_of_sample)
 
             #add taxonomy information for each OTU
-            obs_index=otu_table.getObservationIndex(row[otu_index])
-            if otu_table.ObservationMetadata and 'taxonomy' in otu_table.ObservationMetadata[obs_index]:
-                row.extend(otu_table.ObservationMetadata[obs_index]['taxonomy'])
+            obs_index = otu_table.index(row[otu_index], 'observation')
+            if o_md is not None and 'taxonomy' in o_md[obs_index]:
+                row.extend(o_md[obs_index]['taxonomy'])
 
         lines.extend(all_gene_rows)
     result.extend(lines)
