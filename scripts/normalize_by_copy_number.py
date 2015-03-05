@@ -10,18 +10,15 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
- 
+
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom.parse import parse_biom_table, parse_classic_table_to_rich_table
-from biom.table import table_factory,DenseOTUTable
-from picrust.predict_metagenomes import transfer_observation_metadata,\
-  transfer_sample_metadata
+from biom import load_table, Table
+from picrust.predict_metagenomes import transfer_observation_metadata
 from os import path
 from os.path import join
-from picrust.util import get_picrust_project_dir, convert_precalc_to_biom,make_output_dir_for_file, format_biom_table
+from picrust.util import get_picrust_project_dir, convert_precalc_to_biom,make_output_dir_for_file, write_biom_table
 import gzip
-import sys
 
 script_info = {}
 script_info['brief_description'] = "Normalize an OTU table by marker gene copy number"
@@ -43,16 +40,13 @@ script_info['optional_options'] = [
                     help='Version of GreenGenes that was used for OTU picking. Valid choices are: '+\
                     ', '.join(gg_version_choices)+\
                     ' [default: %default]'),
-    
+
     make_option('-c','--input_count_fp',default=None,type="existing_filepath",\
                     help='Precalculated input marker gene copy number predictions on per otu basis in biom format (can be gzipped).Note: using this option overrides --gg_version. [default: %default]'),
     make_option('--metadata_identifer',
              default='CopyNumber',
              help='identifier for copy number entry as observation metadata [default: %default]'),
-    
-    make_option('-f','--input_format_classic', action="store_true", default=False,\
-                 help='input otu table (--input_otu_fp) is in classic Qiime format [default: %default]'),
-    
+
     make_option('--load_precalc_file_in_biom',default=False,action="store_true",\
                     help='Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]'),
 
@@ -64,17 +58,10 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
 
-    input_ext=path.splitext(opts.input_otu_fp)[1]
-    if opts.input_format_classic:
-        otu_table=parse_classic_table_to_rich_table(open(opts.input_otu_fp,'U'),None,None,None,DenseOTUTable)
-    else:
-        try:
-            otu_table = parse_biom_table(open(opts.input_otu_fp,'U'))
-        except ValueError:
-            raise ValueError("Error loading OTU table! If not in BIOM format use '-f' option.\n")
+    otu_table = load_table(opts.input_otu_fp)
 
-    ids_to_load = otu_table.ObservationIds
-    
+    ids_to_load = otu_table.ids(axis='observation')
+
     if(opts.input_count_fp is None):
         #precalc file has specific name (e.g. 16S_13_5_precalculated.tab.gz)
         precalc_file_name='_'.join(['16S',opts.gg_version,'precalculated.tab.gz'])
@@ -86,41 +73,40 @@ def main():
         print "Loading trait table: ", input_count_table
 
     ext=path.splitext(input_count_table)[1]
-    
+
     if (ext == '.gz'):
         count_table_fh = gzip.open(input_count_table,'rb')
     else:
         count_table_fh = open(input_count_table,'U')
-       
+
     if opts.load_precalc_file_in_biom:
-        count_table = parse_biom_table(count_table_fh.read())
+        count_table = load_table(count_table_fh)
     else:
-        count_table = convert_precalc_to_biom(count_table_fh,ids_to_load)
+        count_table = convert_precalc_to_biom(count_table_fh, ids_to_load)
 
     #Need to only keep data relevant to our otu list
     ids=[]
-    for x in otu_table.iterObservations():
+    for x in otu_table.iter(axis='observation'):
         ids.append(str(x[1]))
 
-    ob_id=count_table.ObservationIds[0]
+    ob_id=count_table.ids(axis='observation')[0]
 
     filtered_otus=[]
     filtered_values=[]
     for x in ids:
-        if count_table.sampleExists(x):
+        if count_table.exists(x, axis='sample'):
             filtered_otus.append(x)
-            filtered_values.append(otu_table.observationData(x))
+            filtered_values.append(otu_table.data(x, axis='observation'))
 
-    #filtered_values = map(list,zip(*filtered_values))
-    filtered_otu_table=table_factory(filtered_values,otu_table.SampleIds,filtered_otus, constructor=DenseOTUTable)
+    filtered_otu_table = Table(filtered_values, filtered_otus, otu_table.ids())
 
     copy_numbers_filtered={}
     for x in filtered_otus:
-        value = count_table.getValueByIds(ob_id,x)
+        value = count_table.get_value_by_ids(ob_id,x)
         try:
             #data can be floats so round them and make them integers
             value = int(round(float(value)))
-            
+
         except ValueError:
             raise ValueError,\
                   "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (value)
@@ -128,18 +114,18 @@ def main():
             raise ValueError, "Copy numbers must be greater than or equal to 1."
 
         copy_numbers_filtered[x]={opts.metadata_identifer:value}
-        
-    filtered_otu_table.addObservationMetadata(copy_numbers_filtered)
-            
 
-    normalized_table = filtered_otu_table.normObservationByMetadata(opts.metadata_identifer)
-    
+    filtered_otu_table.add_metadata(copy_numbers_filtered, axis='observation')
+
+    def metadata_norm(v, i, md):
+        return v / float(v.sum())
+    normalized_table = filtered_otu_table.norm(metadata_norm, axis='observation')
+
     #move Observation Metadata from original to filtered OTU table
-    normalized_table = transfer_observation_metadata(otu_table,normalized_table,'ObservationMetadata')
-    normalized_otu_table = transfer_sample_metadata(otu_table,normalized_table,'SampleMetadata')
+    normalized_table = transfer_observation_metadata(otu_table, normalized_table, 'observation')
 
     make_output_dir_for_file(opts.output_otu_fp)
-    open(opts.output_otu_fp,'w').write(format_biom_table(normalized_table))
+    write_biom_table(normalized_table, opts.output_otu_fp)
 
 
 if __name__ == "__main__":
