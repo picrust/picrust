@@ -6,14 +6,14 @@ For more details, see http://picrust.github.com
 """
 from sys import platform, version as python_version, executable
 
-__author__ = "Greg Caporaso"
-__copyright__ = "Copyright 2012, The BIOM-Format Project"
-__credits__ = ["Morgan Langille","Daniel McDonald", "Jose Clemente", "Greg Caporaso", 
-               "Jai Ram Rideout", "Justin Kuczynski", "Andreas Wilke",
-               "Tobias Paczian", "Rob Knight", "Folker Meyer", 
-               "Sue Huse"]
-__url__ = "http://picrust.github.com"
+__author__ = "The PICRUSt Development Team"
+__copyright__ = "Copyright 2015, PICRUSt Project"
+__credits__ = ["Morgan Langille", "Jesse Zaneveld", "Greg Caporaso",
+               "Daniel McDonald", "Dan Knights", "Joshua Reyes",
+               "Jose Clemente", "Rob Knight", "Rob Beiko",
+               "Curtis Huttenhower"]
 __license__ = "GPL"
+__url__ = "http://picrust.github.com"
 __version__ = "1.0.0-dev"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
@@ -22,7 +22,7 @@ try:
     from cogent import __version__ as pycogent_lib_version
 except ImportError:
     pycogent_lib_version = "ERROR: Can't find the PyCogent library code - is it installed and in your $PYTHONPATH?"
-    
+
 try:
     from numpy import __version__ as numpy_lib_version
 except ImportError:
@@ -60,10 +60,10 @@ def print_picrust_config():
      ("Platform", platform),
      ("Python/GCC version",python_version.replace('\n', ' ')),
      ("Python executable",executable)]
-    
+
     max_len =  max([len(e[0]) for e in system_info])
     print "\nSystem information"
-    print  "==================" 
+    print  "=================="
     for v in system_info:
         print "%*s:\t%s" % (max_len,v[0],v[1])
 
@@ -73,11 +73,11 @@ def print_picrust_config():
      ("PyCogent version", pycogent_lib_version),
      ("PICRUSt version", picrust_lib_version),
      ("PICRUSt script version", get_script_version()),]
-    
+
     max_len =  max([len(e[0]) for e in version_info])
 
     print "\nDependency versions"
-    print  "===================" 
+    print  "==================="
     for v in version_info:
         print "%*s:\t%s" % (max_len,v[0],v[1])
     print ""
