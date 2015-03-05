@@ -10,11 +10,11 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
- 
+
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom.parse import parse_biom_table
+from biom import load_table
 from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
 from picrust.metagenome_contributions import partition_metagenome_contributions
 from picrust.util import make_output_dir_for_file, get_picrust_project_dir, convert_precalc_to_biom
@@ -49,7 +49,7 @@ script_info['optional_options'] = [\
                     ' [default: %default]'),
 
     make_option('-c','--input_count_table',default=None,type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped). Note: using this option overrides --type_of_prediction and --gg_version. [default: %default]'),
- make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),    
+ make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
     make_option('--load_precalc_file_in_biom',default=False,action="store_true",help='Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]'),
         make_option('-l','--limit_to_function',default=None,help='If provided, only output predictions for the specified function ids.  Multiple function ids can be passed using comma delimiters.')
 ]
@@ -59,8 +59,8 @@ script_info['version'] = __version__
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-    
-  
+
+
     if opts.limit_to_function:
         limit_to_functions = opts.limit_to_function.split(',')
         if opts.verbose:
@@ -71,8 +71,8 @@ def main():
     if opts.verbose:
         print "Loading otu table: ",opts.input_otu_table
 
-    otu_table = parse_biom_table(open(opts.input_otu_table,'U'))
-    ids_to_load = otu_table.ObservationIds
+    otu_table = load_table(opts.input_otu_table)
+    ids_to_load = otu_table.ids(axis='observation')
 
     if(opts.input_count_table is None):
         #precalc file has specific name (e.g. ko_13_5_precalculated.tab.gz)
@@ -88,22 +88,22 @@ def main():
 
     if opts.verbose:
         print "Loading count table: ", input_count_table
-    
+
     if (ext == '.gz'):
         genome_table_fh = gzip.open(input_count_table,'rb')
     else:
         genome_table_fh = open(input_count_table,'U')
-    
-    #In the genome/trait table genomes are the samples and 
+
+    #In the genome/trait table genomes are the samples and
     #genes are the observations
 
-    
+
     if opts.load_precalc_file_in_biom:
         if not opts.suppress_subset_loading:
             #Now we want to use the OTU table information
             #to load only rows in the count table corresponding
             #to relevant OTUs
-           
+
             if opts.verbose:
                 print "Loading traits for %i organisms from the trait table" %len(ids_to_load)
 
@@ -111,15 +111,15 @@ def main():
         else:
             if opts.verbose:
                 print "Loading *full* count table because --suppress_subset_loading was passed. This may result in high memory usage"
-            genome_table = parse_biom_table(genome_table_fh.read())
+            genome_table = load_table(genome_table_fh)
     else:
         genome_table = convert_precalc_to_biom(genome_table_fh,ids_to_load)
-    
+
     partitioned_metagenomes = partition_metagenome_contributions(otu_table,genome_table,limit_to_functions=limit_to_functions)
     output_text = "\n".join(["\t".join(map(str,i)) for i in partitioned_metagenomes])
     if opts.verbose:
         print "Writing results to output file: ",opts.output_fp
-        
+
     make_output_dir_for_file(opts.output_fp)
     open(opts.output_fp,'w').write(output_text)
 
