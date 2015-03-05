@@ -12,7 +12,7 @@ __email__ = "mcdonadt@colorado.edu"
 __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom.parse import parse_biom_table
+from biom import load_table
 
 script_info = {}
 script_info['brief_description'] = "Collapse table data to a specified level in a hierarchy."
@@ -77,20 +77,21 @@ def main():
     if opts.level <= 0:
         parser.error("level must be greater than zero!")
 
-    collapse_f = make_collapse_f(opts.metadata_category, opts.level, 
+    collapse_f = make_collapse_f(opts.metadata_category, opts.level,
                                  opts.ignore)
-    table = parse_biom_table(open(opts.input_fp))
-    result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True, 
+    table = load_table(open(opts.input_fp))
+    result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True,
                           norm=False,one_to_many_md_key=opts.metadata_category)
 
-    f = open(opts.output_fp,'w')
 
     if(opts.format_tab_delimited):
-        f.write(result.delimitedSelf(header_key=opts.metadata_category,header_value=opts.metadata_category,metadata_formatter=lambda s: '; '.join(s)))
+        f = open(opts.output_fp,'w')
+        f.write(result.to_tsv(header_key=opts.metadata_category,
+                              header_value=opts.metadata_category,
+                              metadata_formatter=lambda s: '; '.join(s)))
+        f.close()
     else:
-        f.write(result.getBiomFormatJsonString('picrust %s - categorize_by_function'\
-                                           % __version__))
-    f.close()
+        write_biom_table(result, opts.output_fp)
 
 if __name__ == "__main__":
     main()
