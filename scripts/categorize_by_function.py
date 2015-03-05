@@ -13,6 +13,7 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
+from picrust.util import write_biom_table
 
 script_info = {}
 script_info['brief_description'] = "Collapse table data to a specified level in a hierarchy."
@@ -79,8 +80,8 @@ def main():
 
     collapse_f = make_collapse_f(opts.metadata_category, opts.level,
                                  opts.ignore)
-    table = load_table(open(opts.input_fp))
-    result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True,
+    table = load_table(opts.input_fp)
+    result = table.collapse(collapse_f, axis='observation', one_to_many=True,
                           norm=False,one_to_many_md_key=opts.metadata_category)
 
 
