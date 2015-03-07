@@ -18,7 +18,7 @@ install:
   - conda install --yes -n env_name cython
   - conda install --yes -n env_name h5py>=2.2.0
   - source activate env_name
-  - pip install cogent
+  - pip install cogent biom-format
   - pip install -e . --no-deps
 script:
   - python tests/all_tests.py
