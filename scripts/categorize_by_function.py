@@ -44,11 +44,11 @@ def make_collapse_f(category, level, ignore):
     if level > 0:
         level -= 1
 
-    def collapse(md):
+    def collapse(id_, md):
         if ignore is not None:
             ignore_labels = set(ignore.split(','))
         else:
-            ignore_lables = None
+            ignore_labels = None
 
         is_single_level = False
 
