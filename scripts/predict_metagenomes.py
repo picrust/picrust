@@ -26,15 +26,16 @@ import re
 script_info = {}
 script_info['brief_description'] = "This script produces the actual metagenome functional predictions for a given OTU table."
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","Predict KO abundances for a given OTU table picked against the newest version of GreenGenes.",\
-                                    "%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
+script_info['script_usage'] = [
+                               ("","Predict KO abundances for a given OTU table picked against the newest version of GreenGenes.", "%prog -i normalized_otus.biom -o predicted_metagenomes.biom"),
                                ("","Change output format to plain tab-delimited:","%prog -f -i normalized_otus.biom -o predicted_metagenomes.txt"),
                                ("","Predict COG abundances for a given OTU table.","%prog -i normalized_otus.biom -t cog -o cog_predicted_metagenomes.biom"),\
                                ("","Predict RFAM abundances for a given OTU table.","%prog -i normalized_otus.biom -t rfam -o rfam_predicted_metagenomes.biom"),\
                                ("","Output confidence intervals for each prediction.","%prog -i normalized_otus.biom -o predicted_metagenomes.biom --with_confidence"),\
                                ("","Predict metagenomes using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom"),\
                                ("","Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.","%prog -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom --with_confidence"),\
-                                   ("","Change the version of GG used to pick OTUs","%prog -i normalized_otus.biom -g 18may2012 -o predicted_metagenomes.biom")]
+                               ("","Change the version of GG used to pick OTUs","%prog -i normalized_otus.biom -g 18may2012 -o predicted_metagenomes.biom")
+                                ]
 script_info['output_description']= "Output is a table of function counts (e.g. KEGG KOs) by sample ids."
 script_info['required_options'] = [
  make_option('-i','--input_otu_table',type='existing_filepath',help='the input otu table in biom format'),
@@ -150,7 +151,7 @@ def main():
         print "Loading OTU table: ",opts.input_otu_table
 
     otu_table = load_table(opts.input_otu_table)
-    ids_to_load = otu_table.ids(axis='observation')
+    ids_to_load = otu_table.ids(axis='observation').tolist()
 
     if opts.verbose:
         print "Done loading OTU table containing %i samples and %i OTUs." \
