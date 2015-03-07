@@ -111,7 +111,7 @@ class UtilTests(TestCase):
     def test_convert_biom_to_precalc(self):
         """ convert_biom_to_precalc as expected with valid input """
 
-        result = convert_biom_to_precalc(precalc_in_biom)
+        result = convert_biom_to_precalc(parse_biom_table(precalc_in_biom))
         self.assertEqual(result,precalc_in_tab)
 
     def test_biom_meta_to_string(self):

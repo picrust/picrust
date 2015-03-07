@@ -108,13 +108,8 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
                      type='Gene table')
 
 
-def convert_biom_to_precalc(biom_in):
-    """Converts a biom file into a PICRUSt precalculated tab-delimited file """
-    if type(biom_in) in (str, unicode):
-        biom_table = parse_table(biom_in)
-    else:
-        biom_table = load_table(biom_in)
-
+def convert_biom_to_precalc(biom_table):
+    """Converts a biom table into a PICRUSt precalculated tab-delimited file """
     col_ids = biom_table.ids(axis='observation')
     row_ids = biom_table.ids()
 

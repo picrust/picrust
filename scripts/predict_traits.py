@@ -376,7 +376,7 @@ def main():
         #convert to precalc (tab-delimited) format
 
         out_fh = open(opts.output_trait_table, 'w')
-        out_fh.write(convert_biom_to_precalc(biom_predictions.to_json('picrust')))
+        out_fh.write(convert_biom_to_precalc(biom_predictions))
         out_fh.close()
 
     #Write out variance information to file
@@ -404,7 +404,7 @@ def main():
             write_biom_table(biom_prediction_variances, variance_outfile)
         else:
             open(variance_outfile,'w').write(\
-                convert_biom_to_precalc(biom_prediction_variances.to_json('picrust')))
+                convert_biom_to_precalc(biom_prediction_variances))
 
 
     if confidence_intervals:
@@ -427,7 +427,7 @@ def main():
             write_biom_table(biom_prediction_upper_CI, upper_CI_outfile)
         else:
             open(upper_CI_outfile,'w').write(\
-                convert_biom_to_precalc(biom_prediction_upper_CI.to_json('picrust')))
+                convert_biom_to_precalc(biom_prediction_upper_CI))
 
         biom_prediction_lower_CI=biom_table_from_predictions({k:v['lower_CI'] for k,v in confidence_intervals.iteritems()},table_headers,\
           observation_metadata=None,\
@@ -444,7 +444,7 @@ def main():
             write_biom_table(biom_prediction_lower_CI, lower_CI_outfile)
         else:
             open(lower_CI_outfile,'w').write(\
-                convert_biom_to_precalc(biom_prediction_lower_CI.to_json('picrust')))
+                convert_biom_to_precalc(biom_prediction_lower_CI))
 
 
 if __name__ == "__main__":
