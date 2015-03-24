@@ -46,7 +46,7 @@ setup(name='PICRUSt',
       scripts=glob('scripts/*py'),
       install_requires=['numpy >= 1.5.1',
                         'cogent == 1.5.3',
-                        'biom-format >= 2.1.2, < 2.2.0'],
+                        'biom-format >= 2.1.4, < 2.2.0'],
       package_data={'picrust':
                     ['data/*gz',
                      'support_files/jar/Count.jar',
