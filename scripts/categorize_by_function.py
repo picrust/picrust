@@ -13,6 +13,7 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
+from biom.table import vlen_list_of_str_formatter
 from picrust.util import write_biom_table
 
 script_info = {}
@@ -92,7 +93,8 @@ def main():
                               metadata_formatter=lambda s: '; '.join(s)))
         f.close()
     else:
-        write_biom_table(result, opts.output_fp)
+        format_fs = {opts.metadata_category: vlen_list_of_str_formatter}
+        write_biom_table(result, opts.output_fp, format_fs=format_fs)
 
 if __name__ == "__main__":
     main()

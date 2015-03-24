@@ -284,7 +284,7 @@ def make_output_dir_for_file(filepath):
 
 
 def write_biom_table(biom_table, biom_table_fp, compress=True,
-                     write_hdf5=HAVE_H5PY):
+                     write_hdf5=HAVE_H5PY, format_fs=None):
     """Writes a BIOM table to the specified filepath
 
     Parameters
@@ -301,6 +301,8 @@ def write_biom_table(biom_table, biom_table_fp, compress=True,
         Defaults to ``True`` if H5PY is installed and to ``False`` if H5PY is
         not installed. If ``True`` the output biom table will be written as an
         HDF5 binary file, otherwise it will be a JSON string.
+    format_fs : dict, optional
+        Formatting functions to be passed to `Table.to_hdf5`
 
     Notes
     -----
@@ -310,7 +312,8 @@ def write_biom_table(biom_table, biom_table_fp, compress=True,
 
     if write_hdf5:
         with biom_open(biom_table_fp, 'w') as biom_file:
-            biom_table.to_hdf5(biom_file, generated_by, compress)
+            biom_table.to_hdf5(biom_file, generated_by, compress,
+                               format_fs=format_fs)
     else:
         with open(biom_table_fp, 'w') as biom_file:
             biom_table.to_json(generated_by, biom_file)
