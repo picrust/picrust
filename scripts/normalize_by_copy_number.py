@@ -119,7 +119,7 @@ def main():
 
     def metadata_norm(v, i, md):
         return v / float(v.sum())
-    normalized_table = filtered_otu_table.norm(metadata_norm, axis='observation')
+    normalized_table = filtered_otu_table.transform(metadata_norm, axis='observation')
 
     #move Observation Metadata from original to filtered OTU table
     normalized_table = transfer_observation_metadata(otu_table, normalized_table, 'observation')
