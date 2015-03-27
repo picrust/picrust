@@ -14,6 +14,7 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
+from biom.table import vlen_list_of_str_formatter
 from picrust.predict_metagenomes import predict_metagenomes,predict_metagenome_variances,\
   calc_nsti,load_subset_from_biom_str
 from picrust.util import make_output_dir_for_file,write_biom_table, convert_precalc_to_biom
@@ -342,7 +343,8 @@ def write_metagenome_to_file(predicted_metagenome,output_fp,\
           header_key=metadata_name,header_value=metadata_name,metadata_formatter=biom_meta_to_string))
     else:
         #output in BIOM format
-        write_biom_table(predicted_metagenome, output_fp)
+        format_fs = {'KEGG_Description': vlen_list_of_str_formatter}
+        write_biom_table(predicted_metagenome, output_fp, format_fs=format_fs)
 
 def biom_meta_to_string(metadata, replace_str=':'):
     """ Determine which format the metadata is (e.g. str, list, or list of lists) and then convert to a string"""
