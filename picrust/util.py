@@ -11,13 +11,15 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
+from json import dumps
 from os.path import abspath, dirname, isdir
-from os import mkdir, makedirs
+from os import makedirs
 from cogent.core.tree import PhyloNode, TreeError
 from numpy import array, asarray
-from biom import Table, parse_table, load_table
+from biom import Table, parse_table
+from biom.table import vlen_list_of_str_formatter
 from biom.util import biom_open, HAVE_H5PY
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 import StringIO
 
 
@@ -60,7 +62,7 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
     col_meta=[]
     row_meta=[{} for i in trait_ids]
 
-    if ids_to_load:
+    if len(ids_to_load) > 0:
         ids_to_load=set(ids_to_load)
         load_all_ids=False
     else:
@@ -433,3 +435,42 @@ class PicrustNode(PhyloNode):
             tcopy.prune()
 
         return tcopy
+
+def list_of_list_of_str_formatter(grp, header, md, compression):
+    """Serialize [[str]] into a BIOM hdf5 compatible form
+
+    Parameters
+    ----------
+    grp : h5py.Group
+        This is ignored. Provided for passthrough
+    header : str
+        The key in each dict to pull out
+    md : list of dict
+        The axis metadata
+    compression : bool
+        Whether to enable dataset compression. This is ignored, provided for
+        passthrough
+
+    Returns
+    -------
+    grp : h5py.Group
+        The h5py.Group
+    header : str
+        The key in each dict to pull out
+    md : list of dict
+        The modified metadata that can be formatted in hdf5
+    compression : bool
+        Whether to enable dataset compression.
+
+    Notes
+    -----
+    This method is intended to be a "passthrough" to BIOM's
+    vlen_list_of_str_formatter method. It is a transform method.
+    """
+    new_md = [{header: dumps(m[header])} for m in md]
+    return (grp, header, new_md, compression)
+
+
+def picrust_formatter(*args):
+    """Transform, and format"""
+    return vlen_list_of_str_formatter(*list_of_list_of_str_formatter(*args))

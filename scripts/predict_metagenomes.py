@@ -14,13 +14,13 @@ __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
-from biom.table import vlen_list_of_str_formatter
 from picrust.predict_metagenomes import predict_metagenomes,predict_metagenome_variances,\
   calc_nsti,load_subset_from_biom_str
 from picrust.util import make_output_dir_for_file,write_biom_table, convert_precalc_to_biom
 from os import path
 from os.path import split,join,splitext
-from picrust.util import get_picrust_project_dir, scale_metagenomes
+from picrust.util import get_picrust_project_dir, scale_metagenomes, \
+    picrust_formatter
 import gzip
 import re
 
@@ -343,7 +343,11 @@ def write_metagenome_to_file(predicted_metagenome,output_fp,\
           header_key=metadata_name,header_value=metadata_name,metadata_formatter=biom_meta_to_string))
     else:
         #output in BIOM format
-        format_fs = {'KEGG_Description': vlen_list_of_str_formatter}
+        format_fs = {'KEGG_Description': picrust_formatter,
+                     'COG_Description': picrust_formatter,
+                     'KEGG_Pathways': picrust_formatter,
+                     'COG_Category': picrust_formatter
+                     }
         write_biom_table(predicted_metagenome, output_fp, format_fs=format_fs)
 
 def biom_meta_to_string(metadata, replace_str=':'):
