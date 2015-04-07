@@ -19,16 +19,16 @@ The minimum set of files are:
 Greengenes v13.5 (and IMG 4)
 ----------------------------
 
-* `16S <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
-* `KO <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_
-* `COG <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz>`_
-* `RFAM <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated.tab.gz>`_
+* `16S <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
+* `KO <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_
+* `COG <ftp://ftp.microbio.me/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz>`_
+* `RFAM <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated.tab.gz>`_
 
 If you would also like to get confidence intervals you will need these additional files:
 
-* `KO CIs <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated_variances.tab.gz>`_
-* `COG CIs <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/cog_13_5_precalculated_variances.tab.gz>`_
-* `RFAM CIs <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated_variances.tab.gz>`_
+* `KO CIs <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated_variances.tab.gz>`_
+* `COG CIs <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/cog_13_5_precalculated_variances.tab.gz>`_
+* `RFAM CIs <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated_variances.tab.gz>`_
 
 
 Greengenes 18may2012
