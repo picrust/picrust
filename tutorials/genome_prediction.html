@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -143,10 +141,12 @@ The following steps are done for both the marker gene copy number table and func
 <li>Any traits in the trait table that are not in the reference tree are removed.</li>
 </ol>
 <p>Format the 16S marker gene copy number table:</p>
-<div class="highlight-python"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_16S_counts.tab -m GG_to_IMGv350.txt -o format/16S/</pre>
+<div class="highlight-python"><div class="highlight"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_16S_counts.tab -m GG_to_IMGv350.txt -o format/16S/
+</pre></div>
 </div>
 <p>Format the KO functional trait copy number table:</p>
-<div class="highlight-python"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_ko_counts.tab -m GG_to_IMGv350.txt -o format/KEGG/</pre>
+<div class="highlight-python"><div class="highlight"><pre>format_tree_and_trait_table.py -t GG_tree.nwk -i IMG_ko_counts.tab -m GG_to_IMGv350.txt -o format/KEGG/
+</pre></div>
 </div>
 <p>Each of the above two commands creates 3 output files in the directory specified by the &#8216;-o&#8217; option.</p>
 <ol class="arabic simple">
@@ -163,19 +163,23 @@ The following steps are done for both the marker gene copy number table and func
 <p>Input is a formatted trait table and a pruned tree.</p>
 <p>Output is a tab delimited file with first column containing internal node labels from the tree and other columns containing predicted ASR counts for each trait.</p>
 <p>First, we will use the default PICRUSt ASR method <tt class="docutils literal"><span class="pre">ace_pic</span></tt> on the 16S trait table and the pruned tree:</p>
-<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab</pre>
+<div class="highlight-python"><div class="highlight"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab
+</pre></div>
 </div>
 <p>Second, run the same method on the formatted KO trait table (with the pruned tree):</p>
-<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab</pre>
+<div class="highlight-python"><div class="highlight"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab
+</pre></div>
 </div>
 <div class="section" id="optional-running-other-asr-methods">
 <h3>(Optional) Running other ASR methods<a class="headerlink" href="#optional-running-other-asr-methods" title="Permalink to this headline">¶</a></h3>
 <p>Other ASR methods can be run using the <tt class="docutils literal"><span class="pre">-m</span></tt> option:</p>
-<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab -m wagner</pre>
+<div class="highlight-python"><div class="highlight"><pre>ancestral_state_reconstruction.py -i format/16S/trait_table.tab -t format/16S/pruned_tree.newick -o asr/16S_asr_counts.tab -m wagner
+</pre></div>
 </div>
 <p>ML based ASR methods (<tt class="docutils literal"><span class="pre">ace_reml</span></tt> and <tt class="docutils literal"><span class="pre">ace_ml</span></tt>) require much longer computational times. Parallelization is supported for multiple platforms (e.g. SGE, Torque, etc.).</p>
 <p>For example use <tt class="docutils literal"><span class="pre">-p</span></tt> option to turn on parallelization, <tt class="docutils literal"><span class="pre">-j</span> <span class="pre">sge</span></tt> to specify a SGE based cluster, and <tt class="docutils literal"><span class="pre">-n</span> <span class="pre">200</span></tt> to group commands into 200 jobs:</p>
-<div class="highlight-python"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab -m ace_ml -p -j sge -n 200</pre>
+<div class="highlight-python"><div class="highlight"><pre>ancestral_state_reconstruction.py -i format/KEGG/trait_table.tab -t format/KEGG/pruned_tree.newick -o asr/KEGG_asr_counts.tab -m ace_ml -p -j sge -n 200
+</pre></div>
 </div>
 </div>
 </div>
@@ -185,17 +189,20 @@ The following steps are done for both the marker gene copy number table and func
 <p>Input is the formatted trait table, the formatted reference tree, and the ASR output file.</p>
 <p>Output is a <a class="reference external" href="http://biom-format.org">biom</a> formatted file with &#8216;Observations&#8217; (e.g rows) as tree tip ids (e.g. genomes/OTUs) and &#8216;Samples&#8217; (e.g columns) as functional traits.</p>
 <p>Make predictions for 16S:</p>
-<div class="highlight-python"><pre>predict_traits.py -i format/16S/trait_table.tab -t format/16S/reference_tree.newick -r asr/16S_asr_counts.tab -o predict_traits/16S_precalculated.biom</pre>
+<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -i format/16S/trait_table.tab -t format/16S/reference_tree.newick -r asr/16S_asr_counts.tab -o predict_traits/16S_precalculated.biom
+</pre></div>
 </div>
 <p>Make predictions for KOs:</p>
-<div class="highlight-python"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -o predict_traits/ko_precalculated.biom</pre>
+<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -o predict_traits/ko_precalculated.biom
+</pre></div>
 </div>
 <p>The <strong>16S_precalculated.biom</strong> and <strong>ko_precalculated.biom</strong> can be used with the <tt class="docutils literal"><span class="pre">-c</span></tt> option of <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> and <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> described in the <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><em>Metagenome Prediction Tutorial</em></a>.</p>
 <div class="section" id="optional-limiting-predictions-to-those-in-otu-table">
 <h3>(Optional) Limiting predictions to those in OTU table<a class="headerlink" href="#optional-limiting-predictions-to-those-in-otu-table" title="Permalink to this headline">¶</a></h3>
 <p><cite>predict_traits.py</cite> can take a long time to run if making predictions for all tips in the green genes reference tree (400k tips). Therefore, you can limit the number of predictions to only those in your metagenome OTU table (the ones you care about) using the <tt class="docutils literal"><span class="pre">-l</span></tt> option.</p>
 <p>Make predictions for KOs for a given OTU table using <tt class="docutils literal"><span class="pre">-l</span></tt> option:</p>
-<div class="highlight-python"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -l your_otu_table.tsv -o predict_traits/ko_precalculated.biom</pre>
+<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -l your_otu_table.tsv -o predict_traits/ko_precalculated.biom
+</pre></div>
 </div>
 </div>
 </div>
@@ -218,7 +225,7 @@ The following steps are done for both the marker gene copy number table and func
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

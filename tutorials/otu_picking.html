@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -90,31 +88,35 @@
 <h2>Picking closed reference OTUs with QIIME<a class="headerlink" href="#picking-closed-reference-otus-with-qiime" title="Permalink to this headline">¶</a></h2>
 <p>To pick &#8216;closed reference&#8217; OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).</p>
 <p>The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form <tt class="docutils literal"><span class="pre">sampleID_seqID</span></tt>. In these sequence identifiers, <tt class="docutils literal"><span class="pre">sampleID</span></tt> indicates the name of the sample, and <tt class="docutils literal"><span class="pre">seqID</span></tt> is a unique (with respect to the current file) sequence identifier. The <tt class="docutils literal"><span class="pre">seqID</span></tt> values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the <tt class="docutils literal"><span class="pre">split_libraries</span></tt> * scripts in QIIME, or using other software. This file might look like:</p>
-<div class="highlight-python"><pre>&gt;s1_1
+<div class="highlight-python"><div class="highlight"><pre>&gt;s1_1
 ACCTTAGGATGGATTAGACCCAGA
 &gt;s1_2
 ACCAGGATGGACCCCTTAGACCCAGA
 &gt;s2_3
 AGGTCCTGGATGGACCCCTTAGACCCAGA
 &gt;s1_4
-ACCAGTTGATGGACCCCTTAGACCCAGA</pre>
+ACCAGTTGATGGACCCCTTAGACCCAGA
+</pre></div>
 </div>
 <p>In this example we have two samples (<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt>) and four sequences, three of which are in <tt class="docutils literal"><span class="pre">s1</span></tt> and one of which is in <tt class="docutils literal"><span class="pre">s2</span></tt>. For additional details on this file, see <a class="reference external" href="http://qiime.org/documentation/file_formats.html#demultiplexed-sequences">here</a>.</p>
 <p>If your demultiplexed fna file is named <tt class="docutils literal"><span class="pre">seqs.fna</span></tt> and is in your current working directory, and you have unzipped the GG OTUs in the current working directory, you would pick OTUs with the following commands:</p>
-<div class="highlight-python"><pre>echo "pick_otus:enable_rev_strand_match True"  &gt;&gt; $PWD/otu_picking_params_97.txt
-echo "pick_otus:similarity 0.97" &gt;&gt; $PWD/otu_picking_params_97.txt
-pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta</pre>
+<div class="highlight-python"><div class="highlight"><pre>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
+echo &quot;pick_otus:similarity 0.97&quot; &gt;&gt; $PWD/otu_picking_params_97.txt
+pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+</pre></div>
 </div>
 <p>This command picks OTUs and builds a <a class="reference external" href="http://www.biom-format.org">biom-formatted OTU table</a>, with OTUs assigned at 97% identity. The primary file of interest will be <tt class="docutils literal"><span class="pre">ucrC97/uclust_ref_picked_otus/otu_table.biom</span></tt>, which will be the OTU table that you pass to PICRUSt.</p>
 <p>Alternatively, if you&#8217;d like to pick OTUs at a 90% percent identity, you could run the following command:</p>
-<div class="highlight-python"><pre>echo "pick_otus:enable_rev_strand_match True"  &gt;&gt; otu_picking_params_90.txt
-echo "pick_otus:similarity 0.90" &gt;&gt; otu_picking_params_90.txt
-pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC90/ -p $PWD/otu_picking_params_90.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta</pre>
+<div class="highlight-python"><div class="highlight"><pre>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; otu_picking_params_90.txt
+echo &quot;pick_otus:similarity 0.90&quot; &gt;&gt; otu_picking_params_90.txt
+pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC90/ -p $PWD/otu_picking_params_90.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+</pre></div>
 </div>
 <p>If you have parallel QIIME running in your environment, you can modify the commands to run in parallel by append the <tt class="docutils literal"><span class="pre">-a</span></tt> flag and the <tt class="docutils literal"><span class="pre">-O</span></tt> parameter. This might looking like the following to use 8 processors to pick OTUs at 97% identity:</p>
-<div class="highlight-python"><pre>echo "pick_otus:enable_rev_strand_match True"  &gt;&gt; $PWD/otu_picking_params_97.txt
-echo "pick_otus:similarity 0.97" &gt;&gt; $PWD/otu_picking_params_97.txt
-pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -a -O 8</pre>
+<div class="highlight-python"><div class="highlight"><pre>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
+echo &quot;pick_otus:similarity 0.97&quot; &gt;&gt; $PWD/otu_picking_params_97.txt
+pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -a -O 8
+</pre></div>
 </div>
 <p>Note that you should not specify a value for <tt class="docutils literal"><span class="pre">-O</span></tt> that is greater than the number of processor/cores that you have available. This will result in longer run times as multiple jobs will compete for the same processor.</p>
 </div>
@@ -137,7 +139,7 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

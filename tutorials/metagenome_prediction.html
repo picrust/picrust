@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -101,21 +99,24 @@
 <p><a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a> normalizes the OTU table by dividing each OTU by the known/predicted 16S copy number abdundance.</p>
 <p>Input is the users OTU table (that has been referenced picked against Greengenes).</p>
 <p>Input and output files are in <a class="reference external" href="http://biom-format.org">biom</a> format:</p>
-<div class="highlight-python"><pre>normalize_by_copy_number.py
+<div class="highlight-python"><div class="highlight"><pre>normalize_by_copy_number.py
         -i your_otu_table.biom
-        -o normalized_otus.biom</pre>
+        -o normalized_otus.biom
+</pre></div>
 </div>
 <p><strong>(Optional) Input format of OTU table can be changed to tab-delimited &#8220;classic&#8221; OTU table instead of BIOM format using the &#8216;-f&#8217; option:</strong></p>
-<div class="highlight-python"><pre>normalize_by_copy_number.py
+<div class="highlight-python"><div class="highlight"><pre>normalize_by_copy_number.py
        -f
        -i your_otu_table.tab
-       -o normalized_otus.biom</pre>
+       -o normalized_otus.biom
+</pre></div>
 </div>
 <p>(Optional) Previous examples assume the most recent Greengenes was used for closed OTU picking. Older versions can be specified using the <tt class="docutils literal"><span class="pre">--gg_version</span></tt> option:</p>
-<div class="highlight-python"><pre>normalize_by_copy_number.py
+<div class="highlight-python"><div class="highlight"><pre>normalize_by_copy_number.py
       --gg_version 18may2012
       -i hmp_mock_16S.biom
-      -o normalized_otus.biom</pre>
+      -o normalized_otus.biom
+</pre></div>
 </div>
 </div>
 <div class="section" id="step-2-predict-functions-for-metagenome">
@@ -123,33 +124,38 @@
 <p><a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a> creates the final metagenome functional predictions. It multiplies each normalized OTU abundance by each predicted functional trait abundance to produce a table of functions (rows) by samples (columns).</p>
 <p>Input is the normalized OTU table created by <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a>.</p>
 <p>Output is in <a class="reference external" href="http://biom-format.org">biom</a> format by default:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py
+<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py
         -i normalized_otus.biom
-        -o metagenome_predictions.biom</pre>
+        -o metagenome_predictions.biom
+</pre></div>
 </div>
 <p><strong>(Optional) Output format can be changed from BIOM to tab delimited using &#8216;-f&#8217; option:</strong></p>
-<div class="highlight-python"><pre>predict_metagenomes.py
+<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py
         -f
         -i normalized_otus.biom
-        -o metagenome_predictions.tab</pre>
+        -o metagenome_predictions.tab
+</pre></div>
 </div>
 <p>(Optional) NSTI values for each sample can be obtained using the <tt class="docutils literal"><span class="pre">-a</span></tt> option:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py
+<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py
         -i normalized_otus.biom
         -o metagenome_predictions.tab
-        -a nsti_per_sample.tab</pre>
+        -a nsti_per_sample.tab
+</pre></div>
 </div>
 <p>(Optional) Previous examples assume the most recent GreenGenes was used for closed OTU picking. Older versions can be specified using the <tt class="docutils literal"><span class="pre">--gg_version</span></tt> option:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py
+<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py
         --gg_version 18may2012
         -i normalized_otus.biom
-        -o metagenome_predictions.biom</pre>
+        -o metagenome_predictions.biom
+</pre></div>
 </div>
 <p>(Optional) Previous examples assume that KEGG Orthologs predictions are wanted. Other types of functions (e.g. COGs) can be specified using the <tt class="docutils literal"><span class="pre">--type_of_prediction</span></tt> option:</p>
-<div class="highlight-python"><pre>predict_metagenomes.py
+<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py
       --type_of_prediction cog
       -i normalized_otus.biom
-      -o metagenome_predictions.biom</pre>
+      -o metagenome_predictions.biom
+</pre></div>
 </div>
 </div>
 <div class="section" id="step-3-analysing-predicted-metagenomes">
@@ -176,7 +182,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

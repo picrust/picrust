@@ -16,7 +16,7 @@ Many of `QIIME's tutorials that describe diversity analyses <http://qiime.org/tu
 	* `make_distance_boxplots.py <http://qiime.org/scripts/make_distance_boxplots.html>`_
 	* `alpha_rarefaction.py <http://qiime.org/scripts/alpha_rarefaction.html>`_
 	* `beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
-	* `otu_category_significance.py <http://qiime.org/scripts/otu_category_significance.html>`_
+	* `group_significance.py <http://qiime.org/scripts/group_significance.html>`_
 	* `shared_phylotypes.py <http://qiime.org/scripts/shared_phylotypes.html>`_
 
 

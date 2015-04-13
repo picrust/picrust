@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -84,12 +82,14 @@
 <p>HUMAnN can be downloaded from the <a class="reference external" href="http://huttenhower.sph.harvard.edu/humann">website</a>. The input files need to be in the <a class="reference external" href="http://en.wikipedia.org/wiki/Tab-separated_values">Tab-Separated Values</a> (TSV: <tt class="docutils literal"><span class="pre">.tsv</span></tt>) format.</p>
 <p><strong>Converting QIIME tables to TSV format</strong></p>
 <p>QIIME tables can be converted to TSV using the script <a class="reference external" href="http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/src/qiimeToMaaslin.py?at=default">QiimeToMaaslin</a>. To run the script, execute the following command</p>
-<div class="highlight-python"><pre>python qiimeToMaaslin.py metadata.metadata &lt; inputfile.txt &gt; outputfile.tsv</pre>
+<div class="highlight-python"><div class="highlight"><pre>python qiimeToMaaslin.py metadata.metadata &lt; inputfile.txt &gt; outputfile.tsv
+</pre></div>
 </div>
 <p>Providing the metadata is optional. For more information, please refer to the <a class="reference external" href="http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/doc/QiimeToMaaslin-ReadMe.txt?at=default">documentation</a>.</p>
 <p><strong>Converting BIOM files to TSV format</strong></p>
 <p>BIOM files can be converted to TSV format  using the tools provided by the <a class="reference external" href="http://biom-format.org/documentation/biom_conversion.html">biom format</a> package (Please refer to the <a class="reference external" href="http://biom-format.org/">website</a> for more information). Use the following command to convert biom files to TSV format</p>
-<div class="highlight-python"><pre>biom convert -i input_table.biom -o output_table.tsv -b</pre>
+<div class="highlight-python"><div class="highlight"><pre>biom convert -i input_table.biom -o output_table.tsv -b
+</pre></div>
 </div>
 <p>Please make sure to remove the first line in the output file (output_table.tsv):<tt class="docutils literal"><span class="pre">#</span> <span class="pre">Constructed</span> <span class="pre">from</span> <span class="pre">biom</span> <span class="pre">file</span></tt>, and save the file in the current format.</p>
 </div>
@@ -128,19 +128,19 @@
 <ol class="arabic simple">
 <li>Load data with LEfSe by clicking on the <tt class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></tt> button. Select the <strong>modified output file</strong>, and click on the <tt class="docutils literal"><span class="pre">Execute</span></tt> button.</li>
 </ol>
-<img alt="../_images/load_lefse.png" src="../_images/load_lefse.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/load_lefse.png"><img alt="../_images/load_lefse.png" src="../_images/load_lefse.png" style="width: 400pt;" /></a>
 <ol class="arabic simple" start="2">
 <li>Once the data has been uploaded (the file will appear on the right-hand-side panel), proceed with formatting the data for LEfSe by clicking the link <tt class="docutils literal"><span class="pre">Format</span> <span class="pre">Data</span> <span class="pre">for</span> <span class="pre">LEfSe</span></tt> in the panel on the left, and selecting the data from the drop-down menu.</li>
 </ol>
-<img alt="../_images/format_lefse.png" src="../_images/format_lefse.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/format_lefse.png"><img alt="../_images/format_lefse.png" src="../_images/format_lefse.png" style="width: 400pt;" /></a>
 <ol class="arabic simple" start="3">
 <li>Follow the instructions to select the correct fields in the drop-down menus, and then click on the <tt class="docutils literal"><span class="pre">Execute</span></tt> button.</li>
 </ol>
-<img alt="../_images/execute_lefse.png" src="../_images/execute_lefse.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/execute_lefse.png"><img alt="../_images/execute_lefse.png" src="../_images/execute_lefse.png" style="width: 400pt;" /></a>
 <ol class="arabic simple" start="5">
 <li>Once the data is formatted, click on the <tt class="docutils literal"><span class="pre">LDA</span> <span class="pre">Effect</span> <span class="pre">Size</span></tt> link in the panel on the left.  Select the <strong>formatted data</strong> from the <tt class="docutils literal"><span class="pre">Select</span> <span class="pre">Data</span></tt> drop-down menu and press <tt class="docutils literal"><span class="pre">Execute</span></tt>.</li>
 </ol>
-<img alt="../_images/lda_lefse.png" src="../_images/lda_lefse.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/lda_lefse.png"><img alt="../_images/lda_lefse.png" src="../_images/lda_lefse.png" style="width: 400pt;" /></a>
 <ol class="arabic" start="6">
 <li><dl class="first docutils">
 <dt>The output generated from the step above can be used as input for the following.</dt>
@@ -153,7 +153,7 @@
 </dl>
 </li>
 </ol>
-<img alt="../_images/plots_lefse.png" src="../_images/plots_lefse.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/plots_lefse.png"><img alt="../_images/plots_lefse.png" src="../_images/plots_lefse.png" style="width: 400pt;" /></a>
 </div>
 <div class="section" id="visualization-with-graphlan">
 <h2>Visualization with GraPhlAn<a class="headerlink" href="#visualization-with-graphlan" title="Permalink to this headline">¶</a></h2>
@@ -161,7 +161,7 @@
 <ol class="arabic simple">
 <li>Click the link <tt class="docutils literal"><span class="pre">Load</span> <span class="pre">input</span> <span class="pre">tree</span></tt> in the panel on the left, and select the output file from HUMAnN by clicking on the <tt class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></tt> button. Press the <tt class="docutils literal"><span class="pre">Execute</span></tt> button to upload the file.</li>
 </ol>
-<img alt="../_images/load_graphlan.png" src="../_images/load_graphlan.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/load_graphlan.png"><img alt="../_images/load_graphlan.png" src="../_images/load_graphlan.png" style="width: 400pt;" /></a>
 <ol class="arabic" start="2">
 <li><dl class="first docutils">
 <dt>After the data has been uploaded, click on the <tt class="docutils literal"><span class="pre">Annotate</span> <span class="pre">tree</span></tt> link to add all the graphical features. Then, select the input file from the <tt class="docutils literal"><span class="pre">Input</span> <span class="pre">File</span></tt> drop-down menu. Specify the data fields according to the desired output, and press the <tt class="docutils literal"><span class="pre">Execute</span></tt> button when done. For example, the fields specified for a figure with leaf node names would be as follows:</dt>
@@ -174,15 +174,15 @@
 </dl>
 </li>
 </ol>
-<img alt="../_images/annotate_graphlan.png" src="../_images/annotate_graphlan.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/annotate_graphlan.png"><img alt="../_images/annotate_graphlan.png" src="../_images/annotate_graphlan.png" style="width: 400pt;" /></a>
 <ol class="arabic simple" start="3">
 <li>Click on the <tt class="docutils literal"><span class="pre">Add</span> <span class="pre">rings</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">tree</span></tt> link, and select the annotated data from the above step (instead of your raw input in Step 1) from the <tt class="docutils literal"><span class="pre">Input</span> <span class="pre">Tree</span></tt> drop-down menu. Upload the <tt class="docutils literal"><span class="pre">04b-*-graphlan_rings.txt</span></tt> file (can be found under /humann/output/) through the <tt class="docutils literal"><span class="pre">Get</span> <span class="pre">Data</span></tt> link (located in the <tt class="docutils literal"><span class="pre">LOAD</span> <span class="pre">DATA</span> <span class="pre">MODULE</span></tt> in the panel on the left). Select the <tt class="docutils literal"><span class="pre">04b-*-graphlan_rings.txt</span></tt> file from the <tt class="docutils literal"><span class="pre">Ring</span> <span class="pre">input</span> <span class="pre">File</span></tt> drop-down menu, and press <tt class="docutils literal"><span class="pre">Execute</span></tt>.</li>
 </ol>
-<img alt="../_images/rings_graphlan.png" src="../_images/rings_graphlan.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/rings_graphlan.png"><img alt="../_images/rings_graphlan.png" src="../_images/rings_graphlan.png" style="width: 400pt;" /></a>
 <ol class="arabic simple" start="4">
 <li>To plot the final tree, click on the <tt class="docutils literal"><span class="pre">Plot</span> <span class="pre">tree</span></tt> link in the panel on the left, and select the output from the step above. Press <tt class="docutils literal"><span class="pre">Execute</span></tt>. To visualize the results, click on the <strong>Eye</strong> symbol next to the output file generated in the panel on the right.</li>
 </ol>
-<img alt="../_images/plot_graphlan.png" src="../_images/plot_graphlan.png" style="width: 400pt;" />
+<a class="reference internal image-reference" href="../_images/plot_graphlan.png"><img alt="../_images/plot_graphlan.png" src="../_images/plot_graphlan.png" style="width: 400pt;" /></a>
 </div>
 </div>
 
@@ -203,7 +203,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

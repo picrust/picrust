@@ -29,7 +29,7 @@ You can install it with the command:
 
 `pip install numpy==1.5.1`
 
-**Rebuilding PICRUSt OR Genome Prediction (optional)**
+**Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
 * `R`_ installed with `APE`_ library
 
@@ -60,9 +60,9 @@ Assuming you will be picking OTUs against the newest version of GreenGenes and w
 
 **These files must be placed in your `picrust-1.0.0/picrust/data` directory before installing.**
 
-* Download for `16S copy number normalization <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <ftp://thebeast.colorado.edu/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <ftp://ftp.microbiome.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
 
 
 Step 4. Install PICRUSt

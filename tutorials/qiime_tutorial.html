@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -78,7 +76,7 @@
 <li><a class="reference external" href="http://qiime.org/scripts/make_distance_boxplots.html">make_distance_boxplots.py</a></li>
 <li><a class="reference external" href="http://qiime.org/scripts/alpha_rarefaction.html">alpha_rarefaction.py</a></li>
 <li><a class="reference external" href="http://qiime.org/scripts/beta_diversity_through_plots.html">beta_diversity_through_plots.py</a></li>
-<li><a class="reference external" href="http://qiime.org/scripts/otu_category_significance.html">otu_category_significance.py</a></li>
+<li><a class="reference external" href="http://qiime.org/scripts/group_significance.html">group_significance.py</a></li>
 <li><a class="reference external" href="http://qiime.org/scripts/shared_phylotypes.html">shared_phylotypes.py</a></li>
 </ul>
 </div></blockquote>
@@ -86,17 +84,20 @@
 <blockquote>
 <div><ul>
 <li><p class="first">Since KEGG Orthologs belong to several pathways you should collapse your PICRUSt predictions to the desired hierarchy level using <a class="reference internal" href="../scripts/categorize_by_function.html#categorize-by-function"><em>categorize_by_function.py</em></a></p>
-<div class="highlight-python"><pre>categorize_by_function.py -i metagenome_predictions.biom -c "KEGG_Pathways" -l 2 -o metagenome_at_level2.biom</pre>
+<div class="highlight-python"><div class="highlight"><pre>categorize_by_function.py -i metagenome_predictions.biom -c &quot;KEGG_Pathways&quot; -l 2 -o metagenome_at_level2.biom
+</pre></div>
 </div>
 </li>
 <li><p class="first">Then add the following lines to a <a class="reference external" href="http://qiime.org/documentation/qiime_parameters_files.html">qiime parameter file</a> (e.g. qiime_params.txt) ensuring that the level you collapsed at is the same in your config file</p>
-<div class="highlight-python"><pre>summarize_taxa:md_identifier    "KEGG_Pathways"
+<div class="highlight-python"><div class="highlight"><pre>summarize_taxa:md_identifier    &quot;KEGG_Pathways&quot;
 summarize_taxa:absolute_abundance   True
-summarize_taxa:level    2</pre>
+summarize_taxa:level    2
+</pre></div>
 </div>
 </li>
 <li><p class="first">Lastly, run <a class="reference external" href="http://qiime.org/scripts/summarize_taxa_through_plots.html">summarize_taxa_through_plots.py</a></p>
-<div class="highlight-python"><pre>summarize_taxa_through_plots.py -i metagenome_at_level2.biom -p qiime_params.txt -o plots_at_level2</pre>
+<div class="highlight-python"><div class="highlight"><pre>summarize_taxa_through_plots.py -i metagenome_at_level2.biom -p qiime_params.txt -o plots_at_level2
+</pre></div>
 </div>
 </li>
 </ul>
@@ -136,7 +137,7 @@ summarize_taxa:level    2</pre>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

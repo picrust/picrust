@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -71,13 +69,15 @@
 <p>STAMP takes as input two data files. The first is a <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> that contains the count data, and the second is an optional <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> that contains metadata about each of the samples to allow comparison of groups (e.g. sick vs healthy).</p>
 <p>The <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> will need to be created by yourself, but is a simple tab-delimited format that can be easily exported from a spreadsheet program. The first column must have sample ids that match the <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> with each of the other columns representing different metadata about the samples.</p>
 <p>An example <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> could look like this:</p>
-<div class="highlight-python"><pre>Sample Id    Location    Phenotype    Gender    Sample Size
+<div class="highlight-python"><div class="highlight"><pre>Sample Id    Location    Phenotype    Gender    Sample Size
 Sample 1     Canada        Obese      Female      4000
 Sample 2     Canada        Lean       Male        2000
-Sample 3     Italy         Lean       Female      3000</pre>
+Sample 3     Italy         Lean       Female      3000
+</pre></div>
 </div>
 <p>To create the STAMP <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> you need to do a simple conversion of PICRUSt&#8217;s BIOM output from within the STAMP tool. Start up STAMP and click</p>
-<div class="highlight-python"><pre>File-&gt;Create STAMP profile from...-&gt;BIOM profile</pre>
+<div class="highlight-python"><div class="highlight"><pre>File-&gt;Create STAMP profile from...-&gt;BIOM profile
+</pre></div>
 </div>
 <p>Click &#8220;Load&#8221; and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following:</p>
 <ol class="arabic simple">
@@ -88,9 +88,9 @@ Sample 3     Italy         Lean       Female      3000</pre>
 <p>Once you have your STAMP <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></tt> and <tt class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></tt> generated, load the files from the <strong>File-&gt;Load Data...</strong> menu and start browsing your data.</p>
 <p>The <a class="reference external" href="http://kiwi.cs.dal.ca/wow/images/0/02/STAMP_Users_Guide_v2.0.0.pdf">STAMP User&#8217;s Guide</a> is very clear and helpful.</p>
 <p>With only a few clicks you can generate figures like these:</p>
-<img alt="../_images/STAMP2_Windows7_Screenshot.png" src="../_images/STAMP2_Windows7_Screenshot.png" style="width: 600px;" />
-<img alt="../_images/ArumugamBoxPlot.png" src="../_images/ArumugamBoxPlot.png" style="width: 600px;" />
-<img alt="../_images/STAMP2_RumenErrorBarPlot.png" src="../_images/STAMP2_RumenErrorBarPlot.png" style="width: 600px;" />
+<a class="reference internal image-reference" href="../_images/STAMP2_Windows7_Screenshot.png"><img alt="../_images/STAMP2_Windows7_Screenshot.png" src="../_images/STAMP2_Windows7_Screenshot.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../_images/ArumugamBoxPlot.png"><img alt="../_images/ArumugamBoxPlot.png" src="../_images/ArumugamBoxPlot.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../_images/STAMP2_RumenErrorBarPlot.png"><img alt="../_images/STAMP2_RumenErrorBarPlot.png" src="../_images/STAMP2_RumenErrorBarPlot.png" style="width: 600px;" /></a>
 </div>
 
 
@@ -110,7 +110,7 @@ Sample 3     Italy         Lean       Female      3000</pre>
     </div>
     <div class="footer">
         &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
