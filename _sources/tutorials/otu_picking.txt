@@ -5,7 +5,11 @@ Picking OTUs for use in PICRUSt
 
 Introduction
 ------------
-This document covers how to pick OTUs from marker gene data to use with PICRUSt. To do this, you'll use a 'closed-reference' OTU picking protocol where you search sequences against the GG reference OTUs at a specified percent identity, and discard any reads that don't hit that reference collection. The newest available reference collection can be found here:
+This document covers how to pick OTUs from marker gene data to use with PICRUSt. To do this, you'll use a 'closed-reference' OTU picking protocol where you search sequences against the GG reference OTUs at a specified percent identity, and discard any reads that don't hit that reference collection. 
+
+**Note, that you can also use an 'open-reference' picked OTU table from QIIME** (see below: `Using an open reference OTU table from QIIME`_).
+
+The newest available reference collection can be found here:
 
  * gg_13_5_otus.tar.gz (`download <ftp://greengenes.microbio.me/greengenes_release/gg_13_5/gg_13_5_otus.tar.gz>`_ )
 
@@ -33,7 +37,7 @@ If your demultiplexed fna file is named ``seqs.fna`` and is in your current work
 
 	echo "pick_otus:enable_rev_strand_match True"  >> $PWD/otu_picking_params_97.txt
 	echo "pick_otus:similarity 0.97" >> $PWD/otu_picking_params_97.txt
-	pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+	pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -t $PWD/gg_13_5_otus/taxonomy/97_otu_taxonomy.txt
 
 This command picks OTUs and builds a `biom-formatted OTU table <http://www.biom-format.org>`_, with OTUs assigned at 97% identity. The primary file of interest will be ``ucrC97/uclust_ref_picked_otus/otu_table.biom``, which will be the OTU table that you pass to PICRUSt. 
 
@@ -50,4 +54,13 @@ If you have parallel QIIME running in your environment, you can modify the comma
 	pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -a -O 8
 
 Note that you should not specify a value for ``-O`` that is greater than the number of processor/cores that you have available. This will result in longer run times as multiple jobs will compete for the same processor.
+
+Using an open reference OTU table from QIIME
+--------------------------------------------
+
+You may have already picked OTUs using an 'open reference' approach and don't want to have to re-pick OTUs just for PICRUSt. That is ok, but you have to first remove the de-novo OTUs by keeping only those OTUs that have matching greengene ids.
+
+To make your open reference picked OTU compatible with PICRUSt::
+
+        filter_otus_from_otu_table.py -i otu_table.biom -o closed_otu_table.biom --negate_ids_to_exclude -e $PWD/gg_13_5_otus/rep_set/97_otus.fasta
 

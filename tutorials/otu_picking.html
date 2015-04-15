@@ -42,6 +42,7 @@
 <li><a class="reference internal" href="#">Picking OTUs for use in PICRUSt</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#picking-closed-reference-otus-with-qiime">Picking closed reference OTUs with QIIME</a></li>
+<li><a class="reference internal" href="#using-an-open-reference-otu-table-from-qiime">Using an open reference OTU table from QIIME</a></li>
 </ul>
 </li>
 </ul>
@@ -76,7 +77,9 @@
 <span id="otu-picking-tutorial"></span><h1>Picking OTUs for use in PICRUSt<a class="headerlink" href="#picking-otus-for-use-in-picrust" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This document covers how to pick OTUs from marker gene data to use with PICRUSt. To do this, you&#8217;ll use a &#8216;closed-reference&#8217; OTU picking protocol where you search sequences against the GG reference OTUs at a specified percent identity, and discard any reads that don&#8217;t hit that reference collection. The newest available reference collection can be found here:</p>
+<p>This document covers how to pick OTUs from marker gene data to use with PICRUSt. To do this, you&#8217;ll use a &#8216;closed-reference&#8217; OTU picking protocol where you search sequences against the GG reference OTUs at a specified percent identity, and discard any reads that don&#8217;t hit that reference collection.</p>
+<p><strong>Note, that you can also use an &#8216;open-reference&#8217; picked OTU table from QIIME</strong> (see below: <a class="reference internal" href="#using-an-open-reference-otu-table-from-qiime">Using an open reference OTU table from QIIME</a>).</p>
+<p>The newest available reference collection can be found here:</p>
 <blockquote>
 <div><ul class="simple">
 <li>gg_13_5_otus.tar.gz (<a class="reference external" href="ftp://greengenes.microbio.me/greengenes_release/gg_13_5/gg_13_5_otus.tar.gz">download</a> )</li>
@@ -102,7 +105,7 @@ ACCAGTTGATGGACCCCTTAGACCCAGA
 <p>If your demultiplexed fna file is named <tt class="docutils literal"><span class="pre">seqs.fna</span></tt> and is in your current working directory, and you have unzipped the GG OTUs in the current working directory, you would pick OTUs with the following commands:</p>
 <div class="highlight-python"><div class="highlight"><pre>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
 echo &quot;pick_otus:similarity 0.97&quot; &gt;&gt; $PWD/otu_picking_params_97.txt
-pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -t $PWD/gg_13_5_otus/taxonomy/97_otu_taxonomy.txt
 </pre></div>
 </div>
 <p>This command picks OTUs and builds a <a class="reference external" href="http://www.biom-format.org">biom-formatted OTU table</a>, with OTUs assigned at 97% identity. The primary file of interest will be <tt class="docutils literal"><span class="pre">ucrC97/uclust_ref_picked_otus/otu_table.biom</span></tt>, which will be the OTU table that you pass to PICRUSt.</p>
@@ -119,6 +122,14 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
 </pre></div>
 </div>
 <p>Note that you should not specify a value for <tt class="docutils literal"><span class="pre">-O</span></tt> that is greater than the number of processor/cores that you have available. This will result in longer run times as multiple jobs will compete for the same processor.</p>
+</div>
+<div class="section" id="using-an-open-reference-otu-table-from-qiime">
+<h2>Using an open reference OTU table from QIIME<a class="headerlink" href="#using-an-open-reference-otu-table-from-qiime" title="Permalink to this headline">¶</a></h2>
+<p>You may have already picked OTUs using an &#8216;open reference&#8217; approach and don&#8217;t want to have to re-pick OTUs just for PICRUSt. That is ok, but you have to first remove the de-novo OTUs by keeping only those OTUs that have matching greengene ids.</p>
+<p>To make your open reference picked OTU compatible with PICRUSt:</p>
+<div class="highlight-python"><div class="highlight"><pre>filter_otus_from_otu_table.py -i otu_table.biom -o closed_otu_table.biom --negate_ids_to_exclude -e $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+</pre></div>
+</div>
 </div>
 </div>
 

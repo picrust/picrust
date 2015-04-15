@@ -13,11 +13,11 @@ HUMAnN can be downloaded from the `website <http://huttenhower.sph.harvard.edu/h
 
 **Converting QIIME tables to TSV format**
 
-QIIME tables can be converted to TSV using the script `QiimeToMaaslin <http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/src/qiimeToMaaslin.py?at=default>`_. To run the script, execute the following command ::
+QIIME tables can be converted to TSV using the script `QiimeToMaaslin <https://bitbucket.org/biobakery/qiimetomaaslin/src/eff6912bb0668a865fd889255a5965a1eb5470d6/src/qiimeToMaaslin.py?at=default>`_. To run the script, execute the following command ::
 
 	python qiimeToMaaslin.py metadata.metadata < inputfile.txt > outputfile.tsv
 
-Providing the metadata is optional. For more information, please refer to the `documentation <http://bitbucket.org/timothyltickle/qiimetomaaslin/src/af63b19d5ff5628cfecca95156e0f639b1c2036b/doc/QiimeToMaaslin-ReadMe.txt?at=default>`_.
+Providing the metadata is optional. For more information, please refer to the `documentation <https://bitbucket.org/biobakery/qiimetomaaslin/src/eff6912bb0668a865fd889255a5965a1eb5470d6/doc/QiimeToMaaslin-ReadMe.txt?at=default>`_.
 
 **Converting BIOM files to TSV format**
 
