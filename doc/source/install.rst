@@ -62,7 +62,7 @@ Assuming you will be picking OTUs against the newest version of GreenGenes and w
 
 * Download for `16S copy number normalization <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <ftp://ftp.microbiome.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
 
 
 Step 4. Install PICRUSt
