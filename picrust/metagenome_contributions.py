@@ -16,7 +16,7 @@ from biom.table import table_factory
 from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
 
-def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',seach_only_pathway_level=None):
+def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',search_only_pathway_level=None):
     """return a filter function that filters observations by pathway
 
     ok_values -- valid pathway category names (e.g. ['Metabolism'] in the KEGG pathway categories.
@@ -49,17 +49,25 @@ def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',seach_only_pat
 
     def filter_observation_by_pathway(obs_value,obs_id,obs_metadata):
         function_md = obs_metadata[metadata_key]
-        
+        if not function_md:
+            #empty metadata
+            raise ValueError("Empty observation metadata.  Is the metadata key valid? User-supplied key: %s. Valid keys are: %s"%(str(metadata_key),str(obs_metadata.keys())))
         #Note that many pathway annotations per observation are allowed
         for annotation in function_md:
-            for level,function in enumerate(function_md):
+            for level,function in enumerate(annotation):
                 #Skip this level if it isn't the desired level
-                if pathway_level is not None:
-                    if level != pathway_level:
+                if search_only_pathway_level is not None:
+                    if level != search_only_pathway_level:
                         continue
                 
                 #If we're on the right level,
                 #check if the annotation matches
+                print "function_md:",function_md
+                print "curr annotation:",annotation
+                print "curr level:",level
+                print "curr function:",function
+                print "ok_values:",ok_values
+
                 if function in ok_values:
                     return True
 
@@ -67,8 +75,10 @@ def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',seach_only_pat
         #return False to discard the observation
         return False
 
+    return filter_observation_by_pathway
+
 def partition_metagenome_contributions(otu_table,genome_table, limit_to_functions=[],
-        limit_to_function_categories=[], metadata_key = None,remove_zero_rows=True,verbose=True):
+        limit_to_functional_categories=[], metadata_key = 'KEGG_Pathways',remove_zero_rows=True,verbose=True):
     """Return a list of the contribution of each organism to each function, per sample
     (rewritten version using numpy)
     otu_table -- the BIOM Table object for the OTU table
@@ -97,6 +107,13 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         
         if genome_table.isEmpty():
             raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
+    
+    if limit_to_functional_categories:
+        fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
+        genome_table = genome_table.filterObservations(fn_cat_filter)
+        
+        if genome_table.isEmpty():
+            raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
 
     otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(otu_table,genome_table)
     #We have a list of data with abundances and gene copy numbers
@@ -106,7 +123,6 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
             "ContributionPercentOfSample","ContributionPercentOfAllSamples",
                    "Kingdom","Phylum","Class","Order","Family","Genus","Species"]]
 
-    #TODO refactor as array operations for speed
 
     #Zero-valued total counts will be set to epsilon 
     epsilon = 1e-5
