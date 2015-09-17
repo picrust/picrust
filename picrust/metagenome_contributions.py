@@ -16,10 +16,13 @@ from biom.table import table_factory
 from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
 
-def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',search_only_pathway_level=None):
+def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',\
+  search_only_pathway_level=None):
     """return a filter function that filters observations by pathway
 
-    ok_values -- valid pathway category names (e.g. ['Metabolism'] in the KEGG pathway categories.
+    ok_values -- valid pathway category names (e.g. ['Metabolism'] in the KEGG
+      pathway categories.
+      
       By default, if the pathway is present at any level, keep the observation.  
       Matches can be limited to a specific level of the pathway 
       using search_only_pathway_level
@@ -27,7 +30,10 @@ def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',search_only_pa
     metadata_key -- the metadata key to filter observations against. 
       e.g. 'KEGG_Pathways','COG_Category'
 
-    search_only_pathway_level -- only check a given level of the pathway hierarchy
+    search_only_pathway_level -- only check a given level of the pathway
+    hierarchy.  NOTE: KEGG labels pathway levels from 1 not 0, and this
+    function matches KEGG.  So specifying 2 will search KEGG level 2 or 
+    or python index 1 of the metadata.
    
     NOTES:
     metadata for metadata_key is expected to be a list of annotations, 
@@ -35,39 +41,44 @@ def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',search_only_pa
     
     COG Example:
     "metadata": {"COG_Description": "Uncharacterized conserved protein",\
-                 "COG_Category": [["POORLY CHARACTERIZED", "[S] Function unknown"]]}}
+      "COG_Category": [["POORLY CHARACTERIZED", "[S] Function unknown"]]}}
     
     KEGG Example:
     "metadata": {"KEGG_Description": ["cathepsin L [EC:3.4.22.15]"],\
-      "KEGG_Pathways": [["Human Diseases", "Immune System Diseases", "Rheumatoid arthritis"], 
-      ["Metabolism", "Enzyme Families", "Peptidases"], 
-      ["Organismal Systems", "Immune System", "Antigen processing and presentation"], 
-      ["Cellular Processes", "Transport and Catabolism", "Phagosome"], 
-      ["Genetic Information Processing", "Folding, Sorting and Degradation", "Chaperones and folding catalysts"], 
+      "KEGG_Pathways":\
+      [["Human Diseases", "Immune System Diseases","Rheumatoid arthritis"],\
+      ["Metabolism", "Enzyme Families", "Peptidases"],
+      ["Organismal Systems", "Immune System",\
+      "Antigen processing and presentation"],\
+      ["Cellular Processes", "Transport and Catabolism", "Phagosome"],\ 
+      ["Genetic Information Processing", "Folding, Sorting and Degradation",\
+     "Chaperones and folding catalysts"],\ 
       ["Cellular Processes", "Transport and Catabolism", "Lysosome"]]}
     """
+    pathway_index = None
+    if search_only_pathway_level is not None:
+        pathway_index = search_only_pathway_level - 1
+        if pathway_index < 0:
+            raise ValueError(\
+              "make_pathway_filter_fn accepts only positive integer values of search_only_pathway_level")
 
     def filter_observation_by_pathway(obs_value,obs_id,obs_metadata):
-        function_md = obs_metadata[metadata_key]
+        function_md = obs_metadata.get(metadata_key,None)
         if not function_md:
             #empty metadata
-            raise ValueError("Empty observation metadata.  Is the metadata key valid? User-supplied key: %s. Valid keys are: %s"%(str(metadata_key),str(obs_metadata.keys())))
+            err_str =\
+              "Empty observation metadata.\
+              Is the metadata key '%s' valid? Valid keys are: %s"\
+              %(str(metadata_key),str(obs_metadata.keys()))
+            raise ValueError(err_str)
         #Note that many pathway annotations per observation are allowed
         for annotation in function_md:
             for level,function in enumerate(annotation):
                 #Skip this level if it isn't the desired level
-                if search_only_pathway_level is not None:
-                    if level != search_only_pathway_level:
+                if pathway_index is not None:
+                    if level != pathway_index:
                         continue
                 
-                #If we're on the right level,
-                #check if the annotation matches
-                print "function_md:",function_md
-                print "curr annotation:",annotation
-                print "curr level:",level
-                print "curr function:",function
-                print "ok_values:",ok_values
-
                 if function in ok_values:
                     return True
 
