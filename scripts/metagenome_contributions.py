@@ -115,7 +115,7 @@ def main():
             genome_table = parse_biom_table(genome_table_fh.read())
     else:
         genome_table = convert_precalc_to_biom(genome_table_fh,ids_to_load)
-    ok_function_categories = None
+    ok_functional_categories = None
     
     if opts.limit_to_functional_categories:
         ok_functional_categories = opts.limit_to_functional_categories.split(",")
