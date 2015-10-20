@@ -15,12 +15,91 @@ from numpy import dot, array, around
 from biom.table import table_factory
 from picrust.predict_metagenomes import get_overlapping_ids,extract_otu_and_genome_data
 
-def partition_metagenome_contributions(otu_table,genome_table, limit_to_functions=[], remove_zero_rows=True,verbose=True):
+
+def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',\
+  search_only_pathway_level=None):
+    """return a filter function that filters observations by pathway
+
+    ok_values -- valid pathway category names (e.g. ['Metabolism'] in the KEGG
+      pathway categories.
+      
+      By default, if the pathway is present at any level, keep the observation.  
+      Matches can be limited to a specific level of the pathway 
+      using search_only_pathway_level
+
+    metadata_key -- the metadata key to filter observations against. 
+      e.g. 'KEGG_Pathways','COG_Category'
+
+    search_only_pathway_level -- only check a given level of the pathway
+    hierarchy.  NOTE: KEGG labels pathway levels from 1 not 0, and this
+    function matches KEGG.  So specifying 2 will search KEGG level 2 or 
+    or python index 1 of the metadata.
+   
+    NOTES:
+    metadata for metadata_key is expected to be a list of annotations, 
+    with each annotation a list of pathway levels
+    
+    COG Example:
+    "metadata": {"COG_Description": "Uncharacterized conserved protein",\
+      "COG_Category": [["POORLY CHARACTERIZED", "[S] Function unknown"]]}}
+    
+    KEGG Example:
+    "metadata": {"KEGG_Description": ["cathepsin L [EC:3.4.22.15]"],\
+      "KEGG_Pathways":\
+      [["Human Diseases", "Immune System Diseases","Rheumatoid arthritis"],\
+      ["Metabolism", "Enzyme Families", "Peptidases"],
+      ["Organismal Systems", "Immune System",\
+      "Antigen processing and presentation"],\
+      ["Cellular Processes", "Transport and Catabolism", "Phagosome"],\ 
+      ["Genetic Information Processing", "Folding, Sorting and Degradation",\
+     "Chaperones and folding catalysts"],\ 
+      ["Cellular Processes", "Transport and Catabolism", "Lysosome"]]}
+    """
+    pathway_index = None
+    if search_only_pathway_level is not None:
+        pathway_index = search_only_pathway_level - 1
+        if pathway_index < 0:
+            raise ValueError(\
+              "make_pathway_filter_fn accepts only positive integer values of search_only_pathway_level")
+
+    def filter_observation_by_pathway(obs_value,obs_id,obs_metadata):
+        function_md = obs_metadata.get(metadata_key,None)
+        if not function_md:
+            #empty metadata
+            err_str =\
+              "Empty observation metadata.\
+              Is the metadata key '%s' valid? Valid keys are: %s"\
+              %(str(metadata_key),str(obs_metadata.keys()))
+            raise ValueError(err_str)
+        #Note that many pathway annotations per observation are allowed
+        for annotation in function_md:
+            for level,function in enumerate(annotation):
+                #Skip this level if it isn't the desired level
+                if pathway_index is not None:
+                    if level != pathway_index:
+                        continue
+                
+                if function in ok_values:
+                    return True
+
+        #If we've scanned all values and no match is found,
+        #return False to discard the observation
+        return False
+
+    return filter_observation_by_pathway
+
+def partition_metagenome_contributions(otu_table,genome_table, limit_to_functions=[],
+        limit_to_functional_categories=[], metadata_key = 'KEGG_Pathways',remove_zero_rows=True,verbose=True):
     """Return a list of the contribution of each organism to each function, per sample
     (rewritten version using numpy)
     otu_table -- the BIOM Table object for the OTU table
     genome_table -- the BIOM Table object for the predicted genomes
-    limit_to_functions -- a list of function ids to include.  If empty, include all function ids
+    limit_to_functions -- a list of function ids to include.  
+      If empty, include all function ids
+    
+    limit_by_function_categories -- if provided limit by functional category.  
+      For example, this can be used to limit output by KEGG functional categories
+    
     Output table as a list of lists with header
     Function\tOrganism\tSample\tCounts\tpercent_of_sample
     """
@@ -31,7 +110,6 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         ok_ids = frozenset(map(str,limit_to_functions))
         
         filter_by_set = lambda vals,gene_id,metadata: str(gene_id) in ok_ids
-        #filter_by_set = lambda vals,gene_id,metadata: gene_id in ok_ids
         
         #if verbose:
             #print dir(genome_table)
@@ -40,6 +118,13 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         
         if genome_table.isEmpty():
             raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
+    
+    if limit_to_functional_categories:
+        fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
+        genome_table = genome_table.filterObservations(fn_cat_filter)
+        
+        if genome_table.isEmpty():
+            raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
 
     otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(otu_table,genome_table)
     #We have a list of data with abundances and gene copy numbers
@@ -49,7 +134,6 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
             "ContributionPercentOfSample","ContributionPercentOfAllSamples",
                    "Kingdom","Phylum","Class","Order","Family","Genus","Species"]]
 
-    #TODO refactor as array operations for speed
 
     #Zero-valued total counts will be set to epsilon 
     epsilon = 1e-5
