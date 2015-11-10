@@ -51,6 +51,7 @@ script_info['optional_options'] = [\
     make_option('-c','--input_count_table',default=None,type="existing_filepath",help='Precalculated function predictions on per otu basis in biom format (can be gzipped). Note: using this option overrides --type_of_prediction and --gg_version. [default: %default]'),
  make_option('--suppress_subset_loading',default=False,action="store_true",help='Normally, only counts for OTUs present in the sample are loaded.  If this flag is passed, the full biom table is loaded.  This makes no difference for the analysis, but may result in faster load times (at the cost of more memory usage)'),
     make_option('--load_precalc_file_in_biom',default=False,action="store_true",help='Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]'),
+    make_option('-f','--limit_to_functional_categories',default=False,action="store",type='string',help='If provided only output prediction for functions that match the specified functional category. Multiple categories can be passed as a comma-separated list [default: %default]'),
         make_option('-l','--limit_to_function',default=None,help='If provided, only output predictions for the specified function ids.  Multiple function ids can be passed using comma delimiters.')
 ]
 script_info['version'] = __version__
@@ -115,7 +116,15 @@ def main():
     else:
         genome_table = convert_precalc_to_biom(genome_table_fh,ids_to_load)
 
-    partitioned_metagenomes = partition_metagenome_contributions(otu_table,genome_table,limit_to_functions=limit_to_functions)
+    ok_functional_categories = None
+
+    if opts.limit_to_functional_categories:
+        ok_functional_categories = opts.limit_to_functional_categories.split(",")
+        if opts.verbose:
+            print "Limiting to functional categories: %s" %(str(ok_functional_categories))
+    partitioned_metagenomes = partition_metagenome_contributions(otu_table,genome_table,limit_to_functions=limit_to_functions,\
+      limit_to_functional_categories = ok_functional_categories)
+
     output_text = "\n".join(["\t".join(map(str,i)) for i in partitioned_metagenomes])
     if opts.verbose:
         print "Writing results to output file: ",opts.output_fp
