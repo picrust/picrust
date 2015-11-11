@@ -44,10 +44,7 @@ def biom_table_from_predictions(predictions, trait_ids,
         sample_md = sample_metadata
 
     organism_ids = predictions.keys()
-    #data is in values (this transposes the matrix)
-    data = map(list, zip(*predictions.values()))
-    if convert_to_int:
-        data = array(data, dtype=int)
+    data = array(predictions.values()).T
 
     observation_metadata = [obs_md.get(obs_id, {}) for obs_id in trait_ids]
     sample_metadata = [sample_md.get(sample_id, {})

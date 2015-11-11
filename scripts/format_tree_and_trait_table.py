@@ -24,10 +24,10 @@ from picrust.parse import parse_trait_table
 script_info = {}
 script_info['brief_description'] = "Formatting script for filtering and reformatting trees and trait tables."
 script_info['script_description'] =\
-  """Reformats scripts and trait tables.  Optional fixes include:  
-        -- Add short (epsilon) branch lengths in place of 0 length branches 
-        -- Filter out taxa that don't match between tree and trait table 
-        -- Output tree in NEXUS format 
+  """Reformats scripts and trait tables.  Optional fixes include:
+        -- Add short (epsilon) branch lengths in place of 0 length branches
+        -- Filter out taxa that don't match between tree and trait table
+        -- Output tree in NEXUS format
         -- Ensure tree is bifurcating (remove polytomies using very short branches)
         -- Convert floating point trait values to integers
         -- Add a short branch length to the root branch (required by BayesTraits)
@@ -66,14 +66,14 @@ script_info['version'] = __version__
 
 def main():
 
-    # Parse input to get parameters 
+    # Parse input to get parameters
     option_parser, opts, args =\
         parse_command_line_parameters(**script_info)
-    
+
     tree_file = opts.input_tree
     trait_table_fp = opts.input_trait_table
-    verbose = opts.verbose 
-  
+    verbose = opts.verbose
+
     #Set output base file names
     trait_table_base = 'trait_table.tab'
     pruned_tree_base = 'pruned_tree.newick'
@@ -84,11 +84,10 @@ def main():
     output_tree_fp = join(output_dir,pruned_tree_base)
     output_reference_tree_fp = join(output_dir,reference_tree_base)
 
-
     #Handle parameters with more complex defaults
     delimiter_map = {"space":" ","tab":"\t","comma":","}
     input_delimiter = delimiter_map[opts.input_table_delimiter]
-    output_delimiter = delimiter_map[opts.output_table_delimiter] 
+    output_delimiter = delimiter_map[opts.output_table_delimiter]
 
     if verbose:
         print "Running with options:"
@@ -101,53 +100,36 @@ def main():
         print "\t%s:%s" %("Convert to NEXUS?",opts.convert_to_nexus)
         print "\t%s:%s" %("Input trait table delimiter",opts.input_table_delimiter)
         print "\t%s:%s" %("Output trait table delimiter",opts.output_table_delimiter)
-         
-    
 
     # Begin reformatting
-    
-    
-    
+
     root_name = "root"
-    #format_for_bayestraits = True 
-    #TODO: this will become a new function in the bayestraits app controller
-    #if format_for_bayestraits:
-    #    convert_to_nexus = True
-    #    convert_to_bifurcating = True
-    #    filter_table_by_tree_tips = True
-    #    filter_tree_by_table_entries = True
-    #    enforce_min_branch_length = True
-    #    convert_trait_floats_to_ints = True
-    
-     
+
     if opts.no_minimum_branch_length:
         min_branch_length = None
     else:
         min_branch_length = 0.0001
-    
+
     #Load inputs
     if verbose:
         print "Loading tree...."
-    
-    input_tree =DndParser(open(tree_file))
-    #input_tree =DndParser(open(tree_file), constructor=PicrustNode)
-    
-    #input_tree = load_picrust_tree(opts.input_tree,opts.verbose) 
-    
+
+    input_tree = DndParser(open(tree_file))
+
     if verbose:
         print "Loading trait table..."
     trait_table = open(trait_table_fp,"U")
     trait_table_lines = trait_table.readlines()
     if not trait_table_lines:
-        raise IOError("No lines could be loaded from file %s. Please check the input file." %trait_table_fp) 
-    
+        raise IOError("No lines could be loaded from file %s. Please check the input file." %trait_table_fp)
+
     #Get id mappings from mapping file
     if opts.tree_to_trait_mapping:
         if verbose:
             print "Loading tree to trait table mapping file..."
 
         mapping_file = open(opts.tree_to_trait_mapping,"U")
-        
+
         trait_to_tree_mapping =\
           make_id_mapping_dict(parse_id_mapping_file(mapping_file))
 
@@ -156,13 +138,11 @@ def main():
             print "No tree to trait mapping file specified.  Assuming tree tip names and trait table names will match exactly."
         trait_to_tree_mapping = None
 
-
-
-    # Call reformatting function using specified parameters 
+    # Call reformatting function using specified parameters
     # to get reference tree
     if opts.verbose:
         print """**BUILDING REFERENCE TREE (without respect to trait table)**"""
-    
+
     new_reference_tree, not_useful_trait_table_lines =\
       reformat_tree_and_trait_table(\
       tree=input_tree,\
@@ -177,9 +157,9 @@ def main():
       add_branch_length_to_root=False,\
       name_unnamed_nodes=True,\
       min_branch_length=min_branch_length,\
-      verbose=opts.verbose) 
+      verbose=opts.verbose)
 
-    #Make a copy 
+    #Make a copy
     new_reference_tree_copy=new_reference_tree.deepcopy()
 
     if opts.verbose:
@@ -198,7 +178,7 @@ def main():
        add_branch_length_to_root=False,\
        name_unnamed_nodes=False,\
        min_branch_length=min_branch_length,\
-       verbose=opts.verbose) 
+       verbose=opts.verbose)
 
 
 
@@ -211,14 +191,14 @@ def main():
         header_line,otu_table_fields =parse_trait_table(otu_table_lines,delimiter = input_delimiter,has_header=False)
         header_line,trait_table_fields =\
          parse_trait_table(new_trait_table_lines,delimiter = input_delimiter)
-        
-         
+
+
         tips_to_keep = list(otu_table_fields) + list(trait_table_fields)
         tips_to_keep_in_tree = filter_table_by_presence_in_tree(new_reference_tree_copy,tips_to_keep)
         new_reference_tree = filter_tree_tips_by_presence_in_table(new_reference_tree_copy,\
           tips_to_keep_in_tree,verbose=opts.verbose)
 
-        
+
     if opts.verbose:
         print "Almost finished. Writing trees and trait table to files..."
     #Write results to files
@@ -227,13 +207,13 @@ def main():
     output_trait_table_file = open(output_table_fp,"w+")
     output_tree_file  = open(output_tree_fp,"w+")
     output_reference_tree_file  = open(output_reference_tree_fp,"w+")
-   
-    
+
+
     #Output trait table file
-    
+
     if opts.verbose:
         print "Writing trait table to:", output_table_fp
-    
+
     output_trait_table_file.write("\n".join(new_trait_table_lines))
     trait_table.close()
     output_trait_table_file.close()
@@ -248,15 +228,15 @@ def main():
     else:
         output_tree_file.write(new_tree.getNewick(with_distances=True))
 
-    output_tree_file.close() 
+    output_tree_file.close()
 
 
     if opts.verbose:
         print "Writing reference tree to:", output_reference_tree_fp
     #Output reference tree file
     output_reference_tree_file.write(new_reference_tree.getNewick(with_distances=True))
-    output_reference_tree_file.close() 
-    
+    output_reference_tree_file.close()
+
 def load_picrust_tree(tree_fp, verbose):
     """Safely load a tree for picrust"""
     if verbose:
@@ -274,7 +254,7 @@ def load_tab_delimited_trait_table(trait_table_fp,verbose=False):
     input_trait_table = open(trait_table_fp,"U")
     if verbose:
         print "Parsing trait table..."
-    #Find which taxa are to be used in tests 
+    #Find which taxa are to be used in tests
     #(by default trait table taxa)
     trait_table_header,trait_table_fields = \
             parse_trait_table(input_trait_table)
@@ -295,4 +275,4 @@ def load_tab_delimited_trait_table(trait_table_fp,verbose=False):
 if __name__ == "__main__":
     main()
 
-   
+

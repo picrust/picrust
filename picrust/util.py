@@ -62,7 +62,7 @@ def convert_precalc_to_biom(precalc_in, ids_to_load=None,transpose=True,md_prefi
     col_meta=[]
     row_meta=[{} for i in trait_ids]
 
-    if len(ids_to_load) > 0:
+    if ids_to_load is not None and len(ids_to_load) > 0:
         ids_to_load=set(ids_to_load)
         load_all_ids=False
     else:
