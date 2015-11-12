@@ -10,13 +10,13 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
-
+ 
 
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom import load_table
+from biom.parse import parse_biom_table
 from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
-from picrust.util import make_output_dir_for_file, write_biom_table, scale_metagenomes
+from picrust.util import make_output_dir_for_file,format_biom_table, scale_metagenomes
 from os import path
 from numpy import around
 import gzip
@@ -40,29 +40,34 @@ def main():
         print "Loading sequencing depth table: ",opts.input_seq_depth_file
     scaling_factors = {}
     for sample_id,depth in parse_seq_count_file(open(opts.input_seq_depth_file,'U')):
-        scaling_factors[sample_id]=depth
+        scaling_factors[sample_id]=depth    
+    
+    ext=path.splitext(opts.input_count_table)[1]
 
     if opts.verbose:
         print "Loading count table: ", opts.input_count_table
-    genome_table = load_table(opts.input_count_table)
-
+    if (ext == '.gz'):
+        genome_table = parse_biom_table(gzip.open(opts.input_count_table,'rb'))
+    else:
+        genome_table = parse_biom_table(open(opts.input_count_table,'U'))
+    
     if opts.verbose:
         print "Scaling the metagenome..."
-
+        
     scaled_metagenomes = scale_metagenomes(genome_table,scaling_factors)
 
     if opts.verbose:
         print "Writing results to output file: ",opts.output_metagenome_table
-
+        
     make_output_dir_for_file(opts.output_metagenome_table)
-    write_biom_table(scaled_metagenomes, opts.output_metagenome_table)
+    open(opts.output_metagenome_table,'w').write(format_biom_table(scaled_metagenomes))
 
 
 
 
 def parse_seq_count_file(lines):
     """Extract sample name, counts from seq count file"""
-
+    
     for line in lines:
         sample,depth = line.split("\t")
         depth = int(depth)

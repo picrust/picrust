@@ -20,7 +20,7 @@ from picrust.util import get_picrust_project_dir
 from os.path import join
 
 __author__ = "Morgan Langille"
-__copyright__ = "Copyright 2015, The PICRUSt Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Morgan Langille", "Greg Caporaso"]
 __license__ = "GPL"
 __version__ = "1.0.0-dev"
@@ -43,14 +43,14 @@ class Ace(CommandLineApplication):
     # with setup.py. This is fine if we're executing it with R, but not if we're
     # trying to execute it directly.
     def _get_base_command(self):
-        """ Returns the full command string
+        """ Returns the full command string 
 
-            input_arg: the argument to the command which represents the input
-                to the program, this will be a string, either
+            input_arg: the argument to the command which represents the input 
+                to the program, this will be a string, either 
                 representing input or a filename to get input from
          """
         command_parts = []
-        # Append a change directory to the beginning of the command to change
+        # Append a change directory to the beginning of the command to change 
         # to self.WorkingDir before running the command
         # WorkingDir should be in quotes -- filenames might contain spaces
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
@@ -58,7 +58,7 @@ class Ace(CommandLineApplication):
             raise ApplicationError, '_command has not been set.'
         command = self._command
         parameters = self.Parameters
-
+        
         command_parts.append(cd_command)
         command_parts.append("R")
         command_parts.append("-f")
@@ -66,7 +66,7 @@ class Ace(CommandLineApplication):
         command_parts.append("--args")
         command_parts.append(self._command_delimiter.join(filter(\
             None,(map(str,parameters.values())))))
-
+      
         return self._command_delimiter.join(command_parts).strip()
     BaseCommand = property(_get_base_command)
 
@@ -81,7 +81,7 @@ def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
     #quote file names
     tree_path='"{0}"'.format(tree_path)
     trait_table_path='"{0}"'.format(trait_table_path)
-
+    
     as_string = " ".join([tree_path,trait_table_path,method,tmp_output_count_path,tmp_output_prob_path])
     #Run ace here
     result = ace(data=as_string)
@@ -93,7 +93,7 @@ def ace_for_picrust(tree_path,trait_table_path,method='pic',HALT_EXEC=False):
         raise RuntimeError,\
          ("R reported an error on stderr:"
           " %s" % "\n".join(result["StdErr"].readlines()))
-
+    
     asr_prob_table=LoadTable(filename=tmp_output_prob_path,header=True,sep='\t')
 
     #Remove tmp files
