@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Morgan Langille"
-__copyright__ = "Copyright 2015, The PICRUSt Project"
+__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.0.0-dev"
@@ -40,7 +40,7 @@ def submit_jobs(path_to_cluster_jobs, jobs_fp, job_prefix,num_jobs=100,delay=0):
          "Command returned exit status: %d\n" % return_value +\
          "Stdout:\n%s\nStderr\n%s\n" % (stdout,stderr)
         raise RuntimeError, msg
-
+    
     # Leave this comments in as they're useful for debugging.
     # print 'Return value: %d\n' % return_value
     # print 'STDOUT: %s\n' % stdout
@@ -51,12 +51,12 @@ def system_call(cmd):
     """ Call cmd and return (stdout, stderr, return_value)"""
     proc = Popen(cmd,shell=True,universal_newlines=True,\
                  stdout=PIPE,stderr=PIPE)
-    # communicate pulls all stdout/stderr from the PIPEs to
+    # communicate pulls all stdout/stderr from the PIPEs to 
     # avoid blocking -- don't remove this line!
     stdout, stderr = proc.communicate()
     return_value = proc.returncode
     return stdout, stderr, return_value
-
+    
 
 def wait_for_output_files(files):
     ''' Function waits until all files exist in the filesystem'''

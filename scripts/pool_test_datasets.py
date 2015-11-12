@@ -10,14 +10,17 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
-
+ 
+from collections import defaultdict
 from os import listdir
 from os.path import join
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
-from picrust.evaluate_test_datasets import update_pooled_data
+from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
+ update_pooled_data, run_accuracy_calculations_on_biom_table,run_accuracy_calculations_on_pooled_data,\
+ format_scatter_data, format_correlation_data, run_and_format_roc_analysis
 
-from biom import load_table
+from biom.parse import parse_biom_table, convert_biom_to_table
 
 script_info = {}
 script_info['brief_description'] = "Pool character predictions within a directory, given directories of expected vs. observed test results"
@@ -57,9 +60,10 @@ def iter_prediction_expectation_pairs(obs_dir_fp,exp_dir_fp,file_name_field_orde
             if verbose:
                 #print "Found a prediction file"
                 print "\tLoading .biom format observation table:",f
-
+            
             try:
-              obs_table = load_table(join(obs_dir_fp,f))
+              obs_table =\
+                parse_biom_table(open(join(obs_dir_fp,f),'U'))
             except ValueError:
                 print 'Failed, skipping...'
                 continue
@@ -67,7 +71,7 @@ def iter_prediction_expectation_pairs(obs_dir_fp,exp_dir_fp,file_name_field_orde
             #      "Could not parse predicted trait file: %s.   Is it a .biom formatted file?" %(f))
         else:
             continue
-
+        
         # Get paired observation file
         exp_filename = file_name_delimiter.join(['exp_biom_traits',filename_metadata['holdout_method'],filename_metadata['distance'],filename_metadata['organism']])
         exp_filepath = join(exp_dir_fp,exp_filename)
@@ -75,15 +79,20 @@ def iter_prediction_expectation_pairs(obs_dir_fp,exp_dir_fp,file_name_field_orde
             print "\tLooking for the expected trait file matching %s here: %s" %(f,exp_filepath)
 
         try:
-            exp_table = load_table(exp_filepath)
+            exp_table =\
+              parse_biom_table(open(exp_filepath,"U"))
         except IOError, e:
-            print "Missing expectation file....skipping!"
-            continue
+            if strict:
+                raise IOError(e)
+            else:
+                if verbose:
+                    print "Missing expectation file....skipping!"
+                continue
         yield obs_table,exp_table,f
 
 def get_metadata_from_filename(f,file_name_field_order,file_name_delimiter,\
   default_text='not_specified',verbose=False):
-    """Extract metadata values from a filename"""
+    """Extract metadata values from a filename"""    
     filename_components = {}
     for i,field in enumerate(f.split(file_name_delimiter)):
         filename_components[i]=field
@@ -108,7 +117,7 @@ def pool_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         {'file_type':0,"prediction_method":1,"weighting_method":2,"holdout_method":3,\
           "distance":4,"organism":5},strict=False, verbose=True,pool_by=['distance']):
     """Retrun pooled control &  evaluation results from the given directories
-
+    
     obs_dir_fp -- directory containing PICRUST-predicted genomes.   These MUST start with
     'predict_traits', and must contain the values specified in file_name_field_order,\
     separated by the delimiter given in file_name_delimiter.  For example:
@@ -119,7 +128,7 @@ def pool_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     with known gene content) must start with exp_biom_traits
 
     file_name_delimiter -- the delimiter that separates metadata stored in the filename
-
+    
     NOTE: technically this isn't the best way of doing things.  We may want at some point
     to revisit this setup and store metadata about each comparison in a separate file.  But
     storing in the filename is convenient for our initial analysis.
@@ -128,18 +137,19 @@ def pool_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     Required fields are file_type,method,distance,and organism
 
     pool_by -- if passed, concatenate traits from each trial that is identical in this category.  e.g. pool_by 'distance' will pool traits across individual test genomes with the same holdout distance.
-
+    
     The method assumes that for each file type in the observed directory, a paired file
-    is also found in the exp_dir with similar method, distance, and organism, but a varied
+    is also found in the exp_dir with similar method, distance, and organism, but a varied 
     file type (test_tree, test_trait_table)
 
-
+    
     Process:
     1. Search test directory for all gene predictions in the correct format
     2. For each, find the corresponding expected trait table in the expectation file
     3. Pool by specified pool_by values
     4. Return dicts of pooled observation,expectation values
     """
+    trials = defaultdict(list)
     #We'll want a quick unzip fn for converting points to trials
     #TODO: separate out into a 'get_paired_data_from_dirs' function
 
@@ -148,10 +158,10 @@ def pool_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     pairs = iter_prediction_expectation_pairs(obs_dir_fp,exp_dir_fp,file_name_field_order,file_name_delimiter,verbose=verbose)
     file_number = 0
     for obs_table,exp_table,filename in pairs:
-        #print "analyzing filename:",filename
+        #print "analyzing filename:",filename 
         filename_metadata= get_metadata_from_filename(filename,file_name_field_order,\
           file_name_delimiter,verbose=verbose)
-
+        
         #base_tag =  '%s\t%s\t' %(filename_metadata['holdout_method'],filename_metadata['prediction_method'])
         #tags = [base_tag+'all_results']
         if 'file_type' in pool_by:
@@ -165,24 +175,24 @@ def pool_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
           if field in pool_by:
               combined_tag[idx] = filename_metadata[field]
         tags=[file_name_delimiter.join(combined_tag)]
-
+       
         if verbose:
           print "Pooling by:", pool_by
           print "Combined tags:",tags
-
+        
         pooled_observations,pooled_expectations =\
         update_pooled_data(obs_table,exp_table,tags,pooled_observations,\
         pooled_expectations,str(file_number),verbose=verbose)
         file_number += 1
 
-    return pooled_observations,pooled_expectations
+    return pooled_observations,pooled_expectations 
 
 
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-    pool_by = opts.pool_by.split(',')
-
+    pool_by = opts.pool_by.split(',') 
+    
     #Construct a dict from user specified field order
     file_name_field_order = {}
     for i,field in enumerate(opts.field_order.split(',')):
@@ -190,7 +200,7 @@ def main():
         if opts.verbose:
             print "Assuming file names are in this order:",file_name_field_order
     for k in pool_by:
-        #Check that we're only pooling by values that exist
+        #Check that we're only pooling by values that exist 
         if k not in file_name_field_order.keys():
             err_text=\
             "Bad value for option '--pool_by'.  Can't pool by '%s'.   Valid categories are: %s" %(k,\
@@ -199,34 +209,42 @@ def main():
 
         if opts.verbose:
             print "Pooling results by:",pool_by
-
+    
     file_name_delimiter='--'
     pooled_observations,pooled_expectations = pool_test_dataset_dir(opts.trait_table_dir,\
       opts.exp_trait_table_dir,file_name_delimiter=file_name_delimiter,\
       file_name_field_order=file_name_field_order,pool_by=pool_by,\
       verbose=opts.verbose)
+    
+    #prediction_prefix = 'predict_traits'
+    #expectation_prefix = 'exp_biom_traits'
 
     for tag in pooled_observations.keys():
         obs_table = pooled_observations[tag]
         exp_table = pooled_expectations[tag]
 
+        #obs_table_filename = file_name_delimiter.join([prediction_prefix]+[t for t in tag.split()])
+        #exp_table_filename = file_name_delimiter.join([expectation_prefix]+[t for t in tag.split()])
+        
         obs_table_filename = file_name_delimiter.join(['predict_traits']+[t for t in tag.split()])
         exp_table_filename = file_name_delimiter.join(['exp_biom_table']+[t for t in tag.split()])
-
+        
         obs_outpath = join(opts.output_dir,obs_table_filename)
         exp_outpath = join(opts.output_dir,exp_table_filename)
 
         print obs_outpath
         print exp_outpath
-
+        
         f=open(obs_outpath,'w')
-        f.write(str(obs_table))
+        f.write(obs_table.delimitedSelf())
         f.close()
 
         f=open(exp_outpath,'w')
-        f.write(str(exp_table))
+        f.write(exp_table.delimitedSelf())
         f.close()
 
+   
+    
 
 if __name__ == "__main__":
     main()

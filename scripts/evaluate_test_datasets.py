@@ -10,7 +10,7 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Jesse Zaneveld"
 __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
-
+ 
 from collections import defaultdict
 from os import listdir
 from os.path import join
@@ -20,14 +20,14 @@ from picrust.evaluate_test_datasets import unzip,evaluate_test_dataset,\
  update_pooled_data, run_accuracy_calculations_on_biom_table,run_accuracy_calculations_on_pooled_data,\
  format_scatter_data, format_correlation_data, run_and_format_roc_analysis
 
-from biom import load_table
+from biom.parse import parse_biom_table
 from picrust.util import make_output_dir
 
 
 script_info = {}
 script_info['brief_description'] = "Evaluate the accuracy of character predictions, given directories of expected vs. observed test results"
 script_info['script_description'] =\
-    """The script finds all paired expected and observed values in a set of directories and generates the following output: 1) data for a scatterplot of observed vs. expected values for each character (typically gene family count) within each organism (so one file per organism). 2) A summary of accuracy across all organisms.
+    """The script finds all paired expected and observed values in a set of directories and generates the following output: 1) data for a scatterplot of observed vs. expected values for each character (typically gene family count) within each organism (so one file per organism). 2) A summary of accuracy across all organisms.   
     character """
 script_info['script_usage'] = [("","Evaluate the accuracy of all predictions in a folder, and output summary statistics.","%prog -i obs_otu_table.biom -e exp_otu_table.txt -o./evaluation_results/")]
 script_info['output_description']= "Outputs will be obs,exp data points for the comparison"
@@ -52,7 +52,7 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
           "distance":4,"organism":5},strict=False, verbose=True,pool_by=['distance'],\
           roc_success_criteria=['binary','exact']):
     """Return control evaluation results from the given directories
-
+    
     obs_dir_fp -- directory containing PICRUST-predicted genomes.   These MUST start with
     'predict_traits', and must contain the values specified in file_name_field_order,\
     separated by the delimiter given in file_name_delimiter.  For example:
@@ -63,7 +63,7 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     with known gene content) must start with exp_biom_traits
 
     file_name_delimiter -- the delimiter that separates metadata stored in the filename
-
+    
     NOTE: technically this isn't the best way of doing things.  We may want at some point
     to revisit this setup and store metadata about each comparison in a separate file.  But
     storing in the filename is convenient for our initial analysis.
@@ -72,15 +72,15 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
     Required fields are file_type,method,distance,and organism
 
     pool_by -- if passed, concatenate traits from each trial that is identical in this category.  e.g. pool_by 'distance' will pool traits across individual test genomes with the same holdout distance.
-
+    
     roc_success_criteria -- a list of methods for measuring 'success' of a prediction.  Separate  ROC curves will be created for each.
     Description:
 
     The method assumes that for each file type in the observed directory, a paired file
-    is also found in the exp_dir with similar method, distance, and organism, but a varied
+    is also found in the exp_dir with similar method, distance, and organism, but a varied 
     file type (test_tree, test_trait_table)
 
-
+    
     Process:
     1. Search test directory for all gene predictions in the correct format
     2. For each, find the corresponding expected trait table in the expectation file
@@ -122,6 +122,9 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
               filename_components.get(file_name_field_order.get('distance','not_specified'),'not_specified'),\
               filename_components.get(file_name_field_order.get('organism','not_specified'),'not_specified')
 
+            #if verbose:
+            #    print file_type,holdout_method,weighting_method,\
+            #      prediction_method,distance,organism
         except IndexError, e:
             print "Could not parse filename %s using delimiter: %s.  Skipping..." %(f,file_name_delimiter)
             continue
@@ -131,16 +134,19 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
             if verbose:
                 #print "Found a prediction file"
                 print "\tLoading .biom format observation table:",f
-
+            
             try:
               obs_table =\
-                load_table(join(obs_dir_fp,f),'U')
+                parse_biom_table(open(join(obs_dir_fp,f),'U'))
             except ValueError:
                 print 'Failed, skipping...'
                 continue
+            #    raise RuntimeError(\
+            #      "Could not parse predicted trait file: %s.   Is it a .biom formatted file?" %(f))
         else:
             continue
-
+        
+        
         # Get paired observation file
         exp_filename = file_name_delimiter.join(['exp_biom_traits',holdout_method,distance,organism])
         exp_filepath = join(exp_dir_fp,exp_filename)
@@ -148,7 +154,8 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
             print "\tLooking for the expected trait file matching %s here: %s" %(f,exp_filepath)
 
         try:
-            exp_table = load_table(exp_filepath)
+            exp_table =\
+              parse_biom_table(open(exp_filepath,"U"))
         except IOError, e:
             if strict:
                 raise IOError(e)
@@ -161,25 +168,37 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
         combined_tag = base_tag +\
                 "\t".join([str(field)+"_"+str(filename_components[file_name_field_order[field]]) for field in pool_by])
         tags.append(combined_tag)
-
+        
+        #if verbose:
+        #  print "Pooling by:", pool_by
+        #  print "Combined tags:",tags
+        
         #TODO: abstract out pooling into its own function
         non_pooled_fields = [filename_components.get(file_name_field_order[k],None) for k in file_name_field_order.keys() if k not in pool_by]
         pooled_observations,pooled_expectations =\
                 update_pooled_data(obs_table,exp_table,tags,pooled_observations,\
           pooled_expectations,str(file_number),verbose=verbose)
 
+
+    #if verbose:
+    #    for tag in pooled_observations.keys():
+    #        print "Merged obs biom:", pooled_observations[tag]
+    #        print "\nMedged *exp* biom:", pooled_expectations[tag]
     return run_accuracy_calculations_on_pooled_data(pooled_observations,\
       pooled_expectations,roc_success_criteria=roc_success_criteria,verbose=verbose)
 
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
-    pool_by = opts.pool_by.split(',')
+    pool_by = opts.pool_by.split(',') 
 
-
+    
     #create output directory
     make_output_dir(opts.output_dir)
-
+    
+    #file_name_field_order={'file_type':0,"prediction_method":1,\
+    #  "weighting_method":2,"holdout_method":3,"distance":4,"organism":5}
+    
     #Construct a dict from user specified field order
     file_name_field_order = {}
     for i,field in enumerate(opts.field_order.split(',')):
@@ -188,16 +207,17 @@ def main():
             print "Assuming file names are in this order:",file_name_field_order
 
     for k in pool_by:
-        #Check that we're only pooling by values that exist
+        #Check that we're only pooling by values that exist 
         if k not in file_name_field_order.keys():
             err_text=\
               "Bad value for option '--pool_by'.  Can't pool by '%s'.   Valid categories are: %s" %(k,\
               ",".join(file_name_field_order.keys()))
             raise ValueError(err_text)
-
+    
     if opts.verbose:
         print "Pooling results by:",pool_by
-
+    
+    
     roc_success_criteria = ['binary','exact','int_exact']
 
     scatter_lines,correlation_lines,roc_result_lines,roc_auc_lines =\
@@ -207,25 +227,25 @@ def main():
       roc_success_criteria=roc_success_criteria,verbose=opts.verbose)
 
     #Output scatter data
-
+    
     output_fp = join(opts.output_dir,'evaluation_scatter_data.tab')
     if opts.verbose:
         print "Writing scatter plot data to:",output_fp
     file_lines = scatter_lines
-
+    
     f = open(output_fp,"w+")
     f.writelines(file_lines)
     f.close()
 
     #Output correlation data
-
+    
     output_fp = join(opts.output_dir,'evaluation_correlation_data.tab')
-
+    
     if opts.verbose:
         print "Writing correlation data to:",output_fp
-
+    
     file_lines = correlation_lines
-
+    
     f = open(output_fp,"w+")
     f.writelines(file_lines)
     f.close()
@@ -233,12 +253,12 @@ def main():
     #Output raw ROC plot data
     if opts.verbose:
         print "Writing ROC data..."
-    for c in roc_result_lines.keys():
+    for c in roc_result_lines.keys(): 
         output_fp = join(opts.output_dir,'evaluation_roc_data_%s.tab' %c)
         if opts.verbose:
             print "Outputting ROC data for success criterion %s to: %s" %(c,output_fp)
         file_lines = roc_result_lines[c]
-
+    
         f = open(output_fp,"w+")
         f.writelines(file_lines)
         f.close()
@@ -246,16 +266,18 @@ def main():
     #Output summary ROC AUC data
     if opts.verbose:
         print "Writing ROC AUC data..."
-
-    for c in roc_auc_lines.keys():
+    
+    for c in roc_auc_lines.keys(): 
         output_fp = join(opts.output_dir,'evaluation_roc_auc_data_%s.tab' %c)
         file_lines = roc_auc_lines[c]
-
+    
         if opts.verbose:
             print "Outputting ROC AUC data for success criterion %s to: %s" %(c,output_fp)
         f = open(output_fp,"w+")
         f.writelines(file_lines)
         f.close()
+
+
 
 if __name__ == "__main__":
     main()

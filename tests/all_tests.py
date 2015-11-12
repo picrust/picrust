@@ -92,7 +92,7 @@ def main():
                 else:
                     bad_tests.append(unittest_name)
 
-    if not opts.suppress_script_usage_tests:
+    if not opts.suppress_script_usage_tests:  
         try:
             from qiime.test import run_script_usage_tests
         except ImportError:
@@ -109,11 +109,12 @@ def main():
             # Run the script usage testing functionality
             script_usage_result_summary, num_script_usage_example_failures = \
                     run_script_usage_tests(
-                    test_data_dir=test_data_dir,
-                    scripts_dir=scripts_dir,
+                    qiime_test_data_dir=test_data_dir,
+                    qiime_scripts_dir=scripts_dir,
                     working_dir='/tmp/',
                     verbose=True,
                     tests=script_usage_tests,
+                    failure_log_fp=None,
                     force_overwrite=True,
                     timeout=300)
 
@@ -123,13 +124,13 @@ def main():
         print "\nUnit test result summary\n------------------------\n"
         if bad_tests:
             print "\nFailed the following unit tests.\n%s" % '\n'.join(bad_tests)
-
+    
         if missing_application_tests:
             print "\nFailed the following unit tests, in part or whole due "+\
             "to missing external applications.\nDepending on the PICRUSt features "+\
             "you plan to use, this may not be critical.\n%s"\
              % '\n'.join(missing_application_tests)
-
+        
         if not (missing_application_tests or bad_tests):
             print "\nAll unit tests passed.\n\n"
 
