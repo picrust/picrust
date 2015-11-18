@@ -12,7 +12,9 @@ __email__ = "mcdonadt@colorado.edu"
 __status__ = "Development"
 
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
-from biom.parse import parse_biom_table
+from biom import load_table
+from biom.table import vlen_list_of_str_formatter
+from picrust.util import write_biom_table
 
 script_info = {}
 script_info['brief_description'] = "Collapse table data to a specified level in a hierarchy."
@@ -43,7 +45,7 @@ def make_collapse_f(category, level, ignore):
     if level > 0:
         level -= 1
 
-    def collapse(md):
+    def collapse(id_, md):
         if ignore is not None:
             ignore_labels = set(ignore.split(','))
         else:
@@ -77,20 +79,22 @@ def main():
     if opts.level <= 0:
         parser.error("level must be greater than zero!")
 
-    collapse_f = make_collapse_f(opts.metadata_category, opts.level, 
+    collapse_f = make_collapse_f(opts.metadata_category, opts.level,
                                  opts.ignore)
-    table = parse_biom_table(open(opts.input_fp))
-    result = table.collapseObservationsByMetadata(collapse_f, one_to_many=True, 
+    table = load_table(opts.input_fp)
+    result = table.collapse(collapse_f, axis='observation', one_to_many=True,
                           norm=False,one_to_many_md_key=opts.metadata_category)
 
-    f = open(opts.output_fp,'w')
 
     if(opts.format_tab_delimited):
-        f.write(result.delimitedSelf(header_key=opts.metadata_category,header_value=opts.metadata_category,metadata_formatter=lambda s: '; '.join(s)))
+        f = open(opts.output_fp,'w')
+        f.write(result.to_tsv(header_key=opts.metadata_category,
+                              header_value=opts.metadata_category,
+                              metadata_formatter=lambda s: '; '.join(s)))
+        f.close()
     else:
-        f.write(result.getBiomFormatJsonString('picrust %s - categorize_by_function'\
-                                           % __version__))
-    f.close()
+        format_fs = {opts.metadata_category: vlen_list_of_str_formatter}
+        write_biom_table(result, opts.output_fp, format_fs=format_fs)
 
 if __name__ == "__main__":
     main()
