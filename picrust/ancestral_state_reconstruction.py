@@ -3,7 +3,7 @@
 from __future__ import division
 
 __author__ = "Morgan Langille"
-__copyright__ = "Copyright 2011-2013, The PICRUSt Project"
+__copyright__ = "Copyright 2015, The PICRUSt Project"
 __credits__ = ["Morgan Langille"]
 __license__ = "GPL"
 __version__ = "1.0.0-dev"
@@ -33,14 +33,14 @@ def combine_asr_tables(output_files,verbose=False):
 
     #Going to store an array of arrays here
     combined_table=[]
-   
+
     #load in the first column (containing row ids). File doesn't matter since they should all have identical first columns.
     table=LoadTable(filename=output_files[0],header=True,sep='\t')
     row_ids = table.getRawData(columns=[table.Header[0]])
     combined_table.append([table.Header[0]])
     for row_id in row_ids:
         combined_table.append([row_id])
-            
+
     #Now add the rest of the files to the table
     for i,output_file in enumerate(output_files):
         if verbose:
@@ -52,7 +52,7 @@ def combine_asr_tables(output_files,verbose=False):
         #Add the header for our column to the list of headers
         combined_table[0].append(table.Header[1])
 
-        #Add rest of values in the column 
+        #Add rest of values in the column
         j=1
         for prediction in predictions:
             combined_table[j].append(prediction)
@@ -76,14 +76,14 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
 
     if(verbose):
         print "Loading trait table..."
-        
+
     #foreach trait in the table, create a new tmp file with just that trait, and create the job command and add it a tmp jobs file
     table=LoadTable(filename=table, header=True, sep='\t')
 
     #get dimensions of the table
     dim=table.Shape
-    
-    created_tmp_files=[]    
+
+    created_tmp_files=[]
     output_files=[]
     ci_files=[]
 
@@ -94,12 +94,12 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
 
     if(verbose):
         print "Creating temporary input files in: ",tmp_dir
-        
+
     #iterate over each column
     for i in range(1,dim[1]):
         #create a new table with only a single trait
         single_col_table=table.getColumns([0,i])
-        
+
         #write the new table to a tmp file
         single_col_fp=get_tmp_filename(tmp_dir=tmp_dir,prefix='in_asr_')
         single_col_table.writeToFile(single_col_fp,sep='\t')
@@ -113,17 +113,17 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
 
         #create the job command
         cmd= "{0} -i {1} -t {2} -m {3} -o {4} -c {5}".format(asr_script_fp, single_col_fp, tree, asr_method, tmp_output_fp, tmp_ci_fp)
- 
+
         #add job command to the the jobs file
         jobs.write(cmd+"\n")
 
     jobs.close()
     created_tmp_files.extend(output_files)
     created_tmp_files.extend(ci_files)
-    
+
     if(verbose):
         print "Launching parallel jobs."
-        
+
     #run the job command
     job_prefix='asr'
     submit_jobs(cluster_jobs_fp ,jobs_fp,job_prefix,num_jobs=num_jobs)
@@ -139,11 +139,11 @@ def run_asr_in_parallel(tree, table, asr_method, parallel_method='sge',tmp_dir='
     #Combine output files
     combined_table=combine_asr_tables(output_files)
     combined_ci_table=combine_asr_tables(ci_files)
-    
+
     #create a Table object
     combined_table=Table(header=combined_table[0],rows=combined_table[1:])
     combined_ci_table=Table(header=combined_ci_table[0],rows=combined_ci_table[1:])
-        
+
     #clean up all tmp files
     for file in created_tmp_files:
         remove(file)

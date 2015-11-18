@@ -9,7 +9,7 @@ __version__ = "1.0.0-dev"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 __status__ = "Development"
- 
+
 from collections import defaultdict
 from os import listdir
 from numpy import array,ravel
@@ -17,9 +17,8 @@ from os.path import join,basename
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
 from picrust.evaluate_test_datasets import calculate_accuracy_stats_from_observations
-from biom.parse import parse_biom_table
+from biom import load_table, Table
 from picrust.util import make_output_dir_for_file
-from biom.table import table_factory,DenseOTUTable,SparseOTUTable
 from random import shuffle
 
 script_info = {}
@@ -41,29 +40,23 @@ script_info['optional_options'] = [
   make_option('--limit_to_observed_observations',action="store_true",default=False,help='Ignore observations that are not in the observed table[default: %default]'),
   make_option('-s','--shuffle_samples',action="store_true",default=False,help='Shuffle samples ids randomly before measuring accuracy[default: %default]'),
   make_option('--not_relative_abundance_scores',action="store_true",default=False,help='Round numbers (instead of taking ceil() which is used for RA) before calculating TP,FP,FN,TN [default: %default]')
-  
+
         ]
 script_info['disallow_positional_arguments'] = False
 script_info['version'] = __version__
 
-def transpose_biom(table):
-    #files must be in dense format 
-    if not table.__class__.__name__.startswith("Dense"):
-        raise ValueError, "Only 'Dense' biom type tables can be compared. Please convert and try again." 
-    return table_factory(table._data.T,table.ObservationIds,table.SampleIds, constructor=DenseOTUTable)
-
 
 def match_biom_tables(observed_table,expected_table_keep,verbose=False,limit_to_expected_observations=False,limit_to_observed_observations=False,normalize=False,shuffle_samples=False):
-   
+
     expected_table = expected_table_keep.copy()
 
-    overlapping_obs_ids = list(set(observed_table.ObservationIds) &
-                            set(expected_table.ObservationIds))
-   
+    overlapping_obs_ids = list(set(observed_table.ids(axis='observation')) &
+                               set(expected_table.ids(axis='observation')))
+
     if len(overlapping_obs_ids) < 1:
-        print "obs ids:",observed_table.ObservationIds[0:10]
-        print "exp ids:",expected_table.ObservationIds[0:10]
-        
+        print "obs ids:", observed_table.ids(axis='observation')[0:10]
+        print "exp ids:", expected_table.ids(axis='observation')[0:10]
+
         raise ValueError,\
          "No observation ids are in common  between the observed and expected tables, so no evaluations can be performed."
 
@@ -71,47 +64,50 @@ def match_biom_tables(observed_table,expected_table_keep,verbose=False,limit_to_
     if limit_to_expected_observations:
         def f(data_vector, id_, metadata):
             return (id_ in overlapping_obs_ids)
-        observed_table=observed_table.filterObservations(f)
+        observed_table=observed_table.filter(f, axis='observation', inplace=False)
 
     if limit_to_observed_observations:
         def f(data_vector, id_, metadata):
             return (id_ in overlapping_obs_ids)
-        expected_table=expected_table.filterObservations(f)
-        
+        expected_table=expected_table.filter(f, axis='observation', inplace=False)
+
 
     ###Make tables have same set (e.g.number) of ObservationIds and in the same order###
     #1)identify ObservationIds unique to each table
-    unique_obs_in_expected=list(set(expected_table.ObservationIds) - set(observed_table.ObservationIds))
-    unique_obs_in_observed=list(set(observed_table.ObservationIds) - set(expected_table.ObservationIds))
-    
+    unique_obs_in_expected=list(set(expected_table.ids(axis='observation')) - set(observed_table.ids(axis='observation')))
+    unique_obs_in_observed=list(set(observed_table.ids(axis='observation')) - set(expected_table.ids(axis='observation')))
+
     #2)Add each missing observation with all 0's
 
     if unique_obs_in_observed:
-        empty_obs_data=[[0]*len(expected_table.SampleIds)]*len(unique_obs_in_observed)
-        empty_obs_table=table_factory(empty_obs_data,expected_table.SampleIds,unique_obs_in_observed, constructor=DenseOTUTable)
+        empty_obs_data=[[0]*len(expected_table.ids())]*len(unique_obs_in_observed)
+        empty_obs_table=Table(empty_obs_data, unique_obs_in_observed,
+                              expected_table.ids())
         expected_table=expected_table.merge(empty_obs_table)
 
     if unique_obs_in_expected:
-        empty_obs_data=[[0]*len(observed_table.SampleIds)]*len(unique_obs_in_expected)
-        empty_obs_table=table_factory(empty_obs_data,observed_table.SampleIds,unique_obs_in_expected, constructor=DenseOTUTable)
+        empty_obs_data=[[0]*len(observed_table.ids())]*len(unique_obs_in_expected)
+        empty_obs_table=Table(empty_obs_data, unique_obs_in_expected,
+                              observed_table.ids())
         observed_table=observed_table.merge(empty_obs_table)
-       
+
 
     #3)sort the ObservationIds so they are in the same order between the tables
-   
+
     if verbose:
         print "Sorting observations in expected table to match observed table..."
-    expected_table=expected_table.sortObservationOrder(observed_table.ObservationIds)
+    expected_table=expected_table.sort_order(observed_table.ids(axis='observation'),
+                                             axis='observation')
 
 
-    overlapping_sample_ids = list(set(observed_table.SampleIds) &
-                            set(expected_table.SampleIds))
+    overlapping_sample_ids = list(set(observed_table.ids()) &
+                            set(expected_table.ids()))
 
     if verbose:
-        num_uniq_obs_sample_ids=len(observed_table.SampleIds)-len(overlapping_sample_ids)
-        num_uniq_exp_sample_ids=len(expected_table.SampleIds)-len(overlapping_sample_ids)
+        num_uniq_obs_sample_ids=len(observed_table.ids())-len(overlapping_sample_ids)
+        num_uniq_exp_sample_ids=len(expected_table.ids())-len(overlapping_sample_ids)
         if num_uniq_obs_sample_ids:
-            print "Num observed samples not in expected: {0}".format(num_uniq_obs_sample_ids) 
+            print "Num observed samples not in expected: {0}".format(num_uniq_obs_sample_ids)
         if num_uniq_exp_sample_ids:
             print "Num expected samples not in observed: {0}".format(num_uniq_exp_sample_ids)
         print "Num samples with same id: {0}".format(len(overlapping_sample_ids))
@@ -120,38 +116,38 @@ def match_biom_tables(observed_table,expected_table_keep,verbose=False,limit_to_
     if normalize:
         if verbose:
             print "Normalizing tables..."
-        observed_table=observed_table.normObservationBySample()        
-        expected_table=expected_table.normObservationBySample()        
+        observed_table=observed_table.norm(axis='sample', inplace=False)
+        expected_table=expected_table.norm(axis='sample', inplace=False)
 
     if verbose:
         print "Extracting data from biom objects..."
-    # create lists to contain filtered data - we're going to need the data in 
+    # create lists to contain filtered data - we're going to need the data in
     # numpy arrays, so it makes sense to compute this way rather than filtering
     # the tables
     obs_data = {}
     exp_data = {}
-    
+
     # build lists of filtered data
     for sample_id in overlapping_sample_ids:
-        exp_data[sample_id]=expected_table.sampleData(sample_id)
+        exp_data[sample_id]=expected_table.data(sample_id)
 
-   
+
     if shuffle_samples:
         if verbose:
             print "Randomly shufflying sample ids..."
         sample_ids_to_shuffle=overlapping_sample_ids[:]
         shuffle(sample_ids_to_shuffle)
-        
+
         for index in range(len(overlapping_sample_ids)):
-            obs_data[overlapping_sample_ids[index]]=observed_table.sampleData(sample_ids_to_shuffle[index])
+            obs_data[overlapping_sample_ids[index]]=observed_table.data(sample_ids_to_shuffle[index])
     else:
         for sample_id in overlapping_sample_ids:
-            obs_data[sample_id]=observed_table.sampleData(sample_id)
-        
-    return obs_data,exp_data
-        
+            obs_data[sample_id]=observed_table.data(sample_id)
 
-   
+    return obs_data,exp_data
+
+
+
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
@@ -162,7 +158,7 @@ def main():
     if len(args) < min_args:
        option_parser.error('One or more predicted biom files must be provided.')
     observed_files=args
-   
+
 
     make_output_dir_for_file(opts.output_fp)
     out_fh=open(opts.output_fp,'w')
@@ -170,7 +166,7 @@ def main():
     if verbose:
         print "Loading expected trait table file:",opts.exp_trait_table_fp
 
-    exp_table =parse_biom_table(open(opts.exp_trait_table_fp,'U'))
+    exp_table = load_table(opts.exp_trait_table_fp)
 
     header_printed=False
     header_keys=[]
@@ -178,24 +174,24 @@ def main():
 
 
     for observed_file in observed_files:
-        observed_file_name=basename(observed_file)
+        observed_file_name = basename(observed_file)
 
         if verbose:
             print "Loading predicted trait table file:",observed_file_name
 
-        obs_table =parse_biom_table(open(observed_file,'U'))
+        obs_table = load_table(observed_file)
 
         if opts.compare_observations:
             if verbose:
                 print "Transposing tables to allow evaluation of observations (instead of samples)..."
-            obs_table=transpose_biom(obs_table)
-            exp_table=transpose_biom(exp_table)
+            obs_table = obs_table.transpose()
+            exp_table = exp_table.transpose()
 
         if verbose:
-           print "Matching predicted and expected tables..."    
+           print "Matching predicted and expected tables..."
 
         obs,exp=match_biom_tables(obs_table,exp_table,verbose=verbose,limit_to_expected_observations=opts.limit_to_expected_observations,limit_to_observed_observations=opts.limit_to_observed_observations,normalize=opts.normalize,shuffle_samples=opts.shuffle_samples)
-           
+
         if verbose:
             print "Calculating accuracy stats for all observations..."
 
