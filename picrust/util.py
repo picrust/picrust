@@ -15,7 +15,7 @@ from json import dumps
 from os.path import abspath, dirname, isdir
 from os import makedirs
 from cogent.core.tree import PhyloNode, TreeError
-from numpy import array, asarray
+from numpy import array, asarray, atleast_1d
 from biom import Table, parse_table
 from biom.table import vlen_list_of_str_formatter
 from biom.util import biom_open, HAVE_H5PY
@@ -467,7 +467,7 @@ def list_of_list_of_str_formatter(grp, header, md, compression):
     This method is intended to be a "passthrough" to BIOM's
     vlen_list_of_str_formatter method. It is a transform method.
     """
-    new_md = [{header: dumps(m[header])} for m in md]
+    new_md = [{header: atleast_1d(asarray(dumps(m[header])))} for m in md]
     return (grp, header, new_md, compression)
 
 

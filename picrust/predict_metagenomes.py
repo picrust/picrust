@@ -347,7 +347,7 @@ def calc_nsti(otu_table,genome_table,weighted=True):
     n = 0.0
     observation_ids = otu_table.ids()
     for obs_id in overlapping_otus:
-        obs_id_idx = genome_table.index(obs_id)
+        obs_id_idx = genome_table.index(obs_id, axis='sample')
         curr_nsti =  float(genome_table.metadata()[obs_id_idx]['NSTI'])
         if weighted:
             curr_counts = otu_table.data(obs_id, axis='observation')
