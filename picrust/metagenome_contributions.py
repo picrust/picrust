@@ -79,7 +79,6 @@ def make_pathway_filter_fn(ok_values,metadata_key='KEGG_Pathways',\
                 if pathway_index is not None:
                     if level != pathway_index:
                         continue
-
                 if function in ok_values:
                     return True
 
@@ -115,6 +114,13 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
 
         if genome_table.isEmpty():
             raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
+
+    if limit_to_functional_categories:
+        fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
+        genome_table = genome_table.filterObservations(fn_cat_filter)
+
+        if genome_table.isEmpty():
+            raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
 
     if limit_to_functional_categories:
         fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)

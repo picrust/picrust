@@ -115,7 +115,6 @@ def main():
             genome_table = load_table(genome_table_fh)
     else:
         genome_table = convert_precalc_to_biom(genome_table_fh,ids_to_load)
-
     ok_functional_categories = None
 
     if opts.limit_to_functional_categories:

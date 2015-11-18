@@ -18,7 +18,6 @@ from picrust.metagenome_contributions import partition_metagenome_contributions,
   make_pathway_filter_fn
 from picrust.predict_metagenomes import predict_metagenomes
 
-
 class PartitionMetagenomeTests(TestCase):
     """ """
 
@@ -70,11 +69,9 @@ class PartitionMetagenomeTests(TestCase):
 
     def test_make_pathway_filter_fn_by_level(self):
         """make_pathway_filter_function functions specifying KEGG pathway cat level"""
-
         test_md = self.metadata_example
         #Example 1 has a top-level 'Unclassifed' annotation
         #Example 3 has a bottom-level 'Unclassified' annotation
-
         #Test 1.  When not specifying level, all levels should be
         #tested and examples 1 & 3 should both return True
 
@@ -90,7 +87,6 @@ class PartitionMetagenomeTests(TestCase):
         exp_result = [True,False,False]
         obs_result = [filter_fn(*md) for md in test_md]
         self.assertEqual(obs_result,exp_result)
-
 
         #Test 3. When specifying level 3, only Example 3 is true
         filter_fn = make_pathway_filter_fn(["Unclassified"],\
