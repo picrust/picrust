@@ -118,7 +118,7 @@ def main():
     filtered_otu_table.add_metadata(copy_numbers_filtered, axis='observation')
 
     def metadata_norm(v, i, md):
-        return v / float(v.sum())
+        return v / float(md[opts.metadata_identifer])
     normalized_table = filtered_otu_table.transform(metadata_norm, axis='observation')
 
     #move Observation Metadata from original to filtered OTU table
