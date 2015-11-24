@@ -9,7 +9,7 @@ before_install:
   - export PATH=/home/travis/miniconda3/bin:$PATH
   - sudo apt-get -qq update
   - sudo apt-get -qq install r-base
-  - wget http://cran.r-project.org/src/contrib/gee_4.13-18.tar.gz -O gee.tar.gz
+  - wget http://cran.r-project.org/src/contrib/gee_4.13-19.tar.gz -O gee.tar.gz
   - wget http://cran.r-project.org/src/contrib/Archive/ape/ape_3.0.tar.gz -O ape.tar.gz
   - sudo R CMD INSTALL gee.tar.gz
   - sudo R CMD INSTALL ape.tar.gz
