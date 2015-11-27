@@ -112,21 +112,21 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
         filter_by_set = lambda vals,gene_id,metadata: str(gene_id) in ok_ids
         genome_table = genome_table.filter(filter_by_set, axis='observation')
 
-        if genome_table.isEmpty():
+        if genome_table.is_empty():
             raise ValueError("User filtering by functions (%s) removed all results from the genome table"%(str(limit_to_functions)))
 
     if limit_to_functional_categories:
         fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
         genome_table = genome_table.filterObservations(fn_cat_filter)
 
-        if genome_table.isEmpty():
+        if genome_table.is_empty():
             raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
 
     if limit_to_functional_categories:
         fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
         genome_table = genome_table.filterObservations(fn_cat_filter)
 
-        if genome_table.isEmpty():
+        if genome_table.is_empty():
             raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
 
     otu_data,genome_data,overlapping_ids = extract_otu_and_genome_data(otu_table,genome_table)

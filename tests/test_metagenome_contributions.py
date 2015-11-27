@@ -189,6 +189,12 @@ class PartitionMetagenomeTests(TestCase):
         #hand-checked result
         self.assertEqual(obs_text,exp_text)
 
+        #Check if "limit to functions" works and retrieves the correct information
+        obs_limited = partition_metagenome_contributions(self.otu_table1,self.genome_table1,limit_to_functions=["f2"])
+        for l in obs_limited[1:]:
+            gene,sample,OTU,gene_count_per_genome,otu_abundance_in_sample,count,percent,percent_all = l
+            self.assertEqual(gene,"f2")
+
 otu_table1 = """{"rows": [{"id": "GG_OTU_1", "metadata": null}, {"id": "GG_OTU_2", "metadata": null}, {"id": "GG_OTU_3", "metadata": null}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
 
 otu_table_with_taxonomy = """{"rows": [{"id": "GG_OTU_1", "metadata": {"taxonomy": ["k__1", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_2", "metadata": {"taxonomy": ["k__2", " p__", " c__", " o__", " f__", " g__", " s__"]}}, {"id": "GG_OTU_3", "metadata": {"taxonomy": ["k__3", " p__", " c__", " o__", " f__", " g__", " s__"]}}], "format": "Biological Observation Matrix v0.9", "data": [[0, 0, 1.0], [0, 1, 2.0], [0, 2, 3.0], [0, 3, 5.0], [1, 0, 5.0], [1, 1, 1.0], [1, 3, 2.0], [2, 2, 1.0], [2, 3, 4.0]], "columns": [{"id": "Sample1", "metadata": null}, {"id": "Sample2", "metadata": null}, {"id": "Sample3", "metadata": null}, {"id": "Sample4", "metadata": null}], "generated_by": "QIIME 1.4.0-dev, svn revision 2753", "matrix_type": "sparse", "shape": [3, 4], "format_url": "http://www.qiime.org/svn_documentation/documentation/biom_format.html", "date": "2012-02-22T20:50:05.024661", "type": "OTU table", "id": null, "matrix_element_type": "float"}"""
