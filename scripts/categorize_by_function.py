@@ -11,6 +11,9 @@ __maintainer__ = "Daniel McDonald"
 __email__ = "mcdonadt@colorado.edu"
 __status__ = "Development"
 
+import json
+import h5py
+
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
 from biom.table import vlen_list_of_str_formatter
@@ -72,22 +75,32 @@ def make_collapse_f(category, level, ignore):
                 break
     return collapse
 
+
 def main():
     option_parser, opts, args =\
        parse_command_line_parameters(**script_info)
 
     if opts.level <= 0:
-        parser.error("level must be greater than zero!")
+        option_parser.error("level must be greater than zero!")
 
     collapse_f = make_collapse_f(opts.metadata_category, opts.level,
                                  opts.ignore)
     table = load_table(opts.input_fp)
-    result = table.collapse(collapse_f, axis='observation', one_to_many=True,
-                          norm=False,one_to_many_md_key=opts.metadata_category)
 
+    if h5py.is_hdf5(opts.input_fp):
+        # metadata are not deserializing correctly. Duct tape it.
+        update_d = {}
+        for i, md in zip(table.ids(axis='observation'),
+                         table.metadata(axis='observation')):
+            update_d[i] = {k: json.loads(v[0]) for k, v in md.items()}
+        table.add_metadata(update_d, axis='observation')
+
+    result = table.collapse(collapse_f, axis='observation', one_to_many=True,
+                            norm=False,
+                            one_to_many_md_key=opts.metadata_category)
 
     if(opts.format_tab_delimited):
-        f = open(opts.output_fp,'w')
+        f = open(opts.output_fp, 'w')
         f.write(result.to_tsv(header_key=opts.metadata_category,
                               header_value=opts.metadata_category,
                               metadata_formatter=lambda s: '; '.join(s)))
