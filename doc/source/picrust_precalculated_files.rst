@@ -21,7 +21,7 @@ Greengenes v13.5 (and IMG 4)
 
 * `16S <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
 * `KO <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_
-* `COG <ftp://ftp.microbio.me/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz>`_
+* `COG <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz>`_
 * `RFAM <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated.tab.gz>`_
 
 If you would also like to get confidence intervals you will need these additional files:
