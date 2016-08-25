@@ -13,6 +13,7 @@ before_install:
   - wget http://cran.r-project.org/src/contrib/Archive/ape/ape_3.0.tar.gz -O ape.tar.gz
   - sudo R CMD INSTALL gee.tar.gz
   - sudo R CMD INSTALL ape.tar.gz
+  - DONT_USE_PYREX=1
 install:
   - conda create --yes -n env_name python=$TRAVIS_PYTHON_VERSION pip numpy scipy 
   - conda install --yes -n env_name cython
