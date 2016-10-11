@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>predict_traits.py – Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states &mdash; PICRUSt 1.0.0-dev documentation</title>
+    <title>predict_traits.py – Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states &#8212; PICRUSt 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0-dev',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,36 +23,37 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/scripts/predict_traits.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scripts/predict_traits.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -61,7 +62,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <span class="target" id="predict-traits"></span><div class="section" id="predict-traits-py-given-a-tree-and-a-set-of-known-character-states-observed-traits-and-reconstructions-output-predictions-for-unobserved-character-states">
 <span id="index-0"></span><h1><em>predict_traits.py</em> &#8211; Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states<a class="headerlink" href="#predict-traits-py-given-a-tree-and-a-set-of-known-character-states-observed-traits-and-reconstructions-output-predictions-for-unobserved-character-states" title="Permalink to this headline">¶</a></h1>
@@ -78,7 +79,7 @@ In the most common usage, this script is used to predict which gene families are
 <p>The exact weight function to use can be specified from the commandline (see options below).</p>
 <p>In general, this approach causes the prediction to be a weighted average of the closest reconstructed ancestor, and the either reconstructed or directly observed trait value of the organism of interest&#8217;s sibling node(s).</p>
 </div></blockquote>
-<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">predict_traits.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">predict_traits.py</span> <span class="pre">[options]</span></code></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -118,15 +119,15 @@ In the most common usage, this script is used to predict which gene families are
 <p><strong>Output:</strong></p>
 <p>Output is a table (tab-delimited or .biom) of predicted character states</p>
 <p>Required options with NSTI:</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">i</span> <span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 <p>Limit predictions to particular tips in OTU table:</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits_limited.tab -l otu_table.tab
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">i</span> <span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits_limited</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">l</span> <span class="n">otu_table</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 <p>Reconstruct confidence</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_traits.py -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -c asr_ci.tab -o predict_traits.tab
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">i</span> <span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">c</span> <span class="n">asr_ci</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 </div>
@@ -137,18 +138,18 @@ In the most common usage, this script is used to predict which gene families are
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>

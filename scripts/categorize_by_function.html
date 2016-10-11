@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>categorize_by_function.py – Collapse table data to a specified level in a hierarchy. &mdash; PICRUSt 1.0.0-dev documentation</title>
+    <title>categorize_by_function.py – Collapse table data to a specified level in a hierarchy. &#8212; PICRUSt 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0-dev',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,36 +23,37 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/scripts/categorize_by_function.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scripts/categorize_by_function.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -61,13 +62,13 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <span class="target" id="categorize-by-function"></span><div class="section" id="categorize-by-function-py-collapse-table-data-to-a-specified-level-in-a-hierarchy">
 <span id="index-0"></span><h1><em>categorize_by_function.py</em> &#8211; Collapse table data to a specified level in a hierarchy.<a class="headerlink" href="#categorize-by-function-py-collapse-table-data-to-a-specified-level-in-a-hierarchy" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
 <p>This script collapses hierarchical data to a specified level. For instance, often it is useful to examine KEGG results from a higher level within the pathway hierarchy. Many genes are sometimes involved in multiple pathways, and in these circumstances (also know as a one-to-many relationship), the gene is counted for each pathway. This has a side effect of increasing the total count of genes in the table.</p>
-<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">categorize_by_function.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">categorize_by_function.py</span> <span class="pre">[options]</span></code></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -93,15 +94,15 @@
 <p><strong>Output:</strong></p>
 <p>Output table is contains gene counts at a higher level within a hierarchy.</p>
 <p>Collapse predicted metagenome using KEGG Pathway metadata.</p>
-<div class="highlight-python"><div class="highlight"><pre>categorize_by_function.py -i predicted_metagenomes.biom -c KEGG_Pathways -l 3 -o predicted_metagenomes.L3.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">categorize_by_function</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">c</span> <span class="n">KEGG_Pathways</span> <span class="o">-</span><span class="n">l</span> <span class="mi">3</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">L3</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 <p>Change output to tab-delimited format (instead of BIOM).</p>
-<div class="highlight-python"><div class="highlight"><pre>categorize_by_function.py -f -i predicted_metagenomes.biom -c KEGG_Pathways -l 3 -o predicted_metagenomes.L3.txt
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">categorize_by_function</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">f</span> <span class="o">-</span><span class="n">i</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">c</span> <span class="n">KEGG_Pathways</span> <span class="o">-</span><span class="n">l</span> <span class="mi">3</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">L3</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Collapse predicted metagenome using taxonomy metadata (not one-to-many).</p>
-<div class="highlight-python"><div class="highlight"><pre>categorize_by_function.py -i observation_table.biom -c taxonomy -l 1 -o observation_table.L1.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">categorize_by_function</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">observation_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">c</span> <span class="n">taxonomy</span> <span class="o">-</span><span class="n">l</span> <span class="mi">1</span> <span class="o">-</span><span class="n">o</span> <span class="n">observation_table</span><span class="o">.</span><span class="n">L1</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 </div>
@@ -112,18 +113,18 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>

@@ -2,6 +2,7 @@
 
 News & Announcements
 ====================
+* 10-12-16: Official release of PICRUSt 1.1.0
 * 09-03-13: Official release of PICRUSt 1.0.0
 * 08-25-13: PICRUSt published in `Nature Biotechnology <http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2676.html>`_
 * 07-10-13: PICRUSt presented by Morgan Langille at `Gordon Research Conference: Applied & Environmental Micobiology <http://www.grc.org/programs.aspx?year=2013&program=applied>`_ 
