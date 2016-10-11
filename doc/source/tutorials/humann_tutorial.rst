@@ -8,7 +8,7 @@ Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn
 Metagenome files can be submitted for further analysis to `HUMAnN <http://huttenhower.sph.harvard.edu/humann>`_. HUMAnN takes gene abundances as inputs and produces gene and pathway summaries as outputs.
 
 Input for HUMAnN
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 HUMAnN can be downloaded from the `website <http://huttenhower.sph.harvard.edu/humann>`_. The input files need to be in the `Tab-Separated Values <http://en.wikipedia.org/wiki/Tab-separated_values>`_ (TSV: ``.tsv``) format.
 
 **Converting QIIME tables to TSV format**
