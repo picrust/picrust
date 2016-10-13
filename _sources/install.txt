@@ -25,9 +25,9 @@ Numpy has to be installed manually:
 
 * `numpy`_ (version 1.5.1)
 
-You can install it with the command:
+You can install it with the command::
 
-`pip install numpy==1.5.1`
+        pip install numpy==1.5.1
 
 **Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
