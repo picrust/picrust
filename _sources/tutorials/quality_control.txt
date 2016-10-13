@@ -71,6 +71,8 @@ When characterizing PICRUSt’s accuracy, we found that the largest single facto
 
 When comparing NSTI scores to typical bacterial taxonomic cutoffs (e.g. 97% sequence identity), it is worth noting that substitutions/site is equivalent to 1.0 - % identity at *short* phylogenetic distances, but greater than that value at longer phylogenetic distances due to, for example, multiple mutations at the same site that return the nucleotide to a previous state (Supp. Fig. 2 in `Zaneveld et al 2010 <http://nar.oxfordjournals.org/content/suppl/2010/03/02/gkq066.DC1/nar-02618-s-2009-File002.pdf>`_ has a figure relates these two for short distances) 
 
+**NOTE:** NSTI scores have been precalculated for common databases (KEGG Ortholog, COGs, RFAM) and can be easily calculated using the ``-a`` option of :ref:`predict_metagenomes.py <predict_metagenomes>`. See the :`metagenome_prediction` for an example command.
+
 4. Calculate metagenomic confidence intervals
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

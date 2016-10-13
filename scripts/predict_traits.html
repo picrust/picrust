@@ -66,6 +66,8 @@
             
   <span class="target" id="predict-traits"></span><div class="section" id="predict-traits-py-given-a-tree-and-a-set-of-known-character-states-observed-traits-and-reconstructions-output-predictions-for-unobserved-character-states">
 <span id="index-0"></span><h1><em>predict_traits.py</em> &#8211; Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states<a class="headerlink" href="#predict-traits-py-given-a-tree-and-a-set-of-known-character-states-observed-traits-and-reconstructions-output-predictions-for-unobserved-character-states" title="Permalink to this headline">¶</a></h1>
+<p><strong>Note:</strong>
+This script is only needed in the case of custom predictions (e.g. extending PICRUSt to 18S or the like). In typical use cases, say KEGG Ortholog predictions from Greengenes v13.5 OTUs, you can use the <span class="xref std std-ref">../picrust_precalculated_files</span> to predict functions for metagenomes and calculate NSTI scores without using this script.</p>
 <p><strong>Description:</strong></p>
 <p>This script produces predictions of unobserved traits given a phylogenetic tree and a table that summarizes which traits are present in which ancestral organisms.
 In the most common usage, this script is used to predict which gene families are present in each OTU (Operational Taxonomic Unit; roughly equivalent to a bacterial &#8216;species&#8217;), given a tree and a set of ancestral state reconstructions.</p>
