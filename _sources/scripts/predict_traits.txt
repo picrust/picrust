@@ -5,6 +5,9 @@
 *predict_traits.py* -- Given a tree and a set of known character states (observed traits and reconstructions), output predictions for unobserved character states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+**Note:**
+This script is only needed in the case of custom predictions (e.g. extending PICRUSt to 18S or the like). In typical use cases, say KEGG Ortholog predictions from Greengenes v13.5 OTUs, you can use the :ref:`../picrust_precalculated_files` to predict functions for metagenomes and calculate NSTI scores without using this script.
+
 **Description:**
 
 

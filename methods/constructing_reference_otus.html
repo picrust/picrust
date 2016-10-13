@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Constructing PICRUSt reference OTU collection &mdash; PICRUSt 1.0.0-dev documentation</title>
+    <title>Constructing PICRUSt reference OTU collection &#8212; PICRUSt 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0-dev',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,19 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -51,22 +53,21 @@
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/methods/constructing_reference_otus.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/methods/constructing_reference_otus.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -75,13 +76,13 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="constructing-picrust-reference-otu-collection">
 <span id="constructing-reference-otus"></span><h1>Constructing PICRUSt reference OTU collection<a class="headerlink" href="#constructing-picrust-reference-otu-collection" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This document covers how the nested reference OTU collection was constructed for PICRUST. The script and associated test code are available in the <tt class="docutils literal"><span class="pre">qiime-dev/nested_reference_otus</span></tt> git repository located <a class="reference external" href="https://github.com/qiime-dev/nested_reference_otus">here</a>. Download links for these reference collections are:</p>
+<p>This document covers how the nested reference OTU collection was constructed for PICRUST. The script and associated test code are available in the <code class="docutils literal"><span class="pre">qiime-dev/nested_reference_otus</span></code> git repository located <a class="reference external" href="https://github.com/qiime-dev/nested_reference_otus">here</a>. Download links for these reference collections are:</p>
 <blockquote>
 <div><ul class="simple">
 <li>img_gg_otus_18may2012.tgz (<a class="reference external" href="https://s3.amazonaws.com/picrust-public-data/img_gg_otus_18may2012.tgz">download</a> ; md5: 5f1de69a310dc0c261ea76b48ba5dbe2)</li>
@@ -93,7 +94,7 @@
 <p>Beginning with a collection of sequences of a single marker gene (16S in our case), a user-defined list of percent identities to cluster at, and an optional phylogenetic tree, the following steps are performed:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Pick OTUs (using <tt class="docutils literal"><span class="pre">pick_otus.py</span></tt> in <a class="reference external" href="http://www.qiime.org">QIIME</a>) on input sequences at first specified percent identity using <a class="reference external" href="http://www.drive5.com/uclust">uclust</a>, suppressing QIIME&#8217;s pre-sorting of sequences (by passing <tt class="docutils literal"><span class="pre">-DB</span></tt> to <tt class="docutils literal"><span class="pre">pick_otus.py</span></tt>). Suppressing of the pre-sorting is included so the user can pre-sort sequences as they prefer before OTU picking: sequences that are listed first in the users input will preferentially be cluster centroids. In the case of PICRUST, these are sequences for which we have full genomes.</li>
+<li>Pick OTUs (using <code class="docutils literal"><span class="pre">pick_otus.py</span></code> in <a class="reference external" href="http://www.qiime.org">QIIME</a>) on input sequences at first specified percent identity using <a class="reference external" href="http://www.drive5.com/uclust">uclust</a>, suppressing QIIME&#8217;s pre-sorting of sequences (by passing <code class="docutils literal"><span class="pre">-DB</span></code> to <code class="docutils literal"><span class="pre">pick_otus.py</span></code>). Suppressing of the pre-sorting is included so the user can pre-sort sequences as they prefer before OTU picking: sequences that are listed first in the users input will preferentially be cluster centroids. In the case of PICRUST, these are sequences for which we have full genomes.</li>
 <li>Pick a representative sequence for each OTU as the centroid of the OTU cluster.</li>
 <li>Filter the input tree (if any) to contain only tips that are representative sequences generated in the previous step. If no input tree was provided, do not create a tree.</li>
 <li>Using the representative sequence collection from the previous step, pick otus on input sequences at the next specified percent identity using the same parameters as applied in Step1.</li>
@@ -126,17 +127,17 @@
 </dl>
 </li>
 <li><p class="first">The full tree contained single quotes around the IMG sequence identifiers, so I had to commit a fix to QIIME to strip these from the tip names before filtering. I then re-ran filtering using QIIME 1.5.0-dev revision 3062 on my laptop:</p>
-<div class="highlight-python"><div class="highlight"><pre>filter_tree.py -i IMG_v350_sel4cni.lanemask.min1250nt.rooted.t2tGGrelease.ntree -f img_gg_otus_18may2012/rep_set/99_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/99_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/99_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/97_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/97_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/97_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/94_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/94_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/94_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/91_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/91_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/91_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/88_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/88_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/88_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/85_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/85_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/85_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/82_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/82_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/82_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/79_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/79_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/79_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/76_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/76_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/76_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/73_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/73_otus_img_gg_18may2012.tre
-filter_tree.py -i img_gg_otus_18may2012/trees/73_otus_img_gg_18may2012.tre -f img_gg_otus_18may2012/rep_set/70_otus_img_gg_18may2012.fasta -o img_gg_otus_18may2012/trees/70_otus_img_gg_18may2012.tre
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">IMG_v350_sel4cni</span><span class="o">.</span><span class="n">lanemask</span><span class="o">.</span><span class="n">min1250nt</span><span class="o">.</span><span class="n">rooted</span><span class="o">.</span><span class="n">t2tGGrelease</span><span class="o">.</span><span class="n">ntree</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">99</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">99</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">99</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">97</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">97</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">97</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">94</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">94</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">94</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">91</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">91</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">91</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">88</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">88</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">88</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">85</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">85</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">85</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">82</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">82</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">82</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">79</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">79</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">79</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">76</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">76</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">76</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">73</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">73</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
+<span class="n">filter_tree</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">73</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span> <span class="o">-</span><span class="n">f</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">rep_set</span><span class="o">/</span><span class="mi">70</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">fasta</span> <span class="o">-</span><span class="n">o</span> <span class="n">img_gg_otus_18may2012</span><span class="o">/</span><span class="n">trees</span><span class="o">/</span><span class="mi">70</span><span class="n">_otus_img_gg_18may2012</span><span class="o">.</span><span class="n">tre</span>
 </pre></div>
 </div>
 </li>
@@ -156,18 +157,18 @@ filter_tree.py -i img_gg_otus_18may2012/trees/73_otus_img_gg_18may2012.tre -f im
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>

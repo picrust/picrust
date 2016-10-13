@@ -71,7 +71,7 @@ Output is in `biom`_ format by default: ::
 		-i normalized_otus.biom
 		-o metagenome_predictions.tab
 
-(Optional) NSTI values for each sample can be obtained using the ``-a`` option: ::
+(Optional) NSTI values for each sample can be obtained using the ``-a`` option. (We strongly recommend this step, as NSTI values are precalculated for common inputs): ::
 
 	predict_metagenomes.py 
 		-i normalized_otus.biom

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PICRUSt’s Precalculated Files &mdash; PICRUSt 1.0.0-dev documentation</title>
+    <title>PICRUSt’s Precalculated Files &#8212; PICRUSt 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.0-dev',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,19 +23,21 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="index.html" /> 
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="PICRUSt 1.1.0 documentation" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -46,22 +48,21 @@
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/picrust_precalculated_files.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/picrust_precalculated_files.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -70,24 +71,24 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="picrust-s-precalculated-files">
 <span id="id1"></span><h1>PICRUSt&#8217;s Precalculated Files<a class="headerlink" href="#picrust-s-precalculated-files" title="Permalink to this headline">¶</a></h1>
 <p>PICRUSt requires the downloading of precalculated files.</p>
 <p>These downloaded files should be placed within your <cite>picrust/data</cite> directory BEFORE installation.</p>
-<p>Download the set of files that correspond to the version of Greengenes that you used for OTU picking (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><em>Picking OTUs for use in PICRUSt</em></a>)</p>
+<p>Download the set of files that correspond to the version of Greengenes that you used for OTU picking (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>)</p>
 <p>The minimum set of files are:</p>
 <ol class="arabic simple">
-<li>16S for copy number normalization (used in the script <a class="reference internal" href="scripts/normalize_by_copy_number.html#normalize-by-copy-number"><em>normalize_by_copy_number.py</em></a>).</li>
-<li>Whatever type of function predictions you want returned by PICRUSt (e.g. KO or COG). This is used in the script <a class="reference internal" href="scripts/predict_metagenomes.html#predict-metagenomes"><em>predict_metagenomes.py</em></a>.</li>
+<li>16S for copy number normalization (used in the script <a class="reference internal" href="scripts/normalize_by_copy_number.html#normalize-by-copy-number"><span class="std std-ref">normalize_by_copy_number.py</span></a>).</li>
+<li>Whatever type of function predictions you want returned by PICRUSt (e.g. KO or COG). This is used in the script <a class="reference internal" href="scripts/predict_metagenomes.html#predict-metagenomes"><span class="std std-ref">predict_metagenomes.py</span></a>.</li>
 </ol>
 <div class="section" id="greengenes-v13-5-and-img-4">
 <h2>Greengenes v13.5 (and IMG 4)<a class="headerlink" href="#greengenes-v13-5-and-img-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz">16S</a></li>
 <li><a class="reference external" href="ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz">KO</a></li>
-<li><a class="reference external" href="ftp://ftp.microbio.me/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz">COG</a></li>
+<li><a class="reference external" href="ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/cog_13_5_precalculated.tab.gz">COG</a></li>
 <li><a class="reference external" href="ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/rfam_13_5_precalculated.tab.gz">RFAM</a></li>
 </ul>
 <p>If you would also like to get confidence intervals you will need these additional files:</p>
@@ -113,18 +114,18 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>

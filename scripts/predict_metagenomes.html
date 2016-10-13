@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>predict_metagenomes.py – This script produces the actual metagenome functional predictions for a given OTU table. &mdash; PICRUSt 1.0.0-dev documentation</title>
+    <title>predict_metagenomes.py – This script produces the actual metagenome functional predictions for a given OTU table. &#8212; PICRUSt 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0-dev',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,36 +23,37 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.0.0-dev documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/scripts/predict_metagenomes.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scripts/predict_metagenomes.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -61,12 +62,12 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <span class="target" id="predict-metagenomes"></span><div class="section" id="predict-metagenomes-py-this-script-produces-the-actual-metagenome-functional-predictions-for-a-given-otu-table">
 <span id="index-0"></span><h1><em>predict_metagenomes.py</em> &#8211; This script produces the actual metagenome functional predictions for a given OTU table.<a class="headerlink" href="#predict-metagenomes-py-this-script-produces-the-actual-metagenome-functional-predictions-for-a-given-otu-table" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
-<p><strong>Usage:</strong> <tt class="file docutils literal"><span class="pre">predict_metagenomes.py</span> <span class="pre">[options]</span></tt></p>
+<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">predict_metagenomes.py</span> <span class="pre">[options]</span></code></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -102,31 +103,31 @@
 <p><strong>Output:</strong></p>
 <p>Output is a table of function counts (e.g. KEGG KOs) by sample ids.</p>
 <p>Predict KO abundances for a given OTU table picked against the newest version of GreenGenes.</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i normalized_otus.biom -o predicted_metagenomes.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 <p>Change output format to plain tab-delimited:</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -f -i normalized_otus.biom -o predicted_metagenomes.txt
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">f</span> <span class="o">-</span><span class="n">i</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Predict COG abundances for a given OTU table.</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i normalized_otus.biom -t cog -o cog_predicted_metagenomes.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">t</span> <span class="n">cog</span> <span class="o">-</span><span class="n">o</span> <span class="n">cog_predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 <p>Output confidence intervals for each prediction.</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i normalized_otus.biom -o predicted_metagenomes.biom --with_confidence
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span> <span class="o">--</span><span class="n">with_confidence</span>
 </pre></div>
 </div>
 <p>Predict metagenomes using a custom trait table in tab-delimited format.</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i otu_table_for_custom_trait_table.biom -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">otu_table_for_custom_trait_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">c</span> <span class="n">custom_trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">output_metagenome_from_custom_trait_table</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 <p>Predict metagenomes,variances,and 95% confidence intervals for each gene category using a custom trait table in tab-delimited format.</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i otu_table_for_custom_trait_table.biom --input_variance_table custom_trait_table_variances.tab -c custom_trait_table.tab -o output_metagenome_from_custom_trait_table.biom --with_confidence
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">otu_table_for_custom_trait_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">--</span><span class="n">input_variance_table</span> <span class="n">custom_trait_table_variances</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">c</span> <span class="n">custom_trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">output_metagenome_from_custom_trait_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">--</span><span class="n">with_confidence</span>
 </pre></div>
 </div>
 <p>Change the version of GG used to pick OTUs</p>
-<div class="highlight-python"><div class="highlight"><pre>predict_metagenomes.py -i normalized_otus.biom -g 18may2012 -o predicted_metagenomes.biom
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_metagenomes</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">g</span> <span class="mi">18</span><span class="n">may2012</span> <span class="o">-</span><span class="n">o</span> <span class="n">predicted_metagenomes</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 </div>
@@ -137,18 +138,18 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="../index.html">PICRUSt 1.0.0-dev documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>
