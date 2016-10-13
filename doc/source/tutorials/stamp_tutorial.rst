@@ -22,7 +22,7 @@ To create the STAMP ``profile file`` you need to do a simple conversion of PICRU
 
     File->Create STAMP profile from...->BIOM profile
 
-Click "Load" and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following:: 
+Click "Load" and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following: 
 
 1) If this is the output from ``predict_metagenomes.py`` script then leave the Metadata field as ``<observation ids>``. This will allow comparison of KEGG Orthologs.
 
