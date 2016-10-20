@@ -117,14 +117,7 @@ def partition_metagenome_contributions(otu_table,genome_table, limit_to_function
 
     if limit_to_functional_categories:
         fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
-        genome_table = genome_table.filterObservations(fn_cat_filter)
-
-        if genome_table.is_empty():
-            raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
-
-    if limit_to_functional_categories:
-        fn_cat_filter = make_pathway_filter_fn(ok_values = frozenset(map(str,limit_to_functional_categories)),metadata_key=metadata_key)
-        genome_table = genome_table.filterObservations(fn_cat_filter)
+        genome_table = genome_table.filter(fn_cat_filter, axis='observation', inplace=False)
 
         if genome_table.is_empty():
             raise ValueError("User filtering by functional categories (%s) removed all results from the genome table"%(str(limit_to_functional_categories)))
