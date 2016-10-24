@@ -111,11 +111,11 @@ def main():
     script_fp = join(get_picrust_project_dir(),'scripts','predict_traits.py')
 
     if(opts.parallel_method=='sge'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs_sge.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs_sge.py')
     elif(opts.parallel_method=='multithreaded'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs.py')
     elif(opts.parallel_method=='torque'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs_torque.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs_torque.py')
     else:
         raise RuntimeError
 

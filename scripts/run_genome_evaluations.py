@@ -108,11 +108,11 @@ def main():
     make_output_dir(output_dir)
 
     if(parallel_method=='sge'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs_sge.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs_sge.py')
     elif(parallel_method=='multithreaded'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs.py')
     elif(parallel_method=='torque'):
-        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_jobs_torque.py')
+        cluster_jobs_fp=join(get_picrust_project_dir(),'scripts','start_parallel_picrust_jobs_torque.py')
     else:
         raise RuntimeError
 
