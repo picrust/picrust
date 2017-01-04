@@ -12,7 +12,6 @@ __email__ = "zaneveld@gmail.com"
 __status__ = "Development"
 
 
-
 from cogent.util.option_parsing import parse_command_line_parameters, make_option
 from biom import load_table
 from picrust.predict_metagenomes import predict_metagenomes, calc_nsti
@@ -21,6 +20,7 @@ from picrust.util import make_output_dir_for_file, get_picrust_project_dir, conv
 from os import path
 from os.path import join
 import gzip
+from sys import exit
 
 script_info = {}
 script_info['brief_description'] = "This script partitions metagenome functional contributions according to function, OTU, and sample, for a given OTU table."
@@ -117,12 +117,26 @@ def main():
         genome_table = convert_precalc_to_biom(genome_table_fh,ids_to_load)
     ok_functional_categories = None
 
+    metadata_type = None
     if opts.limit_to_functional_categories:
         ok_functional_categories = opts.limit_to_functional_categories.split("|")
         if opts.verbose:
             print "Limiting to functional categories: %s" %(str(ok_functional_categories))
+
+        # Either KEGG_Pathways or COG_Category needs
+        # to be assigned to metadata_key to limit to
+        # functional categories (not needed for 
+        # individual functions) 
+
+        if opts.type_of_prediction == "ko":
+            metadata_type = "KEGG_Pathways"
+        elif opts.type_of_prediction == "cog":
+            metadata_type = "COG_Category"
+        elif opts.type_of_prediction == "rfam":
+            exit("Stopping program: when type of prediction is set to rfam you can only limit to individual functions (-l) rather than to functional categories (-f)")
+              
     partitioned_metagenomes = partition_metagenome_contributions(otu_table,genome_table,limit_to_functions=limit_to_functions,\
-      limit_to_functional_categories = ok_functional_categories)
+      limit_to_functional_categories = ok_functional_categories ,  metadata_key = metadata_type )
 
     output_text = "\n".join(["\t".join(map(str,i)) for i in partitioned_metagenomes])
     if opts.verbose:
