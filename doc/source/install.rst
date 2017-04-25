@@ -26,11 +26,12 @@ Numpy and h5py have to be installed manually:
 * `numpy`_ (version 1.12.1)
 * `h5py`_ (version 2.7.0)
 
-You can install them with these commands:
+You can install them with these commands::
+    
+        pip install h5py 
 
-`pip install h5py`
-`pip install numpy`
-
+        pip install numpy 
+    
 **Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
 * `R`_ installed with `APE`_ library
@@ -80,7 +81,5 @@ You'll then change into the new ``picrust-1.1.1`` directory as follows::
 
 And finally, you'll install PICRUSt with the following command::
 	
-	sudo python setup.py install
-
-If you don't have ``sudo`` access on the system where you're trying to install PICRUSt, there are several variations on this command that you can use to install only for the current user (as opposed to a system-wide installation, which the above command will perform). See `this discussion <http://docs.python.org/2/install/index.html#alternate-installation>`_.
+	pip install .
 
