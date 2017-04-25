@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>How PICRUSt Works &#8212; PICRUSt 1.1.0 documentation</title>
+    <title>How PICRUSt Works &#8212; PICRUSt 1.1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 1.1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -98,7 +98,7 @@
 <h3>1. Tree Pruning and Formatting<a class="headerlink" href="#tree-pruning-and-formatting" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p><strong>Rationale</strong>: Ancestral state reconstruction (ASR) software generally requires that ids match exactly between the matrix of character states (i.e. organismal traits) and the phylogeny.   Therefore PICRUSt must generate a <cite>pruned</cite> version of the full tree before the input data can be provided to ASR methods.</p>
-<p><strong>Details</strong>: PICRUSt&#8217;s format_tree_and_trait_table.py script generates a pruned tree and reduced trait table that contain only organims shared between the tree and the trait table.   This step also formats trees for input into ASR programs.   This includes:  forcing trees to be fully bifurcating (polytomies are resolved arbitrarily with epsilon length branches), substituting any zero-length branches with a small epsilon branch length, and modifying some ids to avoid characters that would break ASR software.  See the format_tree_and_trait_table.py documentation for all available options.The phylogeny provided is currently assumed to be correct.  Therefore, additional investigations of the effects of error during phylogenetic reconstruction, if desired, must be conducted by using alternative inputs to PICRUST (e.g. of trees derived from bootstrapped versions of the phylogeny).</p>
+<p><strong>Details</strong>: PICRUSt&#8217;s format_tree_and_trait_table.py script generates a pruned tree and reduced trait table that contain only organims shared between the tree and the trait table.   This step also formats trees for input into ASR programs.   This includes:  forcing trees to be fully bifurcating (polytomies are resolved arbitrarily with epsilon length branches), substituting any zero-length branches with a small epsilon branch length, and modifying some ids to avoid characters that would break ASR software.  See the format_tree_and_trait_table.py documentation for all available options.The phylogeny provided is currently assumed to be correct.  Therefore, additional investigations of the effects of error during phylogenetic reconstruction, if desired, must be conducted by using alternative inputs to PICRUSt (e.g. of trees derived from bootstrapped versions of the phylogeny).</p>
 </div></blockquote>
 </div>
 <div class="section" id="ancestral-state-reconstruction">
@@ -112,7 +112,7 @@
 <div class="section" id="predict-traits">
 <h3>3. Predict Traits<a class="headerlink" href="#predict-traits" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><p><strong>Rationale</strong>:  Following ancestral state reconstruction, PICRUSt shoud have available three key pieces of information: the traits of studied organisms (e.g. gene counts in each sequenced genome), the traits of ancestral organisms, and  a reference tree containing both the reference organisms and the inferred ancestral organisms.  The estimate for the gene content of an organism lacking a genome sequence  will depend on its position in the phylogenetic tree relative to organims with sequenced genomes and/or inferred ancestral genomes.   PICRUST estimates the  value of these traits by weighting sequenced or ancestral genomes based on their distance.  This weighting can be linear, exponential, or based on variance.  Alternatively, trait prediction can optionally be accomplished without reference to ancestral states by simply predicting the traits of the most closely related genome on the supplied phylogeny.</p>
+<div><p><strong>Rationale</strong>:  Following ancestral state reconstruction, PICRUSt shoud have available three key pieces of information: the traits of studied organisms (e.g. gene counts in each sequenced genome), the traits of ancestral organisms, and  a reference tree containing both the reference organisms and the inferred ancestral organisms.  The estimate for the gene content of an organism lacking a genome sequence  will depend on its position in the phylogenetic tree relative to organims with sequenced genomes and/or inferred ancestral genomes. PICRUSt estimates the  value of these traits by weighting sequenced or ancestral genomes based on their distance.  This weighting can be linear, exponential, or based on variance.  Alternatively, trait prediction can optionally be accomplished without reference to ancestral states by simply predicting the traits of the most closely related genome on the supplied phylogeny.</p>
 <p><strong>Details</strong>: Optionally, trait prediction can output a confidence interval for each predicted trait. This confidence interval is based on the variance of the prediction.  This variance is based on two factors:  the uncertainty in <strong>(1)</strong> each ancestral state reconstruction itself, and <strong>(2)</strong> the additional uncertainty due to evolutionary distance separating the organism for which traits are being predicted from the reference organisms and/or reconstructed ancestors that drive the prediction.</p>
 <p>The first type of variance is accounted for during trait prediction by standard formulas for propagating variance across a weighted average (see the <cite>predict_traits.py &lt;predict_traits&gt;</cite> library itself for full details). Variance of the second type, owing to recent evolutionary changes, is accounted for by using the rate parameter inferred during ancestral state reconstruction. This has the effect that long branches (relative to the LCA with a sequenced genome or ancestror for which a reconstructed state is available) or highly variable genes can both in theory result in high variances.  In practice, however, it appears that effects due to the availability or unavailability of reference genomes have a much greater effect than fast- vs. slow- evolving gene families. These results and some benchmarks for the 95% confidence intervals are discussed in the Supplemental material to the <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/full/nbt.2676.html">PICRUSt paper</a></p>
 </div></blockquote>
@@ -153,7 +153,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

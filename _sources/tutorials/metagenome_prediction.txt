@@ -9,7 +9,7 @@ Metagenome Prediction Tutorial
 Introduction
 ------------
 
-This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in :ref:`otu_picking_tutorial`.
+This tutorial explains how to predict a microbial community metagenome using PICRUSt, based on 16S (or other marker gene) data as detailed in :ref:`otu_picking_tutorial`.
 
 
 **BIOM Format**
@@ -22,7 +22,7 @@ Requirements
 ------------
 
 1. You should have already installed PICRUSt (:ref:`install`).
-2. A PICRUSt compatible OTU table (:ref:`otu_picking_tutorial`), such as the example file **tutorials/hmp_mock_16S.biom**.
+2. A PICRUSt compatible OTU table (:ref:`otu_picking_tutorial`), such as the example file **tutorials/hmp_mock_16S.biom**. Note that this OTU table was reference picked against Greengenes version 18may2012. 
 
 Step 1: Normalize OTU Table
 ---------------------------

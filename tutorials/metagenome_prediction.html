@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Metagenome Prediction Tutorial &#8212; PICRUSt 1.1.0 documentation</title>
+    <title>Metagenome Prediction Tutorial &#8212; PICRUSt 1.1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 1.1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -80,7 +80,7 @@
 <span id="id1"></span><h1>Metagenome Prediction Tutorial<a class="headerlink" href="#metagenome-prediction-tutorial" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This tutorial explains how to predict a microbial community metagenome using PICRUST, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>.</p>
+<p>This tutorial explains how to predict a microbial community metagenome using PICRUSt, based on 16S (or other marker gene) data as detailed in <a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>.</p>
 <p><strong>BIOM Format</strong></p>
 <ul class="simple">
 <li>Please note that PICRUSt by default uses the relatively new <a class="reference external" href="http://biom-format.org">biom</a> format for representing OTU tables and Gene tables (e.g. KOs by samples). This <a class="reference external" href="http://biom-format.org/documentation/biom_format.html#motivation-for-the-biom-format">has several benefits</a> including easier integration with other software (e.g. QIIME and others in the future) and allows embedding of extra metadata about both the samples and observations (OTUs/KOs).</li>
@@ -92,7 +92,7 @@
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li>You should have already installed PICRUSt (<a class="reference internal" href="../install.html#install"><span class="std std-ref">Installing PICRUSt</span></a>).</li>
-<li>A PICRUSt compatible OTU table (<a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>), such as the example file <strong>tutorials/hmp_mock_16S.biom</strong>.</li>
+<li>A PICRUSt compatible OTU table (<a class="reference internal" href="otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>), such as the example file <strong>tutorials/hmp_mock_16S.biom</strong>. Note that this OTU table was reference picked against Greengenes version 18may2012.</li>
 </ol>
 </div>
 <div class="section" id="step-1-normalize-otu-table">
@@ -178,7 +178,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

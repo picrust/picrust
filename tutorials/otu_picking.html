@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Picking OTUs for use in PICRUSt &#8212; PICRUSt 1.1.0 documentation</title>
+    <title>Picking OTUs for use in PICRUSt &#8212; PICRUSt 1.1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        VERSION:     '1.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="PICRUSt 1.1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="PICRUSt 1.1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -45,6 +45,7 @@
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#picking-closed-reference-otus-with-qiime">Picking closed reference OTUs with QIIME</a></li>
 <li><a class="reference internal" href="#using-an-open-reference-otu-table-from-qiime">Using an open reference OTU table from QIIME</a></li>
+<li><a class="reference internal" href="#removing-samples-with-0-read-counts">Removing samples with 0 read counts</a></li>
 </ul>
 </li>
 </ul>
@@ -90,7 +91,7 @@
 </div>
 <div class="section" id="picking-closed-reference-otus-with-qiime">
 <h2>Picking closed reference OTUs with QIIME<a class="headerlink" href="#picking-closed-reference-otus-with-qiime" title="Permalink to this headline">¶</a></h2>
-<p>To pick &#8216;closed reference&#8217; OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).</p>
+<p>To pick &#8216;closed reference&#8217; OTUs with QIIME for use in PICRUSt, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).</p>
 <p>The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form <code class="docutils literal"><span class="pre">sampleID_seqID</span></code>. In these sequence identifiers, <code class="docutils literal"><span class="pre">sampleID</span></code> indicates the name of the sample, and <code class="docutils literal"><span class="pre">seqID</span></code> is a unique (with respect to the current file) sequence identifier. The <code class="docutils literal"><span class="pre">seqID</span></code> values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the <code class="docutils literal"><span class="pre">split_libraries</span></code> * scripts in QIIME, or using other software. This file might look like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="n">s1_1</span>
 <span class="n">ACCTTAGGATGGATTAGACCCAGA</span>
@@ -132,6 +133,13 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
 </pre></div>
 </div>
 </div>
+<div class="section" id="removing-samples-with-0-read-counts">
+<h2>Removing samples with 0 read counts<a class="headerlink" href="#removing-samples-with-0-read-counts" title="Permalink to this headline">¶</a></h2>
+<p>Samples with 0 reads mapped to OTUs will be discarded at an earlier step in most OTU picking pipeline. However, if these samples are not removed then this will cause issues for PICRUSt. You can remove samples with 0 total read counts with this QIIME command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">filter_samples_from_otu_table</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_otu_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">closed_otu_table_filt</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -146,7 +154,7 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -7,6 +7,8 @@ PICRUSt (pronounced "pie crust") is a bioinformatics software package designed t
 
 PICRUSt is freely available under the `GPL`_. 
 
+`Click here <https://github.com/picrust/picrust>`_ to go to the PICRUSt GitHub repository. 
+
 Using PICRUSt
 -------------
 If you're new to PICRUSt, you'll want to work through these documents in order:
