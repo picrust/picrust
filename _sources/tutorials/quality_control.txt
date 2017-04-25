@@ -1,6 +1,6 @@
 .. _quality_control:
 
-Quality Control of PICRUST Predictions
+Quality Control of PICRUSt Predictions
 ======================================
 
 .. include:: ../global.rst

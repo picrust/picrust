@@ -18,7 +18,7 @@ This tutorial assumes that you have QIIME installed. See the `QIIME website <htt
 Picking closed reference OTUs with QIIME
 ----------------------------------------
 
-To pick 'closed reference' OTUs with QIIME for use in PICRUST, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).
+To pick 'closed reference' OTUs with QIIME for use in PICRUSt, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).
 
 The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form ``sampleID_seqID``. In these sequence identifiers, ``sampleID`` indicates the name of the sample, and ``seqID`` is a unique (with respect to the current file) sequence identifier. The ``seqID`` values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the ``split_libraries`` * scripts in QIIME, or using other software. This file might look like::
 
@@ -63,4 +63,11 @@ You may have already picked OTUs using an 'open reference' approach and don't wa
 To make your open reference picked OTU compatible with PICRUSt::
 
         filter_otus_from_otu_table.py -i otu_table.biom -o closed_otu_table.biom --negate_ids_to_exclude -e $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+
+Removing samples with 0 read counts
+-----------------------------------
+
+Samples with 0 reads mapped to OTUs will be discarded at an earlier step in most OTU picking pipeline. However, if these samples are not removed then this will cause issues for PICRUSt. You can remove samples with 0 total read counts with this QIIME command::
+
+        filter_samples_from_otu_table.py -i closed_otu_table.biom -o closed_otu_table_filt.biom -n 1  
 
