@@ -5,7 +5,7 @@ Analyzing metagenomes with QIIME
 
 .. include:: ../global.rst
 
-Because the metagenomes are provided in BIOM format by default, these can be plugged into many of the downstream analysis tools available in `QIIME <www.qiime.org>`_. QIIME's `Shotgun Metagenome Analysis tutorial <http://qiime.org/tutorials/shotgun_analysis.html>`_ illustrates a couple of the steps that can be applied. The steps that will primarily be of interest in that tutorial are the ones that begin with a ``.biom`` file. For example, `computing beta diversity and PCoA plots <http://qiime.org/tutorials/shotgun_analysis.html#computing-beta-diversity-and-generating-pcoa-plots>`_ and `generating summaries of samples by KO categories <http://qiime.org/tutorials/shotgun_analysis.html#generating-summaries-of-samples-by-ko-category>`_. 
+Because the metagenomes are provided in BIOM format by default, these can be plugged into many of the downstream analysis tools available in `QIIME`_. QIIME's `Shotgun Metagenome Analysis tutorial <http://qiime.org/tutorials/shotgun_analysis.html>`_ illustrates a couple of the steps that can be applied. The steps that will primarily be of interest in that tutorial are the ones that begin with a ``.biom`` file. For example, `computing beta diversity and PCoA plots <http://qiime.org/tutorials/shotgun_analysis.html#computing-beta-diversity-and-generating-pcoa-plots>`_ and `generating summaries of samples by KO categories <http://qiime.org/tutorials/shotgun_analysis.html#generating-summaries-of-samples-by-ko-category>`_. 
 
 Many of `QIIME's tutorials that describe diversity analyses <http://qiime.org/tutorials/index.html>`_ are applicable to PICRUSt-predicted metagenome tables. Specific analysis tools that may be useful include:
 

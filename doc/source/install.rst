@@ -19,16 +19,19 @@ These dependencies are automatically installed with `python setup.py install`:
 
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 2.1.4)
+* `biom`_ (version 2.1.5)
 
-Numpy has to be installed manually:
+Numpy and h5py have to be installed manually:
 
-* `numpy`_ (version 1.5.1)
+* `numpy`_ (version 1.12.1)
+* `h5py`_ (version 2.7.0)
 
-You can install it with the command:
+You can install them with these commands::
+    
+        pip install h5py 
 
-`pip install numpy==1.5.1`
-
+        pip install numpy 
+    
 **Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
 * `R`_ installed with `APE`_ library
@@ -40,7 +43,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is `picrust-1.1.0 <https://github.com/picrust/picrust/releases/download/1.1.0/picrust-1.1.0.tar.gz>`_. 
+The latest release of PICRUSt is `picrust-1.1.1 <https://github.com/picrust/picrust/releases/download/1.1.1/picrust-1.1.1.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -58,11 +61,11 @@ PICRUSt precomputes most of the computationally intensive pipeline so each user 
 
 Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of :ref:`picrust_precalculated_files`.
 
-**These files must be placed in your `picrust-1.1.0/picrust/data` directory before installing.**
+**These files must be placed in your `picrust-1.1.1/picrust/data` directory before installing.**
 
-* Download for `16S copy number normalization <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.1/13_5/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <ftp://ftp.microbio.me/pub/picrust-references/picrust-1.0.0/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.1/13_5/ko_13_5_precalculated.tab.gz>`_ 
 
 
 Step 4. Install PICRUSt
@@ -70,15 +73,13 @@ Step 4. Install PICRUSt
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 	
-	tar -xzf picrust-1.1.0.tar.gz
+	tar -xzf picrust-1.1.1.tar.gz
 
-You'll then change into the new ``picrust-1.1.0`` directory as follows::
+You'll then change into the new ``picrust-1.1.1`` directory as follows::
 	
-	cd picrust-1.1.0
+	cd picrust-1.1.1
 
 And finally, you'll install PICRUSt with the following command::
 	
-	sudo python setup.py install
-
-If you don't have ``sudo`` access on the system where you're trying to install PICRUSt, there are several variations on this command that you can use to install only for the current user (as opposed to a system-wide installation, which the above command will perform). See `this discussion <http://docs.python.org/2/install/index.html#alternate-installation>`_.
+	pip install .
 

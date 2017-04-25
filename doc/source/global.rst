@@ -2,6 +2,7 @@
 .. _biom:				http://biom-format.org
 .. _GPL:				http://www.gnu.org/licenses/gpl-2.0.html
 .. _Greengenes:				http://greengenes.lbl.gov
+.. _h5py:				http://www.h5py.org                  
 .. _KEGG:				http://www.genome.jp/kegg/
 .. _KO:					http://www.genome.jp/kegg/ko.html
 .. _PICRUST:				http://picrust.github.com

@@ -21,7 +21,7 @@ Providing the metadata is optional. For more information, please refer to the `d
 
 **Converting BIOM files to TSV format**
 
-BIOM files can be converted to TSV format  using the tools provided by the `biom format <http://biom-format.org/documentation/biom_conversion.html>`_ package (Please refer to the `website <http://biom-format.org/>`_ for more information). Use the following command to convert biom files to TSV format ::
+BIOM files can be converted to TSV format using the tools provided by the `biom format <http://biom-format.org/documentation/biom_conversion.html>`_ package (Please refer to the `examples on the website <http://biom-format.org/>`_ for more information). Use the following command to convert biom files to TSV format ::
 
 	biom convert -i input_table.biom -o output_table.tsv -b
 
