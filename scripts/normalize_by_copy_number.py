@@ -25,7 +25,6 @@ script_info['brief_description'] = "Normalize an OTU table by marker gene copy n
 script_info['script_description'] = ""
 script_info['script_usage'] = [
 ("","Normalize the OTU abundances for a given OTU table picked against the newest version of Greengenes:","%prog -i closed_picked_otus.biom -o normalized_otus.biom"),
-("","Input tab-delimited OTU table:","%prog -f -i closed_picked_otus.tab -o normalized_otus.biom"),
 ("","Change the version of Greengenes used for OTU picking:","%prog -g 18may2012 -i closed_picked_otus.biom -o normalized_otus.biom")
 ]
 script_info['output_description']= "A normalized OTU table"
