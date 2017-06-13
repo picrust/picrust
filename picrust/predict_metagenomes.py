@@ -110,16 +110,20 @@ def yield_subset_biom_str(biom_str,new_data,new_axis_md,axis):
         yield direct_parse_key(biom_str, "rows")
     yield "}"
 
-def predict_metagenomes(otu_table,genome_table,verbose=False):
-    """ predict metagenomes from otu table and genome table
+def predict_metagenomes(otu_table, genome_table, verbose=False, 
+                        whole_round=True):
+    """ Predict metagenomes from OTU table and genome table. Can optionally
+    set verbose for more information printed to screen. Also, can prevent
+    rounding to nearest whole numbers by setting whole_round=False.
     """
 
     otu_data,genome_data,overlapping_otus = extract_otu_and_genome_data(otu_table,genome_table)
     # matrix multiplication to get the predicted metagenomes
     new_data = dot(array(otu_data).T,array(genome_data)).T
 
-    #Round counts to nearest whole numbers
-    new_data = around(new_data)
+    if whole_round:
+        #Round counts to nearest whole numbers
+        new_data = around(new_data)
 
     # return the result as a sparse biom table - the sample ids are now the
     # sample ids from the otu table, and the observation ids are now the
@@ -136,14 +140,17 @@ def predict_metagenomes(otu_table,genome_table,verbose=False):
     return result_table
 
 def predict_metagenome_variances(otu_table, genome_table, gene_variances,
-                                 verbose=False):
+                                 verbose=False, whole_round=True):
     """Predict variances for metagenome predictions
     otu_table -- BIOM Table object of OTUs
     gene_table -- BIOM Table object of predicted gene counts per OTU and samples
     gene_variances -- BIOM Table object of predicted variance in each gene count
 
+    Users can also specify verbose mode and whether functional count confidence
+    interval rounding should be performed.
+
     Note that OTU counts are treated as constants (exactly known) rather than random variables
-    for now.   If a good method for getting variance for OTU counts becomes available, this should
+    for now. If a good method for getting variance for OTU counts becomes available, this should
     be updated to treat them as random variables as well.
     """
     #Assume that OTUs are samples in the genome table, but observations in the OTU table
@@ -186,15 +193,19 @@ def predict_metagenome_variances(otu_table, genome_table, gene_variances,
     data_result = metagenome_data.T
     variance_result = metagenome_variance_data.T
 
+    if whole_round:
+        #Round counts to nearest whole numbers
+        data_result = around(data_result)
+
     if verbose:
-        print "Calculating metagenomic confidene intervals from variance."
+        print "Calculating metagenomic confidence intervals from variance."
 
     lower_95_CI,upper_95_CI=calc_confidence_interval_95(data_result,variance_result,\
-      round_CI=True,min_val=0.0,max_val=None)
+      round_CI=whole_round,min_val=0.0,max_val=None)
 
 
     if verbose:
-        print "Generating BIOM output tables for the prediction,variance,upper confidence interval and lower confidence interval."
+        print "Generating BIOM output tables for the prediction, variance, upper confidence interval and lower confidence interval."
 
     #Wrap results into BIOM Tables
     result_data_table=\
