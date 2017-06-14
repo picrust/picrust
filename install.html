@@ -90,21 +90,20 @@
 <h2>Step 1. Install Requirements<a class="headerlink" href="#step-1-install-requirements" title="Permalink to this headline">¶</a></h2>
 <p>Follow the install instructions found on the website of each of the dependencies below to install PICRUSt&#8217;s dependencies.</p>
 <p><strong>Mandatory</strong></p>
-<p>These dependencies are automatically installed with <cite>python setup.py install</cite>:</p>
+<p>These dependencies are automatically installed with <cite>pip install .</cite> below:</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</li>
 <li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</li>
-<li><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.5)</li>
 </ul>
-<p>Numpy and h5py have to be installed manually:</p>
+<p>biom-format and h5py have to be installed manually (numpy should be installed automatically with these packages):</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.numpy.org/">numpy</a> (version 1.12.1)</li>
+<li><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.5)</li>
 <li><a class="reference external" href="http://www.h5py.org">h5py</a> (version 2.7.0)</li>
 </ul>
 <p>You can install them with these commands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">biom</span><span class="o">-</span><span class="nb">format</span><span class="o">==</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">5</span>
 
-<span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span>
 </pre></div>
 </div>
 <p><strong>Rebuilding PICRUSt&#8217;s precalculated 16S rRNA OR Genome Predictions (optional)</strong></p>
