@@ -1091,8 +1091,8 @@ def calc_confidence_interval_95(predictions,variances,round_CI=True,\
     stdev = sqrt(variances)
     pred = predictions
     CI_95 =  1.96*stdev
-    lower_95_CI = around(pred - CI_95)
-    upper_95_CI = around(pred + CI_95)
+    lower_95_CI = pred - CI_95
+    upper_95_CI = pred + CI_95
     if round_CI:
         lower_95_CI = around(lower_95_CI)
         upper_95_CI = around(upper_95_CI)
