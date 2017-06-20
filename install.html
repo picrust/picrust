@@ -83,7 +83,7 @@
 <span id="install"></span><h1>Installing PICRUSt<a class="headerlink" href="#installing-picrust" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize">online Galaxy version</a>.</p>
+<p class="last">Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://galaxy.morganlangille.com/">online Galaxy version</a>.</p>
 </div>
 <p>PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you&#8217;ll install PICRUSt. Each of these steps are detailed below.</p>
 <div class="section" id="step-1-install-requirements">
@@ -94,16 +94,14 @@
 <ul class="simple">
 <li><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</li>
 <li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</li>
+<li><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.6)</li>
 </ul>
-<p>biom-format and h5py have to be installed manually (numpy should be installed automatically with these packages):</p>
+<p>h5py needs to be installed manually (numpy is also required, but it should be installed automatically with this package):</p>
 <ul class="simple">
-<li><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.5)</li>
 <li><a class="reference external" href="http://www.h5py.org">h5py</a> (version 2.7.0)</li>
 </ul>
-<p>You can install them with these commands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">biom</span><span class="o">-</span><span class="nb">format</span><span class="o">==</span><span class="mf">2.1</span><span class="o">.</span><span class="mi">5</span>
-
-<span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span>
+<p>You can install h5py with this command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span>
 </pre></div>
 </div>
 <p><strong>Rebuilding PICRUSt&#8217;s precalculated 16S rRNA OR Genome Predictions (optional)</strong></p>
