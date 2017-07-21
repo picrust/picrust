@@ -4,7 +4,7 @@
 Installing PICRUSt
 ==================
 
-.. note:: Most users will not need to install PICRUSt, but can instead use the `online Galaxy version <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_.
+.. note:: Most users will not need to install PICRUSt, but can instead use the `online Galaxy version <http://galaxy.morganlangille.com/>`_.
 
 PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you'll install PICRUSt. Each of these steps are detailed below.
 
@@ -15,23 +15,20 @@ Follow the install instructions found on the website of each of the dependencies
 
 **Mandatory**
 
-These dependencies are automatically installed with `python setup.py install`:
+These dependencies are automatically installed with `pip install .` below:
 
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 2.1.5)
+* `biom`_ (version 2.1.6)
 
-Numpy and h5py have to be installed manually:
+h5py needs to be installed manually (numpy is also required, but it should be installed automatically with this package):
 
-* `numpy`_ (version 1.12.1)
 * `h5py`_ (version 2.7.0)
 
-You can install them with these commands::
-    
+You can install h5py with this command::
+	
         pip install h5py 
-
-        pip install numpy 
-    
+	    	
 **Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
 * `R`_ installed with `APE`_ library

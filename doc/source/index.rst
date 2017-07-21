@@ -13,17 +13,29 @@ Using PICRUSt
 -------------
 If you're new to PICRUSt, you'll want to work through these documents in order:
 
-  #. :ref:`install`  **OR**  `Use online Galaxy version <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_.
+  #. :ref:`install`  
+
+     **OR** 
+
+     Use online Galaxy version on either the `Langille Lab <http://galaxy.morganlangille.com/>`_ (v1.1.1) or `Huttenhower Lab <http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize>`_ (v1.0.0) servers.
+
   #. :ref:`quickstart_guide`
+
   #. :ref:`metagenome_prediction_tutorial`
+
   #. :ref:`downstream_analysis_guide`
+
   #. :ref:`quality_control`
 
 More advanced users may be interested in the following (in no particular order):
   * :ref:`algorithm_description`
+
   * :ref:`genome_prediction_tutorial`
+
   * `Installing PICRUSt in Galaxy <https://github.com/picrust/picrust_galaxy>`_
+
   * :ref:`index_scripts`
+
   * :ref:`index_methods`
 
 
