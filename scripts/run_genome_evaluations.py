@@ -91,7 +91,7 @@ def main():
     asr_method = opts.asr_method
     predict_traits_method = opts.prediction_method
     
-    if opts.num_jobs > 20 and parallel_method == 'multithreaded':
+    if opts.num_jobs > 80 and parallel_method == 'multithreaded':
         raise ValueError('You probably dont want to run multithreaded evaluations with a large num_jobs. Please adjust options num_jobs and or parallel_method')
         
     if opts.with_confidence and asr_method not in ['ace_ml','ace_reml']:
