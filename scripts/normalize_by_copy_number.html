@@ -86,8 +86,6 @@
 <dd>Precalculated input marker gene copy number predictions on per otu basis in biom format (can be gzipped).Note: using this option overrides &#8211;gg_version. [default: None]</dd>
 <dt><cite>-</cite>-metadata_identifer</dt>
 <dd>Identifier for copy number entry as observation metadata [default: CopyNumber]</dd>
-<dt>-f, <cite>-</cite>-input_format_classic</dt>
-<dd>Input otu table (&#8211;input_otu_fp) is in classic Qiime format [default: False]</dd>
 <dt><cite>-</cite>-load_precalc_file_in_biom</dt>
 <dd>Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: False]</dd>
 </dl>
@@ -96,10 +94,6 @@
 <p>A normalized OTU table</p>
 <p>Normalize the OTU abundances for a given OTU table picked against the newest version of Greengenes:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">normalize_by_copy_number</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_picked_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span>
-</pre></div>
-</div>
-<p>Input tab-delimited OTU table:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">normalize_by_copy_number</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">f</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_picked_otus</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span>
 </pre></div>
 </div>
 <p>Change the version of Greengenes used for OTU picking:</p>
