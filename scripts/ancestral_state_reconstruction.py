@@ -42,7 +42,7 @@ make_option('-o','--output_fp',type="new_filepath",help='output trait table [def
 make_option('-c','--output_ci_fp',type="new_filepath",help='output table containing 95% confidence intervals, loglik, and brownian motion parameters for each asr prediction [default:%default]',default='asr_ci.tab'),\
 make_option('-p','--parallel',action="store_true",help='allow parallelization of asr',default=False),\
 make_option('-j','--parallel_method',type='choice',
-                help='Method for parallelizaation. Valid choices are: '+\
+                help='Method for parallelization. Valid choices are: '+\
                 ', '.join(parallel_method_choices) + ' [default: %default]',\
                 choices=parallel_method_choices,default='sge'),\
 make_option('-n','--num_jobs',action='store',type='int',\
