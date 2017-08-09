@@ -11,9 +11,10 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
+from contextlib import contextmanager
 from json import dumps
-from os.path import abspath, dirname, isdir
-from os import makedirs
+from os.path import abspath, dirname, isdir, join, split
+from os import fsync, makedirs, remove, rename
 from cogent.core.tree import PhyloNode, TreeError
 from numpy import array, asarray, atleast_1d
 from biom import Table, parse_table
@@ -474,3 +475,29 @@ def list_of_list_of_str_formatter(grp, header, md, compression):
 def picrust_formatter(*args):
     """Transform, and format"""
     return vlen_list_of_str_formatter(*list_of_list_of_str_formatter(*args))
+
+
+@contextmanager
+def atomic_write(file):
+    """
+    Yields an open temporary file and renames to ``file`` on exit
+
+    This context manager aims to make it more convenient to write to a file
+    only when the write operation has completed (e.g. downloading a file from
+    the internet).
+
+    The yielded file will be open in 'wb' mode.
+    """
+    dir_name, basename = split(file)
+    tmp_path = join(dir_name, '~{}'.format(basename))
+
+    try:
+        with open(tmp_path, 'wb') as f:
+            yield f
+            f.flush()
+            fsync(f.fileno())
+    except:
+        remove(tmp_path)
+        raise
+    else:
+        rename(tmp_path, file)
