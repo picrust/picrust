@@ -11,17 +11,18 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from contextlib import contextmanager
-from json import dumps
-from os.path import abspath, dirname, isdir, join, split
-from os import fsync, makedirs, remove, rename
-from cogent.core.tree import PhyloNode, TreeError
-from numpy import array, asarray, atleast_1d
-from biom import Table, parse_table
+
+from biom import parse_table, Table
 from biom.table import vlen_list_of_str_formatter
 from biom.util import biom_open, HAVE_H5PY
-from subprocess import Popen, PIPE
+from cogent.core.tree import PhyloNode, TreeError
+from contextlib import contextmanager
+from json import dumps
+from numpy import array, asarray, atleast_1d
+from os import fsync, makedirs, remove, rename
+from os.path import abspath, dirname, isdir, join, split
 import StringIO
+from subprocess import PIPE, Popen
 
 
 def make_sample_transformer(scaling_factors):
