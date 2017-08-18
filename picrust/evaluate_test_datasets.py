@@ -27,7 +27,7 @@ def merge_by_column_union(old_table,new_table,new_field_modifier):
 
     new_table.update_ids(new_sample_ids)
 
-    merged_table =  old_table.merge(new_table,Sample='union',Observation='intersection')
+    merged_table =  old_table.merge(new_table,sample='union',observation='intersection')
     return merged_table
 
 def update_pooled_data(obs_table,exp_table,tags,pooled_observations,\

@@ -134,7 +134,8 @@ def evaluate_test_dataset_dir(obs_dir_fp,exp_dir_fp,file_name_delimiter="--",\
 
             try:
               obs_table =\
-                load_table(join(obs_dir_fp,f),'U')
+                load_table(join(obs_dir_fp,f))
+              obs_table = obs_table.transpose()
             except ValueError:
                 print 'Failed, skipping...'
                 continue

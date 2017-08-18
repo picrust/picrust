@@ -69,7 +69,7 @@ make_option('-w','--weighting_method',type='choice',\
             ', '.join(weighting_choices) + ' [default: %default]',\
             choices=weighting_choices,default='exponential'),\
 make_option('-n','--num_jobs',action='store',type='int',\
-            help='Number of jobs to be submitted (if --parallel). [default: %default]',\
+            help='Number of jobs to be submitted. [default: %default]',\
             default=100),\
 make_option('--tmp-dir',type="new_dirpath",help='location to store intermediate files [default: <output_dir>]'),\
 make_option('--force',action='store_true',default=False, help='run all jobs even if output files exist [default: %default]'),\
@@ -91,7 +91,7 @@ def main():
     asr_method = opts.asr_method
     predict_traits_method = opts.prediction_method
     
-    if opts.num_jobs > 20 and parallel_method == 'multithreaded':
+    if opts.num_jobs > 80 and parallel_method == 'multithreaded':
         raise ValueError('You probably dont want to run multithreaded evaluations with a large num_jobs. Please adjust options num_jobs and or parallel_method')
         
     if opts.with_confidence and asr_method not in ['ace_ml','ace_reml']:
