@@ -6,7 +6,7 @@ PICRUSt's Precalculated Files
 
 PICRUSt requires the downloading of precalculated files. 
 
-These downloaded files should be placed within your `picrust/data` directory BEFORE installation.
+These files can be downloaded using the ``download_picrust_files.py`` utility.
 
 Download the set of files that correspond to the version of Greengenes that you used for OTU picking (see :ref:`otu_picking_tutorial`)
 

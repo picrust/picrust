@@ -2,6 +2,7 @@
 # File created on 23 Nov 2011
 from __future__ import division
 
+
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2015, The PICRUSt Project"
 __credits__ = ["Greg Caporaso", "Morgan Langille", "Daniel McDonald"]
@@ -11,16 +12,23 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from os.path import exists, dirname, abspath
-from cogent.util.unit_test import TestCase, main
-from picrust.util import (get_picrust_project_dir,)
-from biom.parse import parse_biom_table
 
-from cogent.core.tree import TreeError
+from biom.parse import parse_biom_table
 from cogent.parse.tree import DndParser
-from picrust.util import PicrustNode,\
-  transpose_trait_table_fields, convert_precalc_to_biom, convert_biom_to_precalc, biom_meta_to_string
+from cogent.util.unit_test import main, TestCase
+import os
+from os.path import abspath, dirname, exists
+from picrust.util import (
+    atomic_write,
+    biom_meta_to_string,
+    convert_biom_to_precalc,
+    convert_precalc_to_biom,
+    get_picrust_project_dir,
+    PicrustNode,
+    transpose_trait_table_fields,
+)
 import StringIO
+from tempfile import mkstemp
 
 
 class PicrustNodeTests(TestCase):
@@ -185,8 +193,31 @@ class UtilTests(TestCase):
         self.assertEqual(new_header,exp_header)
         self.assertEqual(new_data_fields,exp_data_fields)
 
+    def test_atomic_write_deletes_on_fail(self):
+        _, tempfile_path = mkstemp()
+        os.remove(tempfile_path)  # We reuse the path, not the file itself
 
-        pass
+        try:
+            with atomic_write(tempfile_path) as f:
+                f.write('fail')
+                raise Exception
+        except Exception:
+            pass
+
+        self.assertFalse(exists(tempfile_path))
+
+    def test_atomic_write_transparent_on_success(self):
+        _, tempfile_path = mkstemp()
+        os.remove(tempfile_path)  # We reuse the path, not the file itself
+
+        with atomic_write(tempfile_path) as f:
+            f.write('success')
+
+        with open(tempfile_path, 'rb') as f:
+            self.assertEqual('success', f.read())
+
+        os.remove(tempfile_path)
+
 
 precalc_in_tab="""#OTU_IDs	f1	f2	f3	metadata_NSTI
 metadata_simple	f1_desc	f2_desc	f3_desc

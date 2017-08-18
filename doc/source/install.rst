@@ -51,32 +51,34 @@ Alternatively you can download the latest development version of PICRUSt. You ca
 
 	git clone git://github.com/picrust/picrust.git picrust
 
-Step 3. Download PICRUSt's precalculated files
+Step 3. Install PICRUSt
+-----------------------
+
+After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
+
+	tar -xzf picrust-1.1.1.tar.gz
+
+You'll then change into the new ``picrust-1.1.1`` directory as follows::
+
+	cd picrust-1.1.1
+
+And finally, you'll install PICRUSt with the following command::
+
+	pip install .
+
+Step 4. Download PICRUSt's precalculated files
 ----------------------------------------------
 
 PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see :ref:`otu_picking_tutorial`).
 
-Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the following files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of :ref:`picrust_precalculated_files`.
+Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the default files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of :ref:`picrust_precalculated_files`.
 
-**These files must be placed in your `picrust-1.1.1/picrust/data` directory before installing.**
+You can install the default files automatically by running::
+
+	download_picrust_files.py
+
+Alternatively, download these files and place them in the ``data`` directory where PICRUSt was installed (e.g. if installed in a conda enviroment named "picrust", place the files in ``$HOME/miniconda3/envs/picrust/lib/python2.7/site-packages/picrust/data/``):
 
 * Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.1/13_5/16S_13_5_precalculated.tab.gz>`_
 
 * Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.1/13_5/ko_13_5_precalculated.tab.gz>`_ 
-
-
-Step 4. Install PICRUSt
------------------------
-
-After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
-	
-	tar -xzf picrust-1.1.1.tar.gz
-
-You'll then change into the new ``picrust-1.1.1`` directory as follows::
-	
-	cd picrust-1.1.1
-
-And finally, you'll install PICRUSt with the following command::
-	
-	pip install .
-
