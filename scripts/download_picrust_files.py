@@ -12,7 +12,7 @@ __credits__ = ["Morgan Langille", "Jesse Zaneveld", "Greg Caporaso",
                "Curtis Huttenhower"]
 __license__ = "GPL"
 __url__ = "http://picrust.github.com"
-__version__ = "1.1.1-dev"
+__version__ = "1.1.2"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 
@@ -31,7 +31,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
 BASE_URL = (
     'http://kronos.pharmacology.dal.ca/public_files/picrust/'
-    'picrust_precalculated_v1.1.1/'
+    'picrust_precalculated_v1.1.2/'
 )
 
 type_of_prediction_choices = ['ko', 'cog', 'rfam']
