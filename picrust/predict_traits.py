@@ -844,6 +844,7 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
     """
     #variances = []  # holds arrays of variances across traits for each sequenced tip
     #distances = []  # holds a single distnace for each sequenced tip to its parent
+    variances = None
     tips_with_traits = 0
     for tip in tree.iterTips():
         if getattr(tip,trait_label,None) is not None:
@@ -889,6 +890,10 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
             break
     if tips_with_traits == 0:
         raise ValueError("No tips have trait values annotated under label:"+trait_label)
+
+    if not variances:
+	raise ValueError("Example variances could not be calculated for CIs. There may not be any cases of tip pairs where one has known and the other unknown trait values.")
+
     #now just average variances/d for all examples to get the brownian motion param
     #print "variances:", variances
     #print "distances:", distances
