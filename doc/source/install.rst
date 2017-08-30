@@ -40,7 +40,7 @@ Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is `picrust-1.1.2 <https://github.com/picrust/picrust/releases/download/1.1.2/picrust-1.1.2.tar.gz>`_. 
+The latest release of PICRUSt is `picrust-1.1.2 <https://github.com/picrust/picrust/releases/download/v1.1.2/picrust-1.1.2.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
