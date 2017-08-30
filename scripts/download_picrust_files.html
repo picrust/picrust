@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>normalize_by_copy_number.py – Normalize an OTU table by marker gene copy number &#8212; PICRUSt 1.1.2 documentation</title>
+    <title>download_picrust_files.py – Download PICRUSt precalculated files &#8212; PICRUSt 1.1.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -42,7 +42,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/scripts/normalize_by_copy_number.txt"
+      <li><a href="../_sources/scripts/download_picrust_files.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -64,40 +64,39 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <span class="target" id="normalize-by-copy-number"></span><div class="section" id="normalize-by-copy-number-py-normalize-an-otu-table-by-marker-gene-copy-number">
-<span id="index-0"></span><h1><em>normalize_by_copy_number.py</em> &#8211; Normalize an OTU table by marker gene copy number<a class="headerlink" href="#normalize-by-copy-number-py-normalize-an-otu-table-by-marker-gene-copy-number" title="Permalink to this headline">¶</a></h1>
+  <span class="target" id="download-picrust-files"></span><div class="section" id="download-picrust-files-py-download-picrust-precalculated-files">
+<span id="index-0"></span><h1><em>download_picrust_files.py</em> &#8211; Download PICRUSt precalculated files<a class="headerlink" href="#download-picrust-files-py-download-picrust-precalculated-files" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
-<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">normalize_by_copy_number.py</span> <span class="pre">[options]</span></code></p>
+<p>Downloads the PICRUSt precalculated files and stores them in the PICRUSt data directory.</p>
+<p>Note that the script will skip downloading files already in the data directory (unless the <code class="docutils literal"><span class="pre">--force</span></code> argument is used).</p>
+<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">download_picrust_files.py</span> <span class="pre">[options]</span></code></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p><strong>[REQUIRED]</strong></p>
-<dl class="docutils">
-<dt>-i, <cite>-</cite>-input_otu_fp</dt>
-<dd>The input otu table filepath in biom format</dd>
-<dt>-o, <cite>-</cite>-output_otu_fp</dt>
-<dd>The output otu table filepath in biom format</dd>
-</dl>
 <p><strong>[OPTIONAL]</strong></p>
 <dl class="last docutils">
+<dt><cite>-</cite>-force</dt>
+<dd>Download the files again (i.e. overwrite any existing ones) [default: False]</dd>
 <dt>-g, <cite>-</cite>-gg_version</dt>
 <dd>Version of GreenGenes that was used for OTU picking. Valid choices are: 13_5, 18may2012 [default: 13_5]</dd>
-<dt>-c, <cite>-</cite>-input_count_fp</dt>
-<dd>Precalculated input marker gene copy number predictions on per otu basis in biom format (can be gzipped).Note: using this option overrides &#8211;gg_version. [default: None]</dd>
-<dt><cite>-</cite>-metadata_identifer</dt>
-<dd>Identifier for copy number entry as observation metadata [default: CopyNumber]</dd>
-<dt><cite>-</cite>-load_precalc_file_in_biom</dt>
-<dd>Instead of loading the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) load the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: False]</dd>
+<dt>-t, <cite>-</cite>-type_of_prediction</dt>
+<dd>Type of functional predictions. Valid choices are: ko, cog, rfam [default: ko]</dd>
+<dt><cite>-</cite>-with_confidence</dt>
+<dd>Download the precalculated files that allow confidence interval calculations for metagenome predictions. Only available for GreenGenes 13_5. [default: False]</dd>
 </dl>
 </div>
 <p><strong>Output:</strong></p>
-<p>A normalized OTU table</p>
-<p>Normalize the OTU abundances for a given OTU table picked against the newest version of Greengenes:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">normalize_by_copy_number</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_picked_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span>
+<p>Files are downloaded and stored in PICRUSt&#8217;s internally used data directory.</p>
+<p>Download the default files (GreenGenes 13_5, KEGG KOs):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>Change the version of Greengenes used for OTU picking:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">normalize_by_copy_number</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">g</span> <span class="mi">18</span><span class="n">may2012</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_picked_otus</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">normalized_otus</span><span class="o">.</span><span class="n">biom</span>
+<p>Download the default files (GreenGenes 13_5, KEGG KOs) <em>and</em> the files necessary for calculating confidence intervals:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">with_confidence</span>
+</pre></div>
+</div>
+<p>Use GreenGenes 18may2012 and COG:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">g</span> <span class="mi">18</span><span class="n">may2012</span> <span class="o">-</span><span class="n">t</span> <span class="n">cog</span>
 </pre></div>
 </div>
 </div>
