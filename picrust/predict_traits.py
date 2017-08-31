@@ -891,7 +891,7 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
     if tips_with_traits == 0:
         raise ValueError("No tips have trait values annotated under label:"+trait_label)
 
-    if variances == None:
+    if variances is None:
 	raise ValueError("Example variances could not be calculated for CIs. There may not be any cases of tip pairs where one has known and the other unknown trait values.")
 
     #now just average variances/d for all examples to get the brownian motion param
