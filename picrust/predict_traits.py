@@ -913,11 +913,16 @@ def get_brownian_motion_param_from_confidence_intervals(tree,\
 
 
 
-def predict_traits_from_ancestors(tree,nodes_to_predict,\
-    trait_label="Reconstruction",\
-    weight_fn=linear_weight, verbose = False,\
-    calc_confidence_intervals=False,brownian_motion_parameter=None,\
-    upper_bound_trait_label=None,lower_bound_trait_label=None):
+def predict_traits_from_ancestors(tree,
+                                  nodes_to_predict,\
+                                  trait_label="Reconstruction",\
+                                  weight_fn=linear_weight, 
+                                  verbose = False,\
+                                  calc_confidence_intervals=False,
+                                  brownian_motion_parameter=None,\
+                                  upper_bound_trait_label=None,
+                                  lower_bound_trait_label=None,
+                                  round_predictions=True):
     """Predict node traits given labeled ancestral states
 
     tree -- a PyCogent phylonode object, with each node decorated with the
@@ -1048,7 +1053,10 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
               most_recent_reconstructed_ancestor,\
               weight_fn = weight_fn)
         #round all predictions to whole numbers
-        prediction=around(prediction)
+
+        if round_predictions:
+            prediction=around(prediction)
+
         results[node_label] = prediction
 
         #Now calculate variance of the estimate if requested
@@ -1061,12 +1069,11 @@ def predict_traits_from_ancestors(tree,nodes_to_predict,\
               ancestral_variance=ancestral_variance,\
               brownian_motion_parameter=brownian_motion_parameter)
 
-            #lower_95_CI,upper_95_CI =\
-            #      calc_confidence_interval_95(prediction,variances)
-            #print dir(variances)
             variance_result[node_label] = {"variance":variances.tolist()}
-            #print "VARIANCES:",variances
-            lower_95_CI,upper_95_CI = calc_confidence_interval_95(prediction,variances)
+           
+            lower_95_CI,upper_95_CI = calc_confidence_interval_95(prediction,
+                                                                  variances,
+                                                                  round_CI=round_predictions)
             confidence_interval_results[node_label]['lower_CI']=lower_95_CI
             confidence_interval_results[node_label]['upper_CI']=upper_95_CI
 

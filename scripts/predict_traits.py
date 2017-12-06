@@ -89,8 +89,10 @@ script_info['optional_options'] = [\
  make_option('-c','--reconstruction_confidence',\
    type="existing_filepath",default=None,\
    help='the input trait table describing confidence intervals for reconstructed traits (from ancestral_state_reconstruction.py) in tab-delimited format [default: %default]'),
-   make_option('--output_precalc_file_in_biom',default=False,action="store_true",help='Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]')
+   make_option('--output_precalc_file_in_biom',default=False,action="store_true",help='Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: %default]'),
+   make_option('--no_round',default=False,action="store_true",help='Flag to set if you do not want predictions to be rounded to the nearest integer [default: %default]')
 ]
+
 script_info['version'] = __version__
 
 #Helper formatting functions
@@ -132,11 +134,15 @@ def main():
     if opts.verbose:
         print "Loading tree from file:", opts.tree
 
+    if opts.no_round:
+        round_opt = False 
+    else:
+        round_opt = True
+
     # Load Tree
-    #tree = LoadTree(opts.tree)
     tree = load_picrust_tree(opts.tree, opts.verbose)
 
-    table_headers =[]
+    table_headers=[]
     traits={}
     #load the asr trait table using the previous list of functions to order the arrays
     if opts.reconstructed_trait_table:
@@ -324,13 +330,15 @@ def main():
               upper_bound_trait_label="upper_bound",\
               calc_confidence_intervals = True,\
               brownian_motion_parameter=brownian_motion_parameter,\
-              weight_fn =weight_fn,verbose=opts.verbose)
+              weight_fn=weight_fn,verbose=opts.verbose,
+              round_predictions=round_opt)
 
         else:
              predictions =\
               predict_traits_from_ancestors(tree,nodes_to_predict,\
               trait_label=trait_label,\
-              weight_fn =weight_fn,verbose=opts.verbose)
+              weight_fn =weight_fn,verbose=opts.verbose,
+              round_predictions=round_opt)
 
     elif opts.prediction_method == 'weighting_only':
         #Ignore ancestral information
