@@ -8,7 +8,21 @@ Installing PICRUSt
 
 PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you'll install PICRUSt. Each of these steps are detailed below.
 
-Step 1. Install Requirements
+Recommended: Install PICRUSt with bioconda
+----------------------------
+The easiest way to install PICRUSt is with `bioconda`_.
+
+To do so you need to type this command in a conda environment::
+
+	conda install -c bioconda picrust
+
+You will then need to download the required precalculated files with this command (see more details under Step 4 below)::
+
+	download_picrust_files.py
+
+You should be good to go! If you run into any problems you can try installing the source manually instead.
+
+Install From Source Step 1. Install Requirements
 ----------------------------
 
 Follow the install instructions found on the website of each of the dependencies below to install PICRUSt's dependencies.
@@ -34,7 +48,7 @@ You can install h5py with this command::
 * `R`_ installed with `APE`_ library
 
 
-Step 2. Download PICRUSt
+Install From Source Step 2. Download PICRUSt
 ------------------------
 
 Release software
@@ -51,7 +65,7 @@ Alternatively you can download the latest development version of PICRUSt. You ca
 
 	git clone git://github.com/picrust/picrust.git picrust
 
-Step 3. Install PICRUSt
+Install From Source Step 3. Install PICRUSt
 -----------------------
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
@@ -66,7 +80,7 @@ And finally, you'll install PICRUSt with the following command::
 
 	pip install .
 
-Step 4. Download PICRUSt's precalculated files
+Install from Source Step 4. Download PICRUSt's precalculated files
 ----------------------------------------------
 
 PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see :ref:`otu_picking_tutorial`).

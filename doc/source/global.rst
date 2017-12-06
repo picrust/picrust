@@ -1,4 +1,5 @@
 .. _APE: 				http://ape.mpl.ird.fr/
+.. _bioconda:				https://bioconda.github.io/
 .. _biom:				http://biom-format.org
 .. _GPL:				http://www.gnu.org/licenses/gpl-2.0.html
 .. _Greengenes:				http://greengenes.lbl.gov
