@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Genome Prediction Tutorial &#8212; PICRUSt 1.1.2 documentation</title>
+    <title>Genome Prediction Tutorial &#8212; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,18 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.2',
+        VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="PICRUSt 1.1.2 documentation" href="../index.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -60,7 +60,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/genome_prediction.txt"
+      <li><a href="../_sources/tutorials/genome_prediction.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -92,10 +92,10 @@
 <div class="section" id="essential-files">
 <h2>Essential Files<a class="headerlink" href="#essential-files" title="Permalink to this headline">¶</a></h2>
 <p>All files required run this tutorial are in <strong>tutorials/picrust_starting_files.zip</strong>. Descriptions of these files are as follows:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>Reference Tree (.nwk)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>This is a phylogenetic tree constructed from a marker gene (typically 16S), that has tips representing both sequenced genomes and non-sequenced genomes.</li>
 <li>We will use the greengenes tree <strong>gg_tree.nwk</strong>.</li>
 </ul>
@@ -104,7 +104,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Marker gene copy number (tab-delimited .tab)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>This is a simple tab-delimited table with two columns. The first column contains the genome identfiers column ids (typically IMG), and the second column contains the number of copies of the marker gene (16S). The first row must contain header ids for the columns.</li>
 <li>We will use the file <strong>IMG_16S_counts.tab</strong>.</li>
 </ul>
@@ -113,7 +113,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Functional trait copy number (tab-delimited .tab)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Same format as the marker gene copy number table above with genome identifiers being the first column, but contains an additional column for every functional trait with the column id representing that trait (e.g. K00001).</li>
 <li>We will use KEGG KO functions <strong>IMG_ko_counts.tab</strong>.</li>
 </ul>
@@ -122,7 +122,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Mapping file for tree tip ids to genome ids (tab-delimited .tab)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Simple two column tab delimited file with first column containing ids of tips in the tree that have genome sequences. Second column contains genome identifiers from marker gene and functional trait copy number files.</li>
 <li>We will use the file <strong>GG_to_IMGv350.txt</strong>.</li>
 <li><em>(Note: This file is optional if the tips representing genomes in the reference tree exactly match genome identifiers in the trait tables)</em>.</li>
@@ -188,13 +188,13 @@ The following steps are done for both the marker gene copy number table and func
 <h2>Genome (trait) Prediction<a class="headerlink" href="#genome-trait-prediction" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="../scripts/predict_traits.html#predict-traits"><span class="std std-ref">predict_traits.py</span></a> extends ASR predictions from internal nodes and known genomes to unsequenced tips in the marker tree.</p>
 <p>Input is the formatted trait table, the formatted reference tree, and the ASR output file.</p>
-<p>Output is a <a class="reference external" href="http://biom-format.org">biom</a> formatted file with &#8216;Observations&#8217; (e.g rows) as tree tip ids (e.g. genomes/OTUs) and &#8216;Samples&#8217; (e.g columns) as functional traits.</p>
+<p>Output is a legacy <a class="reference external" href="http://biom-format.org">biom</a> formatted file with &#8216;Observations&#8217; (e.g rows) as tree tip ids (e.g. genomes/OTUs) and &#8216;Samples&#8217; (e.g columns) as functional traits.</p>
 <p>Make predictions for 16S:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="mi">16</span><span class="n">S</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="mi">16</span><span class="n">S</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="mi">16</span><span class="n">S_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="mi">16</span><span class="n">S_precalculated</span><span class="o">.</span><span class="n">biom</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="mi">16</span><span class="n">S</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="mi">16</span><span class="n">S</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="mi">16</span><span class="n">S_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="mi">16</span><span class="n">S_precalculated</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 <p>Make predictions for KOs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="n">KEGG_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="n">ko_precalculated</span><span class="o">.</span><span class="n">biom</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="n">KEGG_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="n">ko_precalculated</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 <p>The <strong>16S_precalculated.biom</strong> and <strong>ko_precalculated.biom</strong> can be used with the <code class="docutils literal"><span class="pre">-c</span></code> option of <a class="reference internal" href="../scripts/normalize_by_copy_number.html#normalize-by-copy-number"><span class="std std-ref">normalize_by_copy_number.py</span></a> and <a class="reference internal" href="../scripts/predict_metagenomes.html#predict-metagenomes"><span class="std std-ref">predict_metagenomes.py</span></a> described in the <a class="reference internal" href="metagenome_prediction.html#metagenome-prediction-tutorial"><span class="std std-ref">Metagenome Prediction Tutorial</span></a>.</p>
@@ -202,7 +202,7 @@ The following steps are done for both the marker gene copy number table and func
 <h3>(Optional) Limiting predictions to those in OTU table<a class="headerlink" href="#optional-limiting-predictions-to-those-in-otu-table" title="Permalink to this headline">¶</a></h3>
 <p><cite>predict_traits.py</cite> can take a long time to run if making predictions for all tips in the green genes reference tree (400k tips). Therefore, you can limit the number of predictions to only those in your metagenome OTU table (the ones you care about) using the <code class="docutils literal"><span class="pre">-l</span></code> option.</p>
 <p>Make predictions for KOs for a given OTU table using <code class="docutils literal"><span class="pre">-l</span></code> option:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="n">KEGG_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">l</span> <span class="n">your_otu_table</span><span class="o">.</span><span class="n">tsv</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="n">ko_precalculated</span><span class="o">.</span><span class="n">biom</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">predict_traits</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">trait_table</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">t</span> <span class="nb">format</span><span class="o">/</span><span class="n">KEGG</span><span class="o">/</span><span class="n">reference_tree</span><span class="o">.</span><span class="n">newick</span> <span class="o">-</span><span class="n">r</span> <span class="n">asr</span><span class="o">/</span><span class="n">KEGG_asr_counts</span><span class="o">.</span><span class="n">tab</span> <span class="o">-</span><span class="n">l</span> <span class="n">your_otu_table</span><span class="o">.</span><span class="n">tsv</span> <span class="o">-</span><span class="n">o</span> <span class="n">predict_traits</span><span class="o">/</span><span class="n">ko_precalculated</span><span class="o">.</span><span class="n">tab</span>
 </pre></div>
 </div>
 </div>
@@ -221,12 +221,12 @@ The following steps are done for both the marker gene copy number table and func
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
     </div>
   </body>
 </html>

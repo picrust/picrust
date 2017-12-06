@@ -66,6 +66,8 @@ The prediction method works as follows:
 		The input trait table describing confidence intervals for reconstructed traits (from `ancestral_state_reconstruction.py <./ancestral_state_reconstruction.html>`_) in tab-delimited format [default: None]
 	`-`-output_precalc_file_in_biom
 		Instead of outputting the precalculated file in tab-delimited format (with otu ids as row ids and traits as columns) output the data in biom format (with otu as SampleIds and traits as ObservationIds) [default: False]
+	`-`-no_round
+		Flag to set if you do not want predictions to be rounded to the nearest integer [default: False]
 
 
 **Output:**

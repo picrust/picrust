@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn &#8212; PICRUSt 1.1.2 documentation</title>
+    <title>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn &#8212; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,18 +14,18 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.2',
+        VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="PICRUSt 1.1.2 documentation" href="../index.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +34,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -53,7 +53,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/humann_tutorial.txt"
+      <li><a href="../_sources/tutorials/humann_tutorial.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -106,23 +106,19 @@
 <h2>Differential abundance analysis with LEfSe<a class="headerlink" href="#differential-abundance-analysis-with-lefse" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt>Any of the output HUMAnN files named as: <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code> can then be used as input for further analysis with <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=lefse_upload">LEfSe</a> equivalently. Please follow the instructions below to make the input appropriate for LEfSe,</dt>
-<dd><ul class="first last">
-<li><p class="first">Select a file from the HUMAnN output folder (named <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code>)</p>
-</li>
-<li><p class="first">Open the file in Microsoft Excel or a text editor.</p>
-</li>
-<li><p class="first">Remove the first column.</p>
-</li>
+<dd><ul class="first last simple">
+<li>Select a file from the HUMAnN output folder (named <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code>)</li>
+<li>Open the file in Microsoft Excel or a text editor.</li>
+<li>Remove the first column.</li>
 <li><dl class="first docutils">
 <dt>Remove every metadata row (anything including and above InverseSimpson) <em>except</em> the class (and optional subclass), and the top row: ID/NAME.</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>Please ensure only 1-2 metadata rows remain apart from the Name/ID row at the top</cite>.</li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><p class="first">Save the modifications to the file, and use this version of the file as an input for LEfSe.</p>
-</li>
+<li>Save the modifications to the file, and use this version of the file as an input for LEfSe.</li>
 </ul>
 </dd>
 </dl>
@@ -142,10 +138,10 @@
 <li>Once the data is formatted, click on the <code class="docutils literal"><span class="pre">LDA</span> <span class="pre">Effect</span> <span class="pre">Size</span></code> link in the panel on the left.  Select the <strong>formatted data</strong> from the <code class="docutils literal"><span class="pre">Select</span> <span class="pre">Data</span></code> drop-down menu and press <code class="docutils literal"><span class="pre">Execute</span></code>.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/lda_lefse.png"><img alt="../_images/lda_lefse.png" src="../_images/lda_lefse.png" style="width: 400pt;" /></a>
-<ol class="arabic" start="6">
+<ol class="arabic simple" start="6">
 <li><dl class="first docutils">
 <dt>The output generated from the step above can be used as input for the following.</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Plot the LEfSe results using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">LEfSe</span> <span class="pre">Results</span></code> link in the panel on the left.</li>
 <li>Plot a Cladogram using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">Cladogram</span></code> link in the panel on the left.</li>
 <li>Plot Differential Features using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">Differential</span> <span class="pre">Features</span></code> link in the panel on the left.</li>
@@ -163,10 +159,10 @@
 <li>Click the link <code class="docutils literal"><span class="pre">Load</span> <span class="pre">input</span> <span class="pre">tree</span></code> in the panel on the left, and select the output file from HUMAnN by clicking on the <code class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></code> button. Press the <code class="docutils literal"><span class="pre">Execute</span></code> button to upload the file.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/load_graphlan.png"><img alt="../_images/load_graphlan.png" src="../_images/load_graphlan.png" style="width: 400pt;" /></a>
-<ol class="arabic" start="2">
+<ol class="arabic simple" start="2">
 <li><dl class="first docutils">
 <dt>After the data has been uploaded, click on the <code class="docutils literal"><span class="pre">Annotate</span> <span class="pre">tree</span></code> link to add all the graphical features. Then, select the input file from the <code class="docutils literal"><span class="pre">Input</span> <span class="pre">File</span></code> drop-down menu. Specify the data fields according to the desired output, and press the <code class="docutils literal"><span class="pre">Execute</span></code> button when done. For example, the fields specified for a figure with leaf node names would be as follows:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Select the clades of interest from the list <code class="docutils literal"><span class="pre">Select</span> <span class="pre">clade(s)</span></code>.</li>
 <li>Enter <code class="docutils literal"><span class="pre">*</span></code> for the field <code class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span></code>.</li>
 <li>Specify <code class="docutils literal"><span class="pre">Clade</span> <span class="pre">leaf</span> <span class="pre">nodes</span></code> from the drop-down menu <code class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span> <span class="pre">Clade</span> <span class="pre">Selector</span></code>.</li>
@@ -199,12 +195,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
     </div>
   </body>
 </html>

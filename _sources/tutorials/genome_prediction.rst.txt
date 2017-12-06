@@ -96,15 +96,15 @@ Genome (trait) Prediction
 
 Input is the formatted trait table, the formatted reference tree, and the ASR output file.
 
-Output is a `biom`_ formatted file with 'Observations' (e.g rows) as tree tip ids (e.g. genomes/OTUs) and 'Samples' (e.g columns) as functional traits. 
+Output is a legacy `biom`_ formatted file with 'Observations' (e.g rows) as tree tip ids (e.g. genomes/OTUs) and 'Samples' (e.g columns) as functional traits. 
 
 Make predictions for 16S: ::
 
-	predict_traits.py -i format/16S/trait_table.tab -t format/16S/reference_tree.newick -r asr/16S_asr_counts.tab -o predict_traits/16S_precalculated.biom 
+	predict_traits.py -i format/16S/trait_table.tab -t format/16S/reference_tree.newick -r asr/16S_asr_counts.tab -o predict_traits/16S_precalculated.tab 
 
 Make predictions for KOs: ::
 	
-	predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -o predict_traits/ko_precalculated.biom
+	predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -o predict_traits/ko_precalculated.tab
 
 The **16S_precalculated.biom** and **ko_precalculated.biom** can be used with the ``-c`` option of :ref:`normalize_by_copy_number.py <normalize_by_copy_number>` and :ref:`predict_metagenomes.py <predict_metagenomes>` described in the :ref:`metagenome_prediction_tutorial`. 
 
@@ -114,6 +114,6 @@ The **16S_precalculated.biom** and **ko_precalculated.biom** can be used with th
 
 Make predictions for KOs for a given OTU table using ``-l`` option: ::
 	
-	predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -l your_otu_table.tsv -o predict_traits/ko_precalculated.biom 
+	predict_traits.py -i format/KEGG/trait_table.tab -t format/KEGG/reference_tree.newick -r asr/KEGG_asr_counts.tab -l your_otu_table.tsv -o predict_traits/ko_precalculated.tab 
 
 
