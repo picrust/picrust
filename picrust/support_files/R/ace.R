@@ -24,11 +24,9 @@ for(i in grep("_",rownames(data))){
 
 
 #order the trait table to match the tree tip labels
-#Note: Can't just reorder with simple "data_ordered <- data[tree$tip.label,]",
-# since this returns a vector (with no row or column names) ONLY WHEN there is a single column in the trait table
-data_ordered<-as.data.frame(data[tree$tip.label,])
-rownames(data_ordered)<-tree$tip.label
-names(data_ordered)<-names(data)
+#The option "drop=FALSE" means that a dataframe will be returned even if there 
+#is only 1 column (instead of a vector, which is the default).
+data_ordered <- data[tree$tip.label , , drop=FALSE]
 
 #do the actual ace reconsructions
 reconstructions<-apply(data_ordered,2,ace,tree, type="continuous",method=asr_method)
