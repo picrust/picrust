@@ -54,7 +54,7 @@ Install From Source Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is `picrust-1.1.2 <https://github.com/picrust/picrust/releases/download/v1.1.2/picrust-1.1.2.tar.gz>`_. 
+The latest release of PICRUSt is `picrust-1.1.3 <https://github.com/picrust/picrust/releases/download/v1.1.3/picrust-1.1.3.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -70,11 +70,11 @@ Install From Source Step 3. Install PICRUSt
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 
-	tar -xzf picrust-1.1.2.tar.gz
+	tar -xzf picrust-1.1.3.tar.gz
 
-You'll then change into the new ``picrust-1.1.2`` directory as follows::
+You'll then change into the new ``picrust-1.1.3`` directory as follows::
 
-	cd picrust-1.1.2
+	cd picrust-1.1.3
 
 And finally, you'll install PICRUSt with the following command::
 
@@ -93,6 +93,6 @@ You can install the default files automatically by running::
 
 Alternatively, download these files and place them in the ``data`` directory where PICRUSt was installed (e.g. if installed in a conda enviroment named "picrust", place the files in ``$HOME/miniconda3/envs/picrust/lib/python2.7/site-packages/picrust/data/``):
 
-* Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.2/13_5/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.2/13_5/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/ko_13_5_precalculated.tab.gz>`_ 

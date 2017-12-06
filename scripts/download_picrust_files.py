@@ -12,7 +12,7 @@ __credits__ = ["Morgan Langille", "Jesse Zaneveld", "Greg Caporaso",
                "Curtis Huttenhower"]
 __license__ = "GPL"
 __url__ = "http://picrust.github.com"
-__version__ = "1.1.2-dev"
+__version__ = "1.1.3"
 __maintainer__ = "Morgan Langille"
 __email__ = "morgan.g.i.langille@gmail.com"
 
