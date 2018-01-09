@@ -151,7 +151,8 @@ class Castor_asr_pic(CommandLineApplication):
     BaseCommand = property(_get_base_command)
 
 
-def castor_asr_pic_wrapper(tree_path, trait_table_path, HALT_EXEC=False):
+def castor_asr_pic_wrapper(tree_path, trait_table_path, calc_ci, 
+                           HALT_EXEC=False):
     '''Runs the Castor_asr_pic application controller given path of tree and 
     trait table and returns a Table'''
 
