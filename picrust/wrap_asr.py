@@ -166,8 +166,14 @@ def castor_asr_pic_wrapper(tree_path, trait_table_path, calc_ci,
     tree_path = '"{0}"'.format(tree_path)
     trait_table_path = '"{0}"'.format(trait_table_path)
 
+    # Need to format boolean setting as string for R to read in as argument.
+    if calc_ci:
+        calc_ci_setting = "TRUE"
+    else:
+        calc_ci_setting = "FALSE"
+
     as_string = " ".join([tree_path, trait_table_path, tmp_output_count_path,
-                          tmp_output_prob_path])
+                          calc_ci_setting, tmp_output_prob_path])
     # Run castor_asr_pic here
     result = castor_asr_pic(data=as_string)
 
@@ -177,7 +183,7 @@ def castor_asr_pic_wrapper(tree_path, trait_table_path, calc_ci,
                               sep='\t')
     except IOError:
         raise RuntimeError,\
-         ("R reported an error on stderr:"
+         ("R reported an error on stderr:" +\
           " %s" % "\n".join(result["StdErr"].readlines()))
 
     asr_prob_table = LoadTable(filename=tmp_output_prob_path, header=True,
