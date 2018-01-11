@@ -109,29 +109,29 @@ def main():
             else:
                 calc_castor_ci = True
 
-            asr_table = castor_asr_pic_wrapper(opts.input_tree_fp,
-                                               opts.input_trait_table_fp,
-                                               calc_ci=calc_castor_ci,
-                                               HALT_EXEC=opts.debug)
+            asr_table, ci_table = castor_asr_pic_wrapper(opts.input_tree_fp,
+                                                         opts.input_trait_table_fp,
+                                                         calc_ci=calc_castor_ci,
+                                                         HALT_EXEC=opts.debug)
         if(opts.asr_method == 'wagner'):
             asr_table = wagner_for_picrust(opts.input_tree_fp,
                                            opts.input_trait_table_fp,
                                            HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'ace_ml'):
-            asr_table,ci_table = ape_ace_wrapper(opts.input_tree_fp,
-                                                 opts.input_trait_table_fp,
-                                                 'ML',
-                                                 HALT_EXEC=opts.debug)
+            asr_table, ci_table = ape_ace_wrapper(opts.input_tree_fp,
+                                                  opts.input_trait_table_fp,
+                                                  'ML',
+                                                  HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'ace_pic'):
-            asr_table,ci_table = ape_ace_wrapper(opts.input_tree_fp,
-                                                 opts.input_trait_table_fp,
-                                                 'pic',
-                                                 HALT_EXEC=opts.debug)
+            asr_table, ci_table = ape_ace_wrapper(opts.input_tree_fp,
+                                                  opts.input_trait_table_fp,
+                                                  'pic',
+                                                  HALT_EXEC=opts.debug)
         elif(opts.asr_method == 'ace_reml'):
-            asr_table,ci_table = ape_ace_wrapper(opts.input_tree_fp,
-                                                 opts.input_trait_table_fp,
-                                                 'REML',
-                                                 HALT_EXEC=opts.debug)
+            asr_table, ci_table = ape_ace_wrapper(opts.input_tree_fp,
+                                                  opts.input_trait_table_fp,
+                                                  'REML',
+                                                  HALT_EXEC=opts.debug)
 
     # Output the table to file.
     make_output_dir_for_file(opts.output_fp)
