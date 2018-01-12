@@ -8,20 +8,6 @@ library(ape)
 
 Args <- commandArgs(TRUE)
 
-setwd("/home/gavin/tmp/picrust_asr_tmp/")
-Args <- c("../formatted_ALL/pruned_tree.newick",
-          "trait_table.tab",
-          "pic",
-          "TRUE",
-          "TRUE",
-          "TRUE",
-          "SRD",
-          FALSE,
-          "sequential",
-          40,
-          "/home/gavin/tmp/predict_out.txt",
-          "/home/gavin/tmp/predict_ci_out.txt")
-
 # Read in command-line arguments.
 full_tree <- read.tree(Args[1])
 trait_values <- read.delim(Args[2], check.names=FALSE, row.names=1)
@@ -34,7 +20,7 @@ weight_setting <- as.logical(Args[8])
 mp_transition_set <- Args[9]
 num_threads <- Args[10]
 predict_outfile <- Args[11]
-ci_outfile <- Args[11]
+ci_outfile <- Args[12]
 
 # Function to get CIs for certain HSP methods.
 ci_95_states2values <- function(state_probs, states2values, number_of_tips) {
@@ -65,6 +51,10 @@ trait_values_ordered <- rbind(trait_values, unknown_df)
 trait_values_ordered <- trait_values_ordered[full_tree$tip.label, , drop=FALSE]
 
 num_tip <- nrow(trait_values_ordered)
+
+tmp <- find_nearest_tips(full_tree, 
+                         target_tips=tip_range[-2],
+                         check_input=check_input_set)
 
 if (hsp_method == "pic") {
   
@@ -140,13 +130,28 @@ if (hsp_method == "pic") {
 
   # If calc_ci set then figure out what the assigned trait would be at the 95% CI and output resulting matrix.
   if(calc_ci) {
-    ci_values <- sapply(hsp_out_models, function(x) { ci_95_states2values(x$likelihoods, state2val, num_tips) })
-    rownames(ci_values) <- full_tree$tip.label
-    write.table(ci_values, file=ci_outfile, sep="\t", quote=FALSE)
+    ci_values <- data.frame(sapply(hsp_out_models, function(x) { ci_95_states2values(x$likelihoods, state2val, num_tip) }))
+    ci_values$tips <- full_tree$tip.label
+    ci_values <- ci_values[, c("tips", colnames(trait_values_ordered))]
+    write.table(ci_values, file=ci_outfile, sep="\t", quote=FALSE, row.names=FALSE)
    }
       
 }
 
-# 
-write.table(data.frame(ancestral_states_matrix, check.names=FALSE), file=count_out_file, row.names=FALSE, quote=FALSE, sep="\t")
+# Add tips as first column of predicted_values.
+predicted_values <- data.frame(predicted_values)
+predicted_values$tips <- full_tree$tip.label
+predicted_values <- predicted_values[, c("tips", colnames(trait_values_ordered))]
 
+# Calculate NSTI per tip and add to output as last column if option set.
+if(calc_nsti) {
+  tip_range <- 1:num_tip
+  nsti_out <- sapply(tip_range, 
+                     function(x) { find_nearest_tips(full_tree, 
+                                                     target_tips=tip_range[-x],
+                                                     check_input=check_input_set)$nearest_distance_per_tip[x]})
+  predicted_values$nsti <- nsti_out
+}
+
+# Write out predicted values.
+write.table(predicted_values, file=predict_outfile, row.names=FALSE, quote=FALSE, sep="\t")
