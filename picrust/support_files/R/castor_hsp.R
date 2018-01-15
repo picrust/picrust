@@ -15,10 +15,9 @@ hsp_method <- Args[3]
 calc_nsti <- as.logical(Args[4])
 calc_ci <- as.logical(Args[5])
 check_input_set <- as.logical(Args[6])
-weight_setting <- as.logical(Args[7])
-num_threads <- Args[8]
-predict_outfile <- Args[9]
-ci_outfile <- Args[10]
+num_threads <- Args[7]
+predict_outfile <- Args[8]
+ci_outfile <- Args[9]
 
 # Function to get CIs for certain HSP methods.
 ci_95_states2values <- function(state_probs, states2values, number_of_tips) {
@@ -60,7 +59,7 @@ if (hsp_method == "pic") {
                        2,
                        hsp_independent_contrasts,
                        tree=full_tree,
-                       weighted=weight_setting,
+                       weighted=TRUE,
                        check_input=check_input_set)
   
   predicted_values <- sapply(predict_out[num_tip,], function(x) { x$states })
@@ -71,7 +70,7 @@ if (hsp_method == "pic") {
                        2,
                        hsp_squared_change_parsimony,
                        tree=full_tree,
-                       weighted=weight_setting,
+                       weighted=TRUE,
                        check_input=check_input_set)
   
   predicted_values <- sapply(predict_out[num_tip,], function(x) { x$states })
