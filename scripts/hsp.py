@@ -39,7 +39,7 @@ script_info['script_description'] = "This script performs hidden state " +\
 # ("","Reconstruct confidence","%prog -a -i trait_table.tab -t reference_tree.newick  -o predict_traits.tab")
 # ]
 
-HSP_METHODS = ['emp_prob', 'mk_model', 'mp', 'pic', 'sqp']
+HSP_METHODS = ['emp_prob', 'mk_model', 'mp', 'pic', 'scp']
 
 # Define command-line interface
 script_info['output_description'] = "Output is a tab-delimited table of " +\
@@ -92,6 +92,10 @@ script_info['optional_options'] = [
               help='if specified, check input trait table before hsp ' +
                    '[default: %default]'),
 
+  make_option('--no_round', default=False, action="store_true",
+              help='if specified, do not round pic and scp prediction ' +
+                   'results [default: %default]'),
+
   make_option('--threads', default=1, type="int",
               help='Number of threads to use when running mk_model ' +
                    '[default: %default]'),
@@ -108,22 +112,30 @@ def main():
 
     option_parser, opts, args = parse_command_line_parameters(**script_info)
 
-    hsp_table, ci_table = castor_hsp_wrapper(
-                                        tree_path=opts.input_tree_fp,
-                                        trait_table_path=opts.trait_table_path,
-                                        hsp_method=opts.hsp_method,
-                                        calc_nsti=opts.calculate_NSTI,
-                                        calc_ci=opts.confidence,
-                                        check_input=opts.check,
-                                        threads=opts.threads,
-                                        HALT_EXEC=opts.debug)
+    # Methods for discrete trait prediction with CI enabled.
+    discrete_set = set(['emp_prob', 'mk_model', 'mp'])
+
+    if opts.confidence and opts.hsp_method in discrete_set:
+      ci_setting = True
+    else:
+      ci_setting = False
+
+    hsp_table, ci_table = castor_hsp_wrapper(tree_path=opts.tree,
+                                             trait_table_path=opts.observed_trait_table,
+                                             hsp_method=opts.hsp_method,
+                                             calc_nsti=opts.calculate_NSTI,
+                                             calc_ci=ci_setting,
+                                             check_input=opts.check,
+                                             no_round=opts.no_round,
+                                             threads=opts.threads,
+                                             HALT_EXEC=opts.debug)
 
     # Output the table to file.
     make_output_dir_for_file(opts.output_trait_table)
     hsp_table.writeToFile(opts.output_trait_table, sep='\t')
 
     # Output the CI file as well if option set.
-    if (opts.confidence):
+    if (ci_setting):
         make_output_dir_for_file(opts.ci_out)
         ci_table.writeToFile(opts.ci_out, sep='\t')
 

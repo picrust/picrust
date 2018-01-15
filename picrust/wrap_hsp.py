@@ -73,6 +73,7 @@ def castor_hsp_wrapper(tree_path,
                        calc_nsti=False,
                        calc_ci=False,
                        check_input=False,
+                       no_round=False,
                        threads=1,
                        HALT_EXEC=False):
                        
@@ -105,13 +106,18 @@ def castor_hsp_wrapper(tree_path,
     else:
         check_input_setting = "FALSE"
 
+    if no_round:
+        no_round_setting = "TRUE"
+    else:
+        no_round_setting = "FALSE"
+
     as_string = " ".join([tree_path,
                           trait_table_path,
                           hsp_method,
                           calc_nsti_setting,
                           calc_ci_setting,
                           check_input_setting,
-                          weight_setting,
+                          no_round_setting,
                           str(threads),
                           tmp_output_count_path,
                           tmp_output_ci_path])
@@ -128,11 +134,14 @@ def castor_hsp_wrapper(tree_path,
          ("R reported an error on stderr:" +\
           " %s" % "\n".join(result["StdErr"].readlines()))
 
-    asr_ci_table = LoadTable(filename=tmp_output_ci_path, header=True,
-                             sep='\t')
-
-    # Remove tmp files
     remove(tmp_output_count_path)
-    remove(tmp_output_ci_path)
+
+    if calc_ci:
+        asr_ci_table = LoadTable(filename=tmp_output_ci_path, header=True,
+                                 sep='\t')
+        remove(tmp_output_ci_path)
+    else:
+        asr_ci_table = None
 
     return asr_table, asr_ci_table
+
