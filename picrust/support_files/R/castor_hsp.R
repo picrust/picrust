@@ -15,12 +15,10 @@ hsp_method <- Args[3]
 calc_nsti <- as.logical(Args[4])
 calc_ci <- as.logical(Args[5])
 check_input_set <- as.logical(Args[6])
-mk_rate_mod <- Args[7]
-weight_setting <- as.logical(Args[8])
-mp_transition_set <- Args[9]
-num_threads <- Args[10]
-predict_outfile <- Args[11]
-ci_outfile <- Args[12]
+weight_setting <- as.logical(Args[7])
+num_threads <- Args[8]
+predict_outfile <- Args[9]
+ci_outfile <- Args[10]
 
 # Function to get CIs for certain HSP methods.
 ci_95_states2values <- function(state_probs, states2values, number_of_tips) {
@@ -97,7 +95,7 @@ if (hsp_method == "pic") {
     hsp_out_models <- lapply(trait_states_mapped,
                             hsp_mk_model,
                             tree = full_tree,
-                            rate_model = mk_rate_mod,
+                            rate_model = "SRD",
                             check_input = check_input_set,
                             Nthreads = num_threads)
                             
@@ -114,7 +112,7 @@ if (hsp_method == "pic") {
                             hsp_max_parsimony,
                             tree = full_tree,
                             check_input = check_input_set,
-                            transition_costs = mp_transition_set,
+                            transition_costs = "sequential",
                             weight_by_scenarios = TRUE)
                                        
   }
@@ -146,11 +144,10 @@ predicted_values <- predicted_values[, c("tips", colnames(trait_values_ordered))
 # Calculate NSTI per tip and add to output as last column if option set.
 if(calc_nsti) {
   tip_range <- 1:num_tip
-  nsti_out <- sapply(tip_range, 
-                     function(x) { find_nearest_tips(full_tree, 
-                                                     target_tips=tip_range[-x],
-                                                     check_input=check_input_set)$nearest_distance_per_tip[x]})
-  predicted_values$nsti <- nsti_out
+  predicted_values$nsti <- sapply(tip_range, 
+                                  function(x) { find_nearest_tips(full_tree, 
+                                                                  target_tips=tip_range[-x],
+                                                                  check_input=check_input_set)$nearest_distance_per_tip[x]})
 }
 
 # Write out predicted values.
