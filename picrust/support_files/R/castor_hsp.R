@@ -22,10 +22,23 @@ ci_outfile <- Args[10]
 
 # Function to get CIs for certain HSP methods.
 ci_95_states2values <- function(state_probs, states2values, number_of_tips) {
-  state_prob_cumsum <- t(apply(state_probs[1:number_of_tips,], 1, cumsum))
+  state_prob_cumsum <- t(apply(state_probs[1:number_of_tips, , drop=FALSE], 1, cumsum))
   ci_5 <- apply(state_prob_cumsum, 1, function(x) { states2values[min(which(x >= 0.05)),] } )
   ci_95 <- apply(state_prob_cumsum, 1, function(x) { states2values[min(which(x >= 0.95)),] } )
   return(c(ci_5, ci_95))
+}
+
+# Function to identify traits that have only 1 state across tips (for pre-processing mk_model input).
+identify_single_state <- function(state_vec) {
+  
+  state_vec_noNA <- na.exclude(state_vec)
+  state_vec_noNA_l <- length(state_vec_noNA)
+  
+  if(length(which(state_vec_noNA == 1)) == state_vec_noNA_l) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 }
 
 # If tips in tree contain '_' then read.tree() places single quotes around these tip labels.
@@ -93,13 +106,35 @@ if (hsp_method == "pic" | hsp_method == "scp") {
   trait_states_values <- lapply(trait_states_mapped_full, function(x) { x$state_values })
 
   if(hsp_method == "mk_model") {
-    hsp_out_models <- lapply(trait_states_mapped,
-                            hsp_mk_model,
-                            tree = full_tree,
-                            rate_model = "SRD",
-                            check_input = check_input_set,
-                            Nthreads = num_threads)
-
+    
+    # mk_model throws an error if there is only 1 known state (e.g. if the trait isn't found in any tips).
+    # To get around this can just set all predictions to be this known state for these traits.
+    single_state_traits <- which(sapply(trait_states_mapped, identify_single_state) == TRUE)
+    
+    if(length(single_state_traits) > 0) {
+      trait_states_mapped_variable <- trait_states_mapped[-single_state_traits]
+    } else {
+      trait_states_mapped_variable <- trait_states_mapped
+    }
+    
+    if(length(trait_states_mapped_variable) == 0) {
+      stop("Stopping - all input traits have the same state value, which won't work with a Markov model.")
+    }
+    
+    hsp_out_models <- lapply(trait_states_mapped_variable,
+                             hsp_mk_model,
+                             tree = full_tree,
+                             rate_model = "SRD",
+                             check_input = check_input_set,
+                             Nthreads = num_threads)
+    
+    # If applicable add the invariable traits into the hsp_mk_model output
+    if(length(single_state_traits) > 0) {
+      for(single_state_trait in names(single_state_traits)) {
+        hsp_out_models[[single_state_trait]] <- list(likelihoods = matrix(rep(1, num_tip), nrow=num_tip, ncol=1), success = TRUE)
+      }
+    }
+    
   } else if (hsp_method == "emp_prob") {
 
     hsp_out_models <- lapply(trait_states_mapped,
@@ -122,13 +157,18 @@ if (hsp_method == "pic" | hsp_method == "scp") {
   predicted_states <- sapply(hsp_out_models,
                              function(x) { max.col(x$likelihoods[1:num_tip,]) })
   
-  state2val <- sapply(trait_states_mapped_full, function(x) { x$state_values})
+  max_num_states <- max(sapply(trait_states_mapped_full, function(x) { length(x$state_values)}))
+  
+  state2val <- sapply(trait_states_mapped_full, function(x) { c(x$state_values, rep(NA, max_num_states-length(x$state_values)))})
   
   predicted_values <- sapply(colnames(predicted_states), function(x) { state2val[predicted_states[,x],x] })
 
   # If calc_ci set then figure out what the assigned trait would be at the 95% CI and output resulting matrix.
   if(calc_ci) {
-    ci_values <- data.frame(sapply(hsp_out_models, function(x) { ci_95_states2values(x$likelihoods, state2val, num_tip) }))
+    ci_values <- data.frame(sapply(names(hsp_out_models), function(x) { ci_95_states2values(hsp_out_models[[x]]$likelihoods,
+                                                                                            state2val[ , x, drop = FALSE],
+                                                                                            num_tip) }), check.names = FALSE)
+                                                                                                        
     
     ci_values_ci_5 <- ci_values[1:num_tip, , drop=FALSE]
     ci_values_ci_95 <- ci_values[(num_tip+1):(num_tip*2), , drop=FALSE]
@@ -150,7 +190,7 @@ if (hsp_method == "pic" | hsp_method == "scp") {
 }
 
 # Add tips as first column of predicted_values.
-predicted_values <- data.frame(predicted_values)
+predicted_values <- data.frame(predicted_values, check.names = FALSE)
 predicted_values$tips <- full_tree$tip.label
 predicted_values <- predicted_values[, c("tips", colnames(trait_values_ordered))]
 
