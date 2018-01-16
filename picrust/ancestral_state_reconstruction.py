@@ -12,19 +12,15 @@ __email__ = "morgan.g.i.langille@gmail.com"
 __status__ = "Development"
 
 
-from os.path import dirname,isdir, exists
-from os import makedirs, remove, popen
-from subprocess import Popen, PIPE, STDOUT
-from picrust.count import wagner_for_picrust
-from picrust.ace import ace_for_picrust
+from os import remove
 from cogent import LoadTable
 from cogent.util.table import Table
 from cogent.app.util import get_tmp_filename
 from picrust.util import get_picrust_project_dir
 from os.path import join
-from time import sleep
 
-from picrust.parallel import submit_jobs, system_call,wait_for_output_files
+from picrust.parallel import submit_jobs, wait_for_output_files
+
 
 def combine_asr_tables(output_files,verbose=False):
     """ Combine all tables coming from asr output. Cuts 2nd column out and joins them together into single table.
