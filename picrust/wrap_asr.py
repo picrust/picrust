@@ -186,11 +186,15 @@ def castor_asr_pic_wrapper(tree_path, trait_table_path, calc_ci,
          ("R reported an error on stderr:" +\
           " %s" % "\n".join(result["StdErr"].readlines()))
 
-    asr_prob_table = LoadTable(filename=tmp_output_prob_path, header=True,
-                               sep='\t')
+    if calc_ci:
+        asr_prob_table = LoadTable(filename=tmp_output_prob_path, header=True,
+                                   sep='\t')
+        remove(tmp_output_prob_path)
+
+    else:
+        asr_prob_table = None
 
     # Remove tmp files
     remove(tmp_output_count_path)
-    remove(tmp_output_prob_path)
 
     return asr_table, asr_prob_table

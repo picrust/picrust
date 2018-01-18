@@ -137,8 +137,10 @@ def main():
     make_output_dir_for_file(opts.output_fp)
     asr_table.writeToFile(opts.output_fp, sep='\t')
 
-    # Output the CI file (unless the method is wagner).
-    if not (opts.asr_method == 'wagner'):
+    # Output the CI file (unless the method is wagner 
+    # or castor_pic and calc_castor_ci set to False).
+    if not (opts.asr_method == 'wagner' or 
+           (opts.asr_method == 'castor_pic' and not calc_castor_ci)):
         make_output_dir_for_file(opts.output_ci_fp)
         ci_table.writeToFile(opts.output_ci_fp, sep='\t')
         
