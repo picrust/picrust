@@ -12,4 +12,4 @@ install:
   - source activate picrust-dev
   - pip install . --no-deps
 script:
-  - python tests/all_tests.py
+  - pytest tests/
