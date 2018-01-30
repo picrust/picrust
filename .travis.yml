@@ -3,18 +3,13 @@ language: python
 python:
   - "2.7"
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.3-Linux-x86_64.sh -O miniconda.sh
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda3/bin:$PATH
-  - DONT_USE_PYREX=1
 install:
-  - conda create --yes -n env_name python=$TRAVIS_PYTHON_VERSION pip numpy scipy 
-  - conda install --yes -n env_name cython
-  - conda install --yes -n env_name h5py>=2.2.0
-  - conda install --yes -n env_name -c r r-base r-ape
-  - source activate env_name
-  - pip install cogent==1.5.3 biom-format
-  - pip install -e . --no-deps
+  - conda env create -f dev-environment.yml
+  - source activate picrust-dev
+  - pip install . --no-deps
 script:
-  - python tests/all_tests.py
+  - pytest --cov=picrust tests/
