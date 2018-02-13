@@ -30,16 +30,11 @@ script_info['script_description'] = "This script performs hidden state " +\
                                     "abundance of gene families present in " +\
                                     "each taxon, given a tree and a set of " +\
                                     "known trait values. This script " +\
-                                    "outputs a table of trait predictions."
+                                    "outputs a table of trait predictions. " +\
+                                    "Note that this script assumes that the input " +\
+                                    "trait values will include \"0\" counts."
 
-# Script usage examples from predict_traits.py
-# script_info['script_usage'] = [\
-# ("","Required options with NSTI:","%prog -a -i trait_table.tab -t reference_tree.newick -r asr_counts.tab -o predict_traits.tab"),\
-# ("","Limit predictions to particular tips in OTU table:","%prog -a -i trait_table.tab -t reference_tree.newick -o predict_traits_limited.tab -l otu_table.tab"),
-# ("","Reconstruct confidence","%prog -a -i trait_table.tab -t reference_tree.newick  -o predict_traits.tab")
-# ]
-
-HSP_METHODS = ['emp_prob', 'mk_model', 'mp', 'pic', 'scp']
+HSP_METHODS = ['emp_prob', 'mk_model', 'mp', 'pic', 'scp', 'subtree_average']
 
 # Define command-line interface
 script_info['output_description'] = "Output is a tab-delimited table of " +\
@@ -73,8 +68,9 @@ script_info['optional_options'] = [
                    'probabilities across tips. "mk_model": predict ' +
                    'discrete traits based on fixed-rates continuous time ' +
                    'Markov model. "mp": predict discrete traits using max ' +
-                   'parsimony. "pic": predict continuous trait with ' +
-                   'phylogentic independent contrast. "sqp": ' +
+                   'parsimony. "subtree_average": predict continuous traits ' +
+                   'using subtree averaging. "pic": predict continuous traits '+
+                   'with phylogentic independent contrast. "scp": ' +
                    'reconstruct continuous traits using squared-change ' +
                    'parsimony [default: %default]'),
 
@@ -92,12 +88,8 @@ script_info['optional_options'] = [
               help='if specified, check input trait table before hsp ' +
                    '[default: %default]'),
 
-  make_option('--no_round', default=False, action="store_true",
-              help='if specified, do not round pic and scp prediction ' +
-                   'results [default: %default]'),
-
-  make_option('--threads', default=1, type="int",
-              help='Number of threads to use when running mk_model ' +
+  make_option('-p', '--processes', default=1, type="int",
+              help='Number of processes to run in parallel.' +
                    '[default: %default]'),
 
   make_option('--debug', default=False, action="store_true",
@@ -126,8 +118,7 @@ def main():
                                              calc_nsti=opts.calculate_NSTI,
                                              calc_ci=ci_setting,
                                              check_input=opts.check,
-                                             no_round=opts.no_round,
-                                             threads=opts.threads,
+                                             num_cores=opts.processes,
                                              HALT_EXEC=opts.debug)
 
     # Output the table to file.
