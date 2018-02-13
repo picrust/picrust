@@ -22,7 +22,7 @@ from numpy import array, asarray, atleast_1d
 from os import fsync, makedirs, remove, rename
 from os.path import abspath, dirname, isdir, join, split
 import StringIO
-from subprocess import PIPE, Popen
+from subprocess import PIPE, Popen, call
 
 
 def make_sample_transformer(scaling_factors):
@@ -158,6 +158,133 @@ def convert_biom_to_precalc(biom_table):
     return "\n".join("\t".join(map(str, x)) for x in lines)
 
 
+def read_fasta(filename, cut_header=False):
+
+    '''Read in FASTA file and return dictionary with each independent sequence
+    id as a key and the corresponding sequence string as the value.
+    '''
+
+    # Intitialize empty dict.
+    seq = {}
+
+    # Intitialize undefined str variable to contain the most recently parsed
+    # header name.
+    name = None
+
+    # Read in FASTA line-by-line.
+    with open(filename, "r") as fasta:
+
+        for line in fasta:
+
+            # If header-line then split by whitespace, take the first element,
+            # and define the sequence name as everything after the ">".
+            if line[0] == ">":
+
+                if cut_header:
+                    name = line.split()[0][1:]
+                else:
+                    name = line[1:]
+
+                name = name.rstrip("\r\n")
+
+                # Intitialize empty sequence with this id.
+                seq[name] = ""
+
+            else:
+                # Remove line terminator/newline characters.
+                line = line.rstrip("\r\n")
+
+                # Add sequence to dictionary.
+                seq[name] += line
+
+    return seq
+
+
+def read_phylip(filename, check_input=True):
+
+    '''Reads in Phylip formatted multiple-sequence alignment and stores in
+    dictionary with each key as a sequence name and each value as the sequence.
+    If check_input=True then will check whether the number and length of each
+    sequence is correctly specified (first line of file).
+    '''
+
+    # Intitialize empty dict.
+    seq = {}
+
+    line_count = 0
+
+    # Read in phylip line-by-line.
+    with open(filename, "r") as phylip:
+
+        for line in phylip:
+
+            line_split = line.split()
+
+            # Header-line, store the # of seqs and length of seqs and skip.
+            if line_count == 0:
+                num_seqs = int(line_split[0])
+                seq_length = int(line_split[1].rstrip("\r\n"))
+                line_count += 1
+                continue
+
+            # Add sequence to dictionary.
+            seq[line_split[0]] = line_split[1].rstrip("\r\n")
+
+            if check_input:
+                # Check length of sequence is correct.
+                if len(seq[line_split[0]]) != seq_length:
+                    raise SystemExit("Expected sequence " + line_split[0] +
+                                     " to be length " + str(seq_length) +
+                                     ", but was " +
+                                     str(len(seq[line_split[0]])))
+
+    if check_input:
+        # Check number of sequences read in.
+        if len(seq) != num_seqs:
+            raise SystemExit("Expected " + str(num_seqs) + " sequences, but " +
+                             "found " + str(len(seq)))
+
+    return seq
+
+
+def write_fasta(seq, outfile):
+    out_fasta = open(outfile, "w")
+
+    for s in seq:
+        out_fasta.write(">" + s + "\n")
+        out_fasta.write(seq[s] + "\n")
+
+    out_fasta.close()
+
+
+def write_phylip(seq, outfile):
+    out_phylip = open(outfile, "w")
+
+    seq_count = 0
+
+    for s in seq:
+
+        # Write header if this is first line.
+        if seq_count == 0:
+
+            seq_length = len(seq[s])
+
+            out_phylip.write(str(len(seq)) + " " + str(seq_length) + "\n")
+
+            seq_count += 1
+
+        if seq_length != len(seq[s]):
+
+            # Throw error if sequence is unexpected length.
+            raise SystemExit("Expected sequence " + s + " to be length " + 
+                             str(seq_length) + ", but was " +
+                             str(len(seq[s])))
+
+        out_phylip.write(s + " " + seq[s] + "\n")
+
+    out_phylip.close()
+
+
 def determine_metadata_type(line):
     if ';' in line:
         if '|' in line:
@@ -208,6 +335,30 @@ def system_call(cmd, shell=True):
     stdout, stderr = proc.communicate()
     return_value = proc.returncode
     return stdout, stderr, return_value
+
+
+def system_call_check(cmd, print_out=False):
+    """Run system command and throw and error if return is not 0. Input command
+    can be a list containing the command or a string."""
+
+    # Print command out if option set.
+    if print_out:
+        if type(cmd) is list:
+            print(" ".join(cmd))
+        else:
+            print(cmd)
+
+    # Convert command to list if input as string.
+    if type(cmd) is str:
+        cmd = cmd.split()
+
+    return_value = call(cmd)
+
+    # Exit with error if command did not finish successfully.
+    if return_value != 0:
+        raise SystemExit("Error running this command:\n" + " ".join(cmd))
+    else:
+        return(return_value)
 
 
 def file_contains_nulls(file):
