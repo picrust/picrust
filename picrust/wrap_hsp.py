@@ -73,8 +73,7 @@ def castor_hsp_wrapper(tree_path,
                        calc_nsti=False,
                        calc_ci=False,
                        check_input=False,
-                       no_round=False,
-                       threads=1,
+                       num_cores=1,
                        HALT_EXEC=False):
                        
     '''Runs the Castor_hsp application controller given path of tree and 
@@ -106,19 +105,13 @@ def castor_hsp_wrapper(tree_path,
     else:
         check_input_setting = "FALSE"
 
-    if no_round:
-        no_round_setting = "TRUE"
-    else:
-        no_round_setting = "FALSE"
-
     as_string = " ".join([tree_path,
                           trait_table_path,
                           hsp_method,
                           calc_nsti_setting,
                           calc_ci_setting,
                           check_input_setting,
-                          no_round_setting,
-                          str(threads),
+                          str(num_cores),
                           tmp_output_count_path,
                           tmp_output_ci_path])
 
