@@ -121,9 +121,12 @@ def main():
       papara_out = read_phylip(papara_filename, check_input=True)
 
       # Move papara Phylip file, quality, and log to tmp folder.
-      system_call_check("mv " + papara_filename + " " + tmp_dir, True)
-      system_call_check("mv papara_log." + papara_suffix + " " + tmp_dir, True)
-      system_call_check("mv papara_quality." + papara_suffix + " " + tmp_dir, True)
+      system_call_check("mv " + papara_filename + " " + tmp_dir,
+                        print_out=opts.print_cmds)
+      system_call_check("mv papara_log." + papara_suffix + " " + tmp_dir,
+                        print_out=opts.print_cmds)
+      system_call_check("mv papara_quality." + papara_suffix + " " + tmp_dir,
+                        print_out=opts.print_cmds)
 
     # Split papara phylip output into FASTA MSA files of study sequences and
     # reference sequences separately.
@@ -151,7 +154,7 @@ def main():
 
     # Remove intermediate files unless "--keep_tmp" option specified.
     if not opts.keep_tmp:
-        system_call_check("rm -r " + tmp_dir)
+        system_call_check("rm -r " + tmp_dir, print_out=opts.print_cmds)
 
 
 if __name__ == "__main__":
