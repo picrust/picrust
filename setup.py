@@ -13,16 +13,6 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-
-try:
-    import numpy
-except ImportError:
-    raise ImportError("numpy cannot be found. Can't continue. Please install "
-                      "the numpy package (see www.numpy.org)")
-else:
-    numpy  # avoid unused variable error
-
-
 long_description = ("PICRUSt: Phylogenetic Investigation of Communities by "
                     "Reconstruction of Unobserved States\n\n"
                     "Predictive functional profiling of microbial communities "
