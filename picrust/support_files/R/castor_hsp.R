@@ -43,14 +43,6 @@ identify_single_state <- function(state_vec) {
   }
 }
 
-
-# If tips in tree contain '_' then read.tree() places single quotes around these tip labels.
-# This then causes sorting errors below since the rownames are different between the trait table and the tree.
-# Fix this by putting quotes around any labels in the trait table that have a '_'.
-for(i in grep("_",rownames(trait_values))) {
- rownames(trait_values)[i] <- paste("'", rownames(trait_values)[i], "'", sep="")
-}
-
 # Order the trait table to match the tree tip labels. Set all tips without a value to be NA.
 unknown_tips <- full_tree$tip.label[which(! full_tree$tip.label %in% rownames(trait_values))]
 
