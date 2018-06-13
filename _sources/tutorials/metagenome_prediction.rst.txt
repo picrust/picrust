@@ -37,13 +37,6 @@ Input and output files are in `biom`_ format::
 		-i your_otu_table.biom
 		-o normalized_otus.biom
 
-**(Optional) Input format of OTU table can be changed to tab-delimited "classic" OTU table instead of BIOM format using the '-f' option:** ::
-
-	 normalize_by_copy_number.py 
-		-f 
-		-i your_otu_table.tab
-		-o normalized_otus.biom
-
 (Optional) Previous examples assume the most recent Greengenes was used for closed OTU picking. Older versions can be specified using the ``--gg_version`` option: ::
 
           normalize_by_copy_number.py 
