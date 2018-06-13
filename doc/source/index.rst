@@ -36,9 +36,6 @@ More advanced users may be interested in the following (in no particular order):
 
   * :ref:`index_scripts`
 
-  * :ref:`index_methods`
-
-
 Contact
 -------
 
