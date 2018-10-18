@@ -9,11 +9,13 @@ PICRUSt is freely available under the `GPL`_.
 
 `Click here <https://github.com/picrust/picrust>`_ to go to the PICRUSt GitHub repository. 
 
+**Please note that PICRUSt2 is now available as a beta version.** PICRUSt2 is a re-written version of PICRUSt and is available `here <https://github.com/picrust/picrust2/wiki>`_ We are no longer developing PICRUSt1 and we recommend users shift to PICRUSt2.
+
 Using PICRUSt
 -------------
 If you're new to PICRUSt, you'll want to work through these documents in order:
 
-  #. :ref:`install`  
+  #. :ref:`install`
 
      **OR** 
 
