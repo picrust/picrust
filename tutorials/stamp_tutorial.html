@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Analyzing metagenomes with STAMP &#8212; PICRUSt 1.1.3 documentation</title>
+    <title>Analyzing metagenomes with STAMP &mdash; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,15 +17,13 @@
         VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -42,18 +40,21 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/stamp_tutorial.rst.txt"
+      <li><a href="../_sources/tutorials/stamp_tutorial.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -70,14 +71,14 @@
 <p>STAMP takes as input two data files. The first is a <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> that contains the count data, and the second is an optional <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> that contains metadata about each of the samples to allow comparison of groups (e.g. sick vs healthy).</p>
 <p>The <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> will need to be created by yourself, but is a simple tab-delimited format that can be easily exported from a spreadsheet program. The first column must have sample ids that match the <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> with each of the other columns representing different metadata about the samples.</p>
 <p>An example <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> could look like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Sample</span> <span class="n">Id</span>    <span class="n">Location</span>    <span class="n">Phenotype</span>    <span class="n">Gender</span>    <span class="n">Sample</span> <span class="n">Size</span>
-<span class="n">Sample</span> <span class="mi">1</span>     <span class="n">Canada</span>        <span class="n">Obese</span>      <span class="n">Female</span>      <span class="mi">4000</span>
-<span class="n">Sample</span> <span class="mi">2</span>     <span class="n">Canada</span>        <span class="n">Lean</span>       <span class="n">Male</span>        <span class="mi">2000</span>
-<span class="n">Sample</span> <span class="mi">3</span>     <span class="n">Italy</span>         <span class="n">Lean</span>       <span class="n">Female</span>      <span class="mi">3000</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>Sample Id    Location    Phenotype    Gender    Sample Size
+Sample 1     Canada        Obese      Female      4000
+Sample 2     Canada        Lean       Male        2000
+Sample 3     Italy         Lean       Female      3000
 </pre></div>
 </div>
 <p>To create the STAMP <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> you need to do a simple conversion of PICRUSt&#8217;s BIOM output from within the STAMP tool. Start up STAMP and click</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">File</span><span class="o">-&gt;</span><span class="n">Create</span> <span class="n">STAMP</span> <span class="n">profile</span> <span class="n">from</span><span class="o">...-&gt;</span><span class="n">BIOM</span> <span class="n">profile</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>File-&gt;Create STAMP profile from...-&gt;BIOM profile
 </pre></div>
 </div>
 <p>Click &#8220;Load&#8221; and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following:</p>
@@ -106,12 +107,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

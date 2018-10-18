@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn &#8212; PICRUSt 1.1.3 documentation</title>
+    <title>Analyzing metagenomes with HUManN, LEfSe, and GraPhlAn &mdash; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,15 +17,13 @@
         VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -53,18 +51,21 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/humann_tutorial.rst.txt"
+      <li><a href="../_sources/tutorials/humann_tutorial.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -83,13 +84,13 @@
 <p>HUMAnN can be downloaded from the <a class="reference external" href="http://huttenhower.sph.harvard.edu/humann">website</a>. The input files need to be in the <a class="reference external" href="http://en.wikipedia.org/wiki/Tab-separated_values">Tab-Separated Values</a> (TSV: <code class="docutils literal"><span class="pre">.tsv</span></code>) format.</p>
 <p><strong>Converting QIIME tables to TSV format</strong></p>
 <p>QIIME tables can be converted to TSV using the script <a class="reference external" href="https://bitbucket.org/biobakery/qiimetomaaslin/src/eff6912bb0668a865fd889255a5965a1eb5470d6/src/qiimeToMaaslin.py?at=default">QiimeToMaaslin</a>. To run the script, execute the following command</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">qiimeToMaaslin</span><span class="o">.</span><span class="n">py</span> <span class="n">metadata</span><span class="o">.</span><span class="n">metadata</span> <span class="o">&lt;</span> <span class="n">inputfile</span><span class="o">.</span><span class="n">txt</span> <span class="o">&gt;</span> <span class="n">outputfile</span><span class="o">.</span><span class="n">tsv</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>python qiimeToMaaslin.py metadata.metadata &lt; inputfile.txt &gt; outputfile.tsv
 </pre></div>
 </div>
 <p>Providing the metadata is optional. For more information, please refer to the <a class="reference external" href="https://bitbucket.org/biobakery/qiimetomaaslin/src/eff6912bb0668a865fd889255a5965a1eb5470d6/doc/QiimeToMaaslin-ReadMe.txt?at=default">documentation</a>.</p>
 <p><strong>Converting BIOM files to TSV format</strong></p>
 <p>BIOM files can be converted to TSV format using the tools provided by the <a class="reference external" href="http://biom-format.org/documentation/biom_conversion.html">biom format</a> package (Please refer to the <a class="reference external" href="http://biom-format.org/">examples on the website</a> for more information). Use the following command to convert biom files to TSV format</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">biom</span> <span class="n">convert</span> <span class="o">-</span><span class="n">i</span> <span class="n">input_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">output_table</span><span class="o">.</span><span class="n">tsv</span> <span class="o">-</span><span class="n">b</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>biom convert -i input_table.biom -o output_table.tsv -b
 </pre></div>
 </div>
 <p>Please make sure to remove the first line in the output file (output_table.tsv):<code class="docutils literal"><span class="pre">#</span> <span class="pre">Constructed</span> <span class="pre">from</span> <span class="pre">biom</span> <span class="pre">file</span></code>, and save the file in the current format.</p>
@@ -97,7 +98,7 @@
 <div class="section" id="running-humann">
 <h2>Running HUMAnN<a class="headerlink" href="#running-humann" title="Permalink to this headline">¶</a></h2>
 <p>The TSV input files can then be copied to the input folder in the HUMAnN repository (i.e. ../humann/input/). To execute HUMAnN, run the following command from the main repository path (i.e. ../humann/)</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">scons</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scons</span>
 </pre></div>
 </div>
 <p>This command will create an output directory in the main repository (i.e. ../humann/output), which will contain all the analysis results for each input file submitted.</p>
@@ -106,19 +107,23 @@
 <h2>Differential abundance analysis with LEfSe<a class="headerlink" href="#differential-abundance-analysis-with-lefse" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt>Any of the output HUMAnN files named as: <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code> can then be used as input for further analysis with <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=lefse_upload">LEfSe</a> equivalently. Please follow the instructions below to make the input appropriate for LEfSe,</dt>
-<dd><ul class="first last simple">
-<li>Select a file from the HUMAnN output folder (named <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code>)</li>
-<li>Open the file in Microsoft Excel or a text editor.</li>
-<li>Remove the first column.</li>
+<dd><ul class="first last">
+<li><p class="first">Select a file from the HUMAnN output folder (named <code class="docutils literal"><span class="pre">04b-*-mpt-*.txt</span></code> or <code class="docutils literal"><span class="pre">04b-*-mpm-*.txt</span></code>)</p>
+</li>
+<li><p class="first">Open the file in Microsoft Excel or a text editor.</p>
+</li>
+<li><p class="first">Remove the first column.</p>
+</li>
 <li><dl class="first docutils">
 <dt>Remove every metadata row (anything including and above InverseSimpson) <em>except</em> the class (and optional subclass), and the top row: ID/NAME.</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li><cite>Please ensure only 1-2 metadata rows remain apart from the Name/ID row at the top</cite>.</li>
 </ul>
 </dd>
 </dl>
 </li>
-<li>Save the modifications to the file, and use this version of the file as an input for LEfSe.</li>
+<li><p class="first">Save the modifications to the file, and use this version of the file as an input for LEfSe.</p>
+</li>
 </ul>
 </dd>
 </dl>
@@ -138,10 +143,10 @@
 <li>Once the data is formatted, click on the <code class="docutils literal"><span class="pre">LDA</span> <span class="pre">Effect</span> <span class="pre">Size</span></code> link in the panel on the left.  Select the <strong>formatted data</strong> from the <code class="docutils literal"><span class="pre">Select</span> <span class="pre">Data</span></code> drop-down menu and press <code class="docutils literal"><span class="pre">Execute</span></code>.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/lda_lefse.png"><img alt="../_images/lda_lefse.png" src="../_images/lda_lefse.png" style="width: 400pt;" /></a>
-<ol class="arabic simple" start="6">
+<ol class="arabic" start="6">
 <li><dl class="first docutils">
 <dt>The output generated from the step above can be used as input for the following.</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>Plot the LEfSe results using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">LEfSe</span> <span class="pre">Results</span></code> link in the panel on the left.</li>
 <li>Plot a Cladogram using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">Cladogram</span></code> link in the panel on the left.</li>
 <li>Plot Differential Features using the <code class="docutils literal"><span class="pre">Plot</span> <span class="pre">Differential</span> <span class="pre">Features</span></code> link in the panel on the left.</li>
@@ -159,10 +164,10 @@
 <li>Click the link <code class="docutils literal"><span class="pre">Load</span> <span class="pre">input</span> <span class="pre">tree</span></code> in the panel on the left, and select the output file from HUMAnN by clicking on the <code class="docutils literal"><span class="pre">Choose</span> <span class="pre">file</span></code> button. Press the <code class="docutils literal"><span class="pre">Execute</span></code> button to upload the file.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/load_graphlan.png"><img alt="../_images/load_graphlan.png" src="../_images/load_graphlan.png" style="width: 400pt;" /></a>
-<ol class="arabic simple" start="2">
+<ol class="arabic" start="2">
 <li><dl class="first docutils">
 <dt>After the data has been uploaded, click on the <code class="docutils literal"><span class="pre">Annotate</span> <span class="pre">tree</span></code> link to add all the graphical features. Then, select the input file from the <code class="docutils literal"><span class="pre">Input</span> <span class="pre">File</span></code> drop-down menu. Specify the data fields according to the desired output, and press the <code class="docutils literal"><span class="pre">Execute</span></code> button when done. For example, the fields specified for a figure with leaf node names would be as follows:</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>Select the clades of interest from the list <code class="docutils literal"><span class="pre">Select</span> <span class="pre">clade(s)</span></code>.</li>
 <li>Enter <code class="docutils literal"><span class="pre">*</span></code> for the field <code class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span></code>.</li>
 <li>Specify <code class="docutils literal"><span class="pre">Clade</span> <span class="pre">leaf</span> <span class="pre">nodes</span></code> from the drop-down menu <code class="docutils literal"><span class="pre">Annotation</span> <span class="pre">Label</span> <span class="pre">Clade</span> <span class="pre">Selector</span></code>.</li>
@@ -195,12 +200,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Analyzing metagenomes with QIIME &#8212; PICRUSt 1.1.3 documentation</title>
+    <title>Analyzing metagenomes with QIIME &mdash; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,15 +17,13 @@
         VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -42,18 +40,21 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/qiime_tutorial.rst.txt"
+      <li><a href="../_sources/tutorials/qiime_tutorial.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -84,20 +85,20 @@
 <p>Plots of functional categories at various levels can be created using <a class="reference external" href="http://qiime.org/scripts/summarize_taxa_through_plots.html">summarize_taxa_through_plots.py</a></p>
 <blockquote>
 <div><ul>
-<li><p class="first">Since KEGG Orthologs belong to several pathways you should collapse your PICRUSt predictions to the desired hierarchy level using <a class="reference internal" href="../scripts/categorize_by_function.html#categorize-by-function"><span class="std std-ref">categorize_by_function.py</span></a></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">categorize_by_function</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">metagenome_predictions</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;KEGG_Pathways&quot;</span> <span class="o">-</span><span class="n">l</span> <span class="mi">2</span> <span class="o">-</span><span class="n">o</span> <span class="n">metagenome_at_level2</span><span class="o">.</span><span class="n">biom</span>
+<li><p class="first">Since KEGG Orthologs belong to several pathways you should collapse your PICRUSt predictions to the desired hierarchy level using <a class="reference internal" href="../scripts/categorize_by_function.html#categorize-by-function"><span>categorize_by_function.py</span></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>categorize_by_function.py -i metagenome_predictions.biom -c &quot;KEGG_Pathways&quot; -l 2 -o metagenome_at_level2.biom
 </pre></div>
 </div>
 </li>
 <li><p class="first">Then add the following lines to a <a class="reference external" href="http://qiime.org/documentation/qiime_parameters_files.html">qiime parameter file</a> (e.g. qiime_params.txt) ensuring that the level you collapsed at is the same in your config file</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">summarize_taxa</span><span class="p">:</span><span class="n">md_identifier</span>    <span class="s2">&quot;KEGG_Pathways&quot;</span>
-<span class="n">summarize_taxa</span><span class="p">:</span><span class="n">absolute_abundance</span>   <span class="kc">True</span>
-<span class="n">summarize_taxa</span><span class="p">:</span><span class="n">level</span>    <span class="mi">2</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>summarize_taxa:md_identifier    &quot;KEGG_Pathways&quot;
+summarize_taxa:absolute_abundance   True
+summarize_taxa:level    2
 </pre></div>
 </div>
 </li>
 <li><p class="first">Lastly, run <a class="reference external" href="http://qiime.org/scripts/summarize_taxa_through_plots.html">summarize_taxa_through_plots.py</a></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">summarize_taxa_through_plots</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">metagenome_at_level2</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">p</span> <span class="n">qiime_params</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">o</span> <span class="n">plots_at_level2</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>summarize_taxa_through_plots.py -i metagenome_at_level2.biom -p qiime_params.txt -o plots_at_level2
 </pre></div>
 </div>
 </li>
@@ -133,12 +134,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

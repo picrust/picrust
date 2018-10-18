@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installing PICRUSt &#8212; PICRUSt 1.1.3 documentation</title>
+    <title>Installing PICRUSt &mdash; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,15 +17,13 @@
         VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="top" title="PICRUSt 1.1.3 documentation" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -58,18 +56,21 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/install.rst.txt"
+      <li><a href="_sources/install.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -91,11 +92,11 @@
 <h2>Recommended: Install PICRUSt with bioconda<a class="headerlink" href="#recommended-install-picrust-with-bioconda" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to install PICRUSt is with <a class="reference external" href="https://bioconda.github.io/">bioconda</a>.</p>
 <p>To do so you need to type this command in a conda environment:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">bioconda</span> <span class="n">picrust</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>conda install -c bioconda picrust
 </pre></div>
 </div>
 <p>You will then need to download the required precalculated files with this command (see more details under Step 4 below):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>You should be good to go! If you run into any problems you can try installing the source manually instead.</p>
@@ -115,7 +116,7 @@
 <li><a class="reference external" href="http://www.h5py.org">h5py</a> (version 2.7.0)</li>
 </ul>
 <p>You can install h5py with this command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>pip install h5py
 </pre></div>
 </div>
 <p><strong>Rebuilding PICRUSt&#8217;s precalculated 16S rRNA OR Genome Predictions (optional)</strong></p>
@@ -133,7 +134,7 @@
 <div class="section" id="development-software">
 <h3>Development software<a class="headerlink" href="#development-software" title="Permalink to this headline">¶</a></h3>
 <p>Alternatively you can download the latest development version of PICRUSt. You can download the development version of PICRUSt from <a class="reference external" href="https://github.com/picrust/picrust/archive/master.zip">this link</a>, or using the following command if you have <code class="docutils literal"><span class="pre">git</span></code> installed:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">picrust</span><span class="o">/</span><span class="n">picrust</span><span class="o">.</span><span class="n">git</span> <span class="n">picrust</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>git clone git://github.com/picrust/picrust.git picrust
 </pre></div>
 </div>
 </div>
@@ -141,24 +142,24 @@
 <div class="section" id="install-from-source-step-3-install-picrust">
 <h2>Install From Source Step 3. Install PICRUSt<a class="headerlink" href="#install-from-source-step-3-install-picrust" title="Permalink to this headline">¶</a></h2>
 <p>After downloading PICRUSt, you&#8217;ll need to unzip the file. If you&#8217;ve downloaded the release version, do this with the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xzf</span> <span class="n">picrust</span><span class="o">-</span><span class="mf">1.1</span><span class="o">.</span><span class="mf">3.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>tar -xzf picrust-1.1.3.tar.gz
 </pre></div>
 </div>
 <p>You&#8217;ll then change into the new <code class="docutils literal"><span class="pre">picrust-1.1.3</span></code> directory as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">picrust</span><span class="o">-</span><span class="mf">1.1</span><span class="o">.</span><span class="mi">3</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>cd picrust-1.1.3
 </pre></div>
 </div>
 <p>And finally, you&#8217;ll install PICRUSt with the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>pip install .
 </pre></div>
 </div>
 </div>
 <div class="section" id="install-from-source-step-4-download-picrust-s-precalculated-files">
 <h2>Install from Source Step 4. Download PICRUSt&#8217;s precalculated files<a class="headerlink" href="#install-from-source-step-4-download-picrust-s-precalculated-files" title="Permalink to this headline">¶</a></h2>
-<p>PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><span class="std std-ref">Picking OTUs for use in PICRUSt</span></a>).</p>
-<p>Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the default files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of <a class="reference internal" href="picrust_precalculated_files.html#id1"><span class="std std-ref">PICRUSt&#8217;s Precalculated Files</span></a>.</p>
+<p>PICRUSt precomputes most of the computationally intensive pipeline so each user can get predictions with less steps. These files are changed whenever there is a new release of the GreenGenes tree and/or a new release of IMG. These files are fairly large and need to be downloaded separately. Also, you only need the version that corresponds to the GreenGenes that you picked OTUs against (see <a class="reference internal" href="tutorials/otu_picking.html#otu-picking-tutorial"><span>Picking OTUs for use in PICRUSt</span></a>).</p>
+<p>Assuming you will be picking OTUs against the newest version of GreenGenes and want KEGG Ortholog predictions, then the default files will be sufficient. If you picked against an older version of GreenGenes or are interested in different functional predictions (e.g. COGs) then see the complete list of <a class="reference internal" href="picrust_precalculated_files.html#id1"><span>PICRUSt&#8217;s Precalculated Files</span></a>.</p>
 <p>You can install the default files automatically by running:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">download_picrust_files</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>Alternatively, download these files and place them in the <code class="docutils literal"><span class="pre">data</span></code> directory where PICRUSt was installed (e.g. if installed in a conda enviroment named &#8220;picrust&#8221;, place the files in <code class="docutils literal"><span class="pre">$HOME/miniconda3/envs/picrust/lib/python2.7/site-packages/picrust/data/</span></code>):</p>
@@ -181,12 +182,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

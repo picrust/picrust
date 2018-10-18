@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Picking OTUs for use in PICRUSt &#8212; PICRUSt 1.1.3 documentation</title>
+    <title>Picking OTUs for use in PICRUSt &mdash; PICRUSt 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,15 +17,13 @@
         VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -53,18 +51,21 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/otu_picking.rst.txt"
+      <li><a href="../_sources/tutorials/otu_picking.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -93,32 +94,32 @@
 <h2>Picking closed reference OTUs with QIIME<a class="headerlink" href="#picking-closed-reference-otus-with-qiime" title="Permalink to this headline">¶</a></h2>
 <p>To pick &#8216;closed reference&#8217; OTUs with QIIME for use in PICRUSt, you should begin with a demuliplexed fasta file in QIIME format, and the GG reference collection (see download link above).</p>
 <p>The demuliplexed fasta file in QIIME format is a standard multi-line fasta file, where sequence identifiers are of the form <code class="docutils literal"><span class="pre">sampleID_seqID</span></code>. In these sequence identifiers, <code class="docutils literal"><span class="pre">sampleID</span></code> indicates the name of the sample, and <code class="docutils literal"><span class="pre">seqID</span></code> is a unique (with respect to the current file) sequence identifier. The <code class="docutils literal"><span class="pre">seqID</span></code> values are often just assigned as ascending integers to ensure their uniqueness. These files can be generated with the <code class="docutils literal"><span class="pre">split_libraries</span></code> * scripts in QIIME, or using other software. This file might look like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="n">s1_1</span>
-<span class="n">ACCTTAGGATGGATTAGACCCAGA</span>
-<span class="o">&gt;</span><span class="n">s1_2</span>
-<span class="n">ACCAGGATGGACCCCTTAGACCCAGA</span>
-<span class="o">&gt;</span><span class="n">s2_3</span>
-<span class="n">AGGTCCTGGATGGACCCCTTAGACCCAGA</span>
-<span class="o">&gt;</span><span class="n">s1_4</span>
-<span class="n">ACCAGTTGATGGACCCCTTAGACCCAGA</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&gt;s1_1
+ACCTTAGGATGGATTAGACCCAGA
+&gt;s1_2
+ACCAGGATGGACCCCTTAGACCCAGA
+&gt;s2_3
+AGGTCCTGGATGGACCCCTTAGACCCAGA
+&gt;s1_4
+ACCAGTTGATGGACCCCTTAGACCCAGA
 </pre></div>
 </div>
 <p>In this example we have two samples (<code class="docutils literal"><span class="pre">s1</span></code> and <code class="docutils literal"><span class="pre">s2</span></code>) and four sequences, three of which are in <code class="docutils literal"><span class="pre">s1</span></code> and one of which is in <code class="docutils literal"><span class="pre">s2</span></code>. For additional details on this file, see <a class="reference external" href="http://qiime.org/documentation/file_formats.html#demultiplexed-sequences">here</a>.</p>
 <p>If your demultiplexed fna file is named <code class="docutils literal"><span class="pre">seqs.fna</span></code> and is in your current working directory, and you have unzipped the GG OTUs in the current working directory, you would pick OTUs with the following commands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
+<div class="highlight-python"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
 echo &quot;pick_otus:similarity 0.97&quot; &gt;&gt; $PWD/otu_picking_params_97.txt
 pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -t $PWD/gg_13_5_otus/taxonomy/97_otu_taxonomy.txt
 </pre></div>
 </div>
 <p>This command picks OTUs and builds a <a class="reference external" href="http://www.biom-format.org">biom-formatted OTU table</a>, with OTUs assigned at 97% identity. The primary file of interest will be <code class="docutils literal"><span class="pre">ucrC97/uclust_ref_picked_otus/otu_table.biom</span></code>, which will be the OTU table that you pass to PICRUSt.</p>
 <p>Alternatively, if you&#8217;d like to pick OTUs at a 90% percent identity, you could run the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; otu_picking_params_90.txt
+<div class="highlight-python"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; otu_picking_params_90.txt
 echo &quot;pick_otus:similarity 0.90&quot; &gt;&gt; otu_picking_params_90.txt
 pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC90/ -p $PWD/otu_picking_params_90.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta
 </pre></div>
 </div>
 <p>If you have parallel QIIME running in your environment, you can modify the commands to run in parallel by append the <code class="docutils literal"><span class="pre">-a</span></code> flag and the <code class="docutils literal"><span class="pre">-O</span></code> parameter. This might looking like the following to use 8 processors to pick OTUs at 97% identity:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
+<div class="highlight-python"><div class="highlight"><pre><span></span>echo &quot;pick_otus:enable_rev_strand_match True&quot;  &gt;&gt; $PWD/otu_picking_params_97.txt
 echo &quot;pick_otus:similarity 0.97&quot; &gt;&gt; $PWD/otu_picking_params_97.txt
 pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picking_params_97.txt -r $PWD/gg_13_5_otus/rep_set/97_otus.fasta -a -O 8
 </pre></div>
@@ -129,14 +130,14 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
 <h2>Using an open reference OTU table from QIIME<a class="headerlink" href="#using-an-open-reference-otu-table-from-qiime" title="Permalink to this headline">¶</a></h2>
 <p>You may have already picked OTUs using an &#8216;open reference&#8217; approach and don&#8217;t want to have to re-pick OTUs just for PICRUSt. That is ok, but you have to first remove the de-novo OTUs by keeping only those OTUs that have matching greengene ids.</p>
 <p>To make your open reference picked OTU compatible with PICRUSt:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>filter_otus_from_otu_table.py -i otu_table.biom -o closed_otu_table.biom --negate_ids_to_exclude -e $PWD/gg_13_5_otus/rep_set/97_otus.fasta
+<div class="highlight-python"><div class="highlight"><pre><span></span>filter_otus_from_otu_table.py -i otu_table.biom -o closed_otu_table.biom --negate_ids_to_exclude -e $PWD/gg_13_5_otus/rep_set/97_otus.fasta
 </pre></div>
 </div>
 </div>
 <div class="section" id="removing-samples-with-0-read-counts">
 <h2>Removing samples with 0 read counts<a class="headerlink" href="#removing-samples-with-0-read-counts" title="Permalink to this headline">¶</a></h2>
 <p>Samples with 0 reads mapped to OTUs will be discarded at an earlier step in most OTU picking pipeline. However, if these samples are not removed then this will cause issues for PICRUSt. You can remove samples with 0 total read counts with this QIIME command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">filter_samples_from_otu_table</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">closed_otu_table</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">o</span> <span class="n">closed_otu_table_filt</span><span class="o">.</span><span class="n">biom</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>filter_samples_from_otu_table.py -i closed_otu_table.biom -o closed_otu_table_filt.biom -n 1
 </pre></div>
 </div>
 </div>
@@ -154,12 +155,12 @@ pick_closed_reference_otus.py -i $PWD/seqs.fna -o $PWD/ucrC97/ -p $PWD/otu_picki
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+        &copy; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>
