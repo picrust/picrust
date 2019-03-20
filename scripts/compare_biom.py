@@ -12,7 +12,7 @@ __status__ = "Development"
 
 from collections import defaultdict
 from os import listdir
-from numpy import array,ravel
+from numpy import array,ravel,asarray
 from os.path import join,basename
 from cogent.util.option_parsing import parse_command_line_parameters,\
   make_option
@@ -81,12 +81,14 @@ def match_biom_tables(observed_table,expected_table_keep,verbose=False,limit_to_
 
     if unique_obs_in_observed:
         empty_obs_data=[[0]*len(expected_table.ids())]*len(unique_obs_in_observed)
+        empty_obs_data=asarray(empty_obs_data)
         empty_obs_table=Table(empty_obs_data, unique_obs_in_observed,
                               expected_table.ids())
         expected_table=expected_table.merge(empty_obs_table)
 
     if unique_obs_in_expected:
         empty_obs_data=[[0]*len(observed_table.ids())]*len(unique_obs_in_expected)
+        empty_obs_data=asarray(empty_obs_data)
         empty_obs_table=Table(empty_obs_data, unique_obs_in_expected,
                               observed_table.ids())
         observed_table=observed_table.merge(empty_obs_table)
