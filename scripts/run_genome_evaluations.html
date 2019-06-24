@@ -1,38 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>run_genome_evaluations.py – Runs genome evaluations on PICRUSt. &mdash; PICRUSt 1.1.3 documentation</title>
-    
+    <title>run_genome_evaluations.py – Runs genome evaluations on PICRUSt. &#8212; PICRUSt 1.1.4 documentation</title>
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
-  </head>
-  <body role="document">
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -40,21 +31,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/scripts/run_genome_evaluations.txt"
+      <li><a href="../_sources/scripts/run_genome_evaluations.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -66,10 +56,10 @@
           <div class="body" role="main">
             
   <span class="target" id="run-genome-evaluations"></span><div class="section" id="run-genome-evaluations-py-runs-genome-evaluations-on-picrust">
-<span id="index-0"></span><h1><em>run_genome_evaluations.py</em> &#8211; Runs genome evaluations on PICRUSt.<a class="headerlink" href="#run-genome-evaluations-py-runs-genome-evaluations-on-picrust" title="Permalink to this headline">¶</a></h1>
+<span id="index-0"></span><h1><em>run_genome_evaluations.py</em> – Runs genome evaluations on PICRUSt.<a class="headerlink" href="#run-genome-evaluations-py-runs-genome-evaluations-on-picrust" title="Permalink to this headline">¶</a></h1>
 <p><strong>Description:</strong></p>
 <p>Using files created by <a class="reference external" href="./make_test_datasets.html">make_test_datasets.py</a> it runs each test dataset through the ASR (<a class="reference external" href="./ancestral_state_reconstruction.html">ancestral_state_reconstruction.py</a>) and the genome prediction (<a class="reference external" href="./predict_traits.html">predict_traits.py</a>)</p>
-<p><strong>Usage:</strong> <code class="file docutils literal"><span class="pre">run_genome_evaluations.py</span> <span class="pre">[options]</span></code></p>
+<p><strong>Usage:</strong> <code class="file docutils literal notranslate"><span class="pre">run_genome_evaluations.py</span> <span class="pre">[options]</span></code></p>
 <p><strong>Input Arguments:</strong></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -97,7 +87,7 @@
 <dt>-w, <cite>-</cite>-weighting_method</dt>
 <dd>Method for weighting during trait prediction.  See <a class="reference external" href="./predict_traits.html">predict_traits.py</a> for full documentation. Valid choices are: linear, exponential, equal [default: exponential]</dd>
 <dt>-n, <cite>-</cite>-num_jobs</dt>
-<dd>Number of jobs to be submitted (if &#8211;parallel). [default: 100]</dd>
+<dd>Number of jobs to be submitted (if –parallel). [default: 100]</dd>
 <dt><cite>-</cite>-tmp-dir</dt>
 <dd>Location to store intermediate files [default: &lt;output_dir&gt;]</dd>
 <dt><cite>-</cite>-force</dt>
@@ -110,15 +100,15 @@
 <p>Predictions from <a class="reference external" href="./predict_traits.html">predict_traits.py</a> for each test dataset.</p>
 <p><strong>Minimum Requirments:</strong></p>
 <p>Provide a directory that contains one or more datasets created by <a class="reference external" href="./make_test_datasets.html">make_test_datasets.py</a> and the original reference tree used</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>run_genome_evaluations.py -i test_datasets_dir -t reference_tree_fp
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_genome_evaluations</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">test_datasets_dir</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree_fp</span>
 </pre></div>
 </div>
 <p><strong>Specify output file:</strong></p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>run_genome_evaluations.py -i test_datasets_dir -t reference_tree_fp -o output_dir
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_genome_evaluations</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">i</span> <span class="n">test_datasets_dir</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree_fp</span> <span class="o">-</span><span class="n">o</span> <span class="n">output_dir</span>
 </pre></div>
 </div>
 <p><strong>Force the launching of jobs that alredy seem done by overwriting existing output files:</strong></p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>run_genome_evaluations.py --force -i test_datasets_dir -t reference_tree_fp -o output_dir
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_genome_evaluations</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">force</span> <span class="o">-</span><span class="n">i</span> <span class="n">test_datasets_dir</span> <span class="o">-</span><span class="n">t</span> <span class="n">reference_tree_fp</span> <span class="o">-</span><span class="n">o</span> <span class="n">output_dir</span>
 </pre></div>
 </div>
 </div>
@@ -135,12 +125,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
   </body>
 </html>

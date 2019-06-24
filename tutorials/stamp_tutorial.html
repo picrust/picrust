@@ -1,38 +1,29 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Analyzing metagenomes with STAMP &mdash; PICRUSt 1.1.3 documentation</title>
-    
+    <title>Analyzing metagenomes with STAMP &#8212; PICRUSt 1.1.4 documentation</title>
     <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.1.3 documentation" href="../index.html" /> 
-  </head>
-  <body role="document">
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -40,21 +31,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/stamp_tutorial.txt"
+      <li><a href="../_sources/tutorials/stamp_tutorial.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -68,27 +58,27 @@
   <div class="section" id="analyzing-metagenomes-with-stamp">
 <span id="stamp-tutorial"></span><h1>Analyzing metagenomes with STAMP<a class="headerlink" href="#analyzing-metagenomes-with-stamp" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="http://kiwi.cs.dal.ca/Software/STAMP">STAMP</a> (Statistical Analysis of Metagenomic Profiles) is a software package for analyzing metagenomic profiles. A user friendly, graphical interface permits easy exploration of statistical results and generation of publication quality plots for inferring the biological relevance of features in a metagenomic profile.</p>
-<p>STAMP takes as input two data files. The first is a <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> that contains the count data, and the second is an optional <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> that contains metadata about each of the samples to allow comparison of groups (e.g. sick vs healthy).</p>
-<p>The <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> will need to be created by yourself, but is a simple tab-delimited format that can be easily exported from a spreadsheet program. The first column must have sample ids that match the <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> with each of the other columns representing different metadata about the samples.</p>
-<p>An example <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> could look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>Sample Id    Location    Phenotype    Gender    Sample Size
-Sample 1     Canada        Obese      Female      4000
-Sample 2     Canada        Lean       Male        2000
-Sample 3     Italy         Lean       Female      3000
+<p>STAMP takes as input two data files. The first is a <code class="docutils literal notranslate"><span class="pre">profile</span> <span class="pre">file</span></code> that contains the count data, and the second is an optional <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> that contains metadata about each of the samples to allow comparison of groups (e.g. sick vs healthy).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> will need to be created by yourself, but is a simple tab-delimited format that can be easily exported from a spreadsheet program. The first column must have sample ids that match the <code class="docutils literal notranslate"><span class="pre">profile</span> <span class="pre">file</span></code> with each of the other columns representing different metadata about the samples.</p>
+<p>An example <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> could look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Sample</span> <span class="n">Id</span>    <span class="n">Location</span>    <span class="n">Phenotype</span>    <span class="n">Gender</span>    <span class="n">Sample</span> <span class="n">Size</span>
+<span class="n">Sample</span> <span class="mi">1</span>     <span class="n">Canada</span>        <span class="n">Obese</span>      <span class="n">Female</span>      <span class="mi">4000</span>
+<span class="n">Sample</span> <span class="mi">2</span>     <span class="n">Canada</span>        <span class="n">Lean</span>       <span class="n">Male</span>        <span class="mi">2000</span>
+<span class="n">Sample</span> <span class="mi">3</span>     <span class="n">Italy</span>         <span class="n">Lean</span>       <span class="n">Female</span>      <span class="mi">3000</span>
 </pre></div>
 </div>
-<p>To create the STAMP <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> you need to do a simple conversion of PICRUSt&#8217;s BIOM output from within the STAMP tool. Start up STAMP and click</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>File-&gt;Create STAMP profile from...-&gt;BIOM profile
+<p>To create the STAMP <code class="docutils literal notranslate"><span class="pre">profile</span> <span class="pre">file</span></code> you need to do a simple conversion of PICRUSt’s BIOM output from within the STAMP tool. Start up STAMP and click</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">File</span><span class="o">-&gt;</span><span class="n">Create</span> <span class="n">STAMP</span> <span class="n">profile</span> <span class="n">from</span><span class="o">...-&gt;</span><span class="n">BIOM</span> <span class="n">profile</span>
 </pre></div>
 </div>
-<p>Click &#8220;Load&#8221; and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following:</p>
+<p>Click “Load” and select the predicted_metagenomes.biom file from PICRUSt. Then do one of the following:</p>
 <ol class="arabic simple">
-<li>If this is the output from <code class="docutils literal"><span class="pre">predict_metagenomes.py</span></code> script then leave the Metadata field as <code class="docutils literal"><span class="pre">&lt;observation</span> <span class="pre">ids&gt;</span></code>. This will allow comparison of KEGG Orthologs.</li>
-<li>If this is the output from <code class="docutils literal"><span class="pre">categorize_by_functions.py</span></code> script then change the Metadata field to <code class="docutils literal"><span class="pre">KEGG_Pathways</span></code>. This will allow comparison of KEGG Pathways.</li>
+<li>If this is the output from <code class="docutils literal notranslate"><span class="pre">predict_metagenomes.py</span></code> script then leave the Metadata field as <code class="docutils literal notranslate"><span class="pre">&lt;observation</span> <span class="pre">ids&gt;</span></code>. This will allow comparison of KEGG Orthologs.</li>
+<li>If this is the output from <code class="docutils literal notranslate"><span class="pre">categorize_by_functions.py</span></code> script then change the Metadata field to <code class="docutils literal notranslate"><span class="pre">KEGG_Pathways</span></code>. This will allow comparison of KEGG Pathways.</li>
 </ol>
-<p>Then click &#8220;Create STAMP profile&#8221; and save as a new file with &#8221;.spf&#8221;.</p>
-<p>Once you have your STAMP <code class="docutils literal"><span class="pre">profile</span> <span class="pre">file</span></code> and <code class="docutils literal"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> generated, load the files from the <strong>File-&gt;Load Data...</strong> menu and start browsing your data.</p>
-<p>The <a class="reference external" href="http://kiwi.cs.dal.ca/wow/images/0/02/STAMP_Users_Guide_v2.0.0.pdf">STAMP User&#8217;s Guide</a> is very clear and helpful.</p>
+<p>Then click “Create STAMP profile” and save as a new file with “.spf”.</p>
+<p>Once you have your STAMP <code class="docutils literal notranslate"><span class="pre">profile</span> <span class="pre">file</span></code> and <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">metadata</span> <span class="pre">file</span></code> generated, load the files from the <strong>File-&gt;Load Data…</strong> menu and start browsing your data.</p>
+<p>The <a class="reference external" href="http://kiwi.cs.dal.ca/wow/images/0/02/STAMP_Users_Guide_v2.0.0.pdf">STAMP User’s Guide</a> is very clear and helpful.</p>
 <p>With only a few clicks you can generate figures like these:</p>
 <a class="reference internal image-reference" href="../_images/STAMP2_Windows7_Screenshot.png"><img alt="../_images/STAMP2_Windows7_Screenshot.png" src="../_images/STAMP2_Windows7_Screenshot.png" style="width: 600px;" /></a>
 <a class="reference internal image-reference" href="../_images/ArumugamBoxPlot.png"><img alt="../_images/ArumugamBoxPlot.png" src="../_images/ArumugamBoxPlot.png" style="width: 600px;" /></a>
@@ -107,12 +97,12 @@ Sample 3     Italy         Lean       Female      3000
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
   </body>
 </html>
