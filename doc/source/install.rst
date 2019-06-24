@@ -36,7 +36,7 @@ h5py needs to be installed manually (numpy is also required, but it should be in
 
 You can install h5py with this command::
 	
-        pip install h5py 
+        pip install h5py==2.7.1 
 	    	
 **Rebuilding PICRUSt's precalculated 16S rRNA OR Genome Predictions (optional)**
 
