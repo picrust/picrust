@@ -31,7 +31,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
 BASE_URL = (
     'http://kronos.pharmacology.dal.ca/public_files/picrust/'
-    'picrust_precalculated_v1.1.2/'
+    'picrust_precalculated_v1.1.4/'
 )
 
 type_of_prediction_choices = ['ko', 'cog', 'rfam']
