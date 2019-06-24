@@ -33,11 +33,11 @@ These dependencies are automatically installed with `pip install .` below:
 
 * `python`_ (version 2.7)
 * `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 2.1.6)
+* `biom`_ (version 2.1.7)
 
 h5py needs to be installed manually (numpy is also required, but it should be installed automatically with this package):
 
-* `h5py`_ (version 2.7.0)
+* `h5py`_ (version 2.7.1)
 
 You can install h5py with this command::
 	
@@ -54,7 +54,7 @@ Install From Source Step 2. Download PICRUSt
 Release software
 ^^^^^^^^^^^^^^^^
 
-The latest release of PICRUSt is `picrust-1.1.3 <https://github.com/picrust/picrust/releases/download/v1.1.3/picrust-1.1.3.tar.gz>`_. 
+The latest release of PICRUSt is `picrust-1.1.4 <https://github.com/picrust/picrust/releases/download/v1.1.4/picrust-1.1.4.tar.gz>`_. 
 
 We recommend the release version of PICRUSt for most users. If you're not sure whether you want the release or the development version of PICRUSt, you should likely go with the release version.
 
@@ -70,11 +70,11 @@ Install From Source Step 3. Install PICRUSt
 
 After downloading PICRUSt, you'll need to unzip the file. If you've downloaded the release version, do this with the following command::
 
-	tar -xzf picrust-1.1.3.tar.gz
+	tar -xzf picrust-1.1.4.tar.gz
 
-You'll then change into the new ``picrust-1.1.3`` directory as follows::
+You'll then change into the new ``picrust-1.1.4`` directory as follows::
 
-	cd picrust-1.1.3
+	cd picrust-1.1.4
 
 And finally, you'll install PICRUSt with the following command::
 
@@ -93,6 +93,6 @@ You can install the default files automatically by running::
 
 Alternatively, download these files and place them in the ``data`` directory where PICRUSt was installed (e.g. if installed in a conda enviroment named "picrust", place the files in ``$HOME/miniconda3/envs/picrust/lib/python2.7/site-packages/picrust/data/``):
 
-* Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/16S_13_5_precalculated.tab.gz>`_
+* Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/16S_13_5_precalculated.tab.gz>`_
 
-* Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/ko_13_5_precalculated.tab.gz>`_ 
+* Download for `KEGG Ortholog predictions <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/ko_13_5_precalculated.tab.gz>`_ 
