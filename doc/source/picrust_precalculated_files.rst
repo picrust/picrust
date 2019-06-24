@@ -19,24 +19,24 @@ The minimum set of files are:
 Greengenes v13.5 (and IMG 4)
 ----------------------------
 
-* `16S <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/16S_13_5_precalculated.tab.gz>`__
-* `KO <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/ko_13_5_precalculated.tab.gz>`__
-* `COG <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/cog_13_5_precalculated.tab.gz>`__
-* `RFAM <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/rfam_13_5_precalculated.tab.gz>`__
+* `16S <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/16S_13_5_precalculated.tab.gz>`__
+* `KO <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/ko_13_5_precalculated.tab.gz>`__
+* `COG <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/cog_13_5_precalculated.tab.gz>`__
+* `RFAM <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/rfam_13_5_precalculated.tab.gz>`__
 
 If you would also like to get confidence intervals you will need these additional files:
 
-* `16S CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/variances/16S_13_5_precalculated_variances.tab.gz>`__
-* `KO CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/variances/ko_13_5_precalculated_variances.tab.gz>`__
-* `COG CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/variances/cog_13_5_precalculated_variances.tab.gz>`__
-* `RFAM CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/13_5/variances/rfam_13_5_precalculated_variances.tab.gz>`__
+* `16S CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/variances/16S_13_5_precalculated_variances.tab.gz>`__
+* `KO CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/variances/ko_13_5_precalculated_variances.tab.gz>`__
+* `COG CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/variances/cog_13_5_precalculated_variances.tab.gz>`__
+* `RFAM CIs <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/variances/rfam_13_5_precalculated_variances.tab.gz>`__
 
 
 Greengenes 18may2012
 --------------------
 
-* `16S <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/18may2012/16S_18may2012_precalculated.tab.gz>`__
-* `KO <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/18may2012/ko_18may2012_precalculated.tab.gz>`__
-* `COG <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.3/18may2012/cog_18may2012_precalculated.tab.gz>`__
+* `16S <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/18may2012/16S_18may2012_precalculated.tab.gz>`__
+* `KO <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/18may2012/ko_18may2012_precalculated.tab.gz>`__
+* `COG <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/18may2012/cog_18may2012_precalculated.tab.gz>`__
 
 

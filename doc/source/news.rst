@@ -2,6 +2,8 @@
 
 News & Announcements
 ====================
+* 06-24-19: Official release of PICRUSt 1.1.4
+* 12-06-17: Official release of PICRUSt 1.1.3
 * 08-30-17: Official release of PICRUSt 1.1.2
 * 04-25-17: Official release of PICRUSt 1.1.1
 * 10-12-16: Official release of PICRUSt 1.1.0

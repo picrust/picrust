@@ -20,4 +20,5 @@
 .. _R: 					http://www.r-project.org/
 .. _numpy: 					http://www.numpy.org/
 .. _python: 					http://www.python.org/
+.. _miniconda: 					https://docs.conda.io/en/latest/miniconda.html
 .. |dummy|				replace:: :py:mod:`dummy`
