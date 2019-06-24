@@ -8,7 +8,7 @@ __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011-2013, The PICRUSt Project"
 __credits__ = ["Greg Caporaso", "Daniel McDonald", "Jose Clemente"]
 __license__ = "GPL"
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
@@ -34,11 +34,11 @@ setup(name='PICRUSt',
       url='http://picrust.github.com',
       packages=['picrust'],
       scripts=glob('scripts/*py'),
-      install_requires=['numpy >= 1.5.1',
+      install_requires=['numpy == 1.16.4',
                         'cogent == 1.5.3',
                         'h5py == 2.7.1',
-                        'biom-format >= 2.1.4, < 2.2.0',
-                        'future == 0.16'],
+                        'biom-format == 2.1.7',
+                        'future == 0.17.1'],
       package_data={'picrust':
                     ['data/*gz',
                      'support_files/jar/Count.jar',
