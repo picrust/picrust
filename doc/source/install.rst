@@ -6,21 +6,22 @@ Installing PICRUSt
 
 .. note:: Most users will not need to install PICRUSt, but can instead use the `online Galaxy version <http://galaxy.morganlangille.com/>`_.
 
-PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. To install PICRUSt, first install all of the mandatory requirements, following the instructions on their respective websites. You should then download PICRUSt. You have the choice of downloading either the release version (recommended for most users) or the development version (recommended for users who need access to the latest features, and are willing to tolerate some instability in the code). Next, you will download the large precalculated PICRUSt files and place them in your picrust/data directory. Finally, you'll install PICRUSt. Each of these steps are detailed below.
+PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. The easist way to install PICRUSt is with `conda` as described below. You will need to download the pre-calculated files before running the tool no matter how it is installed.
 
-Recommended: Install PICRUSt with bioconda
+Recommended: Install PICRUSt from bioconda
 ----------------------------
-The easiest way to install PICRUSt is with `bioconda`_.
+The easiest way to install PICRUSt is from `bioconda`_, which requires `conda` to be installed (see `miniconda`_).
 
-To do so you need to type this command in a conda environment::
+To do so you need to type these commands to install PICRUSt in a new environment named `picrust1`::
 
-	conda install -c bioconda picrust
+        conda create -n picrust1 -c bioconda picrust
+        conda activate picrust1
 
 You will then need to download the required precalculated files with this command (see more details under Step 4 below)::
 
 	download_picrust_files.py
 
-You should be good to go! If you run into any problems you can try installing the source manually instead.
+You should be good to go! If you run into any problems you can try install from source manually instead.
 
 Install From Source Step 1. Install Requirements
 ----------------------------
@@ -28,12 +29,6 @@ Install From Source Step 1. Install Requirements
 Follow the install instructions found on the website of each of the dependencies below to install PICRUSt's dependencies.
 
 **Mandatory**
-
-These dependencies are automatically installed with `pip install .` below:
-
-* `python`_ (version 2.7)
-* `PyCogent`_ (version 1.5.3)
-* `biom`_ (version 2.1.7)
 
 h5py needs to be installed manually (numpy is also required, but it should be installed automatically with this package):
 
@@ -80,6 +75,13 @@ And finally, you'll install PICRUSt with the following command::
 
 	pip install .
 
+These dependencies are automatically installed with `pip install .`:
+
+* `python`_ (version 2.7)
+* `PyCogent`_ (version 1.5.3)
+* `biom`_ (version 2.1.7)
+
+
 Install from Source Step 4. Download PICRUSt's precalculated files
 ----------------------------------------------
 
@@ -91,7 +93,7 @@ You can install the default files automatically by running::
 
 	download_picrust_files.py
 
-Alternatively, download these files and place them in the ``data`` directory where PICRUSt was installed (e.g. if installed in a conda enviroment named "picrust", place the files in ``$HOME/miniconda3/envs/picrust/lib/python2.7/site-packages/picrust/data/``):
+Alternatively, download these files and place them in the ``data`` directory where PICRUSt was installed (e.g. if installed in a conda enviroment named "picrust1", place the files in ``$HOME/miniconda3/envs/picrust1/lib/python2.7/site-packages/picrust/data/``):
 
 * Download for `16S copy number normalization <http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/16S_13_5_precalculated.tab.gz>`_
 
