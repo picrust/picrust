@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Installing PICRUSt &#8212; PICRUSt 1.1.4 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -52,13 +50,11 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -74,15 +70,15 @@
   <div class="section" id="installing-picrust">
 <span id="install"></span><h1>Installing PICRUSt<a class="headerlink" href="#installing-picrust" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://galaxy.morganlangille.com/">online Galaxy version</a>.</p>
+<p class="admonition-title">Note</p>
+<p>Most users will not need to install PICRUSt, but can instead use the <a class="reference external" href="http://galaxy.morganlangille.com/">online Galaxy version</a>.</p>
 </div>
 <p>PICRUSt is written in python, and has been tested on Mac OS X and Linux systems. The easist way to install PICRUSt is with <cite>conda</cite> as described below. You will need to download the pre-calculated files before running the tool no matter how it is installed.</p>
 <div class="section" id="recommended-install-picrust-from-bioconda">
 <h2>Recommended: Install PICRUSt from bioconda<a class="headerlink" href="#recommended-install-picrust-from-bioconda" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to install PICRUSt is from <a class="reference external" href="https://bioconda.github.io/">bioconda</a>, which requires <cite>conda</cite> to be installed (see <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">miniconda</a>).</p>
 <p>To do so you need to type these commands to install PICRUSt in a new environment named <cite>picrust1</cite>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">picrust1</span> <span class="o">-</span><span class="n">c</span> <span class="n">bioconda</span> <span class="n">picrust</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">picrust1</span> <span class="o">-</span><span class="n">c</span> <span class="n">bioconda</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">picrust</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">picrust1</span>
 </pre></div>
 </div>
@@ -98,7 +94,7 @@
 <p><strong>Mandatory</strong></p>
 <p>h5py needs to be installed manually (numpy is also required, but it should be installed automatically with this package):</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.h5py.org">h5py</a> (version 2.7.1)</li>
+<li><p><a class="reference external" href="http://www.h5py.org">h5py</a> (version 2.7.1)</p></li>
 </ul>
 <p>You can install h5py with this command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">h5py</span><span class="o">==</span><span class="mf">2.7</span><span class="o">.</span><span class="mi">1</span>
@@ -106,7 +102,7 @@
 </div>
 <p><strong>Rebuilding PICRUSt’s precalculated 16S rRNA OR Genome Predictions (optional)</strong></p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.r-project.org/">R</a> installed with <a class="reference external" href="http://ape.mpl.ird.fr/">APE</a> library</li>
+<li><p><a class="reference external" href="http://www.r-project.org/">R</a> installed with <a class="reference external" href="http://ape.mpl.ird.fr/">APE</a> library</p></li>
 </ul>
 </div>
 <div class="section" id="install-from-source-step-2-download-picrust">
@@ -140,9 +136,9 @@
 </div>
 <p>These dependencies are automatically installed with <cite>pip install .</cite>:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</li>
-<li><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</li>
-<li><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.7)</li>
+<li><p><a class="reference external" href="http://www.python.org/">python</a> (version 2.7)</p></li>
+<li><p><a class="reference external" href="http://www.pycogent.org/">PyCogent</a> (version 1.5.3)</p></li>
+<li><p><a class="reference external" href="http://biom-format.org">biom</a> (version 2.1.7)</p></li>
 </ul>
 </div>
 <div class="section" id="install-from-source-step-4-download-picrust-s-precalculated-files">
@@ -155,8 +151,8 @@
 </div>
 <p>Alternatively, download these files and place them in the <code class="docutils literal notranslate"><span class="pre">data</span></code> directory where PICRUSt was installed (e.g. if installed in a conda enviroment named “picrust1”, place the files in <code class="docutils literal notranslate"><span class="pre">$HOME/miniconda3/envs/picrust1/lib/python2.7/site-packages/picrust/data/</span></code>):</p>
 <ul class="simple">
-<li>Download for <a class="reference external" href="http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/16S_13_5_precalculated.tab.gz">16S copy number normalization</a></li>
-<li>Download for <a class="reference external" href="http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/ko_13_5_precalculated.tab.gz">KEGG Ortholog predictions</a></li>
+<li><p>Download for <a class="reference external" href="http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/16S_13_5_precalculated.tab.gz">16S copy number normalization</a></p></li>
+<li><p>Download for <a class="reference external" href="http://kronos.pharmacology.dal.ca/public_files/picrust/picrust_precalculated_v1.1.4/13_5/ko_13_5_precalculated.tab.gz">KEGG Ortholog predictions</a></p></li>
 </ul>
 </div>
 </div>
@@ -178,7 +174,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
   </body>
 </html>
