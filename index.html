@@ -1,43 +1,34 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States &mdash; PICRUSt 1.1.3 documentation</title>
-    
+    <title>PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States &#8212; PICRUSt 1.1.4 documentation</title>
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1.1.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PICRUSt 1.1.3 documentation" href="#" /> 
-  </head>
-  <body role="document">
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
+  <h3><a href="#">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States</a><ul>
 <li><a class="reference internal" href="#using-picrust">Using PICRUSt</a></li>
@@ -51,21 +42,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
+      <li><a href="_sources/index.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -78,36 +68,36 @@
             
   <div class="section" id="picrust-phylogenetic-investigation-of-communities-by-reconstruction-of-unobserved-states">
 <h1>PICRUSt: Phylogenetic Investigation of Communities by Reconstruction of Unobserved States<a class="headerlink" href="#picrust-phylogenetic-investigation-of-communities-by-reconstruction-of-unobserved-states" title="Permalink to this headline">¶</a></h1>
-<p>PICRUSt (pronounced &#8220;pie crust&#8221;) is a bioinformatics software package designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.</p>
+<p>PICRUSt (pronounced “pie crust”) is a bioinformatics software package designed to predict metagenome functional content from marker gene (e.g., 16S rRNA) surveys and full genomes.</p>
 <p>PICRUSt is freely available under the <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GPL</a>.</p>
 <p><a class="reference external" href="https://github.com/picrust/picrust">Click here</a> to go to the PICRUSt GitHub repository.</p>
-<p><strong>Please note that PICRUSt2 is now available as a beta version.</strong> PICRUSt2 is a re-written version of PICRUSt and is available <a class="reference external" href="https://github.com/picrust/picrust2/wiki">here</a>. We are no longer developing PICRUSt1 and we recommend users shift to PICRUSt2.</p>
+<p><strong>Please note that PICRUSt2 is now available.</strong> PICRUSt2 is a re-written version of PICRUSt and is available <a class="reference external" href="https://github.com/picrust/picrust2/wiki">here</a>. We are no longer developing PICRUSt1 and we recommend users shift to PICRUSt2.</p>
 <div class="section" id="using-picrust">
 <h2>Using PICRUSt<a class="headerlink" href="#using-picrust" title="Permalink to this headline">¶</a></h2>
-<p>If you&#8217;re new to PICRUSt, you&#8217;ll want to work through these documents in order:</p>
+<p>If you’re new to PICRUSt, you’ll want to work through these documents in order:</p>
 <blockquote>
 <div><ol class="arabic">
-<li><p class="first"><a class="reference internal" href="install.html#install"><span>Installing PICRUSt</span></a></p>
+<li><p class="first"><a class="reference internal" href="install.html#install"><span class="std std-ref">Installing PICRUSt</span></a></p>
 <p><strong>OR</strong></p>
 <p>Use online Galaxy version on either the <a class="reference external" href="http://galaxy.morganlangille.com/">Langille Lab</a> (v1.1.1) or <a class="reference external" href="http://huttenhower.sph.harvard.edu/galaxy/root?tool_id=PICRUSt_normalize">Huttenhower Lab</a> (v1.0.0) servers.</p>
 </li>
-<li><p class="first"><a class="reference internal" href="tutorials/quickstart.html#quickstart-guide"><span>Quickstart Guide</span></a></p>
+<li><p class="first"><a class="reference internal" href="tutorials/quickstart.html#quickstart-guide"><span class="std std-ref">Quickstart Guide</span></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="tutorials/metagenome_prediction.html#metagenome-prediction-tutorial"><span>Metagenome Prediction Tutorial</span></a></p>
+<li><p class="first"><a class="reference internal" href="tutorials/metagenome_prediction.html#metagenome-prediction-tutorial"><span class="std std-ref">Metagenome Prediction Tutorial</span></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="tutorials/downstream_analysis.html#downstream-analysis-guide"><span>Analyzing PICRUSt predicted metagenomes</span></a></p>
+<li><p class="first"><a class="reference internal" href="tutorials/downstream_analysis.html#downstream-analysis-guide"><span class="std std-ref">Analyzing PICRUSt predicted metagenomes</span></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="tutorials/quality_control.html#quality-control"><span>Quality Control of PICRUSt Predictions</span></a></p>
+<li><p class="first"><a class="reference internal" href="tutorials/quality_control.html#quality-control"><span class="std std-ref">Quality Control of PICRUSt Predictions</span></a></p>
 </li>
 </ol>
 </div></blockquote>
 <dl class="docutils">
 <dt>More advanced users may be interested in the following (in no particular order):</dt>
 <dd><ul class="first last simple">
-<li><a class="reference internal" href="tutorials/algorithm_description.html#algorithm-description"><span>How PICRUSt Works</span></a></li>
-<li><a class="reference internal" href="tutorials/genome_prediction.html#genome-prediction-tutorial"><span>Genome Prediction Tutorial</span></a></li>
+<li><a class="reference internal" href="tutorials/algorithm_description.html#algorithm-description"><span class="std std-ref">How PICRUSt Works</span></a></li>
+<li><a class="reference internal" href="tutorials/genome_prediction.html#genome-prediction-tutorial"><span class="std std-ref">Genome Prediction Tutorial</span></a></li>
 <li><a class="reference external" href="https://github.com/picrust/picrust_galaxy">Installing PICRUSt in Galaxy</a></li>
-<li><a class="reference internal" href="scripts/index.html#index-scripts"><span>PICRUSt Script Index</span></a></li>
+<li><a class="reference internal" href="scripts/index.html#index-scripts"><span class="std std-ref">PICRUSt Script Index</span></a></li>
 </ul>
 </dd>
 </dl>
@@ -122,16 +112,16 @@
 <p><strong>Predictive functional profiling of microbial communities using 16S rRNA marker gene sequences.</strong> Langille, M. G.I.*; Zaneveld, J.*; Caporaso, J. G.; McDonald, D.; Knights, D.; a Reyes, J.; Clemente, J. C.; Burkepile, D. E.; Vega Thurber, R. L.; Knight, R.; Beiko, R. G.; and Huttenhower, C. <em>Nature Biotechnology</em>, 1-10. 8 2013.</p>
 <p>The manuscript describing PICRUSt can be found <a class="reference external" href="http://www.nature.com/nbt/journal/vaop/ncurrent/abs/nbt.2676.html">here</a></p>
 <ul class="simple">
-<li>Additional citation resources: <a class="reference internal" href="citing_picrust.html#citing-picrust"><span>here</span></a></li>
+<li>Additional citation resources: <a class="reference internal" href="citing_picrust.html#citing-picrust"><span class="std std-ref">here</span></a></li>
 </ul>
 </div>
 <div class="section" id="news-announcements">
 <h2>News &amp; Announcements<a class="headerlink" href="#news-announcements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>06-24-19: Official release of PICRUSt 1.1.4</li>
+<li>12-06-17: Official release of PICRUSt 1.1.3</li>
 <li>08-30-17: Official release of PICRUSt 1.1.2</li>
-<li>04-25-17: Official release of PICRUSt 1.1.1</li>
-<li>10-12-16: Official release of PICRUSt 1.1.0</li>
-<li>More <a class="reference internal" href="news.html#news"><span>News &amp; Announcements</span></a></li>
+<li>More <a class="reference internal" href="news.html#news"><span class="std std-ref">News &amp; Announcements</span></a></li>
 </ul>
 </div>
 </div>
@@ -148,12 +138,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">PICRUSt 1.1.3 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">PICRUSt 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2011-2013, The PICRUSt Project.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2011-2013, The PICRUSt Project.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
     </div>
   </body>
 </html>
