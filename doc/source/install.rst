@@ -14,7 +14,7 @@ The easiest way to install PICRUSt is from `bioconda`_, which requires `conda` t
 
 To do so you need to type these commands to install PICRUSt in a new environment named `picrust1`::
 
-        conda create -n picrust1 -c bioconda picrust
+        conda create -n picrust1 -c bioconda -c conda-forge picrust
         conda activate picrust1
 
 You will then need to download the required precalculated files with this command (see more details under Step 4 below)::
