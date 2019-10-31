@@ -108,7 +108,7 @@ def main():
 
         except ValueError:
             raise ValueError,\
-                  "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (value)
+                  "Invalid type passed as copy number for OTU ID %s. Must be int-able." % (x)
         if value < 1:
             raise ValueError, "Copy numbers must be greater than or equal to 1."
 
