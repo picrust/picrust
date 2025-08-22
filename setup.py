@@ -38,7 +38,7 @@ setup(name='PICRUSt',
                         'cogent == 1.5.3',
                         'h5py == 2.7.1',
                         'biom-format == 2.1.7',
-                        'future == 0.17.1'],
+                        'future == 1.0.0'],
       package_data={'picrust':
                     ['data/*gz',
                      'support_files/jar/Count.jar',
